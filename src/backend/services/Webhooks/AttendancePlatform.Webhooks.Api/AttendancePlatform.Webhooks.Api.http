@@ -1,0 +1,6 @@
+@AttendancePlatform.Webhooks.Api_HostAddress = http://localhost:5007
+
+GET {{AttendancePlatform.Webhooks.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,92 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Hudur Business Metrics",
+    "tags": ["hudur", "business"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Daily Check-ins",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "increase(attendance_checkins_total[24h])",
+            "legendFormat": "Check-ins Today"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Active Users",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "active_users_total",
+            "legendFormat": "Active Users"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Face Recognition Success Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(face_recognition_success_total[1h]) / rate(face_recognition_attempts_total[1h]) * 100",
+            "legendFormat": "Success Rate %"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Biometric Verification Time",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(biometric_verification_duration_seconds_bucket[5m]))",
+            "legendFormat": "95th Percentile (s)"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Check-in Trends",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(attendance_checkins_total[1h])",
+            "legendFormat": "Check-ins per hour"
+          },
+          {
+            "expr": "rate(attendance_checkouts_total[1h])",
+            "legendFormat": "Check-outs per hour"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "Authentication Methods",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by(method) (rate(authentication_attempts_total[1h]))",
+            "legendFormat": "{{method}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      }
+    ],
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "refresh": "1m"
+  }
+}

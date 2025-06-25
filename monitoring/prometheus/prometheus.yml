@@ -1,0 +1,95 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+# Alerting disabled - no alertmanager deployed
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'authentication-service'
+    static_configs:
+      - targets: ['authentication-service:80']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'attendance-service'
+    static_configs:
+      - targets: ['attendance-service:80']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'analytics-service'
+    static_configs:
+      - targets: ['analytics-service:80']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'face-recognition-service'
+    static_configs:
+      - targets: ['face-recognition-service:80']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'leave-management-service'
+    static_configs:
+      - targets: ['leave-management-service:80']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'business-intelligence-service'
+    static_configs:
+      - targets: ['business-intelligence-service:80']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'integrations-service'
+    static_configs:
+      - targets: ['integrations-service:80']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'collaboration-service'
+    static_configs:
+      - targets: ['collaboration-service:80']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'workflow-engine-service'
+    static_configs:
+      - targets: ['workflow-engine-service:80']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'frontend'
+    static_configs:
+      - targets: ['frontend:80']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+
+  - job_name: 'sql-server'
+    static_configs:
+      - targets: ['sql-server:1433']
+    scrape_interval: 30s
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']

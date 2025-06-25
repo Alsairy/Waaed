@@ -1,0 +1,99 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C897A282-F55C-497E-AEDB-75379A0C286D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backend", "backend", "{9768F73E-C3E1-4A9D-82B3-46EE6E97A491}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{05EF8C29-59C4-4BFA-A564-67C341326FB0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{6ED26C70-2D39-43DD-BDC4-CE4E87821DA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.Shared.Domain", "src\backend\shared\Domain\AttendancePlatform.Shared.Domain\AttendancePlatform.Shared.Domain.csproj", "{D012EA23-D6E4-448E-B3C7-2AD72FC5F7F4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{AC2B2EF7-644E-4091-91E8-FC673C8DF2D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.Shared.Infrastructure", "src\backend\shared\Infrastructure\AttendancePlatform.Shared.Infrastructure\AttendancePlatform.Shared.Infrastructure.csproj", "{B4C01163-F1E4-4925-BF0E-5DE1315DEE22}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gateways", "gateways", "{6FD0FDDC-BF76-47C6-AEFC-60889EC87F27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.ApiGateway", "src\backend\gateways\AttendancePlatform.ApiGateway\AttendancePlatform.ApiGateway.csproj", "{97AEFDC4-4B7E-471B-A337-92C702785E27}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{D82B09D1-20EF-4AED-884C-426528FDA902}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TenantManagement", "TenantManagement", "{13811780-1DC1-47B8-804C-223E8C91ED4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.TenantManagement.Api", "src\backend\services\TenantManagement\AttendancePlatform.TenantManagement.Api\AttendancePlatform.TenantManagement.Api.csproj", "{2F49072C-4A0B-4831-8FD0-DE1D3901C839}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authentication", "Authentication", "{C19A0C7F-A54B-4AF0-8E7E-65604777C8EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.Authentication.Api", "src\backend\services\Authentication\AttendancePlatform.Authentication.Api\AttendancePlatform.Authentication.Api.csproj", "{FD37BAB2-B106-4FFA-A5F7-48BA3E02E487}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UserManagement", "UserManagement", "{3536EBE7-6AAC-4530-8D81-2F031C8DE114}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.UserManagement.Api", "src\backend\services\UserManagement\AttendancePlatform.UserManagement.Api\AttendancePlatform.UserManagement.Api.csproj", "{313BF4A1-23E3-4F4D-859F-00220F4F94BC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Attendance", "Attendance", "{6301A92C-E8DD-4834-B82E-45B9E1E073F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.Attendance.Api", "src\backend\services\Attendance\AttendancePlatform.Attendance.Api\AttendancePlatform.Attendance.Api.csproj", "{F07A513F-63C4-47CA-AF63-175D005401C4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D012EA23-D6E4-448E-B3C7-2AD72FC5F7F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D012EA23-D6E4-448E-B3C7-2AD72FC5F7F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D012EA23-D6E4-448E-B3C7-2AD72FC5F7F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D012EA23-D6E4-448E-B3C7-2AD72FC5F7F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4C01163-F1E4-4925-BF0E-5DE1315DEE22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4C01163-F1E4-4925-BF0E-5DE1315DEE22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4C01163-F1E4-4925-BF0E-5DE1315DEE22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4C01163-F1E4-4925-BF0E-5DE1315DEE22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97AEFDC4-4B7E-471B-A337-92C702785E27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97AEFDC4-4B7E-471B-A337-92C702785E27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97AEFDC4-4B7E-471B-A337-92C702785E27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97AEFDC4-4B7E-471B-A337-92C702785E27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F49072C-4A0B-4831-8FD0-DE1D3901C839}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F49072C-4A0B-4831-8FD0-DE1D3901C839}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F49072C-4A0B-4831-8FD0-DE1D3901C839}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F49072C-4A0B-4831-8FD0-DE1D3901C839}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD37BAB2-B106-4FFA-A5F7-48BA3E02E487}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD37BAB2-B106-4FFA-A5F7-48BA3E02E487}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD37BAB2-B106-4FFA-A5F7-48BA3E02E487}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD37BAB2-B106-4FFA-A5F7-48BA3E02E487}.Release|Any CPU.Build.0 = Release|Any CPU
+		{313BF4A1-23E3-4F4D-859F-00220F4F94BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{313BF4A1-23E3-4F4D-859F-00220F4F94BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{313BF4A1-23E3-4F4D-859F-00220F4F94BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{313BF4A1-23E3-4F4D-859F-00220F4F94BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F07A513F-63C4-47CA-AF63-175D005401C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F07A513F-63C4-47CA-AF63-175D005401C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F07A513F-63C4-47CA-AF63-175D005401C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F07A513F-63C4-47CA-AF63-175D005401C4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9768F73E-C3E1-4A9D-82B3-46EE6E97A491} = {C897A282-F55C-497E-AEDB-75379A0C286D}
+		{05EF8C29-59C4-4BFA-A564-67C341326FB0} = {9768F73E-C3E1-4A9D-82B3-46EE6E97A491}
+		{6ED26C70-2D39-43DD-BDC4-CE4E87821DA2} = {05EF8C29-59C4-4BFA-A564-67C341326FB0}
+		{D012EA23-D6E4-448E-B3C7-2AD72FC5F7F4} = {6ED26C70-2D39-43DD-BDC4-CE4E87821DA2}
+		{AC2B2EF7-644E-4091-91E8-FC673C8DF2D9} = {05EF8C29-59C4-4BFA-A564-67C341326FB0}
+		{B4C01163-F1E4-4925-BF0E-5DE1315DEE22} = {AC2B2EF7-644E-4091-91E8-FC673C8DF2D9}
+		{6FD0FDDC-BF76-47C6-AEFC-60889EC87F27} = {9768F73E-C3E1-4A9D-82B3-46EE6E97A491}
+		{97AEFDC4-4B7E-471B-A337-92C702785E27} = {6FD0FDDC-BF76-47C6-AEFC-60889EC87F27}
+		{D82B09D1-20EF-4AED-884C-426528FDA902} = {9768F73E-C3E1-4A9D-82B3-46EE6E97A491}
+		{13811780-1DC1-47B8-804C-223E8C91ED4A} = {D82B09D1-20EF-4AED-884C-426528FDA902}
+		{2F49072C-4A0B-4831-8FD0-DE1D3901C839} = {13811780-1DC1-47B8-804C-223E8C91ED4A}
+		{C19A0C7F-A54B-4AF0-8E7E-65604777C8EA} = {D82B09D1-20EF-4AED-884C-426528FDA902}
+		{FD37BAB2-B106-4FFA-A5F7-48BA3E02E487} = {C19A0C7F-A54B-4AF0-8E7E-65604777C8EA}
+		{3536EBE7-6AAC-4530-8D81-2F031C8DE114} = {D82B09D1-20EF-4AED-884C-426528FDA902}
+		{313BF4A1-23E3-4F4D-859F-00220F4F94BC} = {3536EBE7-6AAC-4530-8D81-2F031C8DE114}
+		{6301A92C-E8DD-4834-B82E-45B9E1E073F9} = {D82B09D1-20EF-4AED-884C-426528FDA902}
+		{F07A513F-63C4-47CA-AF63-175D005401C4} = {6301A92C-E8DD-4834-B82E-45B9E1E073F9}
+	EndGlobalSection
+EndGlobal

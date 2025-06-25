@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hudur
+  labels:
+    name: hudur
+    app.kubernetes.io/name: hudur
+    app.kubernetes.io/version: "1.0.0"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hudur-config
+  namespace: hudur
+data:
+  # Database configuration
+  ConnectionStrings__DefaultConnection: "Server=sql-server-service;Database=Hudur;User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=true"
+  
+  # JWT configuration
+  Jwt__Key: "$(JWT_SECRET_KEY)"
+  Jwt__Issuer: "Hudur"
+  Jwt__Audience: "HudurUsers"
+  Jwt__ExpiryMinutes: "60"
+  
+  # Redis configuration
+  Redis__ConnectionString: "redis-service:6379"
+  
+  # Logging configuration
+  Logging__LogLevel__Default: "Information"
+  Logging__LogLevel__Microsoft.AspNetCore: "Warning"
+  
+  # CORS configuration
+  AllowedHosts: "*"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hudur-secrets
+  namespace: hudur
+type: Opaque
+data:
+  # Base64 encoded secrets
+  database-password: $(echo -n "${DB_PASSWORD}" | base64)
+  jwt-key: $(echo -n "${JWT_SECRET_KEY}" | base64)
+  email-password: ""
+  sms-auth-token: ""
+  firebase-server-key: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sql-server-pvc
+  namespace: hudur
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: hudur
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+
