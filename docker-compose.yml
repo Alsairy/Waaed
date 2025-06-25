@@ -1,0 +1,150 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: attendance-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=AttendanceP@ssw0rd123
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - attendance-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: attendance-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - attendance-network
+
+  # RabbitMQ Message Queue
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: attendance-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=${ADMIN_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - attendance-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/backend/gateways/Dockerfile
+    container_name: attendance-api-gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true
+      - Redis__ConnectionString=redis:6379
+      - RabbitMQ__ConnectionString=amqp://admin:${ADMIN_PASSWORD}@rabbitmq:5672
+    ports:
+      - "5000:8080"
+    depends_on:
+      - sqlserver
+      - redis
+      - rabbitmq
+    networks:
+      - attendance-network
+
+  # Authentication Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/Authentication/Dockerfile
+    container_name: attendance-auth-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true
+      - Redis__ConnectionString=redis:6379
+      - JWT__SecretKey=${JWT_SECRET_KEY}
+      - Security__EncryptionKey=${ENCRYPTION_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    ports:
+      - "5001:8080"
+    depends_on:
+      - sqlserver
+      - redis
+    networks:
+      - attendance-network
+
+  # Tenant Management Service
+  tenant-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/TenantManagement/Dockerfile
+    container_name: attendance-tenant-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true
+      - Redis__ConnectionString=redis:6379
+    ports:
+      - "5002:8080"
+    depends_on:
+      - sqlserver
+      - redis
+    networks:
+      - attendance-network
+
+  # User Management Service
+  user-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/UserManagement/Dockerfile
+    container_name: attendance-user-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true
+      - Redis__ConnectionString=redis:6379
+    ports:
+      - "5003:8080"
+    depends_on:
+      - sqlserver
+      - redis
+    networks:
+      - attendance-network
+
+  # Attendance Service
+  attendance-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/Attendance/Dockerfile
+    container_name: attendance-attendance-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true
+      - Redis__ConnectionString=redis:6379
+      - Security__EncryptionKey=${ENCRYPTION_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    ports:
+      - "5004:8080"
+    depends_on:
+      - sqlserver
+      - redis
+    networks:
+      - attendance-network
+
+volumes:
+  sqlserver_data:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  attendance-network:
+    driver: bridge
+

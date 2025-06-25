@@ -1,0 +1,449 @@
+services:
+  # Database
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${DB_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -C -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - hudur-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: src/backend/gateways/Dockerfile
+    ports:
+      - "5000:80"
+    env_file:
+      - .env.production
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION_STRING}
+    depends_on:
+      - sql-server
+      - redis
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Authentication Service
+  authentication-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/Authentication/Dockerfile
+    ports:
+      - "5001:80"
+    env_file:
+      - .env.production
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION_STRING}
+    depends_on:
+      - sql-server
+      - redis
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Attendance Service
+  attendance-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/Attendance/Dockerfile
+    ports:
+      - "5002:80"
+    env_file:
+      - .env.production
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION_STRING}
+    depends_on:
+      - sql-server
+      - redis
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Face Recognition Service
+  face-recognition-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/FaceRecognition/Dockerfile
+    ports:
+      - "5003:80"
+    env_file:
+      - .env.production
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION_STRING}
+    depends_on:
+      - sql-server
+      - redis
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Leave Management Service
+  leave-management-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/LeaveManagement/Dockerfile
+    ports:
+      - "5004:80"
+    env_file:
+      - .env.production
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION_STRING}
+    depends_on:
+      - sql-server
+      - redis
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Analytics Service - TEMPORARILY DISABLED DUE TO COMPILATION ERRORS
+  # analytics-service:
+  #   build:
+  #     context: .
+  #     dockerfile: src/backend/services/Analytics/Dockerfile
+  #   ports:
+  #     - "5005:80"
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=http://+:80
+  #     - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+  #   depends_on:
+  #     - sql-server
+  #     - redis
+  #   networks:
+  #     - hudur-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
+  # Notifications Service - TEMPORARILY DISABLED DUE TO COMPILATION ERRORS
+  # notifications-service:
+  #   build:
+  #     context: .
+  #     dockerfile: src/backend/services/Notifications/Dockerfile
+  #   ports:
+  #     - "5007:80"
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=http://+:80
+  #     - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+  #   depends_on:
+  #     - sql-server
+  #     - redis
+  #   networks:
+  #     - hudur-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
+  # Webhooks Service - TEMPORARILY DISABLED DUE TO COMPILATION ERRORS
+  # webhooks-service:
+  #   build:
+  #     context: .
+  #     dockerfile: src/backend/services/Webhooks/Dockerfile
+  #   ports:
+  #     - "5008:80"
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=http://+:80
+  #     - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+  #   depends_on:
+  #     - sql-server
+  #     - redis
+  #   networks:
+  #     - hudur-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
+  # Integrations Service - TEMPORARILY DISABLED DUE TO COMPILATION ERRORS
+  # integrations-service:
+  #   build:
+  #     context: .
+  #     dockerfile: src/backend/services/Integrations/Dockerfile
+  #   ports:
+  #     - "5009:80"
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=http://+:80
+  #     - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+  #   depends_on:
+  #     - sql-server
+  #     - redis
+  #   networks:
+  #     - hudur-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
+  # Collaboration Service - TEMPORARILY DISABLED DUE TO COMPILATION ERRORS
+  # collaboration-service:
+  #   build:
+  #     context: .
+  #     dockerfile: src/backend/services/Collaboration/Dockerfile
+  #   ports:
+  #     - "5010:80"
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=http://+:80
+  #     - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+  #   depends_on:
+  #     - sql-server
+  #     - redis
+  #   networks:
+  #     - hudur-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
+  # Workflow Engine Service
+  workflow-engine:
+    build:
+      context: .
+      dockerfile: src/backend/services/WorkflowEngine/Dockerfile
+    ports:
+      - "5010:80"
+    env_file:
+      - .env.production
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION_STRING}
+    depends_on:
+      - sql-server
+      - redis
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Voice Recognition Service
+  voice-recognition-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/VoiceRecognition/Dockerfile
+    ports:
+      - "5013:80"
+    env_file:
+      - .env.production
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION_STRING}
+    depends_on:
+      - sql-server
+      - redis
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Compliance Service
+  compliance-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/Compliance/Dockerfile
+    ports:
+      - "5014:80"
+    env_file:
+      - .env.production
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION_STRING}
+    depends_on:
+      - sql-server
+      - redis
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Business Intelligence Service
+  business-intelligence-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/BusinessIntelligence/Dockerfile
+    ports:
+      - "5006:80"
+    env_file:
+      - .env.production
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=${DB_SERVER};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION_STRING}
+    depends_on:
+      - sql-server
+      - redis
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend
+  frontend:
+    build:
+      context: src/frontend/hudur-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - hudur-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    networks:
+      - hudur-network
+
+  # Monitoring - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - hudur-network
+
+volumes:
+  sql_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  hudur-network:
+    driver: bridge
+
