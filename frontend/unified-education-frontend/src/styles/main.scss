@@ -1,0 +1,19 @@
+/****** Theme Integration - Adapted from Education Management Theme ******/
+
+/****** Utils ******/
+@import "utils/variables";
+@import "utils/mixins";
+
+/******* Base *******/
+@import "base/base";
+
+/****** Layout ******/
+@import "layout/header";
+@import "layout/sidebar";
+@import "layout/content";
+
+/******* Components ******/
+@import "components/cards";
+
+/******* Vendors ******/
+// Vendor overrides will be added as needed
