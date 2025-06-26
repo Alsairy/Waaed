@@ -123,7 +123,21 @@ const resources = {
       'erp.noEmployeesYet': 'No employees have been added yet',
       'erp.addFirstEmployee': 'Add First Employee',
       'erp.departmentBreakdown': 'Department Breakdown',
-      'erp.employeesCount': 'employees'
+      'erp.employeesCount': 'employees',
+      'theme.switchLanguage': 'Switch Language',
+      'theme.darkMode': 'Dark Mode',
+      'theme.lightMode': 'Light Mode',
+      'theme.loading': 'Loading...',
+      'theme.noData': 'No data available',
+      'theme.refresh': 'Refresh',
+      'theme.close': 'Close',
+      'theme.save': 'Save',
+      'theme.cancel': 'Cancel',
+      'theme.confirm': 'Confirm',
+      'theme.success': 'Success',
+      'theme.warning': 'Warning',
+      'theme.error': 'Error',
+      'theme.info': 'Information'
     }
   },
   ar: {
@@ -247,7 +261,21 @@ const resources = {
       'erp.noEmployeesYet': 'لم يتم إضافة أي موظفين بعد',
       'erp.addFirstEmployee': 'إضافة أول موظف',
       'erp.departmentBreakdown': 'تفصيل الأقسام',
-      'erp.employeesCount': 'موظفين'
+      'erp.employeesCount': 'موظفين',
+      'theme.switchLanguage': 'تبديل اللغة',
+      'theme.darkMode': 'الوضع المظلم',
+      'theme.lightMode': 'الوضع المضيء',
+      'theme.loading': 'جاري التحميل...',
+      'theme.noData': 'لا توجد بيانات متاحة',
+      'theme.refresh': 'تحديث',
+      'theme.close': 'إغلاق',
+      'theme.save': 'حفظ',
+      'theme.cancel': 'إلغاء',
+      'theme.confirm': 'تأكيد',
+      'theme.success': 'نجح',
+      'theme.warning': 'تحذير',
+      'theme.error': 'خطأ',
+      'theme.info': 'معلومات'
     }
   }
 };

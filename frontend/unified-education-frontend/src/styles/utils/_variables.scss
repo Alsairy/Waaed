@@ -1,26 +1,84 @@
 // Theme Variables - Adapted from Education Management Theme
+
+// Sass Variables for Theme Components
 // Colors
+$primary: #2563eb;
+$secondary: #64748b;
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+$info: #3b82f6;
+
+// Grays
+$white: #ffffff;
+$gray-50: #f8fafc;
+$gray-100: #f1f5f9;
+$gray-200: #e2e8f0;
+$gray-300: #cbd5e1;
+$gray-400: #94a3b8;
+$gray-500: #64748b;
+$gray-600: #475569;
+$gray-700: #334155;
+$gray-800: #1e293b;
+$gray-900: #0f172a;
+$black: #000000;
+
+// Background Colors
+$body-bg: $white;
+$form-control-bg: $white;
+
+// Text Colors
+$text-primary: $gray-900;
+$text-secondary: $gray-600;
+$text-muted: $gray-500;
+
+// Border Colors
+$input-border: $gray-300;
+$border-color: $gray-200;
+
+// Typography
+$font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-size-12: 0.75rem;
+$font-size-14: 0.875rem;
+$font-size-16: 1rem;
+$font-size-18: 1.125rem;
+$font-size-20: 1.25rem;
+$font-size-24: 1.5rem;
+$font-size-30: 1.875rem;
+
+// Font Weights
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Layout
+$sidebar-width: 280px;
+$header-height: 64px;
+$content-max-width: 1200px;
+
+// CSS Custom Properties for Dynamic Values
 :root {
-  --primary-color: #2563eb;
-  --secondary-color: #64748b;
-  --success-color: #10b981;
-  --warning-color: #f59e0b;
-  --error-color: #ef4444;
-  --info-color: #3b82f6;
+  --primary-color: #{$primary};
+  --secondary-color: #{$secondary};
+  --success-color: #{$success};
+  --warning-color: #{$warning};
+  --error-color: #{$danger};
+  --info-color: #{$info};
   
   // Background Colors
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
+  --bg-primary: #{$white};
+  --bg-secondary: #{$gray-50};
+  --bg-tertiary: #{$gray-100};
   
   // Text Colors
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
+  --text-primary: #{$text-primary};
+  --text-secondary: #{$text-secondary};
+  --text-muted: #{$text-muted};
   
   // Border Colors
-  --border-color: #e2e8f0;
-  --border-light: #f1f5f9;
+  --border-color: #{$border-color};
+  --border-light: #{$gray-100};
   
   // Shadow
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -41,19 +99,19 @@
   --radius-xl: 0.75rem;
   
   // Typography
-  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
+  --font-family-sans: #{$font-family-sans};
+  --font-size-xs: #{$font-size-12};
+  --font-size-sm: #{$font-size-14};
+  --font-size-base: #{$font-size-16};
+  --font-size-lg: #{$font-size-18};
+  --font-size-xl: #{$font-size-20};
+  --font-size-2xl: #{$font-size-24};
+  --font-size-3xl: #{$font-size-30};
   
   // Layout
-  --sidebar-width: 280px;
-  --header-height: 64px;
-  --content-max-width: 1200px;
+  --sidebar-width: #{$sidebar-width};
+  --header-height: #{$header-height};
+  --content-max-width: #{$content-max-width};
 }
 
 // Dark mode variables

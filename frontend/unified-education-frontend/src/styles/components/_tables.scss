@@ -1,0 +1,141 @@
+@mixin tablecolor($color-bg) {
+  background-color: $white;
+  color: $black;
+  --bs-table-color-state: $black;
+  border-color: var(--bs-table-border-color);
+  --bs-table-bg: rgba(#{$color-bg}, 0.1);
+  --bs-table-border-color: rgba(#{$color-bg}, 0.05);
+  --bs-table-striped-bg: rgba(#{$color-bg}, 0.2);
+  --bs-table-active-bg: rgba(#{$color-bg}, 0.2);
+  --bs-table-hover-bg: rgba(#{$color-bg}, 0.2);
+  &.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: var(--bs-table-accent-bg);
+    --bs-table-accent-bg: rgba(#{$color-bg}, 0.2);
+    color: $black;
+  }
+  &.table.table-hover > tbody > tr:hover > * {
+    background-color: var(--bs-table-accent-bg);
+    --bs-table-accent-bg: rgba(#{$color-bg}, 0.4);
+    color: $white;
+  }
+  .table-active {
+    background-color: var(--bs-table-accent-bg);
+    --bs-table-accent-bg: rgb(#{$color-bg});
+    color: $white;
+  }
+}
+
+.table-container {
+  background: $white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  
+  thead {
+    background: $gray-50;
+    
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: $font-weight-semibold;
+      color: $gray-700;
+      border-bottom: 1px solid $gray-200;
+      font-size: 0.875rem;
+    }
+  }
+  
+  tbody {
+    tr {
+      border-bottom: 1px solid $gray-100;
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background: $gray-50;
+      }
+      
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+    
+    td {
+      padding: 1rem;
+      color: $gray-900;
+      font-size: 0.875rem;
+      vertical-align: middle;
+    }
+  }
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: $primary;
+    color: $white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: $font-weight-semibold;
+    font-size: 0.875rem;
+  }
+  
+  .user-details {
+    .user-name {
+      font-weight: $font-weight-medium;
+      color: $gray-900;
+      margin-bottom: 2px;
+    }
+    
+    .user-meta {
+      font-size: 0.75rem;
+      color: $gray-500;
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.table-top-data {
+  padding: 1rem;
+  background: $white;
+  border-bottom: 1px solid $gray-200;
+  
+  .serch-global {
+    .form-control {
+      max-width: 250px;
+    }
+  }
+}
+
+.ant-table {
+  .ant-table-thead > tr > th {
+    background: $gray-50;
+    border-bottom: 1px solid $gray-200;
+    font-weight: $font-weight-semibold;
+    color: $gray-700;
+  }
+  
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid $gray-100;
+  }
+  
+  .ant-table-tbody > tr:hover > td {
+    background: $gray-50;
+  }
+}
