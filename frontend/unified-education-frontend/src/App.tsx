@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -15,6 +15,8 @@ import AnalyticsManagement from './components/analytics/AnalyticsManagement';
 import AdminManagement from './components/admin/AdminManagement';
 import AIManagement from './components/ai/AIManagement';
 import WorkflowManagement from './components/bpm/WorkflowManagement';
+import Layout from './components/layout/Layout';
+import './styles/main.scss';
 
 function Dashboard() {
   const { t } = useTranslation();
@@ -70,153 +72,149 @@ function Dashboard() {
 
   const currentDate = new Date();
 
+  const moduleCards = [
+    { key: 'sis', icon: '🎓', color: 'primary', bgColor: 'bg-blue-50', textColor: 'text-blue-600' },
+    { key: 'lms', icon: '📚', color: 'success', bgColor: 'bg-green-50', textColor: 'text-green-600' },
+    { key: 'erp', icon: '💼', color: 'secondary', bgColor: 'bg-purple-50', textColor: 'text-purple-600' },
+    { key: 'exams', icon: '📝', color: 'warning', bgColor: 'bg-orange-50', textColor: 'text-orange-600' },
+    { key: 'analytics', icon: '📊', color: 'info', bgColor: 'bg-indigo-50', textColor: 'text-indigo-600' },
+    { key: 'admin', icon: '⚙️', color: 'secondary', bgColor: 'bg-gray-50', textColor: 'text-gray-600' },
+    { key: 'ai', icon: '🤖', color: 'primary', bgColor: 'bg-pink-50', textColor: 'text-pink-600' },
+    { key: 'bpm', icon: '🔄', color: 'warning', bgColor: 'bg-yellow-50', textColor: 'text-yellow-600' },
+  ];
+
+  const statCards = [
+    {
+      key: 'totalStudents',
+      icon: '🎓',
+      value: dashboardData.totalStudents,
+      label: t('dashboard.totalStudents'),
+      color: 'primary',
+      change: '+12%'
+    },
+    {
+      key: 'activeCourses',
+      icon: '📚',
+      value: dashboardData.activeCourses,
+      label: t('dashboard.activeCourses'),
+      color: 'success',
+      change: '+8%'
+    },
+    {
+      key: 'totalEmployees',
+      icon: '💼',
+      value: dashboardData.totalEmployees,
+      label: t('dashboard.totalEmployees'),
+      color: 'secondary',
+      change: '+3%'
+    },
+    {
+      key: 'attendanceRate',
+      icon: '📊',
+      value: `${dashboardData.attendanceRate}%`,
+      label: t('dashboard.attendanceRate'),
+      color: 'warning',
+      change: '+2%'
+    }
+  ];
+
   return (
-    <div className={`min-h-screen bg-gray-50 ${isRTL ? 'rtl' : 'ltr'}`}>
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary-600">
-                {t('auth.welcome')}
-              </h1>
+    <div className="content-area">
+      <div className="page-header">
+        <h1 className="page-title">{t('common.dashboard')}</h1>
+        <p className="page-subtitle">{t('auth.welcome')}</p>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="content-section">
+        <div className="section-header">
+          <h2 className="section-title">{t('dashboard.overview')}</h2>
+        </div>
+        <div className="card-grid grid-4">
+          {statCards.map((stat) => (
+            <div key={stat.key} className={`stat-card`}>
+              <div className={`stat-icon stat-icon-${stat.color}`}>
+                {stat.icon}
+              </div>
+              <div className="stat-value">
+                {loading ? t('common.loading') : typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
+              </div>
+              <div className="stat-label">{stat.label}</div>
+              <div className="stat-change positive">{stat.change}</div>
             </div>
-            <div className="flex items-center space-x-4">
-              <LanguageSwitcher />
+          ))}
+        </div>
+      </div>
+
+      {/* Module Navigation Cards */}
+      <div className="content-section">
+        <div className="section-header">
+          <h2 className="section-title">{t('navigation.modules')}</h2>
+          <p className="text-sm text-gray-600">{t('navigation.selectModule')}</p>
+        </div>
+        <div className="card-grid grid-4">
+          {moduleCards.map((module) => (
+            <div
+              key={module.key}
+              onClick={() => navigateToModule(module.key)}
+              className="card card-hover cursor-pointer"
+            >
+              <div className="card-body text-center">
+                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${module.bgColor} mb-4`}>
+                  <span className="text-2xl">{module.icon}</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {t(`navigation.${module.key}`)}
+                </h3>
+                <div className={`text-sm ${module.textColor} font-medium`}>
+                  {loading ? (
+                    t('common.loading')
+                  ) : (
+                    <div>
+                      {module.key === 'sis' && `${dashboardData.totalStudents} ${t('sis.students')}`}
+                      {module.key === 'lms' && `${dashboardData.activeCourses} ${t('lms.courses')}`}
+                      {module.key === 'erp' && `${dashboardData.totalEmployees} ${t('erp.employees')}`}
+                      {!['sis', 'lms', 'erp'].includes(module.key) && t('common.clickToView')}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* System Information */}
+      {!loading && (
+        <div className="content-section">
+          <div className="section-header">
+            <h2 className="section-title">{t('dashboard.systemInfo')}</h2>
+          </div>
+          <div className="card-grid grid-3">
+            <div className="card">
+              <div className="card-body text-center">
+                <div className="text-2xl mb-3">📅</div>
+                <h4 className="font-semibold text-gray-900 mb-1">{t('common.currentDate')}</h4>
+                <p className="text-gray-600">{formatDate(currentDate, language)}</p>
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-body text-center">
+                <div className="text-2xl mb-3">🕒</div>
+                <h4 className="font-semibold text-gray-900 mb-1">{t('common.currentTime')}</h4>
+                <p className="text-gray-600">{formatTime(currentDate, language)}</p>
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-body text-center">
+                <div className="text-2xl mb-3">✅</div>
+                <h4 className="font-semibold text-gray-900 mb-1">{t('common.systemStatus')}</h4>
+                <p className="text-green-600 font-medium">{t('common.operational')}</p>
+              </div>
             </div>
           </div>
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {[
-              { key: 'sis', icon: '🎓', color: 'blue' },
-              { key: 'lms', icon: '📚', color: 'green' },
-              { key: 'erp', icon: '💼', color: 'purple' },
-              { key: 'exams', icon: '📝', color: 'orange' },
-              { key: 'analytics', icon: '📊', color: 'indigo' },
-              { key: 'admin', icon: '⚙️', color: 'gray' },
-              { key: 'ai', icon: '🤖', color: 'pink' },
-              { key: 'bpm', icon: '🔄', color: 'yellow' },
-            ].map((module) => (
-              <div
-                key={module.key}
-                onClick={() => navigateToModule(module.key)}
-                className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow cursor-pointer"
-              >
-                <div className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="text-3xl mb-2">{module.icon}</div>
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    {t(`navigation.${module.key}`)}
-                  </h3>
-                  <div className="text-sm text-gray-500">
-                    {loading ? (
-                      t('common.loading')
-                    ) : (
-                      <div>
-                        {module.key === 'sis' && (
-                          <span className="text-blue-600 font-semibold">
-                            {dashboardData.totalStudents} {t('sis.students')}
-                          </span>
-                        )}
-                        {module.key === 'lms' && (
-                          <span className="text-green-600 font-semibold">
-                            {dashboardData.activeCourses} {t('lms.courses')}
-                          </span>
-                        )}
-                        {module.key === 'erp' && (
-                          <span className="text-purple-600 font-semibold">
-                            {dashboardData.totalEmployees} {t('erp.employees')}
-                          </span>
-                        )}
-                        {!['sis', 'lms', 'erp'].includes(module.key) && (
-                          <span className={`text-${module.color}-600 font-semibold`}>
-                            {t('common.clickToView')}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-
-
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">
-              {t('common.dashboard')}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-600 mb-1">
-                  {t('dashboard.totalStudents')}
-                </p>
-                <p className="text-2xl font-bold text-blue-800">
-                  {loading ? t('common.loading') : dashboardData.totalStudents.toLocaleString()}
-                </p>
-              </div>
-              <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-600 mb-1">
-                  {t('dashboard.activeCourses')}
-                </p>
-                <p className="text-2xl font-bold text-green-800">
-                  {loading ? t('common.loading') : dashboardData.activeCourses.toLocaleString()}
-                </p>
-              </div>
-              <div className="text-center p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <p className="text-sm text-purple-600 mb-1">
-                  {t('dashboard.totalEmployees')}
-                </p>
-                <p className="text-2xl font-bold text-purple-800">
-                  {loading ? t('common.loading') : dashboardData.totalEmployees.toLocaleString()}
-                </p>
-              </div>
-              <div className="text-center p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <p className="text-sm text-orange-600 mb-1">
-                  {t('dashboard.attendanceRate')}
-                </p>
-                <p className="text-2xl font-bold text-orange-800">
-                  {loading ? t('common.loading') : `${dashboardData.attendanceRate}%`}
-                </p>
-              </div>
-            </div>
-            
-            {!loading && (
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-1">
-                    {t('common.currentDate')}
-                  </p>
-                  <p className="text-lg font-semibold">
-                    {formatDate(currentDate, language)}
-                  </p>
-                </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-1">
-                    {t('common.currentTime')}
-                  </p>
-                  <p className="text-lg font-semibold">
-                    {formatTime(currentDate, language)}
-                  </p>
-                </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-1">
-                    {t('common.systemStatus')}
-                  </p>
-                  <p className="text-lg font-semibold text-green-600">
-                    {t('common.operational')}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
+      )}
     </div>
   );
 }
@@ -232,7 +230,7 @@ function App() {
 
   return (
     <Router>
-      <div className={`min-h-screen bg-gray-50 ${isRTL ? 'rtl' : 'ltr'}`}>
+      <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/sis" element={<StudentManagement />} />
@@ -244,7 +242,7 @@ function App() {
           <Route path="/ai" element={<AIManagement />} />
           <Route path="/bpm" element={<WorkflowManagement />} />
         </Routes>
-      </div>
+      </Layout>
     </Router>
   );
 }

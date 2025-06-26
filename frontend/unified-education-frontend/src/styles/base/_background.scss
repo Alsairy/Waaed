@@ -1,0 +1,201 @@
+// Background styles - Adapted from Education Management Theme
+.app-layout {
+  background: var(--bg-secondary);
+  min-height: 100vh;
+}
+
+// Background patterns and textures
+.bg-pattern {
+  &.dots {
+    background-image: radial-gradient(circle, var(--border-light) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  &.grid {
+    background-image: 
+      linear-gradient(var(--border-light) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  &.diagonal {
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      var(--border-light) 10px,
+      var(--border-light) 11px
+    );
+  }
+}
+
+// Gradient backgrounds
+.bg-gradient {
+  &.primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, color-mix(in srgb, var(--primary-color) 80%, black) 100%);
+  }
+  
+  &.secondary {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, color-mix(in srgb, var(--secondary-color) 80%, black) 100%);
+  }
+  
+  &.success {
+    background: linear-gradient(135deg, var(--success-color) 0%, color-mix(in srgb, var(--success-color) 80%, black) 100%);
+  }
+  
+  &.warning {
+    background: linear-gradient(135deg, var(--warning-color) 0%, color-mix(in srgb, var(--warning-color) 80%, black) 100%);
+  }
+  
+  &.error {
+    background: linear-gradient(135deg, var(--error-color) 0%, color-mix(in srgb, var(--error-color) 80%, black) 100%);
+  }
+  
+  &.subtle {
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  }
+}
+
+// Background overlays
+.bg-overlay {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+  }
+  
+  > * {
+    position: relative;
+    z-index: 2;
+  }
+  
+  &.light::before {
+    background: rgba(255, 255, 255, 0.8);
+  }
+  
+  &.dark::before {
+    background: rgba(0, 0, 0, 0.8);
+  }
+  
+  &.primary::before {
+    background: color-mix(in srgb, var(--primary-color) 80%, transparent);
+  }
+}
+
+// Background utilities
+.bg-blur {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.bg-frosted {
+  background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+}
+
+// Hero section backgrounds
+.hero-bg {
+  background: linear-gradient(135deg, var(--primary-color) 0%, color-mix(in srgb, var(--primary-color) 70%, var(--secondary-color)) 100%);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle at 20% 80%, color-mix(in srgb, var(--primary-color) 30%, transparent) 0%, transparent 50%),
+                      radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--secondary-color) 30%, transparent) 0%, transparent 50%);
+    z-index: 1;
+  }
+  
+  > * {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+// Dashboard background
+.dashboard-bg {
+  background: var(--bg-secondary);
+  min-height: 100vh;
+  
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle at 10% 20%, color-mix(in srgb, var(--primary-color) 5%, transparent) 0%, transparent 50%),
+                      radial-gradient(circle at 90% 80%, color-mix(in srgb, var(--success-color) 5%, transparent) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Animation backgrounds
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.bg-animated {
+  &.float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  &.pulse {
+    animation: pulse 4s ease-in-out infinite;
+  }
+}
+
+// Dark mode background adjustments
+[data-theme="dark"] {
+  .bg-pattern {
+    &.dots {
+      background-image: radial-gradient(circle, var(--border-color) 1px, transparent 1px);
+    }
+    
+    &.grid {
+      background-image: 
+        linear-gradient(var(--border-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+    }
+    
+    &.diagonal {
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        var(--border-color) 10px,
+        var(--border-color) 11px
+      );
+    }
+  }
+  
+  .hero-bg {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 80%, black) 0%, color-mix(in srgb, var(--primary-color) 60%, black) 100%);
+  }
+}

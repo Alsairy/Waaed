@@ -1,0 +1,103 @@
+.chart-container {
+  background: $white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  .chart-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    .chart-title {
+      font-size: 1.125rem;
+      font-weight: $font-weight-semibold;
+      color: $gray-900;
+    }
+    
+    .chart-actions {
+      display: flex;
+      gap: 8px;
+    }
+  }
+  
+  .chart-content {
+    position: relative;
+    min-height: 300px;
+  }
+}
+
+.apexcharts-canvas {
+  font-family: inherit !important;
+}
+
+.apexcharts-legend {
+  font-family: inherit !important;
+}
+
+.apexcharts-tooltip {
+  background: $white !important;
+  border: 1px solid $gray-200 !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  
+  .apexcharts-tooltip-title {
+    background: $gray-50 !important;
+    border-bottom: 1px solid $gray-200 !important;
+    color: $gray-900 !important;
+    font-weight: $font-weight-semibold !important;
+  }
+}
+
+#sales_charts,
+.chart-set {
+    overflow: hidden;
+}
+
+.chart-widget {
+  .widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    .widget-title {
+      font-size: 1rem;
+      font-weight: $font-weight-semibold;
+      color: $gray-900;
+    }
+    
+    .widget-value {
+      font-size: 1.5rem;
+      font-weight: $font-weight-bold;
+      color: $primary;
+    }
+  }
+  
+  .widget-chart {
+    height: 200px;
+  }
+  
+  .widget-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid $gray-100;
+    
+    .widget-change {
+      font-size: 0.875rem;
+      font-weight: $font-weight-medium;
+      
+      &.positive {
+        color: $success;
+      }
+      
+      &.negative {
+        color: $danger;
+      }
+    }
+  }
+}

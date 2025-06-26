@@ -1,0 +1,334 @@
+// Card Components - Adapted from Education Management Theme
+.card {
+  @include card;
+  
+  &.card-hover {
+    transition: all 0.2s ease-in-out;
+    
+    &:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.card-bordered {
+    border: 2px solid var(--border-color);
+  }
+  
+  &.card-primary {
+    border-left: 4px solid var(--primary-color);
+  }
+  
+  &.card-success {
+    border-left: 4px solid var(--success-color);
+  }
+  
+  &.card-warning {
+    border-left: 4px solid var(--warning-color);
+  }
+  
+  &.card-error {
+    border-left: 4px solid var(--error-color);
+  }
+}
+
+.card-header {
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  @include flex-between;
+  
+  .card-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  
+  .card-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin: var(--spacing-xs) 0 0 0;
+  }
+  
+  .card-actions {
+    @include flex-start;
+    gap: var(--spacing-sm);
+    
+    .card-action {
+      @include button-base;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      
+      &:hover {
+        background: var(--bg-secondary);
+      }
+    }
+  }
+}
+
+.card-body {
+  padding: var(--spacing-lg);
+  
+  &.card-body-sm {
+    padding: var(--spacing-md);
+  }
+  
+  &.card-body-lg {
+    padding: var(--spacing-xl);
+  }
+  
+  &.no-padding {
+    padding: 0;
+  }
+}
+
+.card-footer {
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  @include flex-between;
+  
+  .card-footer-actions {
+    @include flex-start;
+    gap: var(--spacing-sm);
+  }
+}
+
+// Stat Cards
+.stat-card {
+  @include card;
+  text-align: center;
+  
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto var(--spacing-md);
+    border-radius: 50%;
+    @include flex-center;
+    font-size: var(--font-size-xl);
+    
+    &.stat-icon-primary {
+      background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+      color: var(--primary-color);
+    }
+    
+    &.stat-icon-success {
+      background: color-mix(in srgb, var(--success-color) 10%, transparent);
+      color: var(--success-color);
+    }
+    
+    &.stat-icon-warning {
+      background: color-mix(in srgb, var(--warning-color) 10%, transparent);
+      color: var(--warning-color);
+    }
+    
+    &.stat-icon-error {
+      background: color-mix(in srgb, var(--error-color) 10%, transparent);
+      color: var(--error-color);
+    }
+  }
+  
+  .stat-value {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .stat-change {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    
+    &.positive {
+      color: var(--success-color);
+    }
+    
+    &.negative {
+      color: var(--error-color);
+    }
+    
+    &.neutral {
+      color: var(--text-muted);
+    }
+  }
+}
+
+// Dashboard Cards
+.dashboard-card {
+  @include card;
+  
+  .dashboard-card-header {
+    @include flex-between;
+    margin-bottom: var(--spacing-lg);
+    
+    .dashboard-card-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .dashboard-card-menu {
+      position: relative;
+      
+      .menu-button {
+        @include button-base;
+        background: transparent;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: var(--radius-sm);
+        
+        &:hover {
+          background: var(--bg-secondary);
+        }
+      }
+    }
+  }
+  
+  .dashboard-card-content {
+    .chart-container {
+      height: 300px;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .metric-list {
+      .metric-item {
+        @include flex-between;
+        padding: var(--spacing-sm) 0;
+        border-bottom: 1px solid var(--border-light);
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        .metric-label {
+          color: var(--text-secondary);
+          font-size: var(--font-size-sm);
+        }
+        
+        .metric-value {
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+      }
+    }
+  }
+}
+
+// Profile Cards
+.profile-card {
+  @include card;
+  text-align: center;
+  
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto var(--spacing-md);
+    background: var(--primary-color);
+    @include flex-center;
+    color: white;
+    font-size: var(--font-size-2xl);
+    font-weight: 600;
+  }
+  
+  .profile-name {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .profile-role {
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .profile-stats {
+    @include flex-center;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    
+    .profile-stat {
+      text-align: center;
+      
+      .stat-number {
+        font-size: var(--font-size-xl);
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      
+      .stat-label {
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    }
+  }
+  
+  .profile-actions {
+    @include flex-center;
+    gap: var(--spacing-sm);
+    
+    .profile-action {
+      @include button-primary;
+      font-size: var(--font-size-sm);
+      
+      &.secondary {
+        @include button-secondary;
+      }
+    }
+  }
+}
+
+// Card Grid
+.card-grid {
+  display: grid;
+  gap: var(--spacing-lg);
+  
+  &.grid-1 {
+    grid-template-columns: 1fr;
+  }
+  
+  &.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  &.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+    
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  &.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+    
+    @include tablet {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+}
