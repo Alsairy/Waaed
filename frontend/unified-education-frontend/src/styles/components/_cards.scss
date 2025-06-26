@@ -1,34 +1,100 @@
-// Card Components - Adapted from Education Management Theme
+// Modern Card Components - World-Class Design System
 .card {
   @include card;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-smooth);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+    opacity: 0;
+    transition: opacity var(--transition-smooth);
+  }
   
   &.card-hover {
-    transition: all 0.2s ease-in-out;
+    transition: all var(--transition-smooth);
+    cursor: pointer;
+    
+    &:hover {
+      box-shadow: var(--shadow-xl);
+      transform: translateY(-4px) scale(1.02);
+      border-color: color-mix(in srgb, var(--primary-color) 20%, var(--border-color));
+      
+      &::before {
+        opacity: 1;
+      }
+    }
+  }
+  
+  &.card-interactive {
+    transition: all var(--transition-smooth);
     
     &:hover {
       box-shadow: var(--shadow-lg);
       transform: translateY(-2px);
     }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow-md);
+    }
   }
   
   &.card-bordered {
     border: 2px solid var(--border-color);
+    
+    &:hover {
+      border-color: var(--primary-color);
+    }
   }
   
   &.card-primary {
     border-left: 4px solid var(--primary-color);
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--primary-color) 2%, transparent),
+      color-mix(in srgb, var(--primary-color) 1%, transparent)
+    );
   }
   
   &.card-success {
     border-left: 4px solid var(--success-color);
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--success-color) 2%, transparent),
+      color-mix(in srgb, var(--success-color) 1%, transparent)
+    );
   }
   
   &.card-warning {
     border-left: 4px solid var(--warning-color);
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--warning-color) 2%, transparent),
+      color-mix(in srgb, var(--warning-color) 1%, transparent)
+    );
   }
   
   &.card-error {
     border-left: 4px solid var(--error-color);
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--error-color) 2%, transparent),
+      color-mix(in srgb, var(--error-color) 1%, transparent)
+    );
+  }
+  
+  &.card-glass {
+    background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
+    backdrop-filter: blur(12px);
+    border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+  }
+  
+  &.card-elevated {
+    box-shadow: var(--shadow-lg);
+    border: none;
   }
 }
 
@@ -97,67 +163,159 @@
   }
 }
 
-// Stat Cards
+// Modern Stat Cards
 .stat-card {
   @include card;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-smooth);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent 0%, color-mix(in srgb, var(--primary-color) 3%, transparent) 100%);
+    opacity: 0;
+    transition: opacity var(--transition-smooth);
+  }
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+    
+    &::before {
+      opacity: 1;
+    }
+    
+    .stat-icon {
+      transform: scale(1.1);
+    }
+    
+    .stat-value {
+      transform: scale(1.05);
+    }
+  }
+  
+  .stat-content {
+    position: relative;
+    z-index: 1;
+  }
   
   .stat-icon {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     margin: 0 auto var(--spacing-md);
-    border-radius: 50%;
+    border-radius: var(--radius-lg);
     @include flex-center;
     font-size: var(--font-size-xl);
+    transition: all var(--transition-smooth);
+    position: relative;
     
-    &.stat-icon-primary {
-      background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: inherit;
+      background: linear-gradient(45deg, transparent, currentColor, transparent);
+      opacity: 0;
+      transition: opacity var(--transition-smooth);
+    }
+    
+    &:hover::before {
+      opacity: 0.1;
+    }
+  }
+  
+  &.stat-card-primary {
+    .stat-icon {
+      background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--primary-color) 15%, transparent),
+        color-mix(in srgb, var(--primary-color) 8%, transparent)
+      );
       color: var(--primary-color);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--primary-color) 20%, transparent);
     }
-    
-    &.stat-icon-success {
-      background: color-mix(in srgb, var(--success-color) 10%, transparent);
+  }
+  
+  &.stat-card-success {
+    .stat-icon {
+      background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--success-color) 15%, transparent),
+        color-mix(in srgb, var(--success-color) 8%, transparent)
+      );
       color: var(--success-color);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--success-color) 20%, transparent);
     }
-    
-    &.stat-icon-warning {
-      background: color-mix(in srgb, var(--warning-color) 10%, transparent);
+  }
+  
+  &.stat-card-warning {
+    .stat-icon {
+      background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--warning-color) 15%, transparent),
+        color-mix(in srgb, var(--warning-color) 8%, transparent)
+      );
       color: var(--warning-color);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--warning-color) 20%, transparent);
     }
-    
-    &.stat-icon-error {
-      background: color-mix(in srgb, var(--error-color) 10%, transparent);
-      color: var(--error-color);
+  }
+  
+  &.stat-card-info {
+    .stat-icon {
+      background: linear-gradient(135deg, 
+        color-mix(in srgb, var(--info-color) 15%, transparent),
+        color-mix(in srgb, var(--info-color) 8%, transparent)
+      );
+      color: var(--info-color);
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--info-color) 20%, transparent);
     }
   }
   
   .stat-value {
     font-size: var(--font-size-3xl);
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     color: var(--text-primary);
     margin-bottom: var(--spacing-xs);
+    transition: all var(--transition-smooth);
+    background: linear-gradient(135deg, var(--text-primary), color-mix(in srgb, var(--text-primary) 70%, var(--primary-color)));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
   
   .stat-label {
     font-size: var(--font-size-sm);
     color: var(--text-muted);
     margin-bottom: var(--spacing-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.025em;
   }
   
   .stat-change {
     font-size: var(--font-size-sm);
-    font-weight: 500;
+    font-weight: var(--font-weight-semibold);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
     
     &.positive {
       color: var(--success-color);
+      background: color-mix(in srgb, var(--success-color) 10%, transparent);
     }
     
     &.negative {
       color: var(--error-color);
+      background: color-mix(in srgb, var(--error-color) 10%, transparent);
     }
     
     &.neutral {
       color: var(--text-muted);
+      background: color-mix(in srgb, var(--text-muted) 10%, transparent);
     }
   }
 }
@@ -287,6 +445,211 @@
       &.secondary {
         @include button-secondary;
       }
+    }
+  }
+}
+
+// Enhanced stat cards for dashboard
+.stat-card {
+  .stat-card-header {
+    @include flex-between;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .stat-content {
+    text-align: left;
+  }
+  
+  .stat-trend {
+    @include flex-start;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    
+    &.positive {
+      background: color-mix(in srgb, var(--success-color) 10%, transparent);
+      color: var(--success-color);
+    }
+    
+    &.negative {
+      background: color-mix(in srgb, var(--error-color) 10%, transparent);
+      color: var(--error-color);
+    }
+  }
+  
+  .stat-description {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted);
+    margin-top: var(--spacing-xs);
+  }
+  
+  .stat-skeleton {
+    height: 2rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+// Module cards for dashboard navigation
+.module-card {
+  @include card-interactive;
+  padding: 0;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out both;
+  
+  .module-card-header {
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+    border-bottom: 1px solid var(--border-light);
+    
+    .module-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-lg);
+      @include flex-center;
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-smooth);
+    }
+  }
+  
+  .module-card-body {
+    padding: var(--spacing-lg);
+    
+    .module-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .module-description {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-md);
+      line-height: 1.5;
+    }
+    
+    .module-stats {
+      .module-stat-value {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        color: var(--primary-color);
+      }
+      
+      .module-skeleton {
+        height: 1rem;
+        background: var(--bg-secondary);
+        border-radius: var(--radius-sm);
+        animation: shimmer 1.5s infinite;
+      }
+    }
+  }
+  
+  .module-card-footer {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-light);
+    
+    .module-action {
+      @include flex-between;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--primary-color);
+      transition: all var(--transition-smooth);
+    }
+  }
+  
+  &:hover {
+    .module-icon {
+      transform: scale(1.1);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .module-action {
+      color: var(--primary-color);
+      transform: translateX(4px);
+    }
+  }
+}
+
+// Status cards for system information
+.status-card {
+  @include card;
+  padding: var(--spacing-lg);
+  
+  .status-card-header {
+    @include flex-between;
+    margin-bottom: var(--spacing-md);
+    
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      
+      &.status-active {
+        background: var(--success-color);
+        box-shadow: 0 0 8px color-mix(in srgb, var(--success-color) 50%, transparent);
+      }
+      
+      &.status-warning {
+        background: var(--warning-color);
+        box-shadow: 0 0 8px color-mix(in srgb, var(--warning-color) 50%, transparent);
+      }
+      
+      &.status-error {
+        background: var(--error-color);
+        box-shadow: 0 0 8px color-mix(in srgb, var(--error-color) 50%, transparent);
+      }
+    }
+  }
+  
+  .status-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    @include flex-center;
+    
+    &.status-icon-info {
+      background: linear-gradient(135deg, var(--info-color), color-mix(in srgb, var(--info-color) 80%, var(--primary-color)));
+      color: var(--white);
+    }
+    
+    &.status-icon-success {
+      background: linear-gradient(135deg, var(--success-color), color-mix(in srgb, var(--success-color) 80%, #10b981));
+      color: var(--white);
+    }
+    
+    &.status-icon-warning {
+      background: linear-gradient(135deg, var(--warning-color), color-mix(in srgb, var(--warning-color) 80%, #f59e0b));
+      color: var(--white);
+    }
+  }
+  
+  .status-card-body {
+    .status-title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .status-value {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-xs);
+      
+      &.status-operational {
+        color: var(--success-color);
+      }
+    }
+    
+    .status-description {
+      font-size: var(--font-size-sm);
+      color: var(--text-muted);
     }
   }
 }

@@ -19,16 +19,65 @@
   justify-content: flex-start;
 }
 
-// Card component
+// Enhanced Card component with micro-interactions
 @mixin card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-lg);
+  transition: all var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    opacity: 0;
+    transition: opacity var(--transition-smooth);
+  }
+  
+  &:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--primary-color) 20%, var(--border-color));
+    
+    &::before {
+      opacity: 0.6;
+    }
+  }
 }
 
-// Button variants
+@mixin card-interactive {
+  @include card;
+  cursor: pointer;
+  
+  &:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-4px) scale(1.02);
+  }
+  
+  &:active {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+@mixin card-glass {
+  background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+  box-shadow: 
+    0 8px 32px color-mix(in srgb, var(--primary-color) 10%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--white) 20%, transparent);
+}
+
+// Enhanced Button variants with micro-interactions
 @mixin button-base {
   display: inline-flex;
   align-items: center;
@@ -36,40 +85,112 @@
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
-  font-weight: 500;
-  transition: all 0.2s ease-in-out;
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-smooth);
   cursor: pointer;
   border: none;
   text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent, currentColor, transparent);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+  }
+  
+  &:hover::before {
+    opacity: 0.1;
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
   
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+  }
+  
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
   }
 }
 
 @mixin button-primary {
   @include button-base;
-  background: var(--primary-color);
-  color: white;
+  background: linear-gradient(135deg, var(--primary-color), color-mix(in srgb, var(--primary-color) 85%, var(--secondary-color)));
+  color: var(--white);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary-color) 25%, transparent);
   
   &:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--primary-color) 90%, black);
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--primary-color) 90%, black), 
+      color-mix(in srgb, var(--primary-color) 75%, var(--secondary-color))
+    );
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--primary-color) 35%, transparent);
+    transform: translateY(-2px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--primary-color) 25%, transparent);
   }
 }
 
 @mixin button-secondary {
   @include button-base;
-  background: var(--bg-secondary);
+  background: var(--bg-primary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   
   &:hover:not(:disabled) {
-    background: var(--bg-tertiary);
+    background: var(--bg-secondary);
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--primary-color) 15%, transparent);
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--primary-color) 10%, transparent);
   }
 }
 
-// Form elements
+@mixin button-ghost {
+  @include button-base;
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid transparent;
+  
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    border-color: var(--primary-color);
+  }
+}
+
+@mixin button-danger {
+  @include button-base;
+  background: linear-gradient(135deg, var(--error-color), color-mix(in srgb, var(--error-color) 85%, #ff6b6b));
+  color: var(--white);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--error-color) 25%, transparent);
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--error-color) 90%, black), 
+      color-mix(in srgb, var(--error-color) 75%, #ff6b6b)
+    );
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--error-color) 35%, transparent);
+    transform: translateY(-2px);
+  }
+}
+
+// Enhanced Form elements with micro-interactions
 @mixin input-base {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
@@ -78,16 +199,101 @@
   font-size: var(--font-size-sm);
   background: var(--bg-primary);
   color: var(--text-primary);
-  transition: border-color 0.2s ease-in-out;
+  transition: all var(--transition-smooth);
+  position: relative;
+  
+  &:hover {
+    border-color: color-mix(in srgb, var(--primary-color) 50%, var(--border-color));
+  }
   
   &:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 10%, transparent);
+    box-shadow: 
+      0 0 0 3px color-mix(in srgb, var(--primary-color) 10%, transparent),
+      0 2px 8px color-mix(in srgb, var(--primary-color) 15%, transparent);
+    transform: translateY(-1px);
   }
   
   &::placeholder {
     color: var(--text-muted);
+    transition: color var(--transition-smooth);
+  }
+  
+  &:focus::placeholder {
+    color: color-mix(in srgb, var(--text-muted) 70%, transparent);
+  }
+  
+  &:invalid {
+    border-color: var(--error-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--error-color) 10%, transparent);
+  }
+  
+  &:valid {
+    border-color: var(--success-color);
+  }
+}
+
+@mixin floating-label {
+  position: relative;
+  
+  label {
+    position: absolute;
+    top: 50%;
+    left: var(--spacing-md);
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-smooth);
+    pointer-events: none;
+    background: var(--bg-primary);
+    padding: 0 var(--spacing-xs);
+  }
+  
+  input:focus + label,
+  input:not(:placeholder-shown) + label {
+    top: 0;
+    font-size: var(--font-size-xs);
+    color: var(--primary-color);
+    transform: translateY(-50%);
+  }
+}
+
+@mixin checkbox-custom {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  position: relative;
+  
+  &:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--primary-color) 15%, transparent);
+  }
+  
+  &:checked {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    
+    &::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: bold;
+    }
+  }
+  
+  &:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
   }
 }
 
@@ -148,19 +354,274 @@
   }
 }
 
-// Animation utilities
-@mixin fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+// Modern Animation & Micro-Interaction Utilities
+@mixin smooth-transition($properties: all, $duration: var(--transition-smooth), $timing: ease-in-out) {
+  transition: #{$properties} #{$duration} #{$timing};
 }
 
+@mixin hover-lift($lift: -4px, $shadow: var(--shadow-lg)) {
+  transition: all var(--transition-smooth);
+  
+  &:hover {
+    transform: translateY(#{$lift});
+    box-shadow: #{$shadow};
+  }
+}
+
+@mixin scale-on-hover($scale: 1.05) {
+  transition: transform var(--transition-smooth);
+  
+  &:hover {
+    transform: scale(#{$scale});
+  }
+}
+
+@mixin pulse-animation($color: var(--primary-color)) {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: #{$color};
+    opacity: 0;
+    animation: pulse 2s infinite;
+  }
+}
+
+@mixin loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    color-mix(in srgb, var(--bg-secondary) 90%, var(--primary-color)) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@mixin bounce-in {
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@mixin slide-in-from($direction: left, $distance: 30px) {
+  @if $direction == left {
+    animation: slideInLeft 0.4s ease-out;
+  } @else if $direction == right {
+    animation: slideInRight 0.4s ease-out;
+  } @else if $direction == top {
+    animation: slideInTop 0.4s ease-out;
+  } @else if $direction == bottom {
+    animation: slideInBottom 0.4s ease-out;
+  }
+}
+
+@mixin stagger-animation($delay: 0.1s) {
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * $delay};
+    }
+  }
+}
+
+@mixin button-press {
+  transition: all var(--transition-fast);
+  
+  &:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+@mixin ripple-effect($color: var(--primary-color)) {
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: color-mix(in srgb, #{$color} 20%, transparent);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+  
+  &:active::after {
+    width: 300px;
+    height: 300px;
+  }
+}
+
+@mixin fade-in($delay: 0s) {
+  animation: fadeIn 0.5s ease-out #{$delay} both;
+}
+
+@mixin fade-in-up($delay: 0s) {
+  animation: fadeInUp 0.6s ease-out #{$delay} both;
+}
+
+@mixin fade-in-scale($delay: 0s) {
+  animation: fadeInScale 0.5s ease-out #{$delay} both;
+}
+
+@mixin rotate-on-hover($degrees: 180deg) {
+  transition: transform var(--transition-smooth);
+  
+  &:hover {
+    transform: rotate(#{$degrees});
+  }
+}
+
+@mixin glow-effect($color: var(--primary-color), $intensity: 0.5) {
+  box-shadow: 0 0 20px color-mix(in srgb, #{$color} #{$intensity * 100%}, transparent);
+  transition: box-shadow var(--transition-smooth);
+}
+
+@mixin typewriter($steps: 20, $duration: 2s) {
+  overflow: hidden;
+  border-right: 2px solid var(--primary-color);
+  white-space: nowrap;
+  animation: 
+    typewriter #{$duration} steps(#{$steps}) 1s both,
+    blink 1s step-end infinite;
+}
+
+// Enhanced keyframe animations
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInTop {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInBottom {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  from, to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: var(--primary-color);
   }
 }
 

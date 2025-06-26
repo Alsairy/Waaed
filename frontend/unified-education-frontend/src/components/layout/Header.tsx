@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store/store';
+import { Menu, Search, Bell, Moon, ChevronDown, User, Settings, HelpCircle, LogOut } from 'lucide-react';
+
 import { LanguageSwitcher } from '../LanguageSwitcher';
 
 interface HeaderProps {
@@ -9,9 +9,8 @@ interface HeaderProps {
   isSidebarOpen: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen }) => {
+const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { t } = useTranslation();
-  const { isRTL } = useSelector((state: RootState) => state.ui);
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -55,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen }) => {
           onClick={onMenuToggle}
           aria-label={t('common.toggleMenu')}
         >
-          <span className="menu-icon">☰</span>
+          <Menu size={20} className="menu-icon" />
         </button>
 
         <nav className="breadcrumb">
@@ -67,14 +66,16 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen }) => {
 
       <div className="header-center">
         <form className="search-box" onSubmit={handleSearch}>
-          <input
-            type="text"
-            className="search-input"
-            placeholder={t('common.searchPlaceholder')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <span className="search-icon">🔍</span>
+          <div className="search-input-wrapper">
+            <Search size={18} className="search-icon" />
+            <input
+              type="text"
+              className="search-input"
+              placeholder={t('common.searchPlaceholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </form>
       </div>
 
@@ -82,11 +83,11 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen }) => {
         {/* Notifications */}
         <div className="header-action">
           <button
-            className="action-button"
+            className="action-button notifications-button"
             onClick={() => setShowNotifications(!showNotifications)}
             aria-label={t('common.notifications')}
           >
-            <span>🔔</span>
+            <Bell size={18} />
             {unreadCount > 0 && (
               <span className="action-badge">{unreadCount}</span>
             )}
@@ -134,10 +135,10 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen }) => {
         {/* Theme Switcher */}
         <div className="theme-switcher">
           <button
-            className="theme-button"
+            className="action-button theme-button"
             aria-label={t('common.toggleTheme')}
           >
-            <span>🌙</span>
+            <Moon size={18} />
           </button>
         </div>
 
@@ -148,31 +149,33 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen }) => {
             onClick={() => setShowUserMenu(!showUserMenu)}
             aria-label={t('common.userMenu')}
           >
-            <div className="user-avatar">U</div>
+            <div className="user-avatar">
+              <User size={16} />
+            </div>
             <div className="user-info">
               <div className="user-name">Admin User</div>
               <div className="user-role">Administrator</div>
             </div>
-            <span className="dropdown-arrow">▼</span>
+            <ChevronDown size={16} className="dropdown-arrow" />
           </button>
 
           {showUserMenu && (
             <div className="dropdown-menu open">
               <div className="dropdown-item">
-                <span className="item-icon">👤</span>
+                <User size={16} className="item-icon" />
                 <span className="item-text">{t('common.profile')}</span>
               </div>
               <div className="dropdown-item">
-                <span className="item-icon">⚙️</span>
+                <Settings size={16} className="item-icon" />
                 <span className="item-text">{t('common.settings')}</span>
               </div>
               <div className="dropdown-item">
-                <span className="item-icon">❓</span>
+                <HelpCircle size={16} className="item-icon" />
                 <span className="item-text">{t('common.help')}</span>
               </div>
               <div className="dropdown-divider"></div>
-              <div className="dropdown-item">
-                <span className="item-icon">🚪</span>
+              <div className="dropdown-item logout-item">
+                <LogOut size={16} className="item-icon" />
                 <span className="item-text">{t('common.logout')}</span>
               </div>
             </div>
