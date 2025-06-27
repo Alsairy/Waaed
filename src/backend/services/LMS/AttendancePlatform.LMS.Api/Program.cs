@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 
 builder.Services.AddLMSServices(builder.Configuration);
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddLMSInfrastructure(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
