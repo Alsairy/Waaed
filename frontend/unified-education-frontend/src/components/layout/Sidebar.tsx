@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store/store';
+import { Home, GraduationCap, BookOpen, FileText, Briefcase, BarChart3, Repeat, Settings, Bot } from 'lucide-react';
+
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,16 +12,9 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const location = useLocation();
-  const { isRTL } = useSelector((state: RootState) => state.ui);
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
-  const toggleMenu = (menuKey: string) => {
-    setExpandedMenus(prev => 
-      prev.includes(menuKey) 
-        ? prev.filter(key => key !== menuKey)
-        : [...prev, menuKey]
-    );
-  };
+
 
   const menuItems = [
     {
@@ -31,7 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {
           key: 'dashboard',
           label: t('common.dashboard'),
-          icon: '🏠',
+          icon: <Home size={20} />,
           link: '/',
         }
       ]
@@ -43,19 +36,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {
           key: 'sis',
           label: t('navigation.sis'),
-          icon: '🎓',
+          icon: <GraduationCap size={20} />,
           link: '/sis',
         },
         {
           key: 'lms',
           label: t('navigation.lms'),
-          icon: '📚',
+          icon: <BookOpen size={20} />,
           link: '/lms',
         },
         {
           key: 'exams',
           label: t('navigation.exams'),
-          icon: '📝',
+          icon: <FileText size={20} />,
           link: '/exams',
         }
       ]
@@ -67,19 +60,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {
           key: 'erp',
           label: t('navigation.erp'),
-          icon: '💼',
+          icon: <Briefcase size={20} />,
           link: '/erp',
         },
         {
           key: 'analytics',
           label: t('navigation.analytics'),
-          icon: '📊',
+          icon: <BarChart3 size={20} />,
           link: '/analytics',
         },
         {
           key: 'bpm',
           label: t('navigation.bpm'),
-          icon: '🔄',
+          icon: <Repeat size={20} />,
           link: '/bpm',
         }
       ]
@@ -91,13 +84,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         {
           key: 'admin',
           label: t('navigation.admin'),
-          icon: '⚙️',
+          icon: <Settings size={20} />,
           link: '/admin',
         },
         {
           key: 'ai',
           label: t('navigation.ai'),
-          icon: '🤖',
+          icon: <Bot size={20} />,
           link: '/ai',
         }
       ]
