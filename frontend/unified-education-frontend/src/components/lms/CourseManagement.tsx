@@ -31,7 +31,7 @@ const CourseManagement: React.FC = () => {
     }
   };
 
-  const filteredCourses = courses.filter(course => {
+  const filteredCourses = courses.filter((course: Course) => {
     const matchesSearch = searchTerm === '' || 
       course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.instructor.toLowerCase().includes(searchTerm.toLowerCase());
@@ -40,9 +40,9 @@ const CourseManagement: React.FC = () => {
   });
 
   const statusCounts = {
-    Published: courses.filter(c => c.status === 'Published').length,
-    Draft: courses.filter(c => c.status === 'Draft').length,
-    Archived: courses.filter(c => c.status === 'Archived').length,
+    Published: courses.filter((c: Course) => c.status === 'Published').length,
+    Draft: courses.filter((c: Course) => c.status === 'Draft').length,
+    Archived: courses.filter((c: Course) => c.status === 'Archived').length,
   };
 
   if (loading) {
