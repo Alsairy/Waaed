@@ -9,23 +9,23 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy project files
-COPY ["src/backend/services/Notifications/AttendancePlatform.Notifications.Api/AttendancePlatform.Notifications.Api.csproj", "src/backend/services/Notifications/AttendancePlatform.Notifications.Api/"]
-COPY ["src/backend/shared/Domain/AttendancePlatform.Shared.Domain/AttendancePlatform.Shared.Domain.csproj", "src/backend/shared/Domain/AttendancePlatform.Shared.Domain/"]
-COPY ["src/backend/shared/Infrastructure/AttendancePlatform.Shared.Infrastructure/AttendancePlatform.Shared.Infrastructure.csproj", "src/backend/shared/Infrastructure/AttendancePlatform.Shared.Infrastructure/"]
+COPY ["src/backend/services/Notifications/Waaed.Notifications.Api/Waaed.Notifications.Api.csproj", "src/backend/services/Notifications/Waaed.Notifications.Api/"]
+COPY ["src/backend/shared/Domain/Waaed.Shared.Domain/Waaed.Shared.Domain.csproj", "src/backend/shared/Domain/Waaed.Shared.Domain/"]
+COPY ["src/backend/shared/Infrastructure/Waaed.Shared.Infrastructure/Waaed.Shared.Infrastructure.csproj", "src/backend/shared/Infrastructure/Waaed.Shared.Infrastructure/"]
 
 # Restore dependencies
-RUN dotnet restore "src/backend/services/Notifications/AttendancePlatform.Notifications.Api/AttendancePlatform.Notifications.Api.csproj"
+RUN dotnet restore "src/backend/services/Notifications/Waaed.Notifications.Api/Waaed.Notifications.Api.csproj"
 
 # Copy source code
 COPY . .
 
 # Build the application
-WORKDIR "src/backend/services/Notifications/AttendancePlatform.Notifications.Api"
-RUN dotnet build "AttendancePlatform.Notifications.Api.csproj" -c Release -o /app/build
+WORKDIR "src/backend/services/Notifications/Waaed.Notifications.Api"
+RUN dotnet build "Waaed.Notifications.Api.csproj" -c Release -o /app/build
 
 # Publish stage
 FROM build AS publish
-RUN dotnet publish "AttendancePlatform.Notifications.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Waaed.Notifications.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Final stage
 FROM base AS final
@@ -40,5 +40,5 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:80/health || exit 1
 
-ENTRYPOINT ["dotnet", "AttendancePlatform.Notifications.Api.dll"]
+ENTRYPOINT ["dotnet", "Waaed.Notifications.Api.dll"]
 

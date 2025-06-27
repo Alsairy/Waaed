@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace AttendancePlatform.Shared.Infrastructure.Middleware;
+namespace Waaed.Shared.Infrastructure.Middleware;
 
 public class SecurityHeadersMiddleware
 {

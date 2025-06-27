@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
-using AttendancePlatform.Shared.Domain.Interfaces;
+using Waaed.Shared.Domain.Interfaces;
 
-namespace AttendancePlatform.Shared.Infrastructure.Services
+namespace Waaed.Shared.Infrastructure.Services
 {
     public class TenantContext : ITenantContext
     {

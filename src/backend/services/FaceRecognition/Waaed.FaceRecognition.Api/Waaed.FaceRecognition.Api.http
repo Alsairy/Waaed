@@ -1,6 +1,6 @@
-@AttendancePlatform.FaceRecognition.Api_HostAddress = http://localhost:5013
+@Waaed.FaceRecognition.Api_HostAddress = http://localhost:5013
 
-GET {{AttendancePlatform.FaceRecognition.Api_HostAddress}}/weatherforecast/
+GET {{Waaed.FaceRecognition.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

@@ -1,17 +1,17 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Services;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Services;
 
-namespace AttendancePlatform.Shared.Infrastructure.Services
+namespace Waaed.Shared.Infrastructure.Services
 {
     public class WorkflowAutomationService : IWorkflowAutomationService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
 
-        public WorkflowAutomationService(AttendancePlatformDbContext context)
+        public WorkflowAutomationService(WaaedDbContext context)
         {
             _context = context;
         }

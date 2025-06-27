@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.HR.Api.Entities;
+using Waaed.HR.Api.Entities;
 
-namespace AttendancePlatform.HR.Api.Data;
+namespace Waaed.HR.Api.Data;
 
 public class HRDbContext : DbContext
 {

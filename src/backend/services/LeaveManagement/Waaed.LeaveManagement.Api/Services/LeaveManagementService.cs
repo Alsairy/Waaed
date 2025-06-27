@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Domain.DTOs;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Domain.DTOs;
 
-namespace AttendancePlatform.LeaveManagement.Api.Services
+namespace Waaed.LeaveManagement.Api.Services
 {
     public interface ILeaveManagementService
     {
@@ -26,9 +26,9 @@ namespace AttendancePlatform.LeaveManagement.Api.Services
 
     public class LeaveManagementService : ILeaveManagementService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
 
-        public LeaveManagementService(AttendancePlatformDbContext context)
+        public LeaveManagementService(WaaedDbContext context)
         {
             _context = context;
         }

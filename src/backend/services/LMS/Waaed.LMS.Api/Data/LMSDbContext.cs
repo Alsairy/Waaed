@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.LMS.Api.Entities;
+using Waaed.LMS.Api.Entities;
 
-namespace AttendancePlatform.LMS.Api.Data;
+namespace Waaed.LMS.Api.Data;
 
 public class LMSDbContext : DbContext
 {

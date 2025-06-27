@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using AttendancePlatform.Notifications.Api.Services;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Notifications.Api.Services;
+using Waaed.Shared.Domain.Entities;
 using System.Security.Claims;
 
-namespace AttendancePlatform.Notifications.Api.Controllers
+namespace Waaed.Notifications.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

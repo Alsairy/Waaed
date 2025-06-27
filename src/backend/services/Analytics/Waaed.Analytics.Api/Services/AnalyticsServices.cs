@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.ML;
 using Microsoft.ML.Data;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Analytics.Api.Services
+namespace Waaed.Analytics.Api.Services
 {
     public interface IAnalyticsService
     {
@@ -46,10 +46,10 @@ namespace AttendancePlatform.Analytics.Api.Services
 
     public class AnalyticsService : IAnalyticsService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<AnalyticsService> _logger;
 
-        public AnalyticsService(AttendancePlatformDbContext context, ILogger<AnalyticsService> logger)
+        public AnalyticsService(WaaedDbContext context, ILogger<AnalyticsService> logger)
         {
             _context = context;
             _logger = logger;
@@ -214,11 +214,11 @@ namespace AttendancePlatform.Analytics.Api.Services
 
     public class PredictiveAnalyticsService : IPredictiveAnalyticsService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly MLContext _mlContext;
         private readonly ILogger<PredictiveAnalyticsService> _logger;
 
-        public PredictiveAnalyticsService(AttendancePlatformDbContext context, MLContext mlContext, ILogger<PredictiveAnalyticsService> logger)
+        public PredictiveAnalyticsService(WaaedDbContext context, MLContext mlContext, ILogger<PredictiveAnalyticsService> logger)
         {
             _context = context;
             _mlContext = mlContext;

@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Domain.DTOs;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Data;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Jpeg;
 
-namespace AttendancePlatform.Attendance.Api.Services
+namespace Waaed.Attendance.Api.Services
 {
     public interface IAttendanceService
     {
@@ -23,13 +23,13 @@ namespace AttendancePlatform.Attendance.Api.Services
 
     public class AttendanceService : IAttendanceService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<AttendanceService> _logger;
         private readonly ITenantContext _tenantContext;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public AttendanceService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             ILogger<AttendanceService> logger,
             ITenantContext tenantContext,
             IDateTimeProvider dateTimeProvider)

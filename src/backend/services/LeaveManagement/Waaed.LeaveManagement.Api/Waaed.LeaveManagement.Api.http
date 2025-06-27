@@ -1,6 +1,6 @@
-@AttendancePlatform.LeaveManagement.Api_HostAddress = http://localhost:5203
+@Waaed.LeaveManagement.Api_HostAddress = http://localhost:5203
 
-GET {{AttendancePlatform.LeaveManagement.Api_HostAddress}}/weatherforecast/
+GET {{Waaed.LeaveManagement.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

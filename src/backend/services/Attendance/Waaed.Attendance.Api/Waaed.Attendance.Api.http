@@ -1,6 +1,6 @@
-@AttendancePlatform.Attendance.Api_HostAddress = http://localhost:5261
+@Waaed.Attendance.Api_HostAddress = http://localhost:5261
 
-GET {{AttendancePlatform.Attendance.Api_HostAddress}}/weatherforecast/
+GET {{Waaed.Attendance.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

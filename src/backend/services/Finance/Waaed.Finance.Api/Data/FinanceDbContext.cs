@@ -1,7 +1,7 @@
-using AttendancePlatform.Finance.Api.Entities;
+using Waaed.Finance.Api.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace AttendancePlatform.Finance.Api.Data;
+namespace Waaed.Finance.Api.Data;
 
 public class FinanceDbContext : DbContext
 {

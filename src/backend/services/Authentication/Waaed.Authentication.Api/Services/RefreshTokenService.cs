@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
 using System.Security.Cryptography;
 
-namespace AttendancePlatform.Authentication.Api.Services
+namespace Waaed.Authentication.Api.Services
 {
     public interface IRefreshTokenService
     {
@@ -17,12 +17,12 @@ namespace AttendancePlatform.Authentication.Api.Services
 
     public class RefreshTokenService : IRefreshTokenService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<RefreshTokenService> _logger;
         private readonly IConfiguration _configuration;
 
         public RefreshTokenService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             ILogger<RefreshTokenService> logger,
             IConfiguration configuration)
         {

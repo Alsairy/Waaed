@@ -7,7 +7,7 @@ using OpenTelemetry.Trace;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
-namespace AttendancePlatform.Shared.Infrastructure.Telemetry;
+namespace Waaed.Shared.Infrastructure.Telemetry;
 
 public static class TelemetryExtensions
 {

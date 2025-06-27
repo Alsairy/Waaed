@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AttendancePlatform.FaceRecognition.Api.Services;
-using AttendancePlatform.Shared.Domain.DTOs;
+using Waaed.FaceRecognition.Api.Services;
+using Waaed.Shared.Domain.DTOs;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace AttendancePlatform.FaceRecognition.Api.Controllers
+namespace Waaed.FaceRecognition.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -293,7 +293,7 @@ namespace AttendancePlatform.FaceRecognition.Api.Controllers
 }
 
 // Request DTOs
-namespace AttendancePlatform.Shared.Domain.DTOs
+namespace Waaed.Shared.Domain.DTOs
 {
     public class FaceEnrollmentRequest
     {

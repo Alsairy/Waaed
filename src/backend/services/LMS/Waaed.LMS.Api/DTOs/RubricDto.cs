@@ -1,4 +1,4 @@
-namespace AttendancePlatform.LMS.Api.DTOs;
+namespace Waaed.LMS.Api.DTOs;
 
 public class RubricDto
 {

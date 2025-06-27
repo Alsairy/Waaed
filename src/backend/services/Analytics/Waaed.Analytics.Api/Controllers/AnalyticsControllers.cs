@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using AttendancePlatform.Analytics.Api.Services;
+using Waaed.Analytics.Api.Services;
 
-namespace AttendancePlatform.Analytics.Api.Controllers
+namespace Waaed.Analytics.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

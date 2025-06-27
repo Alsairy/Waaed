@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
 using System.Text;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace AttendancePlatform.Authentication.Api.Services
+namespace Waaed.Authentication.Api.Services
 {
     public interface ITwoFactorService
     {
@@ -18,12 +18,12 @@ namespace AttendancePlatform.Authentication.Api.Services
 
     public class TwoFactorService : ITwoFactorService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<TwoFactorService> _logger;
         private const string ApplicationName = "AttendancePro";
 
         public TwoFactorService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             ILogger<TwoFactorService> logger)
         {
             _context = context;

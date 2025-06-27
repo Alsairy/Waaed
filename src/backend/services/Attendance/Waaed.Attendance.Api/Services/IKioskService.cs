@@ -1,8 +1,8 @@
-using AttendancePlatform.Shared.Domain.DTOs;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Attendance.Api.Controllers;
+using Waaed.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Attendance.Api.Controllers;
 
-namespace AttendancePlatform.Attendance.Api.Services
+namespace Waaed.Attendance.Api.Services
 {
     public interface IKioskService
     {

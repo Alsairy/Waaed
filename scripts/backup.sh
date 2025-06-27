@@ -8,7 +8,7 @@ DATE=$(date +%Y%m%d_%H%M%S)
 RETENTION_DAYS=30
 
 DB_HOST="${DB_HOST:-localhost}"
-DB_NAME="${DB_NAME:-AttendancePlatform}"
+DB_NAME="${DB_NAME:-Waaed}"
 DB_USER="${DB_USER:-sa}"
 DB_PASSWORD="${DB_PASSWORD}"
 

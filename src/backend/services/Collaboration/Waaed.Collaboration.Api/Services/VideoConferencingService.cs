@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Collaboration.Api.Services
+namespace Waaed.Collaboration.Api.Services
 {
     public interface IVideoConferencingService
     {
@@ -20,10 +20,10 @@ namespace AttendancePlatform.Collaboration.Api.Services
 
     public class VideoConferencingService : IVideoConferencingService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<VideoConferencingService> _logger;
 
-        public VideoConferencingService(AttendancePlatformDbContext context, ILogger<VideoConferencingService> logger)
+        public VideoConferencingService(WaaedDbContext context, ILogger<VideoConferencingService> logger)
         {
             _context = context;
             _logger = logger;

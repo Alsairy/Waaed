@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using AttendancePlatform.HR.Api.Data;
-using AttendancePlatform.HR.Api.Entities;
-using AttendancePlatform.HR.Api.DTOs;
+using Waaed.HR.Api.Data;
+using Waaed.HR.Api.Entities;
+using Waaed.HR.Api.DTOs;
 
-namespace AttendancePlatform.HR.Api.Controllers;
+namespace Waaed.HR.Api.Controllers;
 
 [ApiController]
 [Route("api/hr/[controller]")]

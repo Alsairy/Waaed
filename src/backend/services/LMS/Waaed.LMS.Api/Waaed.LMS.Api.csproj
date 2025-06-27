@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>AttendancePlatform.LMS.Api</RootNamespace>
+    <RootNamespace>Waaed.LMS.Api</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../shared/Infrastructure/AttendancePlatform.Shared.Infrastructure/AttendancePlatform.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="../../../shared/Infrastructure/Waaed.Shared.Infrastructure/Waaed.Shared.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,23 +1,23 @@
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Hubs;
-using AttendancePlatform.Shared.Infrastructure.Services;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Hubs;
+using Waaed.Shared.Infrastructure.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace AttendancePlatform.Shared.Infrastructure.Services;
+namespace Waaed.Shared.Infrastructure.Services;
 
 public class NotificationService : INotificationService
 {
-    private readonly AttendancePlatformDbContext _context;
+    private readonly WaaedDbContext _context;
     private readonly IHubContext<NotificationHub> _hubContext;
     private readonly ILogger<NotificationService> _logger;
 
     public NotificationService(
-        AttendancePlatformDbContext context,
+        WaaedDbContext context,
         IHubContext<NotificationHub> hubContext,
         ILogger<NotificationService> logger)
     {

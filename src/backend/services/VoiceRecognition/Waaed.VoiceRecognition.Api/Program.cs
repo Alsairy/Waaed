@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Extensions;
-using AttendancePlatform.VoiceRecognition.Api.Services;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Extensions;
+using Waaed.VoiceRecognition.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Database
-builder.Services.AddDbContext<AttendancePlatformDbContext>(options =>
+builder.Services.AddDbContext<WaaedDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IVoiceRecognitionService, VoiceRecognitionService>();
@@ -60,7 +60,7 @@ builder.Services.AddCors(options =>
 
 // Health Checks
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<AttendancePlatformDbContext>();
+    .AddDbContextCheck<WaaedDbContext>();
 
 // Shared Infrastructure
 builder.Services.AddSharedInfrastructure(builder.Configuration);

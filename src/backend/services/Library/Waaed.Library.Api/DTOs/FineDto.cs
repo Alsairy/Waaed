@@ -1,4 +1,4 @@
-namespace AttendancePlatform.Library.Api.DTOs;
+namespace Waaed.Library.Api.DTOs;
 
 public class FineDto
 {

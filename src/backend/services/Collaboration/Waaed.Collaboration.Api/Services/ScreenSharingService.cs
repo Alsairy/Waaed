@@ -1,15 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Collaboration.Api.Services
+namespace Waaed.Collaboration.Api.Services
 {
     public class ScreenSharingService : IScreenSharingService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<ScreenSharingService> _logger;
 
-        public ScreenSharingService(AttendancePlatformDbContext context, ILogger<ScreenSharingService> logger)
+        public ScreenSharingService(WaaedDbContext context, ILogger<ScreenSharingService> logger)
         {
             _context = context;
             _logger = logger;

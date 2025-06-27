@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AttendancePlatform.LMS.Api.Entities;
+namespace Waaed.LMS.Api.Entities;
 
 public class Course
 {

@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Services;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Services;
 
-namespace AttendancePlatform.Shared.Infrastructure.Services
+namespace Waaed.Shared.Infrastructure.Services
 {
     public interface IQueryOptimizationService
     {
@@ -16,12 +16,12 @@ namespace AttendancePlatform.Shared.Infrastructure.Services
 
     public class QueryOptimizationService : IQueryOptimizationService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ICacheService _cacheService;
         private readonly ILogger<QueryOptimizationService> _logger;
 
         public QueryOptimizationService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             ICacheService cacheService,
             ILogger<QueryOptimizationService> logger)
         {

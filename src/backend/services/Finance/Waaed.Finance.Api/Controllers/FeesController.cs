@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using AttendancePlatform.Finance.Api.Data;
-using AttendancePlatform.Finance.Api.Entities;
-using AttendancePlatform.Finance.Api.DTOs;
+using Waaed.Finance.Api.Data;
+using Waaed.Finance.Api.Entities;
+using Waaed.Finance.Api.DTOs;
 
-namespace AttendancePlatform.Finance.Api.Controllers;
+namespace Waaed.Finance.Api.Controllers;
 
 [ApiController]
 [Route("api/finance/[controller]")]

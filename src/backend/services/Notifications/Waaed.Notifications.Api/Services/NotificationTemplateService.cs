@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
 using System.Text.RegularExpressions;
 
-namespace AttendancePlatform.Notifications.Api.Services
+namespace Waaed.Notifications.Api.Services
 {
     public interface INotificationTemplateService
     {
@@ -18,11 +18,11 @@ namespace AttendancePlatform.Notifications.Api.Services
 
     public class NotificationTemplateService : INotificationTemplateService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<NotificationTemplateService> _logger;
 
         public NotificationTemplateService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             ILogger<NotificationTemplateService> logger)
         {
             _context = context;

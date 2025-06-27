@@ -1,4 +1,4 @@
-namespace AttendancePlatform.Shared.Domain.Interfaces
+namespace Waaed.Shared.Domain.Interfaces
 {
     public interface ITenantAware
     {

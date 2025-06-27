@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
 
-namespace AttendancePlatform.Shared.Infrastructure.Middleware
+namespace Waaed.Shared.Infrastructure.Middleware
 {
     public class RateLimitingMiddleware
     {

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AttendancePlatform.Webhooks.Api.Services;
+using Waaed.Webhooks.Api.Services;
 
-namespace AttendancePlatform.Webhooks.Api.Controllers
+namespace Waaed.Webhooks.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

@@ -1,17 +1,17 @@
-using AttendancePlatform.Shared.Domain.DTOs;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace AttendancePlatform.TenantManagement.Api.Services
+namespace Waaed.TenantManagement.Api.Services
 {
     public class TenantManagementService : ITenantManagementService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<TenantManagementService> _logger;
 
         public TenantManagementService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             ILogger<TenantManagementService> logger)
         {
             _context = context;

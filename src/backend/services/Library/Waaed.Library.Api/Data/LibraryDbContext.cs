@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Library.Api.Entities;
+using Waaed.Library.Api.Entities;
 
-namespace AttendancePlatform.Library.Api.Data;
+namespace Waaed.Library.Api.Data;
 
 public class LibraryDbContext : DbContext
 {

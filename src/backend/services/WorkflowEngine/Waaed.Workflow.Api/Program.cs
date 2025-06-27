@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Extensions;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Database
-builder.Services.AddDbContext<AttendancePlatformDbContext>(options =>
+builder.Services.AddDbContext<WaaedDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Workflow Services
@@ -57,7 +57,7 @@ builder.Services.AddCors(options =>
 
 // Health Checks
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<AttendancePlatformDbContext>();
+    .AddDbContextCheck<WaaedDbContext>();
 
 // Shared Infrastructure
 builder.Services.AddSecurityServices(builder.Configuration);

@@ -1,8 +1,8 @@
 using AutoMapper;
-using AttendancePlatform.LMS.Api.Entities;
-using AttendancePlatform.LMS.Api.DTOs;
+using Waaed.LMS.Api.Entities;
+using Waaed.LMS.Api.DTOs;
 
-namespace AttendancePlatform.LMS.Api.Mappings;
+namespace Waaed.LMS.Api.Mappings;
 
 public class MappingProfile : Profile
 {

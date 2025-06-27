@@ -1,5 +1,5 @@
-using AttendancePlatform.LMS.Api.Extensions;
-using AttendancePlatform.Shared.Infrastructure.Extensions;
+using Waaed.LMS.Api.Extensions;
+using Waaed.Shared.Infrastructure.Extensions;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

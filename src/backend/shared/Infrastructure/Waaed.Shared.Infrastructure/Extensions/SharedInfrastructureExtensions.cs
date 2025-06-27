@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using AttendancePlatform.Shared.Infrastructure.Services;
-using AttendancePlatform.Shared.Infrastructure.Middleware;
+using Waaed.Shared.Infrastructure.Services;
+using Waaed.Shared.Infrastructure.Middleware;
 
-namespace AttendancePlatform.Shared.Infrastructure.Extensions
+namespace Waaed.Shared.Infrastructure.Extensions
 {
     public static class SharedInfrastructureExtensions
     {

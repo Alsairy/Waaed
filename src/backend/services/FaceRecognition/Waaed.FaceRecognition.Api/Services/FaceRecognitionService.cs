@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Domain.DTOs;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Services;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Services;
 using System.Text.Json;
 
-namespace AttendancePlatform.FaceRecognition.Api.Services;
+namespace Waaed.FaceRecognition.Api.Services;
 
 public interface IFaceRecognitionService
 {
@@ -20,12 +20,12 @@ public interface IFaceRecognitionService
 
 public class FaceRecognitionService : IFaceRecognitionService
 {
-    private readonly AttendancePlatformDbContext _context;
+    private readonly WaaedDbContext _context;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ILogger<FaceRecognitionService> _logger;
 
     public FaceRecognitionService(
-        AttendancePlatformDbContext context,
+        WaaedDbContext context,
         IDateTimeProvider dateTimeProvider,
         ILogger<FaceRecognitionService> logger)
     {

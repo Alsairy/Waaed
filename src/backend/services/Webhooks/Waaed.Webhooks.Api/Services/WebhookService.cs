@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
 using System.Text.Json;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace AttendancePlatform.Webhooks.Api.Services
+namespace Waaed.Webhooks.Api.Services
 {
     public interface IWebhookService
     {
@@ -23,14 +23,14 @@ namespace AttendancePlatform.Webhooks.Api.Services
 
     public class WebhookService : IWebhookService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<WebhookService> _logger;
         private readonly ITenantContext _tenantContext;
         private readonly ICurrentUserService _currentUserService;
 
         public WebhookService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             IHttpClientFactory httpClientFactory,
             ILogger<WebhookService> logger,
             ITenantContext tenantContext,

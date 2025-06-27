@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Extensions;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Integrations.Api.Services;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Extensions;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Integrations.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,7 +50,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Database configuration
-builder.Services.AddDbContext<AttendancePlatformDbContext>(options =>
+builder.Services.AddDbContext<WaaedDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // JWT Authentication
@@ -102,7 +102,7 @@ builder.Services.AddHttpClient();
 
 // Health checks
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<AttendancePlatformDbContext>();
+    .AddDbContextCheck<WaaedDbContext>();
 
 var app = builder.Build();
 

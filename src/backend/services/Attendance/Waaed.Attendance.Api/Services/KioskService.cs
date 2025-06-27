@@ -1,14 +1,14 @@
-using AttendancePlatform.Shared.Domain.DTOs;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Services;
-using AttendancePlatform.Attendance.Api.Controllers;
+using Waaed.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Services;
+using Waaed.Attendance.Api.Controllers;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 using System.Linq;
 
-namespace AttendancePlatform.Attendance.Api.Services
+namespace Waaed.Attendance.Api.Services
 {
     public class KioskService : IKioskService
     {

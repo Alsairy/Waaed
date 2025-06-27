@@ -2,7 +2,7 @@ using Microsoft.Playwright;
 using Xunit;
 using System.Text.Json;
 
-namespace AttendancePlatform.Tests.E2E
+namespace Waaed.Tests.E2E
 {
     public class E2ETestFixture : IAsyncLifetime
     {

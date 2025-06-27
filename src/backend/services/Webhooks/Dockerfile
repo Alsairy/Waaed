@@ -9,23 +9,23 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy project files
-COPY ["src/backend/services/Webhooks/AttendancePlatform.Webhooks.Api/AttendancePlatform.Webhooks.Api.csproj", "src/backend/services/Webhooks/AttendancePlatform.Webhooks.Api/"]
-COPY ["src/backend/shared/Domain/AttendancePlatform.Shared.Domain/AttendancePlatform.Shared.Domain.csproj", "src/backend/shared/Domain/AttendancePlatform.Shared.Domain/"]
-COPY ["src/backend/shared/Infrastructure/AttendancePlatform.Shared.Infrastructure/AttendancePlatform.Shared.Infrastructure.csproj", "src/backend/shared/Infrastructure/AttendancePlatform.Shared.Infrastructure/"]
+COPY ["src/backend/services/Webhooks/Waaed.Webhooks.Api/Waaed.Webhooks.Api.csproj", "src/backend/services/Webhooks/Waaed.Webhooks.Api/"]
+COPY ["src/backend/shared/Domain/Waaed.Shared.Domain/Waaed.Shared.Domain.csproj", "src/backend/shared/Domain/Waaed.Shared.Domain/"]
+COPY ["src/backend/shared/Infrastructure/Waaed.Shared.Infrastructure/Waaed.Shared.Infrastructure.csproj", "src/backend/shared/Infrastructure/Waaed.Shared.Infrastructure/"]
 
 # Restore dependencies
-RUN dotnet restore "src/backend/services/Webhooks/AttendancePlatform.Webhooks.Api/AttendancePlatform.Webhooks.Api.csproj"
+RUN dotnet restore "src/backend/services/Webhooks/Waaed.Webhooks.Api/Waaed.Webhooks.Api.csproj"
 
 # Copy source code
 COPY . .
 
 # Build the application
-WORKDIR "src/backend/services/Webhooks/AttendancePlatform.Webhooks.Api"
-RUN dotnet build "AttendancePlatform.Webhooks.Api.csproj" -c Release -o /app/build
+WORKDIR "src/backend/services/Webhooks/Waaed.Webhooks.Api"
+RUN dotnet build "Waaed.Webhooks.Api.csproj" -c Release -o /app/build
 
 # Publish stage
 FROM build AS publish
-RUN dotnet publish "AttendancePlatform.Webhooks.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Waaed.Webhooks.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Final stage
 FROM base AS final
@@ -40,5 +40,5 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:80/health || exit 1
 
-ENTRYPOINT ["dotnet", "AttendancePlatform.Webhooks.Api.dll"]
+ENTRYPOINT ["dotnet", "Waaed.Webhooks.Api.dll"]
 

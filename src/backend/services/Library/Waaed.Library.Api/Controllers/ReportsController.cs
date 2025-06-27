@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Library.Api.Data;
+using Waaed.Library.Api.Data;
 
-namespace AttendancePlatform.Library.Api.Controllers;
+namespace Waaed.Library.Api.Controllers;
 
 [ApiController]
 [Route("api/library/[controller]")]

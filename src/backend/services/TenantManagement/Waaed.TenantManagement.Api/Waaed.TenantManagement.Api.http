@@ -1,6 +1,6 @@
-@AttendancePlatform.TenantManagement.Api_HostAddress = http://localhost:5102
+@Waaed.TenantManagement.Api_HostAddress = http://localhost:5102
 
-GET {{AttendancePlatform.TenantManagement.Api_HostAddress}}/weatherforecast/
+GET {{Waaed.TenantManagement.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Library.Api.Data;
-using AttendancePlatform.Library.Api.Entities;
+using Waaed.Library.Api.Data;
+using Waaed.Library.Api.Entities;
 using System.Reflection;
 
-namespace AttendancePlatform.Library.Api.Extensions;
+namespace Waaed.Library.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {

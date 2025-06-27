@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Domain.DTOs;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Domain.DTOs;
 
-namespace AttendancePlatform.VoiceRecognition.Api.Services
+namespace Waaed.VoiceRecognition.Api.Services
 {
     public interface IVoiceRecognitionService
     {
@@ -34,11 +34,11 @@ namespace AttendancePlatform.VoiceRecognition.Api.Services
 
     public class VoiceRecognitionService : IVoiceRecognitionService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<VoiceRecognitionService> _logger;
 
         public VoiceRecognitionService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             ILogger<VoiceRecognitionService> logger)
         {
             _context = context;
@@ -557,12 +557,12 @@ namespace AttendancePlatform.VoiceRecognition.Api.Services
 
     public class VoiceCommandService : IVoiceCommandService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<VoiceCommandService> _logger;
         private readonly Dictionary<string, VoiceCommand> _commandMappings;
 
         public VoiceCommandService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             ILogger<VoiceCommandService> logger)
         {
             _context = context;
@@ -989,12 +989,12 @@ namespace AttendancePlatform.VoiceRecognition.Api.Services
 
     public class VoiceAuthenticationService : IVoiceAuthenticationService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly IVoiceRecognitionService _voiceRecognitionService;
         private readonly ILogger<VoiceAuthenticationService> _logger;
 
         public VoiceAuthenticationService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             IVoiceRecognitionService voiceRecognitionService,
             ILogger<VoiceAuthenticationService> logger)
         {

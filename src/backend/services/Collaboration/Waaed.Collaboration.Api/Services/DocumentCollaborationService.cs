@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Collaboration.Api.Services
+namespace Waaed.Collaboration.Api.Services
 {
     public interface IDocumentCollaborationService
     {
@@ -20,10 +20,10 @@ namespace AttendancePlatform.Collaboration.Api.Services
 
     public class DocumentCollaborationService : IDocumentCollaborationService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<DocumentCollaborationService> _logger;
 
-        public DocumentCollaborationService(AttendancePlatformDbContext context, ILogger<DocumentCollaborationService> logger)
+        public DocumentCollaborationService(WaaedDbContext context, ILogger<DocumentCollaborationService> logger)
         {
             _context = context;
             _logger = logger;

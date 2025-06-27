@@ -1,5 +1,5 @@
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Infrastructure.Services;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,7 +7,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
-namespace AttendancePlatform.Shared.Infrastructure.Middleware;
+namespace Waaed.Shared.Infrastructure.Middleware;
 
 public class AuditLoggingMiddleware
 {

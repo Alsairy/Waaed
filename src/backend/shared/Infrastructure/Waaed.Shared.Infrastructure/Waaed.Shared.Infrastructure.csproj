@@ -42,7 +42,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Domain\AttendancePlatform.Shared.Domain\AttendancePlatform.Shared.Domain.csproj" />
+    <ProjectReference Include="..\..\Domain\Waaed.Shared.Domain\Waaed.Shared.Domain.csproj" />
   </ItemGroup>
 
 </Project>

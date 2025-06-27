@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace AttendancePlatform.Shared.Infrastructure.Services
+namespace Waaed.Shared.Infrastructure.Services
 {
     public interface ICacheService
     {

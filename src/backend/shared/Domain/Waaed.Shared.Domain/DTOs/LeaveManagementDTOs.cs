@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Shared.Domain.DTOs
+namespace Waaed.Shared.Domain.DTOs
 {
     // Additional Leave Management DTOs that don't exist in CommonDTOs
     public class ApprovalDto

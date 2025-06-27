@@ -2,10 +2,10 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Extensions;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Webhooks.Api.Services;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Extensions;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Webhooks.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,7 +93,7 @@ builder.Services.AddScoped<IWebhookService, WebhookService>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<AttendancePlatformDbContext>();
+    .AddDbContextCheck<WaaedDbContext>();
 
 var app = builder.Build();
 

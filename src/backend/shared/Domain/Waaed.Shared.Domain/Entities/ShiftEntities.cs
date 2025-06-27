@@ -1,7 +1,7 @@
-using AttendancePlatform.Shared.Domain.Interfaces;
+using Waaed.Shared.Domain.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
-namespace AttendancePlatform.Shared.Domain.Entities
+namespace Waaed.Shared.Domain.Entities
 {
     public class Shift : BaseEntity, ITenantAware
     {

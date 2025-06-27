@@ -1,8 +1,8 @@
 using AutoMapper;
-using AttendancePlatform.Finance.Api.Entities;
-using AttendancePlatform.Finance.Api.DTOs;
+using Waaed.Finance.Api.Entities;
+using Waaed.Finance.Api.DTOs;
 
-namespace AttendancePlatform.Finance.Api.Mappings;
+namespace Waaed.Finance.Api.Mappings;
 
 public class MappingProfile : Profile
 {

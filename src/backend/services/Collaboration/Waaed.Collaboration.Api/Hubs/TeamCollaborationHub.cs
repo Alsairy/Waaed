@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
-using AttendancePlatform.Collaboration.Api.Services;
+using Waaed.Collaboration.Api.Services;
 
-namespace AttendancePlatform.Collaboration.Api.Hubs
+namespace Waaed.Collaboration.Api.Hubs
 {
     [Authorize]
     public class TeamCollaborationHub : Hub

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AttendancePlatform.Shared.Domain.Entities;
+namespace Waaed.Shared.Domain.Entities;
 
 [Table("Notifications")]
 public class Notification : BaseEntity

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 
-namespace AttendancePlatform.Shared.Infrastructure.Health;
+namespace Waaed.Shared.Infrastructure.Health;
 
 public static class HealthCheckExtensions
 {

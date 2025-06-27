@@ -1,8 +1,8 @@
 using AutoMapper;
-using AttendancePlatform.Library.Api.Entities;
-using AttendancePlatform.Library.Api.DTOs;
+using Waaed.Library.Api.Entities;
+using Waaed.Library.Api.DTOs;
 
-namespace AttendancePlatform.Library.Api.Mappings;
+namespace Waaed.Library.Api.Mappings;
 
 public class MappingProfile : Profile
 {

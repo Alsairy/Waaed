@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AttendancePlatform.Library.Api.Entities;
+namespace Waaed.Library.Api.Entities;
 
 public class Book
 {

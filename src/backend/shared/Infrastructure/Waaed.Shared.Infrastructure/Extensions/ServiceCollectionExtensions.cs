@@ -1,27 +1,27 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Services;
-using AttendancePlatform.Shared.Infrastructure.Repositories;
-using AttendancePlatform.Shared.Infrastructure.Security;
-using AttendancePlatform.Shared.Infrastructure.Middleware;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Services;
+using Waaed.Shared.Infrastructure.Repositories;
+using Waaed.Shared.Infrastructure.Security;
+using Waaed.Shared.Infrastructure.Middleware;
 using StackExchange.Redis;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace AttendancePlatform.Shared.Infrastructure.Extensions
+namespace Waaed.Shared.Infrastructure.Extensions
 {
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             // Add DbContext with optimized configuration
-            services.AddDbContext<AttendancePlatformDbContext>(options =>
+            services.AddDbContext<WaaedDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
                     b => {
-                        b.MigrationsAssembly(typeof(AttendancePlatformDbContext).Assembly.FullName);
+                        b.MigrationsAssembly(typeof(WaaedDbContext).Assembly.FullName);
                         b.EnableRetryOnFailure(maxRetryCount: 3, maxRetryDelay: TimeSpan.FromSeconds(5), errorNumbersToAdd: null);
                         b.CommandTimeout(30);
                     }), ServiceLifetime.Scoped);
@@ -71,7 +71,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Extensions
         public static async Task<IServiceProvider> MigrateDatabaseAsync(this IServiceProvider serviceProvider)
         {
             using var scope = serviceProvider.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AttendancePlatformDbContext>();
+            var context = scope.ServiceProvider.GetRequiredService<WaaedDbContext>();
             
             try
             {

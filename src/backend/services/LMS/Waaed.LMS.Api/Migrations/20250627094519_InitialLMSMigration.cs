@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace AttendancePlatform.LMS.Api.Migrations
+namespace Waaed.LMS.Api.Migrations
 {
     /// <inheritdoc />
     public partial class InitialLMSMigration : Migration

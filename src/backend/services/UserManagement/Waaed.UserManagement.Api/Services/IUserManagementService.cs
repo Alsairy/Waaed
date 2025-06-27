@@ -1,6 +1,6 @@
-using AttendancePlatform.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.DTOs;
 
-namespace AttendancePlatform.UserManagement.Api.Services
+namespace Waaed.UserManagement.Api.Services
 {
     public interface IUserManagementService
     {

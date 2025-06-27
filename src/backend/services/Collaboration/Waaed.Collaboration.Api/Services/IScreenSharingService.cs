@@ -1,6 +1,6 @@
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Collaboration.Api.Services
+namespace Waaed.Collaboration.Api.Services
 {
     public interface IScreenSharingService
     {

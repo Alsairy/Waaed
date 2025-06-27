@@ -1,4 +1,4 @@
-namespace AttendancePlatform.HR.Api.DTOs;
+namespace Waaed.HR.Api.DTOs;
 
 public class LeaveRequestDto
 {

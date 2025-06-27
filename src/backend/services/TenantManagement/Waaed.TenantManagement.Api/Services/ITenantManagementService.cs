@@ -1,6 +1,6 @@
-using AttendancePlatform.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.DTOs;
 
-namespace AttendancePlatform.TenantManagement.Api.Services
+namespace Waaed.TenantManagement.Api.Services
 {
     public interface ITenantManagementService
     {

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace AttendancePlatform.Library.Api.Migrations
+namespace Waaed.Library.Api.Migrations
 {
     /// <inheritdoc />
     public partial class InitialLibraryMigration : Migration

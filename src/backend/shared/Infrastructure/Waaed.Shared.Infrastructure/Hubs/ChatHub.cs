@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
-namespace AttendancePlatform.Shared.Infrastructure.Hubs;
+namespace Waaed.Shared.Infrastructure.Hubs;
 
 [Authorize]
 public class ChatHub : Hub

@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
 using System.Text.Json;
 
-namespace AttendancePlatform.Notifications.Api.Services
+namespace Waaed.Notifications.Api.Services
 {
     public interface INotificationService
     {
@@ -23,7 +23,7 @@ namespace AttendancePlatform.Notifications.Api.Services
 
     public class NotificationService : INotificationService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly IEmailService _emailService;
         private readonly ISmsService _smsService;
         private readonly IPushNotificationService _pushService;
@@ -32,7 +32,7 @@ namespace AttendancePlatform.Notifications.Api.Services
         private readonly ITenantContext _tenantContext;
 
         public NotificationService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             IEmailService emailService,
             ISmsService smsService,
             IPushNotificationService pushService,

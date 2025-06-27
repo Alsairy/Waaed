@@ -1,20 +1,20 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Services;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Services;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
-namespace AttendancePlatform.Shared.Infrastructure.Repositories
+namespace Waaed.Shared.Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        protected readonly AttendancePlatformDbContext _context;
+        protected readonly WaaedDbContext _context;
         protected readonly DbSet<T> _dbSet;
         protected readonly ICacheService _cacheService;
         protected readonly ILogger<Repository<T>> _logger;
 
-        public Repository(AttendancePlatformDbContext context, ICacheService cacheService, ILogger<Repository<T>> logger)
+        public Repository(WaaedDbContext context, ICacheService cacheService, ILogger<Repository<T>> logger)
         {
             _context = context;
             _dbSet = context.Set<T>();
@@ -171,7 +171,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Repositories
     {
         private readonly ITenantContext _tenantContext;
 
-        public TenantRepository(AttendancePlatformDbContext context, ITenantContext tenantContext, ICacheService cacheService, ILogger<Repository<T>> logger) 
+        public TenantRepository(WaaedDbContext context, ITenantContext tenantContext, ICacheService cacheService, ILogger<Repository<T>> logger) 
             : base(context, cacheService, logger)
         {
             _tenantContext = tenantContext;
@@ -210,10 +210,10 @@ namespace AttendancePlatform.Shared.Infrastructure.Repositories
 
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction? _transaction;
 
-        public UnitOfWork(AttendancePlatformDbContext context)
+        public UnitOfWork(WaaedDbContext context)
         {
             _context = context;
         }

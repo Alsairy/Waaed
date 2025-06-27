@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.LMS.Api.Data;
-using AttendancePlatform.LMS.Api.DTOs;
-using AttendancePlatform.LMS.Api.Entities;
+using Waaed.LMS.Api.Data;
+using Waaed.LMS.Api.DTOs;
+using Waaed.LMS.Api.Entities;
 using AutoMapper;
 
-namespace AttendancePlatform.LMS.Api.Controllers;
+namespace Waaed.LMS.Api.Controllers;
 
 [ApiController]
 [Route("api/lms/[controller]")]

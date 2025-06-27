@@ -1,11 +1,11 @@
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Services;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace AttendancePlatform.Shared.Infrastructure.Security;
+namespace Waaed.Shared.Infrastructure.Security;
 
 public interface IComplianceReportingService
 {
@@ -18,12 +18,12 @@ public interface IComplianceReportingService
 
 public class ComplianceReportingService : IComplianceReportingService
 {
-    private readonly AttendancePlatformDbContext _context;
+    private readonly WaaedDbContext _context;
     private readonly IAuditLogService _auditLogService;
     private readonly ILogger<ComplianceReportingService> _logger;
 
     public ComplianceReportingService(
-        AttendancePlatformDbContext context,
+        WaaedDbContext context,
         IAuditLogService auditLogService,
         ILogger<ComplianceReportingService> logger)
     {
@@ -247,7 +247,7 @@ public class ComplianceReportingService : IComplianceReportingService
     {
         try
         {
-            var domainReport = new AttendancePlatform.Shared.Domain.Entities.ComplianceReport
+            var domainReport = new Waaed.Shared.Domain.Entities.ComplianceReport
             {
                 Id = Guid.NewGuid(),
                 TenantId = Guid.Parse(report.TenantId),

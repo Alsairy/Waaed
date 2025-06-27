@@ -24,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\backend\shared\Domain\AttendancePlatform.Shared.Domain\AttendancePlatform.Shared.Domain.csproj" />
-    <ProjectReference Include="..\..\src\backend\shared\Infrastructure\AttendancePlatform.Shared.Infrastructure\AttendancePlatform.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\backend\shared\Domain\Waaed.Shared.Domain\Waaed.Shared.Domain.csproj" />
+    <ProjectReference Include="..\..\src\backend\shared\Infrastructure\Waaed.Shared.Infrastructure\Waaed.Shared.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

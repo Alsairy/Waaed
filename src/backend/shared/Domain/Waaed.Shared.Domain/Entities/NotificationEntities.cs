@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace AttendancePlatform.Shared.Domain.Entities
+namespace Waaed.Shared.Domain.Entities
 {
     public class NotificationTemplate : BaseEntity
     {

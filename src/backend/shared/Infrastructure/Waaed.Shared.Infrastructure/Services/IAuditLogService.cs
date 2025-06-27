@@ -1,6 +1,6 @@
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Shared.Infrastructure.Services;
+namespace Waaed.Shared.Infrastructure.Services;
 
 public interface IAuditLogService
 {

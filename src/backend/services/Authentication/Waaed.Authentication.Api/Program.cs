@@ -1,20 +1,20 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using AttendancePlatform.Authentication.Api.Services;
-using AttendancePlatform.Shared.Infrastructure.Hubs;
-using AttendancePlatform.Shared.Infrastructure.Extensions;
-using AttendancePlatform.Shared.Infrastructure.Middleware;
-using AttendancePlatform.Shared.Infrastructure.Telemetry;
-using AttendancePlatform.Shared.Infrastructure.Services;
-using AttendancePlatform.Shared.Infrastructure.Repositories;
-using AttendancePlatform.Shared.Domain.Interfaces;
+using Waaed.Authentication.Api.Services;
+using Waaed.Shared.Infrastructure.Hubs;
+using Waaed.Shared.Infrastructure.Extensions;
+using Waaed.Shared.Infrastructure.Middleware;
+using Waaed.Shared.Infrastructure.Telemetry;
+using Waaed.Shared.Infrastructure.Services;
+using Waaed.Shared.Infrastructure.Repositories;
+using Waaed.Shared.Domain.Interfaces;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Data;
 using StackExchange.Redis;
 
-[assembly: InternalsVisibleTo("AttendancePlatform.Tests.Integration")]
+[assembly: InternalsVisibleTo("Waaed.Tests.Integration")]
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,9 +23,9 @@ builder.Services.AddControllers();
 
 // Add infrastructure services with SQL Server database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
-                       "Server=localhost;Database=AttendancePlatform;Trusted_Connection=true;TrustServerCertificate=true;";
+                       "Server=localhost;Database=Waaed;Trusted_Connection=true;TrustServerCertificate=true;";
 
-builder.Services.AddDbContext<AttendancePlatformDbContext>(options =>
+builder.Services.AddDbContext<WaaedDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Add infrastructure services without database context (to avoid conflict)
@@ -55,7 +55,7 @@ builder.Services.AddSecurityServices(builder.Configuration);
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ITwoFactorService, TwoFactorService>();
-builder.Services.AddScoped<AttendancePlatform.Authentication.Api.Services.IEmailService, AttendancePlatform.Authentication.Api.Services.EmailService>();
+builder.Services.AddScoped<Waaed.Authentication.Api.Services.IEmailService, Waaed.Authentication.Api.Services.EmailService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
 // Configure JWT authentication
@@ -121,7 +121,7 @@ builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "AttendancePlatform Authentication API", Version = "v1" });
+    c.SwaggerDoc("v1", new() { Title = "Waaed Authentication API", Version = "v1" });
     
     // Add JWT authentication to Swagger
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -153,7 +153,7 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<AttendancePlatformDbContext>();
+    var context = scope.ServiceProvider.GetRequiredService<WaaedDbContext>();
     context.Database.EnsureCreated();
     
     if (!context.Users.Any())

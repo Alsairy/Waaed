@@ -9,23 +9,23 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy project files
-COPY ["src/backend/services/Analytics/AttendancePlatform.Analytics.Api/AttendancePlatform.Analytics.Api.csproj", "src/backend/services/Analytics/AttendancePlatform.Analytics.Api/"]
-COPY ["src/backend/shared/Domain/AttendancePlatform.Shared.Domain/AttendancePlatform.Shared.Domain.csproj", "src/backend/shared/Domain/AttendancePlatform.Shared.Domain/"]
-COPY ["src/backend/shared/Infrastructure/AttendancePlatform.Shared.Infrastructure/AttendancePlatform.Shared.Infrastructure.csproj", "src/backend/shared/Infrastructure/AttendancePlatform.Shared.Infrastructure/"]
+COPY ["src/backend/services/Analytics/Waaed.Analytics.Api/Waaed.Analytics.Api.csproj", "src/backend/services/Analytics/Waaed.Analytics.Api/"]
+COPY ["src/backend/shared/Domain/Waaed.Shared.Domain/Waaed.Shared.Domain.csproj", "src/backend/shared/Domain/Waaed.Shared.Domain/"]
+COPY ["src/backend/shared/Infrastructure/Waaed.Shared.Infrastructure/Waaed.Shared.Infrastructure.csproj", "src/backend/shared/Infrastructure/Waaed.Shared.Infrastructure/"]
 
 # Restore dependencies
-RUN dotnet restore "src/backend/services/Analytics/AttendancePlatform.Analytics.Api/AttendancePlatform.Analytics.Api.csproj"
+RUN dotnet restore "src/backend/services/Analytics/Waaed.Analytics.Api/Waaed.Analytics.Api.csproj"
 
 # Copy source code
 COPY . .
 
 # Build the application
-WORKDIR "src/backend/services/Analytics/AttendancePlatform.Analytics.Api"
-RUN dotnet build "AttendancePlatform.Analytics.Api.csproj" -c Release -o /app/build
+WORKDIR "src/backend/services/Analytics/Waaed.Analytics.Api"
+RUN dotnet build "Waaed.Analytics.Api.csproj" -c Release -o /app/build
 
 # Publish stage
 FROM build AS publish
-RUN dotnet publish "AttendancePlatform.Analytics.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Waaed.Analytics.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Final stage
 FROM base AS final
@@ -40,4 +40,4 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:80/health || exit 1
 
-ENTRYPOINT ["dotnet", "AttendancePlatform.Analytics.Api.dll"]
+ENTRYPOINT ["dotnet", "Waaed.Analytics.Api.dll"]

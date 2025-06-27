@@ -11,37 +11,37 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "shared", "{05EF8C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{6ED26C70-2D39-43DD-BDC4-CE4E87821DA2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.Shared.Domain", "src\backend\shared\Domain\AttendancePlatform.Shared.Domain\AttendancePlatform.Shared.Domain.csproj", "{D012EA23-D6E4-448E-B3C7-2AD72FC5F7F4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waaed.Shared.Domain", "src\backend\shared\Domain\Waaed.Shared.Domain\Waaed.Shared.Domain.csproj", "{D012EA23-D6E4-448E-B3C7-2AD72FC5F7F4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{AC2B2EF7-644E-4091-91E8-FC673C8DF2D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.Shared.Infrastructure", "src\backend\shared\Infrastructure\AttendancePlatform.Shared.Infrastructure\AttendancePlatform.Shared.Infrastructure.csproj", "{B4C01163-F1E4-4925-BF0E-5DE1315DEE22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waaed.Shared.Infrastructure", "src\backend\shared\Infrastructure\Waaed.Shared.Infrastructure\Waaed.Shared.Infrastructure.csproj", "{B4C01163-F1E4-4925-BF0E-5DE1315DEE22}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gateways", "gateways", "{6FD0FDDC-BF76-47C6-AEFC-60889EC87F27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.ApiGateway", "src\backend\gateways\AttendancePlatform.ApiGateway\AttendancePlatform.ApiGateway.csproj", "{97AEFDC4-4B7E-471B-A337-92C702785E27}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waaed.ApiGateway", "src\backend\gateways\Waaed.ApiGateway\Waaed.ApiGateway.csproj", "{97AEFDC4-4B7E-471B-A337-92C702785E27}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{D82B09D1-20EF-4AED-884C-426528FDA902}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TenantManagement", "TenantManagement", "{13811780-1DC1-47B8-804C-223E8C91ED4A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.TenantManagement.Api", "src\backend\services\TenantManagement\AttendancePlatform.TenantManagement.Api\AttendancePlatform.TenantManagement.Api.csproj", "{2F49072C-4A0B-4831-8FD0-DE1D3901C839}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waaed.TenantManagement.Api", "src\backend\services\TenantManagement\Waaed.TenantManagement.Api\Waaed.TenantManagement.Api.csproj", "{2F49072C-4A0B-4831-8FD0-DE1D3901C839}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Authentication", "Authentication", "{C19A0C7F-A54B-4AF0-8E7E-65604777C8EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.Authentication.Api", "src\backend\services\Authentication\AttendancePlatform.Authentication.Api\AttendancePlatform.Authentication.Api.csproj", "{FD37BAB2-B106-4FFA-A5F7-48BA3E02E487}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waaed.Authentication.Api", "src\backend\services\Authentication\Waaed.Authentication.Api\Waaed.Authentication.Api.csproj", "{FD37BAB2-B106-4FFA-A5F7-48BA3E02E487}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UserManagement", "UserManagement", "{3536EBE7-6AAC-4530-8D81-2F031C8DE114}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.UserManagement.Api", "src\backend\services\UserManagement\AttendancePlatform.UserManagement.Api\AttendancePlatform.UserManagement.Api.csproj", "{313BF4A1-23E3-4F4D-859F-00220F4F94BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waaed.UserManagement.Api", "src\backend\services\UserManagement\Waaed.UserManagement.Api\Waaed.UserManagement.Api.csproj", "{313BF4A1-23E3-4F4D-859F-00220F4F94BC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Attendance", "Attendance", "{6301A92C-E8DD-4834-B82E-45B9E1E073F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hudur.Attendance.Api", "src\backend\services\Attendance\AttendancePlatform.Attendance.Api\AttendancePlatform.Attendance.Api.csproj", "{F07A513F-63C4-47CA-AF63-175D005401C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waaed.Attendance.Api", "src\backend\services\Attendance\Waaed.Attendance.Api\Waaed.Attendance.Api.csproj", "{F07A513F-63C4-47CA-AF63-175D005401C4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LMS", "LMS", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttendancePlatform.LMS.Api", "src\backend\services\LMS\AttendancePlatform.LMS.Api\AttendancePlatform.LMS.Api.csproj", "{7A6B5C4D-2E3F-4A5B-9C8D-1E2F3A4B5C6D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Waaed.LMS.Api", "src\backend\services\LMS\Waaed.LMS.Api\Waaed.LMS.Api.csproj", "{7A6B5C4D-2E3F-4A5B-9C8D-1E2F3A4B5C6D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AttendancePlatform.Shared.Domain.DTOs
+namespace Waaed.Shared.Domain.DTOs
 {
     public class WorkflowExecutionMetricsDto
     {

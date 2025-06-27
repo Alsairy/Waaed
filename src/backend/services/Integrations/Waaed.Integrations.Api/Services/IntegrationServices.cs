@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Domain.DTOs;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
 
-namespace AttendancePlatform.Integrations.Api.Services
+namespace Waaed.Integrations.Api.Services
 {
     public class IntegrationServices
     {
         private readonly ILogger<IntegrationServices> _logger;
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
 
-        public IntegrationServices(ILogger<IntegrationServices> logger, AttendancePlatformDbContext context)
+        public IntegrationServices(ILogger<IntegrationServices> logger, WaaedDbContext context)
         {
             _logger = logger;
             _context = context;

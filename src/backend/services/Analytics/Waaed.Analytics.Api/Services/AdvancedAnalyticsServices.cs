@@ -1,16 +1,16 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Analytics.Api.Services;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Analytics.Api.Services;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Analytics.Api.Services
+namespace Waaed.Analytics.Api.Services
 {
     public class AnomalyDetectionService : IAnomalyDetectionService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<AnomalyDetectionService> _logger;
 
-        public AnomalyDetectionService(AttendancePlatformDbContext context, ILogger<AnomalyDetectionService> logger)
+        public AnomalyDetectionService(WaaedDbContext context, ILogger<AnomalyDetectionService> logger)
         {
             _context = context;
             _logger = logger;
@@ -309,10 +309,10 @@ namespace AttendancePlatform.Analytics.Api.Services
 
     public class WorkforceInsightsService : IWorkforceInsightsService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<WorkforceInsightsService> _logger;
 
-        public WorkforceInsightsService(AttendancePlatformDbContext context, ILogger<WorkforceInsightsService> logger)
+        public WorkforceInsightsService(WaaedDbContext context, ILogger<WorkforceInsightsService> logger)
         {
             _context = context;
             _logger = logger;
@@ -791,10 +791,10 @@ namespace AttendancePlatform.Analytics.Api.Services
 
     public class AttendancePatternService : IAttendancePatternService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<AttendancePatternService> _logger;
 
-        public AttendancePatternService(AttendancePlatformDbContext context, ILogger<AttendancePatternService> logger)
+        public AttendancePatternService(WaaedDbContext context, ILogger<AttendancePatternService> logger)
         {
             _context = context;
             _logger = logger;

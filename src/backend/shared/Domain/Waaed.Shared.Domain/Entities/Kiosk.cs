@@ -1,6 +1,6 @@
-using AttendancePlatform.Shared.Domain.Interfaces;
+using Waaed.Shared.Domain.Interfaces;
 
-namespace AttendancePlatform.Shared.Domain.Entities
+namespace Waaed.Shared.Domain.Entities
 {
     public class Kiosk : BaseEntity, ITenantAware
     {

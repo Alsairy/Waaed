@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using AttendancePlatform.Library.Api.Data;
-using AttendancePlatform.Library.Api.Entities;
-using AttendancePlatform.Library.Api.DTOs;
+using Waaed.Library.Api.Data;
+using Waaed.Library.Api.Entities;
+using Waaed.Library.Api.DTOs;
 
-namespace AttendancePlatform.Library.Api.Controllers;
+namespace Waaed.Library.Api.Controllers;
 
 [ApiController]
 [Route("api/library/[controller]")]

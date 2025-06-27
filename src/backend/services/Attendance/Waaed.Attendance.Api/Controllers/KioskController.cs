@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using AttendancePlatform.Shared.Domain.DTOs;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Attendance.Api.Services;
+using Waaed.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Attendance.Api.Services;
 using System.Security.Claims;
 
-namespace AttendancePlatform.Attendance.Api.Controllers
+namespace Waaed.Attendance.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

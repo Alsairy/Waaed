@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Collaboration.Api.Services
+namespace Waaed.Collaboration.Api.Services
 {
     public interface ITeamCollaborationService
     {
@@ -20,10 +20,10 @@ namespace AttendancePlatform.Collaboration.Api.Services
 
     public class TeamCollaborationService : ITeamCollaborationService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<TeamCollaborationService> _logger;
 
-        public TeamCollaborationService(AttendancePlatformDbContext context, ILogger<TeamCollaborationService> logger)
+        public TeamCollaborationService(WaaedDbContext context, ILogger<TeamCollaborationService> logger)
         {
             _context = context;
             _logger = logger;

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AttendancePlatform.HR.Api.Entities;
+namespace Waaed.HR.Api.Entities;
 
 public class Employee
 {

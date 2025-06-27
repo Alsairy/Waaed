@@ -9,23 +9,23 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy project files
-COPY ["src/backend/services/Collaboration/AttendancePlatform.Collaboration.Api/AttendancePlatform.Collaboration.Api.csproj", "src/backend/services/Collaboration/AttendancePlatform.Collaboration.Api/"]
-COPY ["src/backend/shared/Domain/AttendancePlatform.Shared.Domain/AttendancePlatform.Shared.Domain.csproj", "src/backend/shared/Domain/AttendancePlatform.Shared.Domain/"]
-COPY ["src/backend/shared/Infrastructure/AttendancePlatform.Shared.Infrastructure/AttendancePlatform.Shared.Infrastructure.csproj", "src/backend/shared/Infrastructure/AttendancePlatform.Shared.Infrastructure/"]
+COPY ["src/backend/services/Collaboration/Waaed.Collaboration.Api/Waaed.Collaboration.Api.csproj", "src/backend/services/Collaboration/Waaed.Collaboration.Api/"]
+COPY ["src/backend/shared/Domain/Waaed.Shared.Domain/Waaed.Shared.Domain.csproj", "src/backend/shared/Domain/Waaed.Shared.Domain/"]
+COPY ["src/backend/shared/Infrastructure/Waaed.Shared.Infrastructure/Waaed.Shared.Infrastructure.csproj", "src/backend/shared/Infrastructure/Waaed.Shared.Infrastructure/"]
 
 # Restore dependencies
-RUN dotnet restore "src/backend/services/Collaboration/AttendancePlatform.Collaboration.Api/AttendancePlatform.Collaboration.Api.csproj"
+RUN dotnet restore "src/backend/services/Collaboration/Waaed.Collaboration.Api/Waaed.Collaboration.Api.csproj"
 
 # Copy source code
 COPY . .
 
 # Build the application
-WORKDIR "src/backend/services/Collaboration/AttendancePlatform.Collaboration.Api"
-RUN dotnet build "AttendancePlatform.Collaboration.Api.csproj" -c Release -o /app/build
+WORKDIR "src/backend/services/Collaboration/Waaed.Collaboration.Api"
+RUN dotnet build "Waaed.Collaboration.Api.csproj" -c Release -o /app/build
 
 # Publish stage
 FROM build AS publish
-RUN dotnet publish "AttendancePlatform.Collaboration.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Waaed.Collaboration.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Final stage
 FROM base AS final
@@ -40,4 +40,4 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:80/health || exit 1
 
-ENTRYPOINT ["dotnet", "AttendancePlatform.Collaboration.Api.dll"]
+ENTRYPOINT ["dotnet", "Waaed.Collaboration.Api.dll"]

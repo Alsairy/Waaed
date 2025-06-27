@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using AttendancePlatform.Attendance.Api.Services;
-using AttendancePlatform.Shared.Infrastructure.Extensions;
-using AttendancePlatform.Shared.Infrastructure.Middleware;
+using Waaed.Attendance.Api.Services;
+using Waaed.Shared.Infrastructure.Extensions;
+using Waaed.Shared.Infrastructure.Middleware;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Hudur.Tests.Integration")]

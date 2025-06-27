@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace AttendancePlatform.Finance.Api.Migrations
+namespace Waaed.Finance.Api.Migrations
 {
     /// <inheritdoc />
     public partial class InitialFinanceMigration : Migration

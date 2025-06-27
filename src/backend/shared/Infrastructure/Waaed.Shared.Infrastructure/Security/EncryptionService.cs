@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace AttendancePlatform.Shared.Infrastructure.Security;
+namespace Waaed.Shared.Infrastructure.Security;
 
 public interface IEncryptionService
 {

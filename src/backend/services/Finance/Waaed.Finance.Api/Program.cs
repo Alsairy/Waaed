@@ -1,4 +1,4 @@
-using AttendancePlatform.Finance.Api.Extensions;
+using Waaed.Finance.Api.Extensions;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

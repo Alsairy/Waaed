@@ -1,18 +1,18 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Security;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Security;
 
-namespace AttendancePlatform.Shared.Infrastructure.Data
+namespace Waaed.Shared.Infrastructure.Data
 {
-    public class AttendancePlatformDbContext : DbContext
+    public class WaaedDbContext : DbContext
     {
         private readonly ITenantContext _tenantContext;
         private readonly ICurrentUserService _currentUserService;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        public AttendancePlatformDbContext(
-            DbContextOptions<AttendancePlatformDbContext> options,
+        public WaaedDbContext(
+            DbContextOptions<WaaedDbContext> options,
             ITenantContext tenantContext,
             ICurrentUserService currentUserService,
             IDateTimeProvider dateTimeProvider) : base(options)
@@ -31,7 +31,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Data
         
         // Security and Compliance entities
         public DbSet<ComplianceEvent> ComplianceEvents { get; set; }
-        public DbSet<AttendancePlatform.Shared.Domain.Entities.ComplianceReport> ComplianceReports { get; set; }
+        public DbSet<Waaed.Shared.Domain.Entities.ComplianceReport> ComplianceReports { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
 
         // Attendance entities
@@ -534,7 +534,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Data
                 entity.HasIndex(e => e.Timestamp);
             });
 
-            modelBuilder.Entity<AttendancePlatform.Shared.Domain.Entities.ComplianceReport>(entity =>
+            modelBuilder.Entity<Waaed.Shared.Domain.Entities.ComplianceReport>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.TenantId).IsRequired();
@@ -546,7 +546,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Data
                 entity.HasIndex(e => e.GeneratedAt);
             });
 
-            modelBuilder.Entity<AttendancePlatform.Shared.Domain.Entities.ComplianceViolation>(entity =>
+            modelBuilder.Entity<Waaed.Shared.Domain.Entities.ComplianceViolation>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).HasMaxLength(50);
@@ -572,7 +572,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<AttendancePlatform.Shared.Domain.Entities.ShiftAssignment>(entity =>
+            modelBuilder.Entity<Waaed.Shared.Domain.Entities.ShiftAssignment>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.TenantId).IsRequired();
@@ -593,7 +593,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<AttendancePlatform.Shared.Domain.Entities.ShiftSwapRequest>(entity =>
+            modelBuilder.Entity<Waaed.Shared.Domain.Entities.ShiftSwapRequest>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.TenantId).IsRequired();
@@ -629,7 +629,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            modelBuilder.Entity<AttendancePlatform.Shared.Domain.Entities.ShiftConflict>(entity =>
+            modelBuilder.Entity<Waaed.Shared.Domain.Entities.ShiftConflict>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.TenantId).IsRequired();
@@ -658,7 +658,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Data
             {
                 if (typeof(ITenantAware).IsAssignableFrom(entityType.ClrType))
                 {
-                    var method = typeof(AttendancePlatformDbContext)
+                    var method = typeof(WaaedDbContext)
                         .GetMethod(nameof(GetTenantFilter), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
                         .MakeGenericMethod(entityType.ClrType);
                     
@@ -669,7 +669,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Data
                 // Apply global query filter for soft delete
                 if (typeof(ISoftDeletable).IsAssignableFrom(entityType.ClrType))
                 {
-                    var method = typeof(AttendancePlatformDbContext)
+                    var method = typeof(WaaedDbContext)
                         .GetMethod(nameof(GetSoftDeleteFilter), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
                         .MakeGenericMethod(entityType.ClrType);
                     
@@ -679,7 +679,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Data
             }
         }
 
-        private static System.Linq.Expressions.LambdaExpression GetTenantFilter<TEntity>(AttendancePlatformDbContext context)
+        private static System.Linq.Expressions.LambdaExpression GetTenantFilter<TEntity>(WaaedDbContext context)
             where TEntity : class, ITenantAware
         {
             System.Linq.Expressions.Expression<Func<TEntity, bool>> filter = x => x.TenantId == context._tenantContext.TenantId;

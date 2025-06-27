@@ -5,7 +5,7 @@ using System.Text.Json;
 using StackExchange.Redis;
 using System.Diagnostics.Metrics;
 
-namespace AttendancePlatform.Shared.Infrastructure.Services
+namespace Waaed.Shared.Infrastructure.Services
 {
     public class CacheService : ICacheService
     {
@@ -178,7 +178,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Services
 
     public class CacheMetrics
     {
-        private static readonly Meter _meter = new("AttendancePlatform.Cache");
+        private static readonly Meter _meter = new("Waaed.Cache");
         private readonly Counter<long> _cacheHits = _meter.CreateCounter<long>("cache_hits_total");
         private readonly Counter<long> _cacheMisses = _meter.CreateCounter<long>("cache_misses_total");
         private readonly Counter<long> _cacheErrors = _meter.CreateCounter<long>("cache_errors_total");

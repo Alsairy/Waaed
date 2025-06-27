@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Infrastructure.Extensions;
-using AttendancePlatform.BI.Api.Services;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Extensions;
+using Waaed.BI.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

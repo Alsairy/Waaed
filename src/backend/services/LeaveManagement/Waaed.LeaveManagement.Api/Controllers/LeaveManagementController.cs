@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AttendancePlatform.LeaveManagement.Api.Services;
-using AttendancePlatform.Shared.Domain.DTOs;
+using Waaed.LeaveManagement.Api.Services;
+using Waaed.Shared.Domain.DTOs;
 using System.Security.Claims;
 
-namespace AttendancePlatform.LeaveManagement.Api.Controllers
+namespace Waaed.LeaveManagement.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

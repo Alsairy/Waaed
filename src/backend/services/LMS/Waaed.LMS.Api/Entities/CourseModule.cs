@@ -1,4 +1,4 @@
-namespace AttendancePlatform.LMS.Api.Entities;
+namespace Waaed.LMS.Api.Entities;
 
 public class CourseModule
 {

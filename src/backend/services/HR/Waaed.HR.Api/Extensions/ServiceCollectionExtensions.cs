@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.HR.Api.Data;
+using Waaed.HR.Api.Data;
 using System.Reflection;
 
-namespace AttendancePlatform.HR.Api.Extensions;
+namespace Waaed.HR.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {

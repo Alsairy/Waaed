@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Data;
 using System.Text.Json;
 using System.Dynamic;
 
-namespace AttendancePlatform.BI.Api.Services
+namespace Waaed.BI.Api.Services
 {
     public interface IReportBuilderService
     {
@@ -62,10 +62,10 @@ namespace AttendancePlatform.BI.Api.Services
 
     public class ReportBuilderService : IReportBuilderService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<ReportBuilderService> _logger;
 
-        public ReportBuilderService(AttendancePlatformDbContext context, ILogger<ReportBuilderService> logger)
+        public ReportBuilderService(WaaedDbContext context, ILogger<ReportBuilderService> logger)
         {
             _context = context;
             _logger = logger;
@@ -446,10 +446,10 @@ namespace AttendancePlatform.BI.Api.Services
 
     public class DashboardService : IDashboardService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<DashboardService> _logger;
 
-        public DashboardService(AttendancePlatformDbContext context, ILogger<DashboardService> logger)
+        public DashboardService(WaaedDbContext context, ILogger<DashboardService> logger)
         {
             _context = context;
             _logger = logger;

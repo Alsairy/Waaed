@@ -1,4 +1,4 @@
-namespace AttendancePlatform.Finance.Api.DTOs;
+namespace Waaed.Finance.Api.DTOs;
 
 public class FeeCollectionDto
 {

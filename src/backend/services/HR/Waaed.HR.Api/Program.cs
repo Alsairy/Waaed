@@ -1,5 +1,5 @@
-using AttendancePlatform.HR.Api.Extensions;
-using AttendancePlatform.HR.Api.Data;
+using Waaed.HR.Api.Extensions;
+using Waaed.HR.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 

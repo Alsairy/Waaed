@@ -1,16 +1,16 @@
-using AttendancePlatform.LMS.Api.Data;
+using Waaed.LMS.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using MediatR;
 using System.Reflection;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Services;
-using AttendancePlatform.Shared.Infrastructure.Repositories;
-using AttendancePlatform.Shared.Infrastructure.Security;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Services;
+using Waaed.Shared.Infrastructure.Repositories;
+using Waaed.Shared.Infrastructure.Security;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace AttendancePlatform.LMS.Api.Extensions;
+namespace Waaed.LMS.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {

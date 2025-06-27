@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Collaboration.Api.Services
+namespace Waaed.Collaboration.Api.Services
 {
     public interface IChatService
     {
@@ -19,10 +19,10 @@ namespace AttendancePlatform.Collaboration.Api.Services
 
     public class ChatService : IChatService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<ChatService> _logger;
 
-        public ChatService(AttendancePlatformDbContext context, ILogger<ChatService> logger)
+        public ChatService(WaaedDbContext context, ILogger<ChatService> logger)
         {
             _context = context;
             _logger = logger;

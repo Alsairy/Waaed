@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Domain.DTOs;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Authentication.Api.Services;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Authentication.Api.Services;
 
-namespace AttendancePlatform.Authentication.Api.Services
+namespace Waaed.Authentication.Api.Services
 {
     public interface IAuthenticationService
     {
@@ -22,7 +22,7 @@ namespace AttendancePlatform.Authentication.Api.Services
 
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly ILogger<AuthenticationService> _logger;
         private readonly ITenantContext _tenantContext;
@@ -31,7 +31,7 @@ namespace AttendancePlatform.Authentication.Api.Services
         private readonly IRefreshTokenService _refreshTokenService;
 
         public AuthenticationService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             IJwtTokenService jwtTokenService,
             ILogger<AuthenticationService> logger,
             ITenantContext tenantContext,

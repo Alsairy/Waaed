@@ -1,18 +1,18 @@
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Infrastructure.Data;
 using System.Text.Json;
 using OfficeOpenXml;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 
-namespace AttendancePlatform.BI.Api.Services
+namespace Waaed.BI.Api.Services
 {
     public class DataVisualizationService : IDataVisualizationService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<DataVisualizationService> _logger;
 
-        public DataVisualizationService(AttendancePlatformDbContext context, ILogger<DataVisualizationService> logger)
+        public DataVisualizationService(WaaedDbContext context, ILogger<DataVisualizationService> logger)
         {
             _context = context;
             _logger = logger;
@@ -389,10 +389,10 @@ namespace AttendancePlatform.BI.Api.Services
 
     public class KPIService : IKPIService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<KPIService> _logger;
 
-        public KPIService(AttendancePlatformDbContext context, ILogger<KPIService> logger)
+        public KPIService(WaaedDbContext context, ILogger<KPIService> logger)
         {
             _context = context;
             _logger = logger;
@@ -746,10 +746,10 @@ namespace AttendancePlatform.BI.Api.Services
 
     public class AdvancedReportingService : IAdvancedReportingService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<AdvancedReportingService> _logger;
 
-        public AdvancedReportingService(AttendancePlatformDbContext context, ILogger<AdvancedReportingService> logger)
+        public AdvancedReportingService(WaaedDbContext context, ILogger<AdvancedReportingService> logger)
         {
             _context = context;
             _logger = logger;
@@ -1097,10 +1097,10 @@ namespace AttendancePlatform.BI.Api.Services
 
     public class DataExportService : IDataExportService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<DataExportService> _logger;
 
-        public DataExportService(AttendancePlatformDbContext context, ILogger<DataExportService> logger)
+        public DataExportService(WaaedDbContext context, ILogger<DataExportService> logger)
         {
             _context = context;
             _logger = logger;
@@ -1779,12 +1779,12 @@ namespace AttendancePlatform.BI.Api.Services
 
     public class ComplianceReportingService : IComplianceReportingService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<ComplianceReportingService> _logger;
         private readonly IAuditLogService _auditLogService;
 
         public ComplianceReportingService(
-            AttendancePlatformDbContext context, 
+            WaaedDbContext context, 
             ILogger<ComplianceReportingService> logger,
             IAuditLogService auditLogService)
         {

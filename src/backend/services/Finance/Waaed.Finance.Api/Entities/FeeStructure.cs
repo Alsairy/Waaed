@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AttendancePlatform.Finance.Api.Entities;
+namespace Waaed.Finance.Api.Entities;
 
 public class FeeStructure
 {

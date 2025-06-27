@@ -1,10 +1,10 @@
 using System.Net.Mail;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Notifications.Api.Services
+namespace Waaed.Notifications.Api.Services
 {
     public interface IEmailService
     {
@@ -242,13 +242,13 @@ namespace AttendancePlatform.Notifications.Api.Services
         private readonly IConfiguration _configuration;
         private readonly ILogger<PushNotificationService> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
 
         public PushNotificationService(
             IConfiguration configuration,
             ILogger<PushNotificationService> logger,
             IHttpClientFactory httpClientFactory,
-            AttendancePlatformDbContext context)
+            WaaedDbContext context)
         {
             _configuration = configuration;
             _logger = logger;

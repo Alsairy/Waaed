@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using AttendancePlatform.Shared.Infrastructure.Data;
-using AttendancePlatform.Shared.Domain.DTOs;
-using AttendancePlatform.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.Entities;
 
-namespace AttendancePlatform.Compliance.Api.Services
+namespace Waaed.Compliance.Api.Services
 {
     public interface IComplianceService
     {
@@ -19,13 +19,13 @@ namespace AttendancePlatform.Compliance.Api.Services
 
     public class ComplianceService : IComplianceService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<ComplianceService> _logger;
         private readonly ILocalizationService _localizationService;
         private readonly Dictionary<string, RegionalComplianceRules> _regionalRules;
 
         public ComplianceService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             ILogger<ComplianceService> logger,
             ILocalizationService localizationService)
         {
@@ -604,10 +604,10 @@ namespace AttendancePlatform.Compliance.Api.Services
 
     public class LocalizationService : ILocalizationService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<LocalizationService> _logger;
 
-        public LocalizationService(AttendancePlatformDbContext context, ILogger<LocalizationService> logger)
+        public LocalizationService(WaaedDbContext context, ILogger<LocalizationService> logger)
         {
             _context = context;
             _logger = logger;

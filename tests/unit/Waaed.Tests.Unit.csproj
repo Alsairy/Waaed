@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\backend\shared\Domain\AttendancePlatform.Shared.Domain\AttendancePlatform.Shared.Domain.csproj" />
-    <ProjectReference Include="..\..\src\backend\shared\Infrastructure\AttendancePlatform.Shared.Infrastructure\AttendancePlatform.Shared.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\backend\services\Authentication\AttendancePlatform.Authentication.Api\AttendancePlatform.Authentication.Api.csproj" />
-    <ProjectReference Include="..\..\src\backend\services\Attendance\AttendancePlatform.Attendance.Api\AttendancePlatform.Attendance.Api.csproj" />
+    <ProjectReference Include="..\..\src\backend\shared\Domain\Waaed.Shared.Domain\Waaed.Shared.Domain.csproj" />
+    <ProjectReference Include="..\..\src\backend\shared\Infrastructure\Waaed.Shared.Infrastructure\Waaed.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\backend\services\Authentication\Waaed.Authentication.Api\Waaed.Authentication.Api.csproj" />
+    <ProjectReference Include="..\..\src\backend\services\Attendance\Waaed.Attendance.Api\Waaed.Attendance.Api.csproj" />
   </ItemGroup>
 
 </Project>

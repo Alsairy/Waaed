@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using AttendancePlatform.FaceRecognition.Api.Services;
-using AttendancePlatform.Shared.Infrastructure.Extensions;
-using AttendancePlatform.Shared.Infrastructure.Middleware;
+using Waaed.FaceRecognition.Api.Services;
+using Waaed.Shared.Infrastructure.Extensions;
+using Waaed.Shared.Infrastructure.Middleware;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("AttendancePlatform.Tests.Integration")]
+[assembly: InternalsVisibleTo("Waaed.Tests.Integration")]
 
 var builder = WebApplication.CreateBuilder(args);
 

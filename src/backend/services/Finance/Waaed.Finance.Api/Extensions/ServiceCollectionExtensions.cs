@@ -1,13 +1,13 @@
-using AttendancePlatform.Finance.Api.Data;
+using Waaed.Finance.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using MediatR;
 using System.Reflection;
-using AttendancePlatform.Shared.Domain.Interfaces;
-using AttendancePlatform.Shared.Infrastructure.Services;
+using Waaed.Shared.Domain.Interfaces;
+using Waaed.Shared.Infrastructure.Services;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace AttendancePlatform.Finance.Api.Extensions;
+namespace Waaed.Finance.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {

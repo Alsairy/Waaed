@@ -1,7 +1,7 @@
 using Hudur.Shared.Domain.Entities;
 using Xunit;
 
-namespace AttendancePlatform.Tests.Integration
+namespace Waaed.Tests.Integration
 {
     public class DomainEntityTests
     {

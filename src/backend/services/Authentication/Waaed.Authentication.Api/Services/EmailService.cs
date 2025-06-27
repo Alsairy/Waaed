@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Text;
 
-namespace AttendancePlatform.Authentication.Api.Services
+namespace Waaed.Authentication.Api.Services
 {
     public interface IEmailService
     {

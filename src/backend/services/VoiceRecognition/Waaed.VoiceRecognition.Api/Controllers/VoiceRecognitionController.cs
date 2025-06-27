@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using AttendancePlatform.VoiceRecognition.Api.Services;
-using AttendancePlatform.Shared.Domain.DTOs;
+using Waaed.VoiceRecognition.Api.Services;
+using Waaed.Shared.Domain.DTOs;
 
-namespace AttendancePlatform.VoiceRecognition.Api.Controllers
+namespace Waaed.VoiceRecognition.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

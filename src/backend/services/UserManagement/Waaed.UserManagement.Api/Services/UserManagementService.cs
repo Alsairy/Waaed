@@ -1,17 +1,17 @@
-using AttendancePlatform.Shared.Domain.DTOs;
-using AttendancePlatform.Shared.Domain.Entities;
-using AttendancePlatform.Shared.Infrastructure.Data;
+using Waaed.Shared.Domain.DTOs;
+using Waaed.Shared.Domain.Entities;
+using Waaed.Shared.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace AttendancePlatform.UserManagement.Api.Services
+namespace Waaed.UserManagement.Api.Services
 {
     public class UserManagementService : IUserManagementService
     {
-        private readonly AttendancePlatformDbContext _context;
+        private readonly WaaedDbContext _context;
         private readonly ILogger<UserManagementService> _logger;
 
         public UserManagementService(
-            AttendancePlatformDbContext context,
+            WaaedDbContext context,
             ILogger<UserManagementService> logger)
         {
             _context = context;
