@@ -6,6 +6,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure to listen on port 5001
+builder.WebHost.UseUrls("http://localhost:5001");
+
 // Add configuration
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
@@ -22,6 +25,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
                 "http://localhost:5173", 
                 "http://localhost:5174",
+                "http://localhost:5175",
                 "http://localhost:3000",
                 "https://project-review-app-7tx5ua47.devinapps.com",
                 "https://attendancepro-auth-api.devinapps.com"

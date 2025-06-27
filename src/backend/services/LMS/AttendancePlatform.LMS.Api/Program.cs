@@ -1,5 +1,5 @@
-using AttendancePlatform.Shared.Infrastructure.Extensions;
 using AttendancePlatform.LMS.Api.Extensions;
+using AttendancePlatform.Shared.Infrastructure.Extensions;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSharedInfrastructure(builder.Configuration);
+builder.Services.AddSharedInfrastructure();
 builder.Services.AddLMSServices(builder.Configuration);
 
 builder.Services.AddCors(options =>
