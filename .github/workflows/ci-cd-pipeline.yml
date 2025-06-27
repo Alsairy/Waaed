@@ -163,7 +163,9 @@ jobs:
               --configuration Release
           else
             dotnet build \
-              src/backend/services/${{ matrix.service }}/Waaed.${{ matrix.service }}.Api/Waaed.${{ matrix.service }}.Api.csproj \
+              src/backend/services/${{ matrix.service }}/\
+                Waaed.${{ matrix.service }}.Api/\
+                  Waaed.${{ matrix.service }}.Api.csproj \
               --no-restore \
               --configuration Release
           fi
@@ -173,7 +175,8 @@ jobs:
         with:
           name: ${{ matrix.service }}-build
           path: |
-            src/backend/services/${{ matrix.service }}/Waaed.${{ matrix.service }}.Api/bin/Release/
+            src/backend/services/${{ matrix.service }}/\
+              Waaed.${{ matrix.service }}.Api/bin/Release/
             src/backend/gateways/Waaed.ApiGateway/bin/Release/
           retention-days: 1
 
