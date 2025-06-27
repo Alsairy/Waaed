@@ -152,7 +152,15 @@ app.MapGet("/api/gateway/info", () => new
         "/api/tenants/* -> Tenant Management Service",
         "/api/notifications/* -> Notification Service",
         "/api/webhooks/* -> Webhook Service",
-        "/api/integrations/* -> Integration Service"
+        "/api/integrations/* -> Integration Service",
+        "/api/lms/* -> Learning Management Service",
+        "/api/finance/* -> Finance Management Service",
+        "/api/hr/* -> Human Resources Service",
+        "/api/library/* -> Library Management Service",
+        "/api/inventory/* -> Inventory Management Service",
+        "/api/polls/* -> Polls and Voting Service",
+        "/api/blogs/* -> Blogs and Content Service",
+        "/api/tasks/* -> Task Management Service"
     }
 });
 

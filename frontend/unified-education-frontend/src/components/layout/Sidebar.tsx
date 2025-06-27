@@ -1,7 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Home, GraduationCap, BookOpen, FileText, Briefcase, BarChart3, Repeat, Settings, Bot } from 'lucide-react';
+import { 
+  Home, 
+  GraduationCap, 
+  BookOpen, 
+  FileText, 
+  Briefcase, 
+  BarChart3, 
+  Repeat, 
+  Settings, 
+  Bot,
+  DollarSign,
+  Users,
+  Library,
+  Package,
+  Vote,
+  PenTool,
+  CheckSquare
+} from 'lucide-react';
 
 
 interface SidebarProps {
@@ -64,6 +81,36 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           link: '/erp',
         },
         {
+          key: 'finance',
+          label: t('navigation.finance'),
+          icon: <DollarSign size={20} />,
+          link: '/finance',
+        },
+        {
+          key: 'hr',
+          label: t('navigation.hr'),
+          icon: <Users size={20} />,
+          link: '/hr',
+        },
+        {
+          key: 'library',
+          label: t('navigation.library'),
+          icon: <Library size={20} />,
+          link: '/library',
+        },
+        {
+          key: 'inventory',
+          label: t('navigation.inventory'),
+          icon: <Package size={20} />,
+          link: '/inventory',
+        },
+        {
+          key: 'tasks',
+          label: t('navigation.tasks'),
+          icon: <CheckSquare size={20} />,
+          link: '/tasks',
+        },
+        {
           key: 'analytics',
           label: t('navigation.analytics'),
           icon: <BarChart3 size={20} />,
@@ -74,6 +121,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           label: t('navigation.bpm'),
           icon: <Repeat size={20} />,
           link: '/bpm',
+        }
+      ]
+    },
+    {
+      key: 'community',
+      label: t('navigation.community'),
+      items: [
+        {
+          key: 'polls',
+          label: t('navigation.polls'),
+          icon: <Vote size={20} />,
+          link: '/polls',
+        },
+        {
+          key: 'blogs',
+          label: t('navigation.blogs'),
+          icon: <PenTool size={20} />,
+          link: '/blogs',
         }
       ]
     },
