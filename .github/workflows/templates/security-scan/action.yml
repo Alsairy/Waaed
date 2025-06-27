@@ -1,0 +1,263 @@
+name: 'Security Scanning'
+description: 'Performs comprehensive security scanning including SAST, dependency check, and container scanning'
+inputs:
+  scan-type:
+    description: 'Type of security scan (sast/dependency/container/all)'
+    required: false
+    default: 'all'
+  project-path:
+    description: 'Path to the project directory'
+    required: true
+  language:
+    description: 'Primary language of the project (csharp/javascript/typescript)'
+    required: false
+    default: 'csharp'
+  severity-threshold:
+    description: 'Minimum severity level to report (low/medium/high/critical)'
+    required: false
+    default: 'medium'
+  fail-on-findings:
+    description: 'Whether to fail the build on security findings'
+    required: false
+    default: 'true'
+  docker-image:
+    description: 'Docker image to scan (for container scanning)'
+    required: false
+outputs:
+  scan-status:
+    description: 'Overall scan status (success/failure)'
+    value: ${{ steps.summary.outputs.status }}
+  findings-count:
+    description: 'Total number of security findings'
+    value: ${{ steps.summary.outputs.findings-count }}
+  critical-findings:
+    description: 'Number of critical findings'
+    value: ${{ steps.summary.outputs.critical-findings }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup security tools
+      shell: bash
+      run: |
+        echo "Setting up security scanning tools..."
+        
+        # Install CodeQL CLI
+        wget -q https://github.com/github/codeql-action/releases/latest/download/codeql-bundle-linux64.tar.gz
+        tar -xzf codeql-bundle-linux64.tar.gz
+        echo "$PWD/codeql" >> $GITHUB_PATH
+        
+        # Install Trivy for container scanning
+        sudo apt-get update
+        sudo apt-get install wget apt-transport-https gnupg lsb-release
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update
+        sudo apt-get install trivy
+        
+        # Install OWASP Dependency Check
+        wget -q https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
+        unzip -q dependency-check-8.4.0-release.zip
+        echo "$PWD/dependency-check/bin" >> $GITHUB_PATH
+
+    - name: SAST Scanning
+      if: inputs.scan-type == 'sast' || inputs.scan-type == 'all'
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Running SAST scanning..."
+        
+        # Create CodeQL database
+        case "${{ inputs.language }}" in
+          "csharp")
+            codeql database create codeql-db --language=csharp --command="dotnet build"
+            ;;
+          "javascript"|"typescript")
+            codeql database create codeql-db --language=javascript
+            ;;
+          *)
+            echo "Unsupported language for SAST: ${{ inputs.language }}"
+            exit 1
+            ;;
+        esac
+        
+        # Run CodeQL analysis
+        codeql database analyze codeql-db \
+          --format=sarif-latest \
+          --output=sast-results.sarif \
+          --download
+        
+        # Convert SARIF to readable format
+        if [ -f "sast-results.sarif" ]; then
+          echo "SAST scan completed. Results saved to sast-results.sarif"
+        fi
+
+    - name: Dependency Scanning
+      if: inputs.scan-type == 'dependency' || inputs.scan-type == 'all'
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Running dependency vulnerability scanning..."
+        
+        # Scan for vulnerable dependencies
+        case "${{ inputs.language }}" in
+          "csharp")
+            # Scan .NET dependencies
+            find . -name "*.csproj" -exec dependency-check.sh --project "Waaed" --scan {} --format JSON --format HTML --out ./dependency-results \;
+            ;;
+          "javascript"|"typescript")
+            # Scan npm dependencies
+            if [ -f "package.json" ]; then
+              npm audit --audit-level=${{ inputs.severity-threshold }} --json > npm-audit-results.json || true
+            fi
+            
+            if [ -f "yarn.lock" ]; then
+              yarn audit --level ${{ inputs.severity-threshold }} --json > yarn-audit-results.json || true
+            fi
+            ;;
+        esac
+
+    - name: Container Scanning
+      if: (inputs.scan-type == 'container' || inputs.scan-type == 'all') && inputs.docker-image != ''
+      shell: bash
+      run: |
+        echo "Running container security scanning..."
+        
+        # Scan Docker image with Trivy
+        trivy image \
+          --format json \
+          --output container-scan-results.json \
+          --severity ${{ inputs.severity-threshold }},HIGH,CRITICAL \
+          ${{ inputs.docker-image }}
+        
+        # Generate human-readable report
+        trivy image \
+          --format table \
+          --severity ${{ inputs.severity-threshold }},HIGH,CRITICAL \
+          ${{ inputs.docker-image }} > container-scan-report.txt
+
+    - name: Infrastructure Scanning
+      if: inputs.scan-type == 'all'
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Running infrastructure security scanning..."
+        
+        # Scan Kubernetes manifests
+        if [ -d "k8s" ] || [ -d "kubernetes" ] || [ -d "helm" ]; then
+          trivy config . --format json --output infra-scan-results.json
+        fi
+        
+        # Scan Dockerfile
+        if [ -f "Dockerfile" ]; then
+          trivy config Dockerfile --format json --output dockerfile-scan-results.json
+        fi
+
+    - name: Analyze results
+      id: summary
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Analyzing security scan results..."
+        
+        total_findings=0
+        critical_findings=0
+        high_findings=0
+        medium_findings=0
+        low_findings=0
+        
+        # Process SAST results
+        if [ -f "sast-results.sarif" ]; then
+          sast_findings=$(jq '.runs[0].results | length' sast-results.sarif 2>/dev/null || echo "0")
+          total_findings=$((total_findings + sast_findings))
+          echo "SAST findings: $sast_findings"
+        fi
+        
+        # Process dependency scan results
+        if [ -f "dependency-results/dependency-check-report.json" ]; then
+          dep_critical=$(jq '[.dependencies[].vulnerabilities[]? | select(.severity == "CRITICAL")] | length' dependency-results/dependency-check-report.json 2>/dev/null || echo "0")
+          dep_high=$(jq '[.dependencies[].vulnerabilities[]? | select(.severity == "HIGH")] | length' dependency-results/dependency-check-report.json 2>/dev/null || echo "0")
+          dep_medium=$(jq '[.dependencies[].vulnerabilities[]? | select(.severity == "MEDIUM")] | length' dependency-results/dependency-check-report.json 2>/dev/null || echo "0")
+          
+          critical_findings=$((critical_findings + dep_critical))
+          high_findings=$((high_findings + dep_high))
+          medium_findings=$((medium_findings + dep_medium))
+          total_findings=$((total_findings + dep_critical + dep_high + dep_medium))
+          
+          echo "Dependency findings - Critical: $dep_critical, High: $dep_high, Medium: $dep_medium"
+        fi
+        
+        # Process container scan results
+        if [ -f "container-scan-results.json" ]; then
+          container_critical=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "CRITICAL")] | length' container-scan-results.json 2>/dev/null || echo "0")
+          container_high=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH")] | length' container-scan-results.json 2>/dev/null || echo "0")
+          container_medium=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "MEDIUM")] | length' container-scan-results.json 2>/dev/null || echo "0")
+          
+          critical_findings=$((critical_findings + container_critical))
+          high_findings=$((high_findings + container_high))
+          medium_findings=$((medium_findings + container_medium))
+          total_findings=$((total_findings + container_critical + container_high + container_medium))
+          
+          echo "Container findings - Critical: $container_critical, High: $container_high, Medium: $container_medium"
+        fi
+        
+        # Set outputs
+        echo "findings-count=$total_findings" >> $GITHUB_OUTPUT
+        echo "critical-findings=$critical_findings" >> $GITHUB_OUTPUT
+        
+        # Determine overall status
+        if [ "${{ inputs.fail-on-findings }}" == "true" ]; then
+          case "${{ inputs.severity-threshold }}" in
+            "critical")
+              if [ $critical_findings -gt 0 ]; then
+                echo "status=failure" >> $GITHUB_OUTPUT
+                echo "❌ Found $critical_findings critical security findings"
+                exit 1
+              fi
+              ;;
+            "high")
+              if [ $((critical_findings + high_findings)) -gt 0 ]; then
+                echo "status=failure" >> $GITHUB_OUTPUT
+                echo "❌ Found $((critical_findings + high_findings)) high+ security findings"
+                exit 1
+              fi
+              ;;
+            "medium")
+              if [ $((critical_findings + high_findings + medium_findings)) -gt 0 ]; then
+                echo "status=failure" >> $GITHUB_OUTPUT
+                echo "❌ Found $((critical_findings + high_findings + medium_findings)) medium+ security findings"
+                exit 1
+              fi
+              ;;
+          esac
+        fi
+        
+        echo "status=success" >> $GITHUB_OUTPUT
+        echo "✅ Security scan completed successfully"
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-scan-results
+        path: |
+          ${{ inputs.project-path }}/*-results.*
+          ${{ inputs.project-path }}/*-report.*
+          ${{ inputs.project-path }}/dependency-results/
+
+    - name: Generate security summary
+      shell: bash
+      run: |
+        echo "## Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Scan Type:** ${{ inputs.scan-type }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Language:** ${{ inputs.language }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Severity Threshold:** ${{ inputs.severity-threshold }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Total Findings:** ${{ steps.summary.outputs.findings-count }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Critical Findings:** ${{ steps.summary.outputs.critical-findings }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status:** ${{ steps.summary.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Recommendations" >> $GITHUB_STEP_SUMMARY
+        echo "- Review and remediate critical and high severity findings" >> $GITHUB_STEP_SUMMARY
+        echo "- Update dependencies to latest secure versions" >> $GITHUB_STEP_SUMMARY
+        echo "- Follow secure coding practices" >> $GITHUB_STEP_SUMMARY
+        echo "- Regularly scan for new vulnerabilities" >> $GITHUB_STEP_SUMMARY

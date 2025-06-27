@@ -1,0 +1,729 @@
+---
+name: Infrastructure as Code
+
+'on':
+  push:
+    branches: [main, develop, 'feature/*', 'hotfix/*']
+    paths:
+      - 'helm/**'
+      - 'k8s/**'
+      - 'terraform/**'
+      - 'infrastructure/**'
+      - '.github/workflows/infrastructure.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'helm/**'
+      - 'k8s/**'
+      - 'terraform/**'
+      - 'infrastructure/**'
+      - '.github/workflows/infrastructure.yml'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Infrastructure action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+          - drift-check
+          - cost-estimate
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      force_apply:
+        description: 'Force apply without approval (use with caution)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  TERRAFORM_VERSION: '1.6.0'
+  HELM_VERSION: '3.13.0'
+  KUBECTL_VERSION: '1.28.0'
+  TERRAGRUNT_VERSION: '0.53.0'
+  INFRACOST_VERSION: '0.10.29'
+
+jobs:
+  detect-infrastructure-changes:
+    name: Detect Infrastructure Changes
+    runs-on: ubuntu-latest
+    outputs:
+      helm: ${{ steps.changes.outputs.helm }}
+      terraform: ${{ steps.changes.outputs.terraform }}
+      kubernetes: ${{ steps.changes.outputs.kubernetes }}
+      infrastructure: ${{ steps.changes.outputs.infrastructure }}
+      environments: ${{ steps.environments.outputs.environments }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            helm:
+              - 'helm/**'
+            terraform:
+              - 'terraform/**'
+              - '**/*.tf'
+              - '**/*.tfvars'
+            kubernetes:
+              - 'k8s/**'
+              - '**/*.yaml'
+              - '**/*.yml'
+            infrastructure:
+              - 'infrastructure/**'
+              - 'scripts/infrastructure/**'
+
+      - name: Determine target environments
+        id: environments
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "environments=[\"${{ github.event.inputs.environment }}\"]" \
+              >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environments=[\"staging\",\"production\"]" >> \
+            $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "environments=[\"development\",\"staging\"]" >> \
+            $GITHUB_OUTPUT
+          else
+            echo "environments=[\"development\"]" >> \
+            $GITHUB_OUTPUT
+          fi
+
+  validate-helm-charts:
+    name: Validate Helm Charts
+    runs-on: ubuntu-latest
+    needs: detect-infrastructure-changes
+    if: >
+      needs.detect-infrastructure-changes.outputs.helm == 'true' ||
+      needs.detect-infrastructure-changes.outputs.infrastructure == 'true'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: ${{ env.KUBECTL_VERSION }}
+
+      - name: Install Helm plugins
+        run: |
+          helm plugin install \
+            https://github.com/chartmuseum/helm-push || true
+          helm plugin install \
+            https://github.com/helm/helm-2to3 || true
+          helm plugin install \
+            https://github.com/helm-unittest/helm-unittest || true
+
+      - name: Lint Helm charts
+        run: |
+          echo "Linting Helm charts..."
+          find helm -name "Chart.yaml" -exec dirname {} \; | \
+            while read chart_dir; do
+              echo "Linting chart: $chart_dir"
+              helm lint "$chart_dir" --strict
+
+              if [[ ! -f "$chart_dir/values.yaml" ]]; then
+                echo "::error::Missing values.yaml in $chart_dir"
+                exit 1
+              fi
+
+              if [[ ! -f "$chart_dir/Chart.yaml" ]]; then
+                echo "::error::Missing Chart.yaml in $chart_dir"
+                exit 1
+              fi
+            done
+
+      - name: Validate Helm chart templates
+        run: |
+          echo "Validating Helm chart templates..."
+          find helm -name "Chart.yaml" -exec dirname {} \; | \
+            while read chart_dir; do
+              echo "Validating templates for: $chart_dir"
+
+              for env in development staging production; do
+                values_file="$chart_dir/values-$env.yaml"
+                if [[ -f "$values_file" ]]; then
+                  echo "Templating with $values_file"
+                  helm template test-release "$chart_dir" \
+                    -f "$values_file" --validate > /dev/null
+                else
+                  echo "Templating with default values.yaml"
+                  helm template test-release "$chart_dir" \
+                    --validate > /dev/null
+                fi
+              done
+            done
+
+      - name: Security scan Helm charts
+        run: |
+          pip install checkov
+
+          echo "Security scanning Helm charts..."
+          find helm -name "Chart.yaml" -exec dirname {} \; | \
+            while read chart_dir; do
+              echo "Security scanning: $chart_dir"
+
+              helm template security-scan "$chart_dir" \
+                --output-dir /tmp/helm-templates/
+
+              checkov -d /tmp/helm-templates/ --framework kubernetes \
+                --output sarif \
+                --output-file-path helm-security-$chart_dir.sarif || true
+            done
+
+      - name: Upload Helm security scan results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: helm-security-scan-results
+          path: helm-security-*.sarif
+          retention-days: 30
+
+  validate-terraform:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+    needs: detect-infrastructure-changes
+    if: >
+      needs.detect-infrastructure-changes.outputs.terraform == 'true' ||
+      needs.detect-infrastructure-changes.outputs.infrastructure == 'true'
+
+    strategy:
+      matrix:
+        environment: >-
+          ${{ fromJson(needs.detect-infrastructure-changes.outputs.environments) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Setup Terragrunt
+        run: |
+          TERRAGRUNT_BASE="https://github.com/gruntwork-io/terragrunt/releases"
+          TERRAGRUNT_URL="${TERRAGRUNT_BASE}/download/v${{ env.TERRAGRUNT_VERSION }}"
+          TERRAGRUNT_URL="${TERRAGRUNT_URL}/terragrunt_linux_amd64"
+          wget -O terragrunt "$TERRAGRUNT_URL"
+          chmod +x terragrunt
+          sudo mv terragrunt /usr/local/bin/
+
+      - name: Configure AWS credentials
+        if: matrix.environment != 'development'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Terraform Format Check
+        run: |
+          echo "Checking Terraform formatting..."
+          if [[ -d "terraform" ]]; then
+            terraform fmt -check -recursive terraform/
+          fi
+
+          if [[ -d "infrastructure" ]]; then
+            find infrastructure -name "*.tf" \
+              -exec terraform fmt -check {} \;
+          fi
+
+      - name: Terraform Validate
+        run: |
+          echo "Validating Terraform configurations..."
+
+          find . -name "*.tf" -exec dirname {} \; | sort -u | \
+            while read tf_dir; do
+              if [[ "$tf_dir" == "." ]]; then continue; fi
+
+              echo "Validating: $tf_dir"
+              cd "$tf_dir"
+
+              terraform init -backend=false
+              terraform validate
+
+              cd - > /dev/null
+            done
+
+      - name: Terraform Security Scan
+        run: |
+          TFSEC_URL="https://raw.githubusercontent.com/aquasecurity/tfsec/master"
+          TFSEC_URL="${TFSEC_URL}/scripts/install_linux.sh"
+          curl -s "$TFSEC_URL" | bash
+
+          echo "Security scanning Terraform configurations..."
+          if [[ -d "terraform" ]]; then
+            tfsec terraform/ --format sarif \
+              --out terraform-security-${{ matrix.environment }}.sarif \
+              || true
+          fi
+
+          if [[ -d "infrastructure" ]]; then
+            tfsec infrastructure/ --format sarif \
+              --out infrastructure-security-${{ matrix.environment }}.sarif \
+              || true
+          fi
+
+      - name: Upload Terraform security scan results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: terraform-security-scan-results-${{ matrix.environment }}
+          path: |
+            terraform-security-*.sarif
+            infrastructure-security-*.sarif
+          retention-days: 30
+
+  cost-estimation:
+    name: Infrastructure Cost Estimation
+    runs-on: ubuntu-latest
+    needs: [detect-infrastructure-changes, validate-terraform]
+    if: >
+      needs.detect-infrastructure-changes.outputs.terraform == 'true' ||
+      github.event.inputs.action == 'cost-estimate'
+
+    strategy:
+      matrix:
+        environment: >-
+          ${{ fromJson(needs.detect-infrastructure-changes.outputs.environments) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+          version: ${{ env.INFRACOST_VERSION }}
+
+      - name: Configure AWS credentials
+        if: matrix.environment != 'development'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Generate Terraform plan
+        run: |
+          echo "Generating Terraform plan for cost estimation..."
+
+          tf_dirs=$(find . -name "*.tf" -exec dirname {} \; | \
+            grep -E "${{ matrix.environment }}" | sort -u || \
+            echo "terraform")
+
+          for tf_dir in $tf_dirs; do
+            if [[ ! -d "$tf_dir" ]]; then continue; fi
+
+            echo "Planning: $tf_dir"
+            cd "$tf_dir"
+
+            terraform init
+
+            terraform plan -out=tfplan-${{ matrix.environment }}.binary
+            terraform show -json \
+              tfplan-${{ matrix.environment }}.binary > \
+              tfplan-${{ matrix.environment }}.json
+
+            cd - > /dev/null
+          done
+
+      - name: Run Infracost
+        run: |
+          echo "Running cost estimation..."
+
+          find . -name "tfplan-${{ matrix.environment }}.json" | \
+            while read plan_file; do
+              dir=$(dirname "$plan_file")
+              echo "Cost estimation for: $dir"
+
+              infracost breakdown \
+                --path="$plan_file" \
+                --format=json \
+                --out-file="$dir/infracost-${{ matrix.environment }}.json"
+
+              infracost breakdown \
+                --path="$plan_file" \
+                --format=table \
+                --out-file="$dir/infracost-${{ matrix.environment }}.txt"
+            done
+
+      - name: Upload cost estimation results
+        uses: actions/upload-artifact@v3
+        with:
+          name: cost-estimation-${{ matrix.environment }}
+          path: |
+            **/infracost-*.json
+            **/infracost-*.txt
+          retention-days: 90
+
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    needs: [detect-infrastructure-changes, validate-terraform]
+    if: >
+      needs.detect-infrastructure-changes.outputs.terraform == 'true' ||
+      github.event.inputs.action == 'plan'
+
+    strategy:
+      matrix:
+        environment: >-
+          ${{ fromJson(needs.detect-infrastructure-changes.outputs.environments) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Configure AWS credentials
+        if: matrix.environment != 'development'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Terraform Plan
+        run: |
+          echo "Running Terraform plan for ${{ matrix.environment }}..."
+
+          tf_dirs=$(find . -name "*.tf" -exec dirname {} \; | \
+            grep -E "${{ matrix.environment }}" | sort -u || \
+            echo "terraform")
+
+          for tf_dir in $tf_dirs; do
+            if [[ ! -d "$tf_dir" ]]; then continue; fi
+
+            echo "Planning: $tf_dir"
+            cd "$tf_dir"
+
+            terraform init
+
+            terraform plan \
+              -var-file="environments/${{ matrix.environment }}.tfvars" \
+              -out="tfplan-${{ matrix.environment }}.out" \
+              -detailed-exitcode
+
+            terraform show tfplan-${{ matrix.environment }}.out > \
+              tfplan-${{ matrix.environment }}.txt
+
+            cd - > /dev/null
+          done
+
+      - name: Upload Terraform plans
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-plans-${{ matrix.environment }}
+          path: |
+            **/tfplan-*.out
+            **/tfplan-*.txt
+          retention-days: 30
+
+  drift-detection:
+    name: Infrastructure Drift Detection
+    runs-on: ubuntu-latest
+    needs: detect-infrastructure-changes
+    if: >
+      github.event_name == 'schedule' ||
+      github.event.inputs.action == 'drift-check'
+
+    strategy:
+      matrix:
+        environment: [staging, production]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Detect infrastructure drift
+        run: |
+          echo "Detecting infrastructure drift for ${{ matrix.environment }}..."
+
+          tf_dirs=$(find . -name "*.tf" -exec dirname {} \; | \
+            grep -E "${{ matrix.environment }}" | sort -u || \
+            echo "terraform")
+
+          drift_detected=false
+
+          for tf_dir in $tf_dirs; do
+            if [[ ! -d "$tf_dir" ]]; then continue; fi
+
+            echo "Checking drift in: $tf_dir"
+            cd "$tf_dir"
+
+            terraform init
+
+            if terraform plan \
+              -var-file="environments/${{ matrix.environment }}.tfvars" \
+              -detailed-exitcode; then
+              echo "No drift detected in $tf_dir"
+            else
+              exit_code=$?
+              if [[ $exit_code -eq 2 ]]; then
+                echo "::warning::Drift detected in $tf_dir"
+                drift_detected=true
+
+                terraform plan \
+                  -var-file="environments/${{ matrix.environment }}.tfvars" > \
+                  drift-${{ matrix.environment }}-$(basename $tf_dir).txt
+              else
+                echo "::error::Error running terraform plan in $tf_dir"
+                exit 1
+              fi
+            fi
+
+            cd - > /dev/null
+          done
+
+          if [[ "$drift_detected" == "true" ]]; then
+            echo "DRIFT_DETECTED=true" >> $GITHUB_ENV
+          fi
+
+      - name: Upload drift detection results
+        if: env.DRIFT_DETECTED == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: drift-detection-${{ matrix.environment }}
+          path: drift-*.txt
+          retention-days: 30
+
+      - name: Notify on drift detection
+        if: env.DRIFT_DETECTED == 'true'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: warning
+          text: >
+            ⚠️ Infrastructure drift detected in ${{ matrix.environment }} env!
+          webhook_url: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+
+  helm-deploy:
+    name: Deploy Helm Charts
+    runs-on: ubuntu-latest
+    needs: [detect-infrastructure-changes, validate-helm-charts]
+    if: >
+      (needs.detect-infrastructure-changes.outputs.helm == 'true' ||
+       github.event.inputs.action == 'apply') &&
+      (github.ref == 'refs/heads/main' ||
+       github.event.inputs.force_apply == 'true')
+
+    strategy:
+      matrix:
+        environment: >-
+          ${{ fromJson(needs.detect-infrastructure-changes.outputs.environments) }}
+
+    environment: ${{ matrix.environment }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Configure Kubernetes
+        run: |
+          mkdir -p ~/.kube
+
+          case "${{ matrix.environment }}" in
+            "development")
+              echo "${{ secrets.KUBECONFIG_DEV }}" | base64 -d > ~/.kube/config
+              ;;
+            "staging")
+              echo "${{ secrets.KUBECONFIG_STAGING }}" | \
+                base64 -d > ~/.kube/config
+              ;;
+            "production")
+              echo "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > ~/.kube/config
+              ;;
+          esac
+
+          chmod 600 ~/.kube/config
+
+      - name: Deploy Helm charts
+        run: |
+          echo "Deploying Helm charts to ${{ matrix.environment }}..."
+
+          find helm -name "Chart.yaml" -exec dirname {} \; | \
+            while read chart_dir; do
+              chart_name=$(basename "$chart_dir")
+              namespace="waaed-${{ matrix.environment }}"
+
+              echo "Deploying chart: $chart_name to namespace: $namespace"
+
+              kubectl create namespace "$namespace" \
+                --dry-run=client -o yaml | kubectl apply -f -
+
+              values_file="$chart_dir/values-${{ matrix.environment }}.yaml"
+              if [[ ! -f "$values_file" ]]; then
+                values_file="$chart_dir/values.yaml"
+              fi
+
+              helm upgrade --install \
+                "$chart_name-${{ matrix.environment }}" \
+                "$chart_dir" \
+                --namespace "$namespace" \
+                --values "$values_file" \
+                --wait \
+                --timeout 10m \
+                --atomic
+
+              kubectl rollout status deployment -n "$namespace" \
+                --timeout=300s || true
+            done
+
+      - name: Run post-deployment tests
+        run: |
+          echo "Running post-deployment tests..."
+
+          namespace="waaed-${{ matrix.environment }}"
+
+          kubectl wait --for=condition=ready pod --all -n "$namespace" \
+            --timeout=300s || true
+
+          kubectl get services -n "$namespace"
+          kubectl get ingress -n "$namespace" || true
+
+          kubectl run test-pod --image=curlimages/curl:latest \
+            --rm -i --restart=Never -n "$namespace" -- \
+            sh -c "curl -f http://api-gateway-service/health || exit 1" || \
+            echo "Health check failed"
+
+  infrastructure-summary:
+    name: Infrastructure Summary
+    runs-on: ubuntu-latest
+    needs: [validate-helm-charts, validate-terraform, cost-estimation,
+            terraform-plan, drift-detection, helm-deploy]
+    if: always()
+
+    steps:
+      - name: Generate infrastructure summary
+        run: |
+          echo "# Infrastructure Deployment Summary" > infrastructure-summary.md
+          echo "## Workflow: ${{ github.workflow }}" >> \
+            infrastructure-summary.md
+          echo "## Run ID: ${{ github.run_id }}" >> infrastructure-summary.md
+          echo "## Commit: ${{ github.sha }}" >> infrastructure-summary.md
+          echo "## Branch: ${{ github.ref_name }}" >> infrastructure-summary.md
+          echo "## Timestamp: $(date)" >> infrastructure-summary.md
+          echo "" >> infrastructure-summary.md
+
+          echo "## Job Results" >> infrastructure-summary.md
+          echo "| Job | Status |" >> infrastructure-summary.md
+          echo "|-----|--------|" >> infrastructure-summary.md
+          echo "| Helm Validation | ${{ needs.validate-helm-charts.result }} |" \
+            >> infrastructure-summary.md
+          echo "| Terraform Validation | ${{ needs.validate-terraform.result }} |" \
+            >> infrastructure-summary.md
+          echo "| Cost Estimation | ${{ needs.cost-estimation.result }} |" \
+            >> infrastructure-summary.md
+          echo "| Terraform Plan | ${{ needs.terraform-plan.result }} |" \
+            >> infrastructure-summary.md
+          echo "| Drift Detection | ${{ needs.drift-detection.result }} |" \
+            >> infrastructure-summary.md
+          echo "| Helm Deploy | ${{ needs.helm-deploy.result }} |" \
+            >> infrastructure-summary.md
+          echo "" >> infrastructure-summary.md
+
+          echo "## Infrastructure Components" >> infrastructure-summary.md
+          echo "- **Helm Charts**: Kubernetes application deployments" \
+            >> infrastructure-summary.md
+          echo "- **Terraform**: Cloud infrastructure provisioning" \
+            >> infrastructure-summary.md
+          echo "- **Cost Monitoring**: Automated cost estimation and tracking" \
+            >> infrastructure-summary.md
+          echo "- **Drift Detection**: Continuous infrastructure state monitoring" \
+            >> infrastructure-summary.md
+
+          cat infrastructure-summary.md
+
+      - name: Upload infrastructure summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: infrastructure-summary
+          path: infrastructure-summary.md
+          retention-days: 90
+
+      - name: Comment infrastructure summary on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: infrastructure-summary.md
+
+  notify-infrastructure-status:
+    name: Notify Infrastructure Status
+    runs-on: ubuntu-latest
+    needs: [helm-deploy, drift-detection]
+    if: >
+      always() &&
+      (github.ref == 'refs/heads/main' ||
+       needs.drift-detection.result == 'failure')
+
+    steps:
+      - name: Notify on successful deployment
+        if: needs.helm-deploy.result == 'success'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: '🚀 Infrastructure successfully deployed for Waaed Platform!'
+          webhook_url: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+
+      - name: Notify on deployment failure
+        if: needs.helm-deploy.result == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: >
+            ❌ Infrastructure deployment failed for Waaed Platform.
+            Please check the logs.
+          webhook_url: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+
+      - name: Notify on drift detection
+        if: needs.drift-detection.result == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: warning
+          text: >
+            ⚠️ Infrastructure drift detected in Waaed Platform.
+            Manual intervention may be required.
+          webhook_url: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}

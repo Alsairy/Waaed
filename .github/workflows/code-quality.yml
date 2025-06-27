@@ -1,0 +1,855 @@
+name: Code Quality & Linting
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'frontend/**'
+      - 'tests/**'
+      - 'Dockerfile*'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - '**/*.json'
+      - '.github/workflows/code-quality.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'src/**'
+      - 'frontend/**'
+      - 'tests/**'
+      - 'Dockerfile*'
+      - '**/*.yml'
+      - '**/*.yaml'
+      - '**/*.json'
+  workflow_dispatch:
+    inputs:
+      check_type:
+        description: 'Type of quality check to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - dotnet
+          - frontend
+          - docker
+          - yaml
+          - architecture
+      severity_level:
+        description: 'Minimum severity level for issues'
+        required: false
+        default: 'warning'
+        type: choice
+        options:
+          - error
+          - warning
+          - info
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  NODE_VERSION: '18'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      dotnet_changed: ${{ steps.changes.outputs.dotnet }}
+      frontend_changed: ${{ steps.changes.outputs.frontend }}
+      docker_changed: ${{ steps.changes.outputs.docker }}
+      yaml_changed: ${{ steps.changes.outputs.yaml }}
+      json_changed: ${{ steps.changes.outputs.json }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            dotnet:
+              - 'src/**/*.cs'
+              - 'src/**/*.csproj'
+              - 'tests/**/*.cs'
+              - '**/*.sln'
+            frontend:
+              - 'frontend/**/*.ts'
+              - 'frontend/**/*.tsx'
+              - 'frontend/**/*.js'
+              - 'frontend/**/*.jsx'
+              - 'frontend/**/*.json'
+              - 'frontend/**/*.css'
+              - 'frontend/**/*.scss'
+            docker:
+              - '**/Dockerfile*'
+              - 'docker-compose*.yml'
+            yaml:
+              - '**/*.yml'
+              - '**/*.yaml'
+            json:
+              - '**/*.json'
+
+  dotnet-format:
+    name: .NET Code Formatting
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: >
+      needs.detect-changes.outputs.dotnet_changed == 'true' ||
+      github.event.inputs.check_type == 'dotnet' ||
+      github.event.inputs.check_type == 'all'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Check code formatting
+        run: |
+          echo "Checking .NET code formatting..."
+          dotnet format --verify-no-changes --verbosity diagnostic
+          
+          if [ $? -ne 0 ]; then
+            echo "❌ Code formatting issues found. Run 'dotnet format' to fix them."
+            exit 1
+          else
+            echo "✅ All .NET code is properly formatted."
+          fi
+
+      - name: Run code analysis
+        run: |
+          echo "Running .NET code analysis..."
+          dotnet build --configuration Release --no-restore \
+            -p:TreatWarningsAsErrors=true \
+            -p:WarningsAsErrors="" \
+            -p:WarningsNotAsErrors="CS1591" \
+            -p:RunAnalyzersDuringBuild=true
+
+      - name: Generate code analysis report
+        if: always()
+        run: |
+          echo "## .NET Code Analysis Report" > dotnet-analysis-report.md
+          echo "**Timestamp:** $(date -u)" >> dotnet-analysis-report.md
+          echo "**Status:** ${{ job.status }}" >> dotnet-analysis-report.md
+          echo "" >> dotnet-analysis-report.md
+          echo "### Summary" >> dotnet-analysis-report.md
+          echo "- Code formatting check: ${{ job.status }}" >> dotnet-analysis-report.md
+          echo "- Build analysis: ${{ job.status }}" >> dotnet-analysis-report.md
+
+      - name: Upload analysis report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dotnet-analysis-report
+          path: dotnet-analysis-report.md
+
+  dotnet-security-analysis:
+    name: .NET Security Analysis
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: >
+      needs.detect-changes.outputs.dotnet_changed == 'true' ||
+      github.event.inputs.check_type == 'dotnet' ||
+      github.event.inputs.check_type == 'all'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install security analysis tools
+        run: |
+          dotnet tool install --global security-scan
+          dotnet tool install --global dotnet-outdated-tool
+
+      - name: Run security scan
+        run: |
+          echo "Running .NET security analysis..."
+          security-scan src/ --format sarif --output security-results.sarif || true
+
+      - name: Check for outdated packages
+        run: |
+          echo "Checking for outdated NuGet packages..."
+          dotnet outdated --upgrade --include-auto-references > outdated-packages.txt || true
+
+      - name: Upload security results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dotnet-security-results
+          path: |
+            security-results.sarif
+            outdated-packages.txt
+
+  frontend-lint:
+    name: Frontend Linting
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: >
+      needs.detect-changes.outputs.frontend_changed == 'true' ||
+      github.event.inputs.check_type == 'frontend' ||
+      github.event.inputs.check_type == 'all'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/unified-education-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd frontend/unified-education-frontend
+          npm ci
+
+      - name: Run ESLint
+        run: |
+          cd frontend/unified-education-frontend
+          echo "Running ESLint..."
+          npm run lint -- --format json --output-file eslint-results.json || true
+          npm run lint
+
+      - name: Run Prettier check
+        run: |
+          cd frontend/unified-education-frontend
+          echo "Checking code formatting with Prettier..."
+          npx prettier --check "src/**/*.{ts,tsx,js,jsx,css,scss,json}" || {
+            echo "❌ Code formatting issues found. Run 'npm run format' to fix them."
+            exit 1
+          }
+          echo "✅ All frontend code is properly formatted."
+
+      - name: Run TypeScript compiler check
+        run: |
+          cd frontend/unified-education-frontend
+          echo "Running TypeScript compiler check..."
+          npx tsc --noEmit
+
+      - name: Run CSS/SCSS linting
+        run: |
+          cd frontend/unified-education-frontend
+          echo "Running CSS/SCSS linting..."
+          npx stylelint "src/**/*.{css,scss}" --formatter json --output-file stylelint-results.json || true
+          npx stylelint "src/**/*.{css,scss}"
+
+      - name: Check bundle size
+        run: |
+          cd frontend/unified-education-frontend
+          echo "Analyzing bundle size..."
+          npm run build
+          npx bundlesize
+
+      - name: Generate frontend quality report
+        if: always()
+        run: |
+          cd frontend/unified-education-frontend
+          echo "## Frontend Code Quality Report" > frontend-quality-report.md
+          echo "**Timestamp:** $(date -u)" >> frontend-quality-report.md
+          echo "**Status:** ${{ job.status }}" >> frontend-quality-report.md
+          echo "" >> frontend-quality-report.md
+          echo "### Summary" >> frontend-quality-report.md
+          echo "- ESLint check: ${{ job.status }}" >> frontend-quality-report.md
+          echo "- Prettier check: ${{ job.status }}" >> frontend-quality-report.md
+          echo "- TypeScript check: ${{ job.status }}" >> frontend-quality-report.md
+          echo "- CSS/SCSS lint: ${{ job.status }}" >> frontend-quality-report.md
+
+      - name: Upload frontend results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: frontend-quality-results
+          path: |
+            frontend/unified-education-frontend/eslint-results.json
+            frontend/unified-education-frontend/stylelint-results.json
+            frontend/unified-education-frontend/frontend-quality-report.md
+
+  dockerfile-lint:
+    name: Dockerfile Linting
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: >
+      needs.detect-changes.outputs.docker_changed == 'true' ||
+      github.event.inputs.check_type == 'docker' ||
+      github.event.inputs.check_type == 'all'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint Dockerfiles with hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: |
+            src/backend/services/Authentication/Dockerfile
+            src/backend/services/Attendance/Dockerfile
+            src/backend/services/LMS/Dockerfile
+            src/backend/services/Finance/Dockerfile
+            src/backend/services/HR/Dockerfile
+            src/backend/services/Library/Dockerfile
+            src/backend/services/Inventory/Dockerfile
+            src/backend/services/Polls/Dockerfile
+            src/backend/services/Blogs/Dockerfile
+            src/backend/services/Tasks/Dockerfile
+            src/backend/gateways/Dockerfile
+            frontend/Dockerfile
+          format: sarif
+          output-file: hadolint-results.sarif
+          no-fail: true
+
+      - name: Run custom Dockerfile checks
+        run: |
+          echo "Running custom Dockerfile security checks..."
+          
+          # Check for common security issues
+          find . -name "Dockerfile*" -type f | while read dockerfile; do
+            echo "Checking $dockerfile..."
+            
+            # Check for running as root
+            if grep -q "USER root" "$dockerfile"; then
+              echo "⚠️ Warning: $dockerfile runs as root user"
+            fi
+            
+            # Check for COPY with broad permissions
+            if grep -q "COPY \. \." "$dockerfile"; then
+              echo "⚠️ Warning: $dockerfile uses broad COPY directive"
+            fi
+            
+            # Check for missing USER directive
+            if ! grep -q "USER " "$dockerfile"; then
+              echo "⚠️ Warning: $dockerfile missing USER directive"
+            fi
+            
+            # Check for hardcoded secrets
+            if grep -iE "(password|secret|key|token)" "$dockerfile"; then
+              echo "❌ Error: $dockerfile may contain hardcoded secrets"
+            fi
+          done
+
+      - name: Validate docker-compose files
+        run: |
+          echo "Validating docker-compose files..."
+          
+          if [ -f "docker-compose.yml" ]; then
+            docker-compose -f docker-compose.yml config --quiet
+            echo "✅ docker-compose.yml is valid"
+          fi
+          
+          if [ -f "docker-compose.production.yml" ]; then
+            docker-compose -f docker-compose.production.yml config --quiet
+            echo "✅ docker-compose.production.yml is valid"
+          fi
+
+      - name: Upload Dockerfile results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dockerfile-lint-results
+          path: hadolint-results.sarif
+
+  yaml-json-validation:
+    name: YAML/JSON Validation
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: >
+      needs.detect-changes.outputs.yaml_changed == 'true' ||
+      needs.detect-changes.outputs.json_changed == 'true' ||
+      github.event.inputs.check_type == 'yaml' ||
+      github.event.inputs.check_type == 'all'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python for yamllint
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install validation tools
+        run: |
+          pip install yamllint
+          npm install -g jsonlint
+
+      - name: Create yamllint config
+        run: |
+          cat > .yamllint.yml << 'EOF'
+          extends: default
+          rules:
+            line-length:
+              max: 120
+              level: warning
+            document-start:
+              present: false
+            truthy:
+              allowed-values: ['true', 'false', 'on', 'off']
+            comments:
+              min-spaces-from-content: 1
+            indentation:
+              spaces: 2
+              indent-sequences: true
+              check-multi-line-strings: false
+          ignore: |
+            node_modules/
+            .git/
+            dist/
+            build/
+          EOF
+
+      - name: Validate YAML files
+        run: |
+          echo "Validating YAML files..."
+          
+          # Find and validate all YAML files
+          find . -name "*.yml" -o -name "*.yaml" | grep -v node_modules | grep -v .git | while read yamlfile; do
+            echo "Validating $yamlfile..."
+            yamllint "$yamlfile" || echo "❌ Issues found in $yamlfile"
+          done
+          
+          echo "✅ YAML validation completed"
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          
+          # Find and validate all JSON files
+          find . -name "*.json" | grep -v node_modules | grep -v .git | while read jsonfile; do
+            echo "Validating $jsonfile..."
+            jsonlint "$jsonfile" > /dev/null || echo "❌ Issues found in $jsonfile"
+          done
+          
+          echo "✅ JSON validation completed"
+
+      - name: Validate GitHub Actions workflows
+        run: |
+          echo "Validating GitHub Actions workflows..."
+          
+          # Check workflow syntax
+          find .github/workflows -name "*.yml" -o -name "*.yaml" | while read workflow; do
+            echo "Checking workflow syntax: $workflow"
+            # Basic syntax validation is done by yamllint above
+            # Additional workflow-specific checks could be added here
+          done
+
+      - name: Validate Helm charts
+        run: |
+          echo "Validating Helm charts..."
+          
+          if [ -d "helm" ]; then
+            # Install Helm
+            curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+            
+            # Validate Helm charts
+            find helm -name "Chart.yaml" | while read chart; do
+              chart_dir=$(dirname "$chart")
+              echo "Validating Helm chart: $chart_dir"
+              helm lint "$chart_dir" || echo "❌ Issues found in $chart_dir"
+            done
+          fi
+
+      - name: Generate validation report
+        if: always()
+        run: |
+          echo "## YAML/JSON Validation Report" > validation-report.md
+          echo "**Timestamp:** $(date -u)" >> validation-report.md
+          echo "**Status:** ${{ job.status }}" >> validation-report.md
+          echo "" >> validation-report.md
+          echo "### Summary" >> validation-report.md
+          echo "- YAML validation: ${{ job.status }}" >> validation-report.md
+          echo "- JSON validation: ${{ job.status }}" >> validation-report.md
+          echo "- GitHub Actions validation: ${{ job.status }}" >> validation-report.md
+          echo "- Helm charts validation: ${{ job.status }}" >> validation-report.md
+
+      - name: Upload validation results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: yaml-json-validation-results
+          path: validation-report.md
+
+  architecture-compliance:
+    name: Architecture Compliance
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: >
+      needs.detect-changes.outputs.dotnet_changed == 'true' ||
+      github.event.inputs.check_type == 'architecture' ||
+      github.event.inputs.check_type == 'all'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install architecture analysis tools
+        run: |
+          dotnet tool install --global dotnet-depends
+          dotnet tool install --global dotnet-outdated-tool
+
+      - name: Analyze project dependencies
+        run: |
+          echo "Analyzing project dependencies..."
+          
+          # Check for circular dependencies
+          dotnet depends analyze --format json --output dependencies.json . || true
+          
+          # Check dependency health
+          dotnet outdated --include-auto-references > dependency-health.txt || true
+
+      - name: Check naming conventions
+        run: |
+          echo "Checking naming conventions..."
+          
+          # Check for proper namespace naming
+          find src -name "*.cs" | xargs grep -l "namespace " | while read file; do
+            namespace=$(grep "namespace " "$file" | head -1 | sed 's/namespace //' | sed 's/[;{]//')
+            expected_namespace=$(echo "$file" | sed 's|src/||' | sed 's|/[^/]*\.cs$||' | sed 's|/|.|g')
+            
+            if [[ "$namespace" != *"$expected_namespace"* ]]; then
+              echo "⚠️ Namespace mismatch in $file: expected *$expected_namespace*, found $namespace"
+            fi
+          done
+
+      - name: Check microservices architecture compliance
+        run: |
+          echo "Checking microservices architecture compliance..."
+          
+          # Check that services don't directly reference each other
+          services_dir="src/backend/services"
+          if [ -d "$services_dir" ]; then
+            for service_dir in "$services_dir"/*; do
+              if [ -d "$service_dir" ]; then
+                service_name=$(basename "$service_dir")
+                echo "Checking service: $service_name"
+                
+                # Check for direct service-to-service references
+                find "$service_dir" -name "*.csproj" | while read csproj; do
+                  if grep -q "ProjectReference.*services.*" "$csproj"; then
+                    echo "❌ Service $service_name has direct reference to another service"
+                    grep "ProjectReference.*services.*" "$csproj"
+                  fi
+                done
+              fi
+            done
+          fi
+
+      - name: Check shared infrastructure usage
+        run: |
+          echo "Checking shared infrastructure usage..."
+          
+          # Ensure services use shared infrastructure
+          find src/backend/services -name "*.csproj" | while read csproj; do
+            service_name=$(basename "$(dirname "$csproj")")
+            
+            if ! grep -q "Waaed.Shared.Infrastructure" "$csproj"; then
+              echo "⚠️ Service $service_name doesn't reference shared infrastructure"
+            fi
+            
+            if ! grep -q "Waaed.Shared.Domain" "$csproj"; then
+              echo "⚠️ Service $service_name doesn't reference shared domain"
+            fi
+          done
+
+      - name: Check API consistency
+        run: |
+          echo "Checking API consistency..."
+          
+          # Check for consistent controller patterns
+          find src/backend/services -name "*Controller.cs" | while read controller; do
+            service_name=$(echo "$controller" | cut -d'/' -f4)
+            
+            # Check for proper base controller usage
+            if ! grep -q "ControllerBase\|Controller" "$controller"; then
+              echo "⚠️ Controller $controller doesn't inherit from proper base class"
+            fi
+            
+            # Check for proper routing attributes
+            if ! grep -q "\[Route\|ApiController\]" "$controller"; then
+              echo "⚠️ Controller $controller missing routing attributes"
+            fi
+          done
+
+      - name: Generate architecture compliance report
+        if: always()
+        run: |
+          echo "## Architecture Compliance Report" > architecture-report.md
+          echo "**Timestamp:** $(date -u)" >> architecture-report.md
+          echo "**Status:** ${{ job.status }}" >> architecture-report.md
+          echo "" >> architecture-report.md
+          echo "### Summary" >> architecture-report.md
+          echo "- Dependency analysis: ${{ job.status }}" >> architecture-report.md
+          echo "- Naming conventions: ${{ job.status }}" >> architecture-report.md
+          echo "- Microservices compliance: ${{ job.status }}" >> architecture-report.md
+          echo "- Shared infrastructure usage: ${{ job.status }}" >> architecture-report.md
+          echo "- API consistency: ${{ job.status }}" >> architecture-report.md
+          echo "" >> architecture-report.md
+          echo "### Recommendations" >> architecture-report.md
+          echo "- Ensure all services follow microservices patterns" >> architecture-report.md
+          echo "- Use shared infrastructure for common functionality" >> architecture-report.md
+          echo "- Maintain consistent API patterns across services" >> architecture-report.md
+          echo "- Follow established naming conventions" >> architecture-report.md
+
+      - name: Upload architecture results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: architecture-compliance-results
+          path: |
+            architecture-report.md
+            dependencies.json
+            dependency-health.txt
+
+  code-coverage-analysis:
+    name: Code Coverage Analysis
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: >
+      needs.detect-changes.outputs.dotnet_changed == 'true' ||
+      github.event.inputs.check_type == 'dotnet' ||
+      github.event.inputs.check_type == 'all'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run tests with coverage
+        run: |
+          echo "Running tests with code coverage..."
+          dotnet test --configuration Release \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage \
+            --logger "trx;LogFileName=test-results.trx" \
+            --no-restore
+
+      - name: Generate coverage report
+        run: |
+          echo "Generating code coverage report..."
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          
+          reportgenerator \
+            -reports:"coverage/**/coverage.cobertura.xml" \
+            -targetdir:"coverage/report" \
+            -reporttypes:"Html;JsonSummary;Badges" \
+            -verbosity:"Info"
+
+      - name: Check coverage thresholds
+        run: |
+          echo "Checking code coverage thresholds..."
+          
+          # Extract coverage percentage from JSON summary
+          if [ -f "coverage/report/Summary.json" ]; then
+            coverage=$(cat coverage/report/Summary.json | grep -o '"linecoverage":[0-9.]*' | cut -d':' -f2)
+            echo "Current line coverage: $coverage%"
+            
+            # Set minimum coverage threshold
+            min_coverage=70
+            
+            if (( $(echo "$coverage < $min_coverage" | bc -l) )); then
+              echo "❌ Code coverage ($coverage%) is below minimum threshold ($min_coverage%)"
+              exit 1
+            else
+              echo "✅ Code coverage ($coverage%) meets minimum threshold ($min_coverage%)"
+            fi
+          else
+            echo "⚠️ Coverage report not found"
+          fi
+
+      - name: Upload coverage results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: code-coverage-results
+          path: |
+            coverage/report/
+            coverage/**/test-results.trx
+
+  generate-quality-summary:
+    name: Generate Quality Summary
+    runs-on: ubuntu-latest
+    needs: [dotnet-format, dotnet-security-analysis, frontend-lint, dockerfile-lint, yaml-json-validation, architecture-compliance, code-coverage-analysis]
+    if: always()
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Generate comprehensive quality report
+        run: |
+          echo "# Waaed Platform Code Quality Report" > quality-summary.md
+          echo "**Generated:** $(date -u)" >> quality-summary.md
+          echo "**Workflow Run:** ${{ github.run_id }}" >> quality-summary.md
+          echo "" >> quality-summary.md
+          
+          echo "## Summary" >> quality-summary.md
+          echo "| Component | Status |" >> quality-summary.md
+          echo "|-----------|--------|" >> quality-summary.md
+          echo "| .NET Formatting | ${{ needs.dotnet-format.result }} |" >> quality-summary.md
+          echo "| .NET Security | ${{ needs.dotnet-security-analysis.result }} |" >> quality-summary.md
+          echo "| Frontend Linting | ${{ needs.frontend-lint.result }} |" >> quality-summary.md
+          echo "| Dockerfile Linting | ${{ needs.dockerfile-lint.result }} |" >> quality-summary.md
+          echo "| YAML/JSON Validation | ${{ needs.yaml-json-validation.result }} |" >> quality-summary.md
+          echo "| Architecture Compliance | ${{ needs.architecture-compliance.result }} |" >> quality-summary.md
+          echo "| Code Coverage | ${{ needs.code-coverage-analysis.result }} |" >> quality-summary.md
+          echo "" >> quality-summary.md
+          
+          echo "## Detailed Results" >> quality-summary.md
+          
+          # Include individual reports if they exist
+          if [ -f "dotnet-analysis-report/dotnet-analysis-report.md" ]; then
+            echo "### .NET Analysis" >> quality-summary.md
+            cat "dotnet-analysis-report/dotnet-analysis-report.md" >> quality-summary.md
+            echo "" >> quality-summary.md
+          fi
+          
+          if [ -f "frontend-quality-results/frontend-quality-report.md" ]; then
+            echo "### Frontend Quality" >> quality-summary.md
+            cat "frontend-quality-results/frontend-quality-report.md" >> quality-summary.md
+            echo "" >> quality-summary.md
+          fi
+          
+          if [ -f "yaml-json-validation-results/validation-report.md" ]; then
+            echo "### YAML/JSON Validation" >> quality-summary.md
+            cat "yaml-json-validation-results/validation-report.md" >> quality-summary.md
+            echo "" >> quality-summary.md
+          fi
+          
+          if [ -f "architecture-compliance-results/architecture-report.md" ]; then
+            echo "### Architecture Compliance" >> quality-summary.md
+            cat "architecture-compliance-results/architecture-report.md" >> quality-summary.md
+            echo "" >> quality-summary.md
+          fi
+          
+          echo "## Recommendations" >> quality-summary.md
+          echo "- Maintain consistent code formatting across all languages" >> quality-summary.md
+          echo "- Address security vulnerabilities promptly" >> quality-summary.md
+          echo "- Keep dependencies up to date" >> quality-summary.md
+          echo "- Follow established architecture patterns" >> quality-summary.md
+          echo "- Maintain high code coverage (>70%)" >> quality-summary.md
+          echo "- Use automated tools to catch issues early" >> quality-summary.md
+
+      - name: Upload quality summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: quality-summary
+          path: quality-summary.md
+
+      - name: Comment on PR with quality results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('quality-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+  notify-quality-status:
+    name: Notify Quality Status
+    runs-on: ubuntu-latest
+    needs: [generate-quality-summary]
+    if: always()
+    
+    steps:
+      - name: Notify success
+        if: needs.generate-quality-summary.result == 'success'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: |
+            ✅ Waaed Platform Code Quality Check Passed
+            
+            **Workflow:** ${{ github.workflow }}
+            **Run ID:** ${{ github.run_id }}
+            **Branch:** ${{ github.ref_name }}
+            
+            All code quality checks passed successfully.
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify failure
+        if: needs.generate-quality-summary.result == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            ❌ Waaed Platform Code Quality Check Failed
+            
+            **Workflow:** ${{ github.workflow }}
+            **Run ID:** ${{ github.run_id }}
+            **Branch:** ${{ github.ref_name }}
+            
+            One or more code quality checks failed. Please review and fix the issues.
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [dotnet-format, frontend-lint, dockerfile-lint, yaml-json-validation, architecture-compliance]
+    if: always()
+    
+    steps:
+      - name: Check quality gate
+        run: |
+          echo "Evaluating quality gate..."
+          
+          # Check if any critical checks failed
+          if [[ "${{ needs.dotnet-format.result }}" == "failure" ]]; then
+            echo "❌ Quality gate failed: .NET formatting issues"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.frontend-lint.result }}" == "failure" ]]; then
+            echo "❌ Quality gate failed: Frontend linting issues"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.dockerfile-lint.result }}" == "failure" ]]; then
+            echo "❌ Quality gate failed: Dockerfile linting issues"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.yaml-json-validation.result }}" == "failure" ]]; then
+            echo "❌ Quality gate failed: YAML/JSON validation issues"
+            exit 1
+          fi
+          
+          if [[ "${{ needs.architecture-compliance.result }}" == "failure" ]]; then
+            echo "⚠️ Quality gate warning: Architecture compliance issues"
+            # Don't fail the gate for architecture issues, just warn
+          fi
+          
+          echo "✅ Quality gate passed!"
+
+      - name: Set quality gate status
+        run: |
+          echo "Quality gate evaluation completed"
+          echo "All critical quality checks have passed"

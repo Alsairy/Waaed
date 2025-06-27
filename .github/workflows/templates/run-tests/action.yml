@@ -1,0 +1,221 @@
+name: 'Run Comprehensive Tests'
+description: 'Runs unit, integration, and end-to-end tests with coverage reporting'
+inputs:
+  test-type:
+    description: 'Type of tests to run (unit/integration/e2e/all)'
+    required: false
+    default: 'all'
+  project-path:
+    description: 'Path to the project directory'
+    required: true
+  dotnet-version:
+    description: '.NET version to use'
+    required: false
+    default: '8.0.x'
+  coverage-threshold:
+    description: 'Minimum code coverage percentage'
+    required: false
+    default: '80'
+  enable-mutation-testing:
+    description: 'Whether to run mutation testing'
+    required: false
+    default: 'false'
+  parallel-execution:
+    description: 'Whether to run tests in parallel'
+    required: false
+    default: 'true'
+outputs:
+  test-status:
+    description: 'Overall test status (success/failure)'
+    value: ${{ steps.summary.outputs.status }}
+  coverage-percentage:
+    description: 'Code coverage percentage'
+    value: ${{ steps.coverage.outputs.percentage }}
+  test-results-path:
+    description: 'Path to test results'
+    value: ${{ steps.summary.outputs.results-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
+
+    - name: Install test tools
+      shell: bash
+      run: |
+        echo "Installing test tools..."
+        dotnet tool install --global dotnet-reportgenerator-globaltool
+        dotnet tool install --global dotnet-stryker
+        
+        if [ "${{ inputs.enable-mutation-testing }}" == "true" ]; then
+          echo "Mutation testing tools installed"
+        fi
+
+    - name: Run unit tests
+      if: inputs.test-type == 'unit' || inputs.test-type == 'all'
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Running unit tests..."
+        
+        # Find unit test projects
+        unit_test_projects=$(find . -name "*.Tests.Unit.csproj" -o -name "*UnitTests.csproj")
+        
+        if [ -n "$unit_test_projects" ]; then
+          dotnet test \
+            --configuration Release \
+            --logger trx \
+            --logger "console;verbosity=minimal" \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults/Unit \
+            ${{ inputs.parallel-execution == 'true' && '--parallel' || '' }} \
+            $unit_test_projects
+        else
+          echo "No unit test projects found"
+        fi
+
+    - name: Run integration tests
+      if: inputs.test-type == 'integration' || inputs.test-type == 'all'
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Running integration tests..."
+        
+        # Find integration test projects
+        integration_test_projects=$(find . -name "*.Tests.Integration.csproj" -o -name "*IntegrationTests.csproj")
+        
+        if [ -n "$integration_test_projects" ]; then
+          dotnet test \
+            --configuration Release \
+            --logger trx \
+            --logger "console;verbosity=minimal" \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults/Integration \
+            $integration_test_projects
+        else
+          echo "No integration test projects found"
+        fi
+
+    - name: Run end-to-end tests
+      if: inputs.test-type == 'e2e' || inputs.test-type == 'all'
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Running end-to-end tests..."
+        
+        # Find e2e test projects
+        e2e_test_projects=$(find . -name "*.Tests.E2E.csproj" -o -name "*E2ETests.csproj")
+        
+        if [ -n "$e2e_test_projects" ]; then
+          dotnet test \
+            --configuration Release \
+            --logger trx \
+            --logger "console;verbosity=minimal" \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults/E2E \
+            $e2e_test_projects
+        else
+          echo "No e2e test projects found"
+        fi
+
+    - name: Generate coverage report
+      id: coverage
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Generating coverage report..."
+        
+        # Combine coverage files
+        reportgenerator \
+          -reports:"./TestResults/**/coverage.cobertura.xml" \
+          -targetdir:"./TestResults/Coverage" \
+          -reporttypes:"Html;Cobertura;JsonSummary" \
+          -verbosity:Info
+        
+        # Extract coverage percentage
+        if [ -f "./TestResults/Coverage/Summary.json" ]; then
+          coverage=$(cat ./TestResults/Coverage/Summary.json | grep -o '"linecoverage":[0-9.]*' | cut -d':' -f2)
+          echo "percentage=$coverage" >> $GITHUB_OUTPUT
+          echo "Coverage: $coverage%"
+          
+          # Check coverage threshold
+          if (( $(echo "$coverage < ${{ inputs.coverage-threshold }}" | bc -l) )); then
+            echo "❌ Coverage $coverage% is below threshold ${{ inputs.coverage-threshold }}%"
+            exit 1
+          else
+            echo "✅ Coverage $coverage% meets threshold ${{ inputs.coverage-threshold }}%"
+          fi
+        else
+          echo "percentage=0" >> $GITHUB_OUTPUT
+          echo "⚠️ Could not determine coverage percentage"
+        fi
+
+    - name: Run mutation testing
+      if: inputs.enable-mutation-testing == 'true'
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Running mutation testing..."
+        
+        # Find main projects for mutation testing
+        main_projects=$(find . -name "*.Api.csproj" -o -name "*.Core.csproj" -o -name "*.Domain.csproj")
+        
+        if [ -n "$main_projects" ]; then
+          for project in $main_projects; do
+            echo "Running mutation testing for $project"
+            dotnet stryker --project "$project" --output "./TestResults/Mutation"
+          done
+        else
+          echo "No suitable projects found for mutation testing"
+        fi
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ inputs.test-type }}
+        path: ${{ inputs.project-path }}/TestResults/
+
+    - name: Generate test summary
+      id: summary
+      shell: bash
+      working-directory: ${{ inputs.project-path }}
+      run: |
+        echo "Generating test summary..."
+        
+        # Count test results
+        total_tests=0
+        passed_tests=0
+        failed_tests=0
+        
+        for trx_file in $(find ./TestResults -name "*.trx" 2>/dev/null); do
+          if [ -f "$trx_file" ]; then
+            tests=$(grep -o 'total="[0-9]*"' "$trx_file" | cut -d'"' -f2)
+            passed=$(grep -o 'passed="[0-9]*"' "$trx_file" | cut -d'"' -f2)
+            failed=$(grep -o 'failed="[0-9]*"' "$trx_file" | cut -d'"' -f2)
+            
+            total_tests=$((total_tests + tests))
+            passed_tests=$((passed_tests + passed))
+            failed_tests=$((failed_tests + failed))
+          fi
+        done
+        
+        if [ $failed_tests -eq 0 ]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "status=failure" >> $GITHUB_OUTPUT
+        fi
+        
+        echo "results-path=${{ inputs.project-path }}/TestResults" >> $GITHUB_OUTPUT
+        
+        # Generate summary
+        echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Test Type:** ${{ inputs.test-type }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Total Tests:** $total_tests" >> $GITHUB_STEP_SUMMARY
+        echo "- **Passed:** $passed_tests" >> $GITHUB_STEP_SUMMARY
+        echo "- **Failed:** $failed_tests" >> $GITHUB_STEP_SUMMARY
+        echo "- **Coverage:** ${{ steps.coverage.outputs.percentage }}%" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status:** ${{ steps.summary.outputs.status }}" >> $GITHUB_STEP_SUMMARY

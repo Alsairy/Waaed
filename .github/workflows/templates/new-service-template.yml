@@ -1,0 +1,226 @@
+name: New Service CI/CD Template
+# This template can be copied and customized for new microservices
+
+on:
+  push:
+    branches: [ main, develop, 'feature/*', 'hotfix/*' ]
+    paths:
+      - 'src/backend/services/NEW_SERVICE_NAME/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/backend/services/NEW_SERVICE_NAME/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+        - development
+        - staging
+        - production
+
+env:
+  SERVICE_NAME: NEW_SERVICE_NAME  # Replace with actual service name
+  SERVICE_PATH: src/backend/services/NEW_SERVICE_NAME  # Replace with actual path
+  DOTNET_VERSION: '8.0.x'
+  DOCKER_REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/NEW_SERVICE_NAME
+
+jobs:
+  # Build and test the .NET service
+  build-and-test:
+    name: Build and Test Service
+    runs-on: ubuntu-latest
+    outputs:
+      build-status: ${{ steps.build.outputs.build-status }}
+      test-results: ${{ steps.test.outputs.test-results }}
+      artifacts-path: ${{ steps.build.outputs.artifacts-path }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Use our reusable composite action for building .NET services
+      - name: Build .NET Service
+        id: build
+        uses: ./.github/workflows/templates/build-dotnet-service
+        with:
+          service-name: ${{ env.SERVICE_NAME }}
+          service-path: ${{ env.SERVICE_PATH }}
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          configuration: 'Release'
+          enable-tests: 'true'
+          enable-sonar: 'false'
+      
+      # Use our reusable composite action for comprehensive testing
+      - name: Run Comprehensive Tests
+        id: test
+        uses: ./.github/workflows/templates/run-tests
+        with:
+          test-type: 'all'
+          project-path: ${{ env.SERVICE_PATH }}
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          coverage-threshold: '80'
+          enable-mutation-testing: 'false'
+          parallel-execution: 'true'
+
+  # Security scanning
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: always()
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Use our reusable composite action for security scanning
+      - name: Run Security Scan
+        uses: ./.github/workflows/templates/security-scan
+        with:
+          scan-type: 'all'
+          project-path: ${{ env.SERVICE_PATH }}
+          language: 'csharp'
+          severity-threshold: 'medium'
+          fail-on-findings: 'true'
+
+  # Build Docker image
+  build-docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [build-and-test, security-scan]
+    if: success()
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.SERVICE_PATH }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Deploy to development environment
+  deploy-development:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    needs: build-docker
+    if: github.ref == 'refs/heads/develop' || github.event.inputs.environment == 'development'
+    environment: development
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Use our reusable composite action for service deployment
+      - name: Deploy Service
+        uses: ./.github/workflows/templates/deploy-service
+        with:
+          service-name: ${{ env.SERVICE_NAME }}
+          environment: 'development'
+          image-tag: ${{ needs.build-docker.outputs.image-tag }}
+          deployment-strategy: 'rolling'
+          namespace: 'waaed-dev'
+          helm-chart-path: './helm/waaed'
+          enable-health-checks: 'true'
+          rollback-on-failure: 'true'
+          wait-timeout: '300'
+
+  # Deploy to staging environment
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-docker
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'staging'
+    environment: staging
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Use our reusable composite action for service deployment
+      - name: Deploy Service
+        uses: ./.github/workflows/templates/deploy-service
+        with:
+          service-name: ${{ env.SERVICE_NAME }}
+          environment: 'staging'
+          image-tag: ${{ needs.build-docker.outputs.image-tag }}
+          deployment-strategy: 'blue-green'
+          namespace: 'waaed-staging'
+          helm-chart-path: './helm/waaed'
+          enable-health-checks: 'true'
+          rollback-on-failure: 'true'
+          wait-timeout: '600'
+
+  # Deploy to production environment (manual approval required)
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-docker, deploy-staging]
+    if: github.event.inputs.environment == 'production'
+    environment: production
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Use our reusable composite action for service deployment
+      - name: Deploy Service
+        uses: ./.github/workflows/templates/deploy-service
+        with:
+          service-name: ${{ env.SERVICE_NAME }}
+          environment: 'production'
+          image-tag: ${{ needs.build-docker.outputs.image-tag }}
+          deployment-strategy: 'canary'
+          namespace: 'waaed-prod'
+          helm-chart-path: './helm/waaed'
+          enable-health-checks: 'true'
+          rollback-on-failure: 'true'
+          wait-timeout: '900'
+
+  # Notification job
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [build-and-test, security-scan, build-docker, deploy-development, deploy-staging, deploy-production]
+    if: always()
+    
+    steps:
+      - name: Send Slack notification
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#ci-cd'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

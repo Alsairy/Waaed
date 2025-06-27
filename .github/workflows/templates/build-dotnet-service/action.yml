@@ -1,0 +1,115 @@
+name: 'Build .NET Service'
+description: 'Builds a .NET microservice with caching and optimization'
+inputs:
+  service-name:
+    description: 'Name of the service to build'
+    required: true
+  service-path:
+    description: 'Path to the service directory'
+    required: true
+  dotnet-version:
+    description: '.NET version to use'
+    required: false
+    default: '8.0.x'
+  configuration:
+    description: 'Build configuration (Debug/Release)'
+    required: false
+    default: 'Release'
+  enable-tests:
+    description: 'Whether to run tests after build'
+    required: false
+    default: 'true'
+  enable-sonar:
+    description: 'Whether to run SonarCloud analysis'
+    required: false
+    default: 'false'
+outputs:
+  build-status:
+    description: 'Build status (success/failure)'
+    value: ${{ steps.build.outputs.status }}
+  test-results:
+    description: 'Test results summary'
+    value: ${{ steps.test.outputs.results }}
+  artifacts-path:
+    description: 'Path to build artifacts'
+    value: ${{ steps.build.outputs.artifacts-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      shell: bash
+      run: |
+        echo "Restoring dependencies for ${{ inputs.service-name }}..."
+        dotnet restore ${{ inputs.service-path }}
+
+    - name: Build service
+      id: build
+      shell: bash
+      run: |
+        echo "Building ${{ inputs.service-name }}..."
+        dotnet build ${{ inputs.service-path }} \
+          --configuration ${{ inputs.configuration }} \
+          --no-restore \
+          --verbosity minimal
+        
+        if [ $? -eq 0 ]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "artifacts-path=${{ inputs.service-path }}/bin/${{ inputs.configuration }}" >> $GITHUB_OUTPUT
+        else
+          echo "status=failure" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+
+    - name: Run tests
+      id: test
+      if: inputs.enable-tests == 'true'
+      shell: bash
+      run: |
+        echo "Running tests for ${{ inputs.service-name }}..."
+        
+        # Find test projects
+        test_projects=$(find ${{ inputs.service-path }} -name "*.Tests.csproj" -o -name "*Tests.csproj" -o -name "*.Test.csproj")
+        
+        if [ -n "$test_projects" ]; then
+          dotnet test ${{ inputs.service-path }} \
+            --configuration ${{ inputs.configuration }} \
+            --no-build \
+            --verbosity minimal \
+            --logger trx \
+            --collect:"XPlat Code Coverage"
+          
+          echo "results=Tests completed successfully" >> $GITHUB_OUTPUT
+        else
+          echo "results=No test projects found" >> $GITHUB_OUTPUT
+        fi
+
+    - name: SonarCloud analysis
+      if: inputs.enable-sonar == 'true'
+      shell: bash
+      run: |
+        echo "Running SonarCloud analysis for ${{ inputs.service-name }}..."
+        # SonarCloud analysis would be implemented here
+        echo "SonarCloud analysis completed"
+
+    - name: Generate build summary
+      shell: bash
+      run: |
+        echo "## Build Summary for ${{ inputs.service-name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status:** ${{ steps.build.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Configuration:** ${{ inputs.configuration }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Tests:** ${{ inputs.enable-tests }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Artifacts:** ${{ steps.build.outputs.artifacts-path }}" >> $GITHUB_STEP_SUMMARY

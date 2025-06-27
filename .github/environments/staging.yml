@@ -1,0 +1,33 @@
+name: staging
+url: https://staging-api.waaed.sa
+protection_rules:
+  required_reviewers:
+    - Alsairy
+  prevent_self_review: false
+  dismiss_stale_reviews: false
+  require_code_owner_reviews: false
+  required_status_checks:
+    strict: true
+    contexts:
+      - "ci-cd-pipeline"
+      - "security-scan"
+      - "testing"
+  wait_timer: 2
+deployment_branch_policy:
+  protected_branches: false
+  custom_branch_policies: true
+  custom_branches:
+    - main
+    - develop
+    - "release/*"
+variables:
+  ENVIRONMENT: staging
+  API_URL: https://staging-api.waaed.sa
+  DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+  REDIS_URL: ${{ secrets.STAGING_REDIS_URL }}
+secrets:
+  - STAGING_DATABASE_URL
+  - STAGING_REDIS_URL
+  - STAGING_JWT_SECRET
+  - STAGING_ENCRYPTION_KEY
+  - SLACK_WEBHOOK_URL

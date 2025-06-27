@@ -1,0 +1,342 @@
+name: Deploy to Development
+
+on:
+  push:
+    branches: [develop, feature/*]
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: 'false'
+        type: boolean
+      deployment_strategy:
+        description: 'Deployment strategy'
+        required: false
+        default: 'rolling'
+        type: choice
+        options:
+          - rolling
+          - blue-green
+          - canary
+
+env:
+  ENVIRONMENT: development
+  NAMESPACE: waaed-dev
+  HELM_CHART_PATH: ./helm/hudur
+  DOCKER_REGISTRY: ghcr.io
+  IMAGE_TAG: dev-${{ github.sha }}
+
+jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      helm: ${{ steps.changes.outputs.helm }}
+      docker: ${{ steps.changes.outputs.docker }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'src/backend/**'
+              - 'docker-compose.yml'
+              - 'docker-compose.development.yml'
+            frontend:
+              - 'frontend/**'
+            helm:
+              - 'helm/**'
+            docker:
+              - '**/Dockerfile'
+              - 'docker-compose*.yml'
+
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: >
+      needs.detect-changes.outputs.backend == 'true' ||
+      needs.detect-changes.outputs.frontend == 'true'
+    
+    strategy:
+      matrix:
+        service: [authentication, attendance, lms, finance, hr, library, 
+                 inventory, polls, blogs, tasks]
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/unified-education-frontend/package-lock.json
+
+      - name: Restore backend dependencies
+        run: |
+          dotnet restore src/backend/services/${{ matrix.service }}/*/
+          dotnet restore src/backend/gateways/Waaed.ApiGateway/
+
+      - name: Build backend services
+        run: |
+          dotnet build src/backend/services/${{ matrix.service }}/*/ --no-restore
+          dotnet build src/backend/gateways/Waaed.ApiGateway/ --no-restore
+
+      - name: Install frontend dependencies
+        if: needs.detect-changes.outputs.frontend == 'true'
+        working-directory: frontend/unified-education-frontend
+        run: npm ci
+
+      - name: Build frontend
+        if: needs.detect-changes.outputs.frontend == 'true'
+        working-directory: frontend/unified-education-frontend
+        run: npm run build
+
+      - name: Run unit tests
+        run: |
+          dotnet test tests/unit/ --no-build --verbosity normal
+          dotnet test src/backend/services/${{ matrix.service }}/*/ --no-build --verbosity normal
+
+  build-docker-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [detect-changes, build-and-test]
+    if: >
+      needs.detect-changes.outputs.docker == 'true' &&
+      (success() || github.event.inputs.force_deploy == 'true')
+    
+    strategy:
+      matrix:
+        service: [authentication, attendance, lms, finance, hr, library, 
+                 inventory, polls, blogs, tasks, api-gateway, frontend]
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/backend/services/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: |
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/waaed-${{ matrix.service }}:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/waaed-${{ matrix.service }}:dev-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  deploy-development:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    needs: [detect-changes, build-and-test, build-docker-images]
+    if: >
+      always() &&
+      (success() || github.event.inputs.force_deploy == 'true') &&
+      (needs.detect-changes.outputs.backend == 'true' ||
+       needs.detect-changes.outputs.frontend == 'true' ||
+       needs.detect-changes.outputs.helm == 'true')
+    
+    environment:
+      name: development
+      url: https://dev.waaed.platform.com
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: '1.28.0'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name waaed-dev-cluster
+
+      - name: Create namespace if not exists
+        run: |
+          kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy with Rolling Update (Default)
+        if: github.event.inputs.deployment_strategy != 'blue-green' && github.event.inputs.deployment_strategy != 'canary'
+        run: |
+          helm upgrade --install waaed-dev ${{ env.HELM_CHART_PATH }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --set environment=development \
+            --set image.tag=${{ env.IMAGE_TAG }} \
+            --set ingress.host=dev.waaed.platform.com \
+            --set database.host=${{ secrets.DEV_DB_HOST }} \
+            --set database.password=${{ secrets.DEV_DB_PASSWORD }} \
+            --set redis.host=${{ secrets.DEV_REDIS_HOST }} \
+            --set redis.password=${{ secrets.DEV_REDIS_PASSWORD }} \
+            --wait --timeout=10m
+
+      - name: Deploy with Blue-Green Strategy
+        if: github.event.inputs.deployment_strategy == 'blue-green'
+        run: |
+          # Get current deployment color
+          CURRENT_COLOR=$(kubectl get deployment waaed-dev -n ${{ env.NAMESPACE }} -o jsonpath='{.metadata.labels.color}' 2>/dev/null || echo "blue")
+          NEW_COLOR=$([ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue")
+          
+          echo "Current color: $CURRENT_COLOR, New color: $NEW_COLOR"
+          
+          # Deploy new version with new color
+          helm upgrade --install waaed-dev-$NEW_COLOR ${{ env.HELM_CHART_PATH }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --set environment=development \
+            --set image.tag=${{ env.IMAGE_TAG }} \
+            --set ingress.host=dev.waaed.platform.com \
+            --set nameOverride=waaed-dev-$NEW_COLOR \
+            --set deployment.color=$NEW_COLOR \
+            --set database.host=${{ secrets.DEV_DB_HOST }} \
+            --set database.password=${{ secrets.DEV_DB_PASSWORD }} \
+            --set redis.host=${{ secrets.DEV_REDIS_HOST }} \
+            --set redis.password=${{ secrets.DEV_REDIS_PASSWORD }} \
+            --wait --timeout=10m
+          
+          # Health check
+          kubectl wait --for=condition=available --timeout=300s deployment/waaed-dev-$NEW_COLOR -n ${{ env.NAMESPACE }}
+          
+          # Switch traffic
+          kubectl patch service waaed-dev -n ${{ env.NAMESPACE }} -p '{"spec":{"selector":{"color":"'$NEW_COLOR'"}}}'
+          
+          # Wait and cleanup old deployment
+          sleep 30
+          helm uninstall waaed-dev-$CURRENT_COLOR -n ${{ env.NAMESPACE }} || true
+
+      - name: Deploy with Canary Strategy
+        if: github.event.inputs.deployment_strategy == 'canary'
+        run: |
+          # Deploy canary version (10% traffic)
+          helm upgrade --install waaed-dev-canary ${{ env.HELM_CHART_PATH }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --set environment=development \
+            --set image.tag=${{ env.IMAGE_TAG }} \
+            --set ingress.host=dev.waaed.platform.com \
+            --set nameOverride=waaed-dev-canary \
+            --set deployment.canary=true \
+            --set deployment.canaryWeight=10 \
+            --set replicaCount=1 \
+            --set database.host=${{ secrets.DEV_DB_HOST }} \
+            --set database.password=${{ secrets.DEV_DB_PASSWORD }} \
+            --set redis.host=${{ secrets.DEV_REDIS_HOST }} \
+            --set redis.password=${{ secrets.DEV_REDIS_PASSWORD }} \
+            --wait --timeout=10m
+          
+          # Wait for canary validation
+          echo "Canary deployed with 10% traffic. Waiting 5 minutes for validation..."
+          sleep 300
+          
+          # Promote canary to 50%
+          helm upgrade waaed-dev-canary ${{ env.HELM_CHART_PATH }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --reuse-values \
+            --set deployment.canaryWeight=50 \
+            --set replicaCount=3
+          
+          sleep 300
+          
+          # Full promotion
+          helm upgrade waaed-dev-canary ${{ env.HELM_CHART_PATH }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --reuse-values \
+            --set deployment.canaryWeight=100 \
+            --set replicaCount=5
+          
+          # Cleanup old stable version
+          helm uninstall waaed-dev -n ${{ env.NAMESPACE }} || true
+          helm upgrade --install waaed-dev ${{ env.HELM_CHART_PATH }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --reuse-values
+          helm uninstall waaed-dev-canary -n ${{ env.NAMESPACE }}
+
+      - name: Run smoke tests
+        run: |
+          # Wait for deployment to be ready
+          kubectl wait --for=condition=available --timeout=300s deployment/waaed-dev -n ${{ env.NAMESPACE }}
+          
+          # Basic health check
+          kubectl get pods -n ${{ env.NAMESPACE }}
+          
+          # Test API endpoints
+          API_URL="https://dev.waaed.platform.com"
+          curl -f "$API_URL/health" || exit 1
+          curl -f "$API_URL/api/auth/health" || exit 1
+
+      - name: Update deployment status
+        if: always()
+        run: |
+          STATUS=${{ job.status }}
+          kubectl annotate deployment waaed-dev -n ${{ env.NAMESPACE }} \
+            deployment.kubernetes.io/last-deployment-status="$STATUS" \
+            deployment.kubernetes.io/last-deployment-time="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            deployment.kubernetes.io/deployment-strategy="${{ github.event.inputs.deployment_strategy || 'rolling' }}" \
+            --overwrite
+
+  notify-deployment:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [deploy-development]
+    if: always()
+    
+    steps:
+      - name: Notify success
+        if: needs.deploy-development.result == 'success'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: |
+            🚀 Development deployment successful!
+            Environment: Development
+            Strategy: ${{ github.event.inputs.deployment_strategy || 'rolling' }}
+            URL: https://dev.waaed.platform.com
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify failure
+        if: needs.deploy-development.result == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            ❌ Development deployment failed!
+            Environment: Development
+            Strategy: ${{ github.event.inputs.deployment_strategy || 'rolling' }}
+            Please check the logs for details.
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
