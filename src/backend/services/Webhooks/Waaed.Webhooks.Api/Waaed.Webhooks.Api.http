@@ -1,0 +1,6 @@
+@Waaed.Webhooks.Api_HostAddress = http://localhost:5007
+
+GET {{Waaed.Webhooks.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

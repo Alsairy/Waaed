@@ -1,0 +1,6 @@
+@Waaed.TenantManagement.Api_HostAddress = http://localhost:5102
+
+GET {{Waaed.TenantManagement.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

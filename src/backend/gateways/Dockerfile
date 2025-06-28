@@ -9,21 +9,21 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy project files
-COPY ["src/backend/gateways/AttendancePlatform.ApiGateway/AttendancePlatform.ApiGateway.csproj", "src/backend/gateways/AttendancePlatform.ApiGateway/"]
+COPY ["src/backend/gateways/Waaed.ApiGateway/Waaed.ApiGateway.csproj", "src/backend/gateways/Waaed.ApiGateway/"]
 
 # Restore dependencies
-RUN dotnet restore "src/backend/gateways/AttendancePlatform.ApiGateway/AttendancePlatform.ApiGateway.csproj"
+RUN dotnet restore "src/backend/gateways/Waaed.ApiGateway/Waaed.ApiGateway.csproj"
 
 # Copy source code
 COPY . .
 
 # Build the application
-WORKDIR "/src/src/backend/gateways/AttendancePlatform.ApiGateway"
-RUN dotnet build "AttendancePlatform.ApiGateway.csproj" -c Release -o /app/build
+WORKDIR "/src/src/backend/gateways/Waaed.ApiGateway"
+RUN dotnet build "Waaed.ApiGateway.csproj" -c Release -o /app/build
 
 # Publish stage
 FROM build AS publish
-RUN dotnet publish "AttendancePlatform.ApiGateway.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Waaed.ApiGateway.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Final stage
 FROM base AS final
@@ -38,5 +38,5 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:80/health || exit 1
 
-ENTRYPOINT ["dotnet", "AttendancePlatform.ApiGateway.dll"]
+ENTRYPOINT ["dotnet", "Waaed.ApiGateway.dll"]
 

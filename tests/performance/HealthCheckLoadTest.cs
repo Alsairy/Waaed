@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using NBomber.CSharp;
 using Xunit;
 
-namespace AttendancePlatform.Tests.Performance
+namespace Waaed.Tests.Performance
 {
     public class HealthCheckLoadTest
     {

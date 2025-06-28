@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using Xunit;
 
-namespace AttendancePlatform.Tests.Performance
+namespace Waaed.Tests.Performance
 {
     public class MassiveScaleLoadTests
     {

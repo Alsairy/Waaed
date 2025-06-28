@@ -21,7 +21,13 @@ import {
   Clock,
   CheckCircle,
   ArrowRight,
-  Activity
+  Activity,
+  DollarSign,
+  Library,
+  Package,
+  Vote,
+  PenTool,
+  CheckSquare
 } from 'lucide-react';
 import { StudentManagement } from './components/sis/StudentManagement';
 import CourseManagement from './components/lms/CourseManagement';
@@ -31,6 +37,13 @@ import AnalyticsManagement from './components/analytics/AnalyticsManagement';
 import AdminManagement from './components/admin/AdminManagement';
 import AIManagement from './components/ai/AIManagement';
 import WorkflowManagement from './components/bpm/WorkflowManagement';
+import FeeManagement from './components/finance/FeeManagement';
+import HREmployeeManagement from './components/hr/EmployeeManagement';
+import BookCatalog from './components/library/BookCatalog';
+import StoreManagement from './components/inventory/StoreManagement';
+import PollCreation from './components/polls/PollCreation';
+import BlogPostList from './components/blogs/BlogPostList';
+import TaskList from './components/tasks/TaskList';
 import Layout from './components/layout/Layout';
 import './styles/main.scss';
 
@@ -144,6 +157,55 @@ function Dashboard() {
       color: 'warning', 
       description: t('bpm.description'),
       gradient: 'from-yellow-500 to-yellow-600'
+    },
+    { 
+      key: 'finance', 
+      icon: DollarSign, 
+      color: 'success', 
+      description: t('finance.description'),
+      gradient: 'from-emerald-500 to-emerald-600'
+    },
+    { 
+      key: 'hr', 
+      icon: Users, 
+      color: 'info', 
+      description: t('hr.description'),
+      gradient: 'from-blue-500 to-blue-600'
+    },
+    { 
+      key: 'library', 
+      icon: Library, 
+      color: 'secondary', 
+      description: t('library.description'),
+      gradient: 'from-violet-500 to-violet-600'
+    },
+    { 
+      key: 'inventory', 
+      icon: Package, 
+      color: 'warning', 
+      description: t('inventory.description'),
+      gradient: 'from-amber-500 to-amber-600'
+    },
+    { 
+      key: 'polls', 
+      icon: Vote, 
+      color: 'primary', 
+      description: t('polls.description'),
+      gradient: 'from-cyan-500 to-cyan-600'
+    },
+    { 
+      key: 'blogs', 
+      icon: PenTool, 
+      color: 'info', 
+      description: t('blogs.description'),
+      gradient: 'from-rose-500 to-rose-600'
+    },
+    { 
+      key: 'tasks', 
+      icon: CheckSquare, 
+      color: 'success', 
+      description: t('tasks.description'),
+      gradient: 'from-teal-500 to-teal-600'
     },
   ];
 
@@ -382,6 +444,13 @@ function App() {
               <Route path="/admin" element={<AdminManagement />} />
               <Route path="/ai" element={<AIManagement />} />
               <Route path="/bpm" element={<WorkflowManagement />} />
+              <Route path="/finance" element={<FeeManagement />} />
+              <Route path="/hr" element={<HREmployeeManagement />} />
+              <Route path="/library" element={<BookCatalog />} />
+              <Route path="/inventory" element={<StoreManagement />} />
+              <Route path="/polls" element={<PollCreation />} />
+              <Route path="/blogs" element={<BlogPostList />} />
+              <Route path="/tasks" element={<TaskList />} />
             </Routes>
           </main>
         </Layout>

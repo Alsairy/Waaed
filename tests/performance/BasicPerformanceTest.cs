@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace AttendancePlatform.Tests.Performance
+namespace Waaed.Tests.Performance
 {
     public class BasicPerformanceTest
     {

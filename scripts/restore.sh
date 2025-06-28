@@ -7,7 +7,7 @@ BACKUP_DIR="/var/backups/hudur"
 RESTORE_DATE="$1"
 
 DB_HOST="${DB_HOST:-localhost}"
-DB_NAME="${DB_NAME:-AttendancePlatform}"
+DB_NAME="${DB_NAME:-Waaed}"
 DB_USER="${DB_USER:-sa}"
 DB_PASSWORD="${DB_PASSWORD}"
 

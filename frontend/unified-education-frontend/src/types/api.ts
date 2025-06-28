@@ -387,3 +387,319 @@ export interface Tenant {
   plan: string;
   createdAt: string;
 }
+
+export interface FeeStructure {
+  id: string;
+  name: string;
+  description: string;
+  amount: number;
+  frequency: string;
+  dueDate: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface FeeCollection {
+  id: string;
+  studentId: string;
+  studentName: string;
+  feeStructureId: string;
+  amount: number;
+  paidAmount: number;
+  dueDate: string;
+  status: string;
+  paymentDate?: string;
+  createdAt: string;
+}
+
+export interface Expense {
+  id: string;
+  title: string;
+  description: string;
+  amount: number;
+  category: string;
+  date: string;
+  approvedBy?: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface Budget {
+  id: string;
+  name: string;
+  description: string;
+  totalAmount: number;
+  allocatedAmount: number;
+  spentAmount: number;
+  startDate: string;
+  endDate: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface HREmployee {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  departmentId: string;
+  positionId: string;
+  hireDate: string;
+  salary: number;
+  status: string;
+  createdAt: string;
+}
+
+export interface Department {
+  id: string;
+  name: string;
+  description: string;
+  managerId?: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface Position {
+  id: string;
+  title: string;
+  description: string;
+  departmentId: string;
+  minSalary: number;
+  maxSalary: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface LeaveRequest {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  leaveType: string;
+  startDate: string;
+  endDate: string;
+  reason: string;
+  status: string;
+  approvedBy?: string;
+  createdAt: string;
+}
+
+export interface PerformanceReview {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  reviewPeriod: string;
+  overallRating: number;
+  goals: string;
+  achievements: string;
+  feedback: string;
+  reviewerId: string;
+  createdAt: string;
+}
+
+export interface Book {
+  id: string;
+  title: string;
+  author: string;
+  isbn: string;
+  category: string;
+  publisher: string;
+  publishedDate: string;
+  totalCopies: number;
+  availableCopies: number;
+  location: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface BookIssue {
+  id: string;
+  bookId: string;
+  bookTitle: string;
+  memberId: string;
+  memberName: string;
+  issueDate: string;
+  dueDate: string;
+  returnDate?: string;
+  status: string;
+  fineAmount?: number;
+  createdAt: string;
+}
+
+export interface BookReservation {
+  id: string;
+  bookId: string;
+  bookTitle: string;
+  memberId: string;
+  memberName: string;
+  reservationDate: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface LibraryMember {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  membershipType: string;
+  joinDate: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface Store {
+  id: string;
+  name: string;
+  description: string;
+  location: string;
+  managerId: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface Item {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  unit: string;
+  minimumStock: number;
+  currentStock: number;
+  unitPrice: number;
+  storeId: string;
+  createdAt: string;
+}
+
+export interface PurchaseOrder {
+  id: string;
+  orderNumber: string;
+  supplierId: string;
+  supplierName: string;
+  orderDate: string;
+  expectedDeliveryDate: string;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+}
+
+export interface Indent {
+  id: string;
+  indentNumber: string;
+  requestedBy: string;
+  department: string;
+  requestDate: string;
+  requiredDate: string;
+  status: string;
+  approvedBy?: string;
+  createdAt: string;
+}
+
+export interface Poll {
+  id: string;
+  title: string;
+  description: string;
+  isAnonymous: boolean;
+  allowMultipleVotes: boolean;
+  startDate: string;
+  endDate: string;
+  status: string;
+  totalVotes: number;
+  createdBy: string;
+  createdAt: string;
+  options: PollOption[];
+}
+
+export interface PollOption {
+  id: string;
+  pollId: string;
+  text: string;
+  voteCount: number;
+  createdAt: string;
+}
+
+export interface PollVote {
+  id: string;
+  pollId: string;
+  optionId: string;
+  voterId?: string;
+  voterName?: string;
+  votedAt: string;
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  excerpt: string;
+  authorId: string;
+  authorName: string;
+  categoryId?: string;
+  tags: string;
+  status: string;
+  publishedAt?: string;
+  viewCount: number;
+  commentCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BlogComment {
+  id: string;
+  postId: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  parentCommentId?: string;
+  isApproved: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BlogCategory {
+  id: string;
+  name: string;
+  description: string;
+  slug: string;
+  postCount: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  assigneeIds: string[];
+  assigneeNames: string[];
+  dueDate: string;
+  priority: string;
+  status: string;
+  progress: number;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  attachmentCount: number;
+  commentCount: number;
+}
+
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TaskAttachment {
+  id: string;
+  taskId: string;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  downloadUrl: string;
+}
