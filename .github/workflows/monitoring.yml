@@ -66,7 +66,7 @@ on:
           - sla
           - alerts
       environment:
-        descriptitrue: 'Target environment for monitoring'
+        description: 'Target environment for monitoring'
         required: false
         default: 'all'
         type: choice
@@ -94,12 +94,12 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          versitrue: '3.12.0'
+          version: '3.12.0'
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          versitrue: '1.28.0'
+          version: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -149,7 +149,7 @@ jobs:
         run: |
           # Create custom ServiceMonitor for Waaed services
           cat <<EOF | kubectl apply -f -
-          apiVersitrue: monitoring.coreos.com/v1
+          apiVersion: monitoring.coreos.com/v1
           kind: ServiceMonitor
           metadata:
             name: waaed-services
@@ -185,7 +185,7 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          versitrue: '1.28.0'
+          version: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -307,7 +307,7 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          versitrue: '1.28.0'
+          version: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -429,7 +429,7 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          versitrue: '1.28.0'
+          version: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -500,7 +500,7 @@ jobs:
 
   alert-management:
     name: Alert Management
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     if: >
       github.event.inputs.check_type == 'alerts' ||
       github.event.inputs.check_type == 'all' ||
@@ -512,7 +512,7 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          versitrue: '1.28.0'
+          version: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -526,7 +526,7 @@ jobs:
           echo "Configuring Prometheus alerting rules"
 
           cat <<EOF | kubectl apply -f -
-          apiVersitrue: monitoring.coreos.com/v1
+          apiVersion: monitoring.coreos.com/v1
           kind: PrometheusRule
           metadata:
             name: waaed-alerts
@@ -546,7 +546,7 @@ jobs:
                   severity: critical
                 annotations:
                   summary: "Waaed service {{ \$labels.job }} is down"
-                  descriptitrue: >
+                  description: >
                     Waaed service {{ \$labels.job }} has been down for more
                     than 1 minute.
 
@@ -557,7 +557,7 @@ jobs:
                   severity: warning
                 annotations:
                   summary: "High response time for {{ \$labels.job }}"
-                  descriptitrue: >
+                  description: >
                     95th percentile response time for {{ \$labels.job }} is {{
                     \$value }}s
 
@@ -568,7 +568,7 @@ jobs:
                   severity: warning
                 annotations:
                   summary: "High error rate for {{ \$labels.job }}"
-                  descriptitrue: >
+                  description: >
                     Error rate for {{ \$labels.job }} is {{ \$value |
                     humanizePercentage }}
 
@@ -579,7 +579,7 @@ jobs:
                   severity: warning
                 annotations:
                   summary: "High CPU usage for {{ \$labels.pod }}"
-                  descriptitrue: >
+                  description: >
                     CPU usage for {{ \$labels.pod }} is {{ \$value |
                     humanizePercentage }}
 
@@ -590,7 +590,7 @@ jobs:
                   severity: warning
                 annotations:
                   summary: "High memory usage for {{ \$labels.pod }}"
-                  descriptitrue: >
+                  description: >
                     Memory usage for {{ \$labels.pod }} is {{ \$value |
                     humanizePercentage }}
           EOF
@@ -666,7 +666,7 @@ jobs:
 
   generate-monitoring-summary:
     name: Generate Monitoring Summary
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [health-checks, performance-monitoring, sla-monitoring, alert-management]
     if: always()
 
@@ -746,7 +746,7 @@ jobs:
 
   notify-monitoring-status:
     name: Notify Monitoring Status
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [generate-monitoring-summary]
     if: always()
 
