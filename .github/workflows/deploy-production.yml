@@ -76,7 +76,7 @@ on:
 env:
   ENVIRONMENT: production
   NAMESPACE: waaed-prod
-  HELM_CHART_PATH: ./helm/hudur
+  HELM_CHART_PATH: ./helm/waaed
   DOCKER_REGISTRY: ghcr.io
   IMAGE_TAG: ${{ github.event.release.tag_name || github.event.inputs.release_tag }}
 

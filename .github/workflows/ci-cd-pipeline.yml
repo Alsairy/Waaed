@@ -458,19 +458,15 @@ jobs:
       matrix:
         service: [
           'Authentication',
-          'TenantManagement',
-          'UserManagement',
           'Attendance',
-          'LMS',
-          'Finance',
-          'HR',
-          'Library',
-          'Inventory',
-          'Polls',
-          'Blogs',
-          'Tasks',
           'Analytics',
+          'Collaboration',
+          'FaceRecognition',
+          'Integrations',
+          'LeaveManagement',
           'Notifications',
+          'Webhooks',
+          'WorkflowEngine',
           'apigateway',
           'frontend'
         ]
@@ -503,11 +499,13 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: |
-            ${{ matrix.service == 'frontend' && 'frontend/Dockerfile' ||
-                format('src/backend/services/{0}/Dockerfile', matrix.service) }}
-            ${{ matrix.service == 'apigateway' &&
-                'src/backend/gateways/Dockerfile' || '' }}
+          file: ${{
+            matrix.service == 'frontend' &&
+            'src/frontend/Dockerfile' ||
+            matrix.service == 'apigateway' &&
+            'src/backend/gateways/Dockerfile' ||
+            format('src/backend/services/{0}/Dockerfile', matrix.service)
+          }}
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -549,13 +547,13 @@ jobs:
       - name: Deploy to Development
         run: |
           export KUBECONFIG=kubeconfig
-          helm upgrade --install waaed-dev ./helm/hudur \
+          helm upgrade --install waaed-dev ./helm/waaed \
             --namespace waaed-dev \
             --create-namespace \
             --set global.environment=development \
             --set global.imageTag=${{ github.sha }} \
             --set global.registry=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \
-            --values helm/hudur/values-dev.yaml \
+            --values helm/waaed/values-dev.yaml \
             --wait --timeout=10m
 
       - name: Run smoke tests
@@ -596,13 +594,13 @@ jobs:
       - name: Deploy to Staging
         run: |
           export KUBECONFIG=kubeconfig
-          helm upgrade --install waaed-staging ./helm/hudur \
+          helm upgrade --install waaed-staging ./helm/waaed \
             --namespace waaed-staging \
             --create-namespace \
             --set global.environment=staging \
             --set global.imageTag=${{ github.sha }} \
             --set global.registry=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \
-            --values helm/hudur/values-staging.yaml \
+            --values helm/waaed/values-staging.yaml \
             --wait --timeout=15m
 
       - name: Run integration tests against staging
@@ -646,14 +644,14 @@ jobs:
           export KUBECONFIG=kubeconfig
 
           # Deploy to green environment
-          helm upgrade --install waaed-green ./helm/hudur \
+          helm upgrade --install waaed-green ./helm/waaed \
             --namespace waaed-prod \
             --create-namespace \
             --set global.environment=production \
             --set global.imageTag=${{ github.sha }} \
             --set global.registry=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} \
             --set global.deploymentColor=green \
-            --values helm/hudur/values-prod.yaml \
+            --values helm/waaed/values-prod.yaml \
             --wait --timeout=20m
 
           # Wait for green deployment to be ready

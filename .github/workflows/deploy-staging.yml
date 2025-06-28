@@ -29,7 +29,7 @@ on:
 env:
   ENVIRONMENT: staging
   NAMESPACE: waaed-staging
-  HELM_CHART_PATH: ./helm/hudur
+  HELM_CHART_PATH: ./helm/waaed
   DOCKER_REGISTRY: ghcr.io
   IMAGE_TAG: staging-${{ github.sha }}
 

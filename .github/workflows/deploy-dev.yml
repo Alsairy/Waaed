@@ -26,7 +26,7 @@ name: Deploy to Development
 env:
   ENVIRONMENT: development
   NAMESPACE: waaed-dev
-  HELM_CHART_PATH: ./helm/hudur
+  HELM_CHART_PATH: ./helm/waaed
   DOCKER_REGISTRY: ghcr.io
   IMAGE_TAG: dev-${{ github.sha }}
   REGISTRY_PREFIX: ghcr.io/${{ github.repository_owner }}/waaed

@@ -35,7 +35,7 @@ on:
 
 env:
   DOCKER_REGISTRY: ghcr.io
-  HELM_CHART_PATH: ./helm/hudur
+  HELM_CHART_PATH: ./helm/waaed
   NODE_VERSION: '18'
   DOTNET_VERSION: '8.0.x'
 
@@ -291,12 +291,12 @@ jobs:
           mkdir -p release/helm
 
           # Package Helm chart
-          helm package helm/hudur -d release/helm
+          helm package helm/waaed -d release/helm
 
           # Create values files for different environments
-          cp helm/hudur/values.yaml release/helm/values-dev.yaml
-          cp helm/hudur/values.yaml release/helm/values-staging.yaml
-          cp helm/hudur/values.yaml release/helm/values-production.yaml
+          cp helm/waaed/values.yaml release/helm/values-dev.yaml
+          cp helm/waaed/values.yaml release/helm/values-staging.yaml
+          cp helm/waaed/values.yaml release/helm/values-production.yaml
 
       - name: Create deployment scripts
         run: |
@@ -317,7 +317,7 @@ jobs:
           echo "Deploying Waaed Platform version $VERSION to $ENVIRONMENT"
 
           # Deploy using Helm
-          helm upgrade --install waaed-$ENVIRONMENT ./helm/hudur-*.tgz \
+          helm upgrade --install waaed-$ENVIRONMENT ./helm/waaed-*.tgz \
             --namespace waaed-$ENVIRONMENT \
             --create-namespace \
             --set image.tag=$VERSION \
@@ -350,7 +350,7 @@ jobs:
 
           ### Using Helm
           \`\`\`bash
-          helm install waaed ./helm/hudur-*.tgz \\
+          helm install waaed ./helm/waaed-*.tgz \\
             --namespace waaed \\
             --create-namespace \\
             --set image.tag=${{ needs.validate-release.outputs.new_version }}

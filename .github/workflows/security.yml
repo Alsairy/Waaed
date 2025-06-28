@@ -596,9 +596,9 @@ jobs:
           chmod +x kubesec
 
           # Scan Helm templates
-          if [-d "helm/hudur/templates"]; then
+          if [-d "helm/waaed/templates"]; then
             echo "Scanning Kubernetes manifests..."
-            find helm/hudur/templates -name "*.yaml" -o -name "*.yml" | while read file; do
+            find helm/waaed/templates -name "*.yaml" -o -name "*.yml" | while read file; do
               echo "Scanning $file"
               ./kubesec scan "$file" > "kubesec-$(basename "$file").json" || true
             done
