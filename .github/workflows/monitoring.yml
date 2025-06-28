@@ -28,7 +28,7 @@
 # - Critical: Immediate notification via multiple channels (Slack, email, SMS)
 # - Warning: Proactive alerts for potential issues
 # - Info: Trend analysis and capacity planning notifications
-# - Escalatitrue: Automated escalation for unresolved critical issues
+# - Escalation: Automated escalation for unresolved critical issues
 #
 # Triggers:
 # - Scheduled monitoring every 5 minutes for continuous oversight
