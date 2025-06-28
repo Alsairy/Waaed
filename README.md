@@ -117,8 +117,8 @@ Waaed is a **production-ready unified education platform** featuring cutting-edg
 
 ### **1. Clone Repository**
 ```bash
-git clone https://github.com/your-org/hudur.git
-cd hudur
+git clone https://github.com/Alsairy/Waaed.git
+cd Waaed
 ```
 
 ### **2. Environment Setup**
@@ -150,7 +150,7 @@ docker-compose logs -f
 
 ### **5. Default Login**
 ```
-Email: admin@hudur.sa
+Email: admin@waaed.sa
 Password: Admin123!
 ```
 
@@ -188,7 +188,7 @@ npx react-native run-android
 ### **Backend Development**
 ```bash
 # Navigate to backend service
-cd src/backend/services/Authentication/Hudur.Authentication.Api
+cd src/backend/services/Authentication/Waaed.Authentication.Api
 
 # Restore packages
 dotnet restore
@@ -203,7 +203,7 @@ dotnet test
 ### **Frontend Development**
 ```bash
 # Navigate to frontend
-cd src/frontend/hudur-frontend
+cd src/frontend/waaed-frontend
 
 # Install dependencies
 npm install
@@ -444,9 +444,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### **Getting Help**
 - **📖 Documentation**: Comprehensive guides and API reference
-- **🐛 Issues**: [GitHub Issues](https://github.com/your-org/hudur/issues) for bug reports
-- **💬 Discussions**: [GitHub Discussions](https://github.com/your-org/hudur/discussions) for Q&A
-- **📧 Email**: support@hudur.sa for enterprise support
+- **🐛 Issues**: [GitHub Issues](https://github.com/Alsairy/Waaed/issues) for bug reports
+- **💬 Discussions**: [GitHub Discussions](https://github.com/Alsairy/Waaed/discussions) for Q&A
+- **📧 Email**: support@waaed.sa for enterprise support
 
 ### **Community**
 - **⭐ Star** this repository if you find it useful
@@ -457,7 +457,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🌟 **Ready to Transform Your Workforce Management?**
 
-Hudur combines cutting-edge technology with enterprise-grade reliability to deliver a comprehensive workforce management solution. Whether you're a startup or enterprise, Hudur scales with your needs.
+Waaed combines cutting-edge technology with enterprise-grade reliability to deliver a comprehensive educational management solution. Whether you're a startup or enterprise, Waaed scales with your needs.
 
 **[Get Started Today →](docs/getting-started.md)**
 
@@ -466,9 +466,9 @@ Hudur combines cutting-edge technology with enterprise-grade reliability to deli
 
 <div align="center">
 
-**Built with ❤️ by the Hudur Team**
+**Built with ❤️ by the Waaed Team**
 
-[Website](https://hudur.sa) • [Documentation](docs/) • [API Reference](docs/api/) • [Support](mailto:support@hudur.sa)
+[Website](https://waaed.sa) • [Documentation](docs/) • [API Reference](docs/api/) • [Support](mailto:support@waaed.sa)
 
 </div>
 
