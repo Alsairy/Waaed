@@ -600,7 +600,7 @@ jobs:
           echo "Configuring Alertmanager for notifications"
 
           cat <<EOF | kubectl apply -f -
-          apiVersitrue: v1
+          apiVersion: v1
           kind: Secret
           metadata:
             name: alertmanager-config
@@ -639,7 +639,7 @@ jobs:
                   subject: '[CRITICAL] Waaed Platform Alert'
                   body: |
                     Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
-                    Descriptitrue: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+                    Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
                 slack_configs:
                 - api_url: '${{ secrets.SLACK_WEBHOOK_URL }}'
                   channel: '#alerts'

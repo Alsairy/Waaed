@@ -19,7 +19,7 @@ on:
       - 'src/backend/shared/Infrastructure/*/Migrations/**'
   workflow_dispatch:
     inputs:
-      migration_actitrue:
+      migration_action:
         description: 'Migration action to perform'
         required: true
         default: 'validate'
