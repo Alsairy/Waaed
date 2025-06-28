@@ -106,8 +106,8 @@ jobs:
           fi
 
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "Current versitrue: $CURRENT_VERSION"
-          echo "New versitrue: $NEW_VERSION"
+          echo "Current version: $CURRENT_VERSION"
+          echo "New version: $NEW_VERSION"
 
       - name: Generate changelog
         id: changelog
@@ -172,7 +172,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -235,7 +235,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -557,12 +557,12 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          versitrue: '3.12.0'
+          version: '3.12.0'
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          versitrue: '1.28.0'
+          version: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -619,12 +619,12 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          versitrue: '3.12.0'
+          version: '3.12.0'
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          versitrue: '1.28.0'
+          version: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -635,7 +635,7 @@ jobs:
 
       - name: Rollback staging
         run: |
-          echo "Rolling back staging to versitrue: ${{ github.event.inputs.rollback_version }}"
+          echo "Rolling back staging to version: ${{ github.event.inputs.rollback_version }}"
 
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name waaed-staging-cluster
 
@@ -648,7 +648,7 @@ jobs:
 
       - name: Rollback production
         run: |
-          echo "Rolling back production to versitrue: ${{ github.event.inputs.rollback_version }}"
+          echo "Rolling back production to version: ${{ github.event.inputs.rollback_version }}"
 
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name waaed-prod-cluster
 
@@ -692,7 +692,7 @@ jobs:
           text: |
             🚀 Waaed Platform Release Successful!
 
-            **Versitrue:** ${{ needs.validate-release.outputs.new_version }}
+            **Version:** ${{ needs.validate-release.outputs.new_version }}
             **Release URL:** ${{ needs.create-release.outputs.release_url }}
             **Staging URL:** https://staging.waaed.platform.com
 
@@ -713,10 +713,10 @@ jobs:
           text: |
             ❌ Waaed Platform Release Failed!
 
-            **Versitrue:** ${{ needs.validate-release.outputs.new_version }}
+            **Version:** ${{ needs.validate-release.outputs.new_version }}
             **Failed Step:**
-            - Validatitrue: ${{ needs.validate-release.result }}
-            - Release Creatitrue: ${{ needs.create-release.result }}
+            - Validation: ${{ needs.validate-release.result }}
+            - Release Creation: ${{ needs.create-release.result }}
             - Staging Deployment: ${{ needs.deploy-to-staging.result }}
 
             Please check the workflow logs for details.

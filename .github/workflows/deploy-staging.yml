@@ -7,12 +7,12 @@ on:
   workflow_dispatch:
     inputs:
       force_deploy:
-        descriptitrue: 'Force deployment even if tests fail'
+        description: 'Force deployment even if tests fail'
         required: false
         default: 'false'
         type: boolean
       deployment_strategy:
-        descriptitrue: 'Deployment strategy'
+        description: 'Deployment strategy'
         required: false
         default: 'blue-green'
         type: choice
@@ -21,7 +21,7 @@ on:
           - blue-green
           - canary
       run_load_tests:
-        descriptitrue: 'Run load tests after deployment'
+        description: 'Run load tests after deployment'
         required: false
         default: 'true'
         type: boolean
