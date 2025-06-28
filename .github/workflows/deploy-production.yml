@@ -223,12 +223,12 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          versitrue: '3.12.0'
+          version: '3.12.0'
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          versitrue: '1.28.0'
+          version: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -458,12 +458,12 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          versitrue: '3.12.0'
+          version: '3.12.0'
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          versitrue: '1.28.0'
+          version: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -478,7 +478,7 @@ jobs:
 
       - name: Rollback to previous version
         run: |
-          echo "🔄 Rolling back to versitrue: ${{ github.event.inputs.rollback_version }}"
+          echo "🔄 Rolling back to version: ${{ github.event.inputs.rollback_version }}"
 
           # Rollback using Helm
           helm rollback waaed-prod -n ${{ env.NAMESPACE }}

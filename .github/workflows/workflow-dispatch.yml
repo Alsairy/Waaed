@@ -177,7 +177,7 @@ jobs:
 
           # Check if rollback version exists (if specified)
           if [[-n "${{ github.event.inputs.rollback_version }}"]]; then
-            echo "Verifying rollback versitrue: ${{ github.event.inputs.rollback_version }}"
+            echo "Verifying rollback version: ${{ github.event.inputs.rollback_version }}"
             # In a real scenario, check if the version exists in registry
             echo "✅ Rollback version verified"
           fi
@@ -308,7 +308,7 @@ jobs:
     steps:
       - name: Execute rollback
         run: |
-          echo "🔄 Executing rollback to versitrue: ${{ github.event.inputs.rollback_version }}"
+          echo "🔄 Executing rollback to version: ${{ github.event.inputs.rollback_version }}"
 
           # Perform rollback
           echo "Rolling back to previous stable version..."

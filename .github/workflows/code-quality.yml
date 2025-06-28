@@ -376,7 +376,7 @@ jobs:
           name: dockerfile-lint-results
           path: hadolint-results.sarif
 
-  yaml-json-validatitrue:
+  yaml-json-validation:
     name: YAML/JSON Validation
     runs-on: ubuntu-latest
     needs: detect-changes
@@ -392,7 +392,7 @@ jobs:
       - name: Setup Python for yamllint
         uses: actions/setup-python@v4
         with:
-          python-versitrue: '3.x'
+          python-version: '3.x'
 
       - name: Install validation tools
         run: |
@@ -489,13 +489,13 @@ jobs:
           echo "**Status:** ${{ job.status }}" >> validation-report.md
           echo "" >> validation-report.md
           echo "### Summary" >> validation-report.md
-          echo "- YAML validatitrue: ${{ job.status }}" \
+          echo "- YAML validation: ${{ job.status }}" \
             >> validation-report.md
-          echo "- JSON validatitrue: ${{ job.status }}" \
+          echo "- JSON validation: ${{ job.status }}" \
             >> validation-report.md
-          echo "- GitHub Actions validatitrue: ${{ job.status }}" \
+          echo "- GitHub Actions validation: ${{ job.status }}" \
             >> validation-report.md
-          echo "- Helm charts validatitrue: ${{ job.status }}" \
+          echo "- Helm charts validation: ${{ job.status }}" \
             >> validation-report.md
 
       - name: Upload validation results

@@ -410,10 +410,10 @@ jobs:
           sed -i "s|tag: .*|tag: \"${TAG}\"|g" helm/hudur/values.yaml
 
           # Update Chart version
-          CHART_VERSION=$(grep '^versitrue:' helm/hudur/Chart.yaml | cut -d' ' -f2)
+          CHART_VERSION=$(grep '^version:' helm/hudur/Chart.yaml | cut -d' ' -f2)
           NEW_VERSION=$(echo $CHART_VERSION | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
-          sed -i "s|^versitrue: .*|versitrue: ${NEW_VERSION}|g" helm/hudur/Chart.yaml
-          sed -i "s|^appVersitrue: .*|appVersitrue: \"${TAG}\"|g" helm/hudur/Chart.yaml
+          sed -i "s|^version: .*|version: ${NEW_VERSION}|g" helm/hudur/Chart.yaml
+          sed -i "s|^appVersion: .*|appVersion: \"${TAG}\"|g" helm/hudur/Chart.yaml
 
       - name: Commit and push changes
         run: |
@@ -430,7 +430,7 @@ jobs:
 
   cleanup-old-images:
     name: Cleanup Old Images
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [detect-docker-changes, build-and-push]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
@@ -449,7 +449,7 @@ jobs:
 
   build-summary:
     name: Build Summary
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [detect-docker-changes, build-and-push, create-multi-arch-manifests, security-scan]
     if: always()
 
@@ -515,7 +515,7 @@ jobs:
 
   notify-build-status:
     name: Notify Build Status
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [build-and-push, create-multi-arch-manifests, security-scan]
     if: always() && github.ref == 'refs/heads/main'
 

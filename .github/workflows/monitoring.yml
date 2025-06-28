@@ -55,7 +55,7 @@ on:
   workflow_dispatch:
     inputs:
       check_type:
-        descriptitrue: 'Type of monitoring check to perform'
+        description: 'Type of monitoring check to perform'
         required: false
         default: 'all'
         type: choice
