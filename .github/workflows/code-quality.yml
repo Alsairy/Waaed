@@ -1,7 +1,7 @@
 ---
 name: Code Quality & Linting
 
-true:
+on:
   push:
     branches: [main, develop]
     paths:

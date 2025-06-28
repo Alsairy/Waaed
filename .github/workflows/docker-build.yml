@@ -31,7 +31,7 @@
 #
 name: Docker Build and Registry
 
-true:
+on:
   # Automatic triggers for container builds
   push:
     branches: [main, develop, 'feature/*', 'hotfix/*']

@@ -35,7 +35,7 @@
 #
 name: Security Scanning
 
-true:
+on:
   # Automatic triggers for continuous security validation
   push:
     branches: [main, develop, 'feature/*', 'hotfix/*']

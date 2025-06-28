@@ -1,7 +1,7 @@
 ---
 name: Manual Deployment Dispatch
 
-true:
+on:
   workflow_dispatch:
     inputs:
       environment:
@@ -37,7 +37,7 @@ true:
         required: false
         default: false
         type: boolean
-      rollback_versitrue:
+      rollback_version:
         description: 'Version to rollback to (if applicable)'
         required: false
         type: string

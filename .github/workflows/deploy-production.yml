@@ -39,7 +39,7 @@
 #
 name: Deploy to Production
 
-true:
+on:
   # Automatic deployment triggered by GitHub releases
   release:
     types: [published]

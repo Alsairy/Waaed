@@ -38,11 +38,11 @@
 #
 name: Monitoring and Alerting
 
-true:
+on:
   # Continuous monitoring with scheduled health checks
   schedule:
     # Run comprehensive health checks every 5 minutes
-    - crtrue: '*/5 * * * *'
+    - cron: '*/5 * * * *'
 
   # Infrastructure change monitoring
   push:

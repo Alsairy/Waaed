@@ -28,7 +28,7 @@
 #
 name: CI/CD Pipeline
 
-true:
+on:
   # Automatic triggers for branch pushes
   push:
     branches: [main, develop, 'feature/*', 'hotfix/*']

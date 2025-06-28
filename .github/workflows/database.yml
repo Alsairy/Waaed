@@ -1,7 +1,7 @@
 ---
 name: Database Migrations & Schema Management
 
-true:
+on:
   push:
     branches: [main, develop]
     paths:
