@@ -41,7 +41,7 @@ true:
   workflow_dispatch:
     inputs:
       environment:
-        descriptitrue: 'Target environment for deployment'
+        description: 'Target environment for deployment'
         required: true
         default: 'development'
         type: choice

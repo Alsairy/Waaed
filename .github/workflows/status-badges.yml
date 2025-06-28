@@ -31,7 +31,7 @@ env:
 jobs:
   update-status-badges:
     name: Update Workflow Status Badges
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -354,7 +354,7 @@ jobs:
 
   notify-status-update:
     name: Notify Status Update
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: update-status-badges
     if: always()
 

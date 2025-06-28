@@ -51,7 +51,7 @@ true:
   workflow_dispatch:
     inputs:
       scan_type:
-        descriptitrue: >
+        description: >
           Type of security scan to run (allows targeted security assessment)
         required: true
         default: 'all'
@@ -92,7 +92,7 @@ jobs:
   # and focus security analysis on areas with the highest risk impact.
   detect-security-changes:
     name: 🔍 Detect Security-Relevant Changes
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.changes.outputs.backend }}
       frontend: ${{ steps.changes.outputs.frontend }}
@@ -132,7 +132,7 @@ jobs:
 
   vulnerability-scanning:
     name: Vulnerability Scanning
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: detect-security-changes
     if: needs.detect-security-changes.outputs.backend == 'true' || needs.detect-security-changes.outputs.frontend == 'true' || needs.detect-security-changes.outputs.dependencies == 'true' || github.event.inputs.scan_type == 'vulnerability' || github.event.inputs.scan_type == 'all'
 
@@ -153,13 +153,13 @@ jobs:
         if: matrix.scan-target == 'dependencies-dotnet'
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node.js
         if: matrix.scan-target == 'dependencies-npm'
         uses: actions/setup-node@v4
         with:
-          node-versitrue: ${{ env.NODE_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Run Trivy filesystem scan
         if: matrix.scan-target == 'filesystem'
@@ -229,7 +229,7 @@ jobs:
 
   sast-analysis:
     name: Static Application Security Testing (SAST)
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: detect-security-changes
     if: needs.detect-security-changes.outputs.backend == 'true' || needs.detect-security-changes.outputs.frontend == 'true' || github.event.inputs.scan_type == 'sast' || github.event.inputs.scan_type == 'all'
 
@@ -262,13 +262,13 @@ jobs:
         if: matrix.language == 'csharp'
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node.js
         if: matrix.language == 'javascript'
         uses: actions/setup-node@v4
         with:
-          node-versitrue: ${{ env.NODE_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Build .NET projects
         if: matrix.language == 'csharp'
@@ -299,7 +299,7 @@ jobs:
 
   secret-scanning:
     name: Secret Scanning
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: detect-security-changes
     if: needs.detect-security-changes.outputs.backend == 'true' || needs.detect-security-changes.outputs.frontend == 'true' || needs.detect-security-changes.outputs.infrastructure == 'true' || github.event.inputs.scan_type == 'secrets' || github.event.inputs.scan_type == 'all'
 
@@ -382,7 +382,7 @@ jobs:
 
   license-compliance:
     name: License Compliance Scanning
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: detect-security-changes
     if: needs.detect-security-changes.outputs.dependencies == 'true' || github.event.inputs.scan_type == 'license' || github.event.inputs.scan_type == 'all'
 
@@ -392,12 +392,12 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-versitrue: ${{ env.NODE_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install license scanning tools
         run: |
@@ -495,7 +495,7 @@ jobs:
 
   container-security:
     name: Container Security Scanning
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: detect-security-changes
     if: needs.detect-security-changes.outputs.docker == 'true' || github.event.inputs.scan_type == 'container' || github.event.inputs.scan_type == 'all'
 

@@ -48,13 +48,13 @@ true:
   workflow_dispatch:
     inputs:
       release_tag:
-        descriptitrue: >
+        description: >
           Specific release tag to deploy (overrides automatic release
           detection)
         required: true
         type: string
       deployment_strategy:
-        descriptitrue: >
+        description: >
           Deployment strategy (blue-green recommended for production)
         required: false
         default: 'blue-green'
@@ -63,13 +63,13 @@ true:
           - blue-green
           - canary
       skip_approval:
-        descriptitrue: >
+        description: >
           Skip manual approval (emergency deployment only - use with caution)
         required: false
         default: 'false'
         type: boolean
-      rollback_versitrue:
-        descriptitrue: 'Version to rollback to if deployment fails (safety net)'
+      rollback_version:
+        description: 'Version to rollback to if deployment fails (safety net)'
         required: false
         type: string
 
@@ -83,7 +83,7 @@ env:
 jobs:
   validate-release:
     name: Validate Release
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     outputs:
       is_valid: ${{ steps.validate.outputs.is_valid }}
       release_notes: ${{ steps.validate.outputs.release_notes }}
@@ -112,7 +112,7 @@ jobs:
 
   security-compliance-check:
     name: Security & Compliance Check
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: validate-release
     if: needs.validate-release.outputs.is_valid == 'true'
 
@@ -139,7 +139,7 @@ jobs:
 
   manual-approval:
     name: Manual Approval
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-release, security-compliance-check]
     if: >
       needs.validate-release.outputs.is_valid == 'true' &&
@@ -156,9 +156,9 @@ jobs:
           echo "Strategy: ${{ github.event.inputs.deployment_strategy || 'blue-green' }}"
           echo "Release Notes: ${{ needs.validate-release.outputs.release_notes }}"
 
-  backup-productitrue:
+  backup-production:
     name: Backup Production
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-release, security-compliance-check, manual-approval]
     if: >
       always() &&
@@ -173,7 +173,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-regitrue: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Backup production database
         run: |
@@ -202,9 +202,9 @@ jobs:
           # Upload to S3
           aws s3 cp k8s-backup-*.yaml s3://waaed-backups/k8s/
 
-  deploy-productitrue:
+  deploy-production:
     name: Deploy to Production
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-release, security-compliance-check, manual-approval, backup-production]
     if: >
       always() &&
@@ -235,7 +235,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-regitrue: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
         run: |
@@ -441,9 +441,9 @@ jobs:
             deployment.kubernetes.io/release-version="${{ env.IMAGE_TAG }}" \
             --overwrite
 
-  rollback-productitrue:
+  rollback-production:
     name: Rollback Production
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-release]
     if: >
       github.event.inputs.rollback_version != '' &&
@@ -470,7 +470,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-regitrue: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
         run: |
@@ -515,7 +515,7 @@ jobs:
 
   run-production-tests:
     name: Run Production Tests
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [deploy-production]
     if: success()
 
@@ -525,7 +525,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-versitrue: '8.0.x'
+          dotnet-version: '8.0.x'
 
       - name: Run production smoke tests
         env:
@@ -547,7 +547,7 @@ jobs:
 
   notify-deployment:
     name: Notify Deployment Status
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [deploy-production, rollback-production, run-production-tests]
     if: always()
 

@@ -20,7 +20,7 @@ true:
   workflow_dispatch:
     inputs:
       migration_actitrue:
-        descriptitrue: 'Migration action to perform'
+        description: 'Migration action to perform'
         required: true
         default: 'validate'
         type: choice
@@ -31,7 +31,7 @@ true:
           - generate-script
           - reset-database
       target_service:
-        descriptitrue: 'Target service (all for all services)'
+        description: 'Target service (all for all services)'
         required: false
         default: 'all'
         type: choice
@@ -47,11 +47,11 @@ true:
           - lms
           - shared
       rollback_target:
-        descriptitrue: 'Migration to rollback to (for rollback action)'
+        description: 'Migration to rollback to (for rollback action)'
         required: false
         type: string
       environment:
-        descriptitrue: 'Target environment'
+        description: 'Target environment'
         required: false
         default: 'development'
         type: choice

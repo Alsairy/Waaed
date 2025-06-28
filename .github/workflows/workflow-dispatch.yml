@@ -5,7 +5,7 @@ true:
   workflow_dispatch:
     inputs:
       environment:
-        descriptitrue: 'Target environment for deployment'
+        description: 'Target environment for deployment'
         required: true
         default: 'development'
         type: choice
@@ -14,7 +14,7 @@ true:
           - staging
           - production
       deployment_strategy:
-        descriptitrue: 'Deployment strategy to use'
+        description: 'Deployment strategy to use'
         required: false
         default: 'rolling'
         type: choice
@@ -23,26 +23,26 @@ true:
           - blue-green
           - canary
       service_filter:
-        descriptitrue: 'Specific services to deploy (comma-separated, or "all")'
+        description: 'Specific services to deploy (comma-separated, or "all")'
         required: false
         default: 'all'
         type: string
       skip_tests:
-        descriptitrue: 'Skip test execution (not recommended for production)'
+        description: 'Skip test execution (not recommended for production)'
         required: false
         default: false
         type: boolean
       force_deploy:
-        descriptitrue: 'Force deployment even if checks fail (emergency only)'
+        description: 'Force deployment even if checks fail (emergency only)'
         required: false
         default: false
         type: boolean
       rollback_versitrue:
-        descriptitrue: 'Version to rollback to (if applicable)'
+        description: 'Version to rollback to (if applicable)'
         required: false
         type: string
       notification_channels:
-        descriptitrue: 'Additional notification channels (slack, email, teams)'
+        description: 'Additional notification channels (slack, email, teams)'
         required: false
         default: 'slack'
         type: string
@@ -59,7 +59,7 @@ concurrency:
 jobs:
   validate-inputs:
     name: Validate Deployment Inputs
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     outputs:
       environment: ${{ steps.validation.outputs.environment }}
       strategy: ${{ steps.validation.outputs.strategy }}
@@ -123,7 +123,7 @@ jobs:
 
   approval-gate:
     name: Deployment Approval
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: validate-inputs
     if: needs.validate-inputs.outputs.environment == 'production'
     environment:
@@ -144,7 +144,7 @@ jobs:
 
   pre-deployment-checks:
     name: Pre-Deployment Checks
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-inputs, approval-gate]
     if: always() && needs.validate-inputs.outputs.proceed == 'true' && (needs.approval-gate.result == 'success' || needs.validate-inputs.outputs.environment != 'production')
 
@@ -217,7 +217,7 @@ jobs:
 
   execute-deployment:
     name: Execute Deployment
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-inputs, pre-deployment-checks]
     if: needs.pre-deployment-checks.result == 'success'
     timeout-minutes: 45
@@ -301,7 +301,7 @@ jobs:
 
   rollback-deployment:
     name: Rollback Deployment
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-inputs, execute-deployment]
     if: failure() && github.event.inputs.rollback_version != ''
 
@@ -321,7 +321,7 @@ jobs:
 
   notify-deployment-status:
     name: Notify Deployment Status
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-inputs, execute-deployment, rollback-deployment]
     if: always()
 

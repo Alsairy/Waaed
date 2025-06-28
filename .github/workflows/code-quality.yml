@@ -26,7 +26,7 @@ true:
   workflow_dispatch:
     inputs:
       check_type:
-        descriptitrue: 'Type of quality check to run'
+        description: 'Type of quality check to run'
         required: false
         default: 'all'
         type: choice
@@ -38,7 +38,7 @@ true:
           - yaml
           - architecture
       severity_level:
-        descriptitrue: 'Minimum severity level for issues'
+        description: 'Minimum severity level for issues'
         required: false
         default: 'warning'
         type: choice
@@ -217,7 +217,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-versitrue: ${{ env.NODE_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: \
             frontend/unified-education-frontend/package-lock.json

@@ -53,12 +53,12 @@ true:
           - frontend-only
           - specific-service
       specific_service:
-        descriptitrue: >
+        description: >
           Specific service name to build (when specific-service is selected)
         required: false
         type: string
       push_to_registry:
-        descriptitrue: 'Push built images to container registries'
+        description: 'Push built images to container registries'
         required: false
         default: true
         type: boolean
@@ -81,7 +81,7 @@ jobs:
   # optimize build times by only building containers that have actually changed.
   detect-docker-changes:
     name: 🔍 Detect Docker Changes
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.changes.outputs.backend }}
       frontend: ${{ steps.changes.outputs.frontend }}
@@ -126,7 +126,7 @@ jobs:
 
   build-and-push:
     name: Build and Push Docker Images
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: detect-docker-changes
     if: needs.detect-docker-changes.outputs.backend == 'true' || needs.detect-docker-changes.outputs.frontend == 'true' || needs.detect-docker-changes.outputs.docker == 'true' || github.event_name == 'workflow_dispatch'
 
@@ -293,7 +293,7 @@ jobs:
 
   create-multi-arch-manifests:
     name: Create Multi-Architecture Manifests
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [detect-docker-changes, build-and-push]
     if: github.event_name != 'pull_request' && (needs.detect-docker-changes.outputs.backend == 'true' || needs.detect-docker-changes.outputs.frontend == 'true' || needs.detect-docker-changes.outputs.docker == 'true' || github.event_name == 'workflow_dispatch')
 
@@ -346,7 +346,7 @@ jobs:
 
   security-scan:
     name: Security Scan Images
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [detect-docker-changes, build-and-push]
     if: github.event_name != 'pull_request' && (needs.detect-docker-changes.outputs.backend == 'true' || needs.detect-docker-changes.outputs.frontend == 'true' || needs.detect-docker-changes.outputs.docker == 'true' || github.event_name == 'workflow_dispatch')
 
@@ -380,7 +380,7 @@ jobs:
 
   update-deployment-configs:
     name: Update Deployment Configurations
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [detect-docker-changes, build-and-push, create-multi-arch-manifests]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 

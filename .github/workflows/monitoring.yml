@@ -85,7 +85,7 @@ env:
 jobs:
   setup-monitoring:
     name: Setup Monitoring Infrastructure
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event.inputs.check_type == 'all'
 
     steps:
@@ -106,7 +106,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-regitrue: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig for all environments
         run: |
@@ -168,7 +168,7 @@ jobs:
 
   health-checks:
     name: Health Checks
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     if: >
       github.event.inputs.check_type == 'health' ||
       github.event.inputs.check_type == 'all' ||
@@ -192,7 +192,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-regitrue: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
         run: |
@@ -291,7 +291,7 @@ jobs:
 
   performance-monitoring:
     name: Performance Monitoring
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     if: >
       github.event.inputs.check_type == 'performance' ||
       github.event.inputs.check_type == 'all' ||
@@ -314,7 +314,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-regitrue: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
         run: |
@@ -417,7 +417,7 @@ jobs:
 
   sla-monitoring:
     name: SLA Monitoring
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     if: >
       github.event.inputs.check_type == 'sla' ||
       github.event.inputs.check_type == 'all' ||
@@ -436,7 +436,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-regitrue: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Calculate SLA metrics
         run: |
@@ -519,7 +519,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-regitrue: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Configure alerting rules
         run: |
