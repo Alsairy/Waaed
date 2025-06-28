@@ -283,7 +283,7 @@ jobs:
           echo "" >> health-report.md
 
       - name: Upload health report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: health-report-${{ matrix.environment }}-${{ matrix.service }}
@@ -409,7 +409,7 @@ jobs:
           echo "" >> performance-report.md
 
       - name: Upload performance report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: performance-report-${{ matrix.environment }}
@@ -492,7 +492,7 @@ jobs:
           echo "" >> sla-report.md
 
       - name: Upload SLA report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sla-report
@@ -724,7 +724,7 @@ jobs:
           echo "- Implement chaos engineering practices for resilience testing" >> monitoring-summary.md
 
       - name: Upload monitoring summary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: monitoring-summary
           path: monitoring-summary.md

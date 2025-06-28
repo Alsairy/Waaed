@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Calendar, User, AlertCircle, CheckSquare, Clock, Edit, Paperclip, Download, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, User, AlertCircle, CheckSquare, Clock, Edit, Paperclip, Download } from 'lucide-react';
 import { tasksService } from '../../services';
 import TaskComments from './TaskComments';
 

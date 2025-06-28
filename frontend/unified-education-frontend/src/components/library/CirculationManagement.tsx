@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RotateCcw, Plus, Download, Search, Eye, Edit, MoreVertical, User, Book, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { RotateCcw, Plus, Download, Search, Eye, MoreVertical, User, Book, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { libraryService } from '../../services';
 
 const CirculationManagement: React.FC = () => {

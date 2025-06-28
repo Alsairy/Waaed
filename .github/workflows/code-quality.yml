@@ -153,7 +153,7 @@ jobs:
             >> dotnet-analysis-report.md
 
       - name: Upload analysis report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dotnet-analysis-report
@@ -194,7 +194,7 @@ jobs:
             > outdated-packages.txt || true
 
       - name: Upload security results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dotnet-security-results
@@ -285,7 +285,7 @@ jobs:
             >> frontend-quality-report.md
 
       - name: Upload frontend results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: frontend-quality-results
@@ -370,7 +370,7 @@ jobs:
           fi
 
       - name: Upload Dockerfile results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dockerfile-lint-results
@@ -499,7 +499,7 @@ jobs:
             >> validation-report.md
 
       - name: Upload validation results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: yaml-json-validation-results
@@ -653,7 +653,7 @@ jobs:
             >> architecture-report.md
 
       - name: Upload architecture results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: architecture-compliance-results
@@ -728,7 +728,7 @@ jobs:
           fi
 
       - name: Upload coverage results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: code-coverage-results
@@ -827,7 +827,7 @@ jobs:
             >> quality-summary.md
 
       - name: Upload quality summary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: quality-summary
           path: quality-summary.md

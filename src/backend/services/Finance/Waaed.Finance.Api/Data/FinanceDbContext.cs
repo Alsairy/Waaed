@@ -16,6 +16,15 @@ public class FinanceDbContext : DbContext
     public DbSet<Budget> Budgets { get; set; }
     public DbSet<PayrollEntry> PayrollEntries { get; set; }
     public DbSet<FinancialReport> FinancialReports { get; set; }
+    
+    public DbSet<FeeCategory> FeeCategories { get; set; }
+    public DbSet<FeeParticular> FeeParticulars { get; set; }
+    public DbSet<FeeDiscount> FeeDiscounts { get; set; }
+    public DbSet<TaxType> TaxTypes { get; set; }
+    public DbSet<FeeCategoryBatch> FeeCategoryBatches { get; set; }
+    public DbSet<FeeCollectionSchedule> FeeCollectionSchedules { get; set; }
+    public DbSet<StudentFeeAssignment> StudentFeeAssignments { get; set; }
+    public DbSet<FeePayment> FeePayments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -173,6 +182,165 @@ public class FinanceDbContext : DbContext
             entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
             entity.Property(e => e.ReviewedBy).HasMaxLength(100);
             entity.Property(e => e.Comments).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<FeeCategory>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.AcademicYear).IsRequired();
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+        });
+
+        modelBuilder.Entity<FeeParticular>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.ApplicabilityType).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.StudentCategory).HasMaxLength(50);
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.FeeCategory)
+                .WithMany(fc => fc.FeeParticulars)
+                .HasForeignKey(e => e.FeeCategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.TaxType)
+                .WithMany(tt => tt.FeeParticulars)
+                .HasForeignKey(e => e.TaxTypeId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<FeeDiscount>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.DiscountType).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.DiscountValue).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.ApplicabilityScope).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.StudentCategory).HasMaxLength(50);
+            entity.Property(e => e.BatchName).HasMaxLength(50);
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.FeeCategory)
+                .WithMany(fc => fc.FeeDiscounts)
+                .HasForeignKey(e => e.FeeCategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TaxType>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Description).HasMaxLength(200);
+            entity.Property(e => e.TaxRate).HasColumnType("decimal(5,2)");
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+        });
+
+        modelBuilder.Entity<FeeCategoryBatch>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.BatchName).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Grade).HasMaxLength(50);
+            entity.Property(e => e.Section).HasMaxLength(50);
+            entity.Property(e => e.CreatedAt).IsRequired();
+
+            entity.HasOne(e => e.FeeCategory)
+                .WithMany(fc => fc.FeeCategoryBatches)
+                .HasForeignKey(e => e.FeeCategoryId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<FeeCollectionSchedule>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CollectionName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.StartDate).IsRequired();
+            entity.Property(e => e.DueDate).IsRequired();
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.LateFeeType).HasMaxLength(20);
+            entity.Property(e => e.LateFeeAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.LateFeePercentage).HasColumnType("decimal(5,2)");
+            entity.Property(e => e.LateFeeRecurrenceType).HasMaxLength(20);
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.FeeCategory)
+                .WithMany(fc => fc.FeeCollectionSchedules)
+                .HasForeignKey(e => e.FeeCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<StudentFeeAssignment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.BaseAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.DiscountAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.TaxAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.LateFeeAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.PaidAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.BalanceAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.PaymentStatus).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.WaiverReason).HasMaxLength(500);
+            entity.Property(e => e.WaivedBy).HasMaxLength(100);
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.FeeCollectionSchedule)
+                .WithMany(fcs => fcs.StudentFeeAssignments)
+                .HasForeignKey(e => e.FeeCollectionScheduleId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Student)
+                .WithMany()
+                .HasForeignKey(e => e.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<FeePayment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ReceiptNumber).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.PaymentMethod).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.TransactionReference).HasMaxLength(100);
+            entity.Property(e => e.ChequeNumber).HasMaxLength(100);
+            entity.Property(e => e.BankName).HasMaxLength(100);
+            entity.Property(e => e.PaymentStatus).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Remarks).HasMaxLength(500);
+            entity.Property(e => e.CollectedBy).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.RefundAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.RefundReason).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            entity.HasOne(e => e.StudentFeeAssignment)
+                .WithMany(sfa => sfa.FeePayments)
+                .HasForeignKey(e => e.StudentFeeAssignmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.FeeCollectionSchedule)
+                .WithMany(fcs => fcs.FeePayments)
+                .HasForeignKey(e => e.FeeCollectionScheduleId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.ReceiptNumber).IsUnique();
         });
     }
 }

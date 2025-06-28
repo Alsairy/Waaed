@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DollarSign, Plus, Download, Search, Eye, Edit, MoreVertical, User, Calendar, Clock, CheckCircle, AlertCircle, Archive } from 'lucide-react';
+import { DollarSign, Plus, Download, Search, Eye, Edit, MoreVertical, User, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { financeService } from '../../services';
 
 const FeeManagement: React.FC = () => {

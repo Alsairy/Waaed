@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Calendar, User, Tag, Eye, MessageCircle, Share2, Heart, Bookmark } from 'lucide-react';
+import { ArrowLeft, Calendar, Tag, Eye, MessageCircle, Share2, Heart, Bookmark } from 'lucide-react';
 import { blogsService } from '../../services';
 import CommentSection from './CommentSection';
 

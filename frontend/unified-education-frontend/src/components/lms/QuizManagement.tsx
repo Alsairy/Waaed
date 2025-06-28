@@ -10,9 +10,7 @@ import {
   Edit, 
   MoreVertical, 
   Calendar, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle,
+  CheckCircle,
   Users,
   Award,
   Timer

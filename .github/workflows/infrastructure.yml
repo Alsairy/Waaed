@@ -191,7 +191,7 @@ jobs:
             done
 
       - name: Upload Helm security scan results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: helm-security-scan-results
@@ -285,7 +285,7 @@ jobs:
           fi
 
       - name: Upload Terraform security scan results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: terraform-security-scan-results-${{ matrix.environment }}
@@ -374,7 +374,7 @@ jobs:
             done
 
       - name: Upload cost estimation results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cost-estimation-${{ matrix.environment }}
           path: |
@@ -439,7 +439,7 @@ jobs:
           done
 
       - name: Upload Terraform plans
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: terraform-plans-${{ matrix.environment }}
           path: |
@@ -520,7 +520,7 @@ jobs:
 
       - name: Upload drift detection results
         if: env.DRIFT_DETECTED == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: drift-detection-${{ matrix.environment }}
           path: drift-*.txt
@@ -677,7 +677,7 @@ jobs:
           cat infrastructure-summary.md
 
       - name: Upload infrastructure summary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: infrastructure-summary
           path: infrastructure-summary.md

@@ -57,12 +57,12 @@ on:
         default: 'all'
         type: choice
         options:
-        - all
-        - vulnerability
-        - sast
-        - secrets
-        - license
-        - container
+          - all
+          - vulnerability
+          - sast
+          - secrets
+          - license
+          - container
       severity_threshold:
         description: >
           Minimum severity level to report (controls noise vs coverage)
@@ -73,7 +73,7 @@ on:
           - low
           - medium
           - high
-        - critical
+          - critical
 
 # Global environment variables for security scanning
 env:
@@ -216,7 +216,7 @@ jobs:
           sarif_file: 'trivy-fs-results.sarif'
 
       - name: Upload vulnerability scan results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: vulnerability-scan-results-${{ matrix.scan-target }}
@@ -290,7 +290,7 @@ jobs:
           upload: true
 
       - name: Upload SAST results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sast-results-${{ matrix.language }}
@@ -365,7 +365,7 @@ jobs:
             --verbose || true
 
       - name: Upload secret scanning results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: secret-scanning-results
@@ -483,7 +483,7 @@ jobs:
           echo "All packages have been scanned for license compliance." >> license-compliance-report.md
 
       - name: Upload license compliance results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: license-compliance-results
@@ -560,7 +560,7 @@ jobs:
           category: 'container-${{ matrix.service }}'
 
       - name: Upload container security results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: container-security-results-${{ matrix.service }}
@@ -681,7 +681,7 @@ jobs:
           sarif_file: 'trivy-config-results.sarif'
 
       - name: Upload infrastructure security results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: infrastructure-security-results
@@ -742,7 +742,7 @@ jobs:
           cat security-summary.md
 
       - name: Upload security summary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-summary
           path: security-summary.md

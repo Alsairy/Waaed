@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FileText, Plus, Download, Search, Eye, Edit, MoreVertical, User, Calendar, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { FileText, Plus, Download, Search, Eye, MoreVertical, User, Calendar, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { inventoryService } from '../../services';
 
 const IndentManagement: React.FC = () => {

@@ -47,7 +47,7 @@ const BlogPostEditor: React.FC = () => {
 
   const loadCategories = async () => {
     try {
-      const data = await blogsService.getCategories();
+      const data = await blogsService.getBlogCategories();
       setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error loading categories:', error);

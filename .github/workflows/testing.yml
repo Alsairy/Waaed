@@ -162,7 +162,7 @@ jobs:
             -reporttypes:"Html;Cobertura;JsonSummary"
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: unit-test-results
@@ -287,7 +287,7 @@ jobs:
             -reporttypes:"Html;Cobertura"
 
       - name: Upload integration test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: integration-test-results
@@ -424,7 +424,7 @@ jobs:
             -- Playwright.BrowserName=${{ matrix.browser }}
 
       - name: Upload E2E test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: e2e-test-results-${{ matrix.browser }}
@@ -432,7 +432,7 @@ jobs:
           retention-days: 7
 
       - name: Upload E2E screenshots and videos
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: e2e-screenshots-videos-${{ matrix.browser }}
@@ -530,7 +530,7 @@ jobs:
           fi
 
       - name: Upload performance test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: performance-test-results-${{ matrix.test-scenario }}
@@ -576,7 +576,7 @@ jobs:
         run: npm run test:unit -- --coverage --watchAll=false
 
       - name: Upload frontend test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: frontend-test-results
@@ -624,7 +624,7 @@ jobs:
           cat test-summary.md
 
       - name: Upload test summary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-summary
           path: test-summary.md

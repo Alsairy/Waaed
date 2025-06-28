@@ -251,7 +251,7 @@ jobs:
 
       - name: Upload SBOM artifacts
         if: github.event_name != 'pull_request' && matrix.platform == 'linux/amd64'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sbom-${{ matrix.service }}
           path: |
@@ -371,7 +371,7 @@ jobs:
           category: 'trivy-${{ matrix.service }}'
 
       - name: Upload security scan results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-scan-${{ matrix.service }}
@@ -500,7 +500,7 @@ jobs:
           cat build-summary.md
 
       - name: Upload build summary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-summary
           path: build-summary.md

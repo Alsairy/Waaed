@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Package2, Plus, Download, Search, Eye, Edit, MoreVertical, TrendingUp, TrendingDown, AlertTriangle, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { Package2, Plus, Download, Search, Eye, MoreVertical, TrendingUp, TrendingDown, RefreshCw, ArrowUpDown } from 'lucide-react';
 import { inventoryService } from '../../services';
 
 const StockManagement: React.FC = () => {

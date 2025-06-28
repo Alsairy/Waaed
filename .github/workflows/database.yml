@@ -521,7 +521,7 @@ jobs:
 
       - name: Upload migration script
         if: github.event.inputs.migration_action == 'generate-script'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: migration-scripts
           path: >-
@@ -877,7 +877,7 @@ jobs:
             >> migration-report.md
 
       - name: Upload migration report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: migration-report
           path: migration-report.md
@@ -1020,7 +1020,7 @@ jobs:
           echo "Manual migration action completed"
 
       - name: Upload action results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: manual-migration-results
           path: |

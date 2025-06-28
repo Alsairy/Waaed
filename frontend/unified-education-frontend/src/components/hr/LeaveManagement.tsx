@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Calendar, Plus, Download, Search, Eye, Edit, MoreVertical, Clock, CheckCircle, XCircle, User } from 'lucide-react';
+import { Calendar, Plus, Download, Search, Eye, MoreVertical, Clock, CheckCircle, XCircle, User } from 'lucide-react';
 import { hrService } from '../../services';
 
 const LeaveManagement: React.FC = () => {
