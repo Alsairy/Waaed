@@ -1,10 +1,11 @@
+---
 name: Release Automation
 
-on:
+true:
   workflow_dispatch:
     inputs:
       release_type:
-        description: 'Release type (major, minor, patch)'
+        descriptitrue: 'Release type (major, minor, patch)'
         required: true
         default: 'patch'
         type: choice
@@ -13,17 +14,17 @@ on:
           - minor
           - patch
       pre_release:
-        description: 'Create as pre-release'
+        descriptitrue: 'Create as pre-release'
         required: false
         default: 'false'
         type: boolean
       skip_tests:
-        description: 'Skip tests (emergency release)'
+        descriptitrue: 'Skip tests (emergency release)'
         required: false
         default: 'false'
         type: boolean
-      rollback_version:
-        description: 'Version to rollback to (if needed)'
+      rollback_versitrue:
+        descriptitrue: 'Version to rollback to (if needed)'
         required: false
         type: string
   push:
@@ -41,14 +42,14 @@ env:
 jobs:
   validate-release:
     name: Validate Release
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
     outputs:
-      current_version: ${{ steps.version.outputs.current_version }}
-      new_version: ${{ steps.version.outputs.new_version }}
+      current_versitrue: ${{ steps.version.outputs.current_version }}
+      new_versitrue: ${{ steps.version.outputs.new_version }}
       changelog: ${{ steps.changelog.outputs.changelog }}
       is_valid: ${{ steps.validate.outputs.is_valid }}
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -58,7 +59,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-versitrue: ${{ env.NODE_VERSION }}
 
       - name: Install semantic-release
         run: |
@@ -70,19 +71,19 @@ jobs:
           # Get the latest tag
           CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          
+
           # Calculate new version based on release type
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if ["${{ github.event_name }}" = "workflow_dispatch"]; then
             RELEASE_TYPE="${{ github.event.inputs.release_type }}"
-            
+
             # Remove 'v' prefix for calculation
             VERSION_NUMBER=${CURRENT_VERSION#v}
             IFS='.' read -r -a VERSION_PARTS <<< "$VERSION_NUMBER"
-            
+
             MAJOR=${VERSION_PARTS[0]:-0}
             MINOR=${VERSION_PARTS[1]:-0}
             PATCH=${VERSION_PARTS[2]:-0}
-            
+
             case $RELEASE_TYPE in
               major)
                 MAJOR=$((MAJOR + 1))
@@ -97,34 +98,34 @@ jobs:
                 PATCH=$((PATCH + 1))
                 ;;
             esac
-            
+
             NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
           else
             # For tag pushes, use the tag as the new version
             NEW_VERSION="${GITHUB_REF#refs/tags/}"
           fi
-          
+
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "Current version: $CURRENT_VERSION"
-          echo "New version: $NEW_VERSION"
+          echo "Current versitrue: $CURRENT_VERSION"
+          echo "New versitrue: $NEW_VERSION"
 
       - name: Generate changelog
         id: changelog
         run: |
           echo "Generating changelog from ${{ steps.version.outputs.current_version }} to ${{ steps.version.outputs.new_version }}"
-          
+
           # Generate changelog using git log
           CHANGELOG=$(git log ${{ steps.version.outputs.current_version }}..HEAD --pretty=format:"- %s (%h)" --no-merges | head -50)
-          
-          if [ -z "$CHANGELOG" ]; then
+
+          if [-z "$CHANGELOG"]; then
             CHANGELOG="- Initial release or no changes since last version"
           fi
-          
+
           # Save changelog to output
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          
+
           # Save to file for later use
           echo "$CHANGELOG" > CHANGELOG.md
 
@@ -132,19 +133,19 @@ jobs:
         id: validate
         run: |
           echo "Validating release ${{ steps.version.outputs.new_version }}"
-          
+
           # Check if version format is valid
-          if [[ ! "${{ steps.version.outputs.new_version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[! "${{ steps.version.outputs.new_version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$]]; then
             echo "Invalid version format: ${{ steps.version.outputs.new_version }}"
             exit 1
           fi
-          
+
           # Check if tag already exists
           if git tag -l | grep -q "^${{ steps.version.outputs.new_version }}$"; then
             echo "Tag ${{ steps.version.outputs.new_version }} already exists"
             exit 1
           fi
-          
+
           echo "is_valid=true" >> $GITHUB_OUTPUT
 
       - name: Upload changelog artifact
@@ -155,28 +156,28 @@ jobs:
 
   run-tests:
     name: Run Tests
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: validate-release
     if: >
       needs.validate-release.outputs.is_valid == 'true' &&
       github.event.inputs.skip_tests != 'true'
-    
+
     strategy:
       matrix:
         test-type: [unit, integration, e2e]
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-versitrue: ${{ env.NODE_VERSION }}
 
       - name: Restore .NET dependencies
         run: dotnet restore
@@ -218,54 +219,54 @@ jobs:
 
   build-artifacts:
     name: Build Release Artifacts
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-release, run-tests]
     if: >
       always() &&
       needs.validate-release.outputs.is_valid == 'true' &&
       (needs.run-tests.result == 'success' || needs.run-tests.result == 'skipped')
-    
+
     outputs:
       artifact_paths: ${{ steps.artifacts.outputs.paths }}
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-versitrue: ${{ env.NODE_VERSION }}
 
       - name: Build backend services
         run: |
           echo "Building backend services..."
-          
+
           # Create release directory
           mkdir -p release/backend
-          
+
           # Build each service
           services=(
-            "Authentication" "Attendance" "LMS" "Finance" "HR" 
+            "Authentication" "Attendance" "LMS" "Finance" "HR"
             "Library" "Inventory" "Polls" "Blogs" "Tasks"
-            "UserManagement" "Collaboration" "Analytics" 
+            "UserManagement" "Collaboration" "Analytics"
             "Notifications" "TenantManagement"
           )
-          
+
           for service in "${services[@]}"; do
             echo "Building $service service..."
-            if [ -d "src/backend/services/$service" ]; then
+            if [-d "src/backend/services/$service"]; then
               dotnet publish "src/backend/services/$service" \
                 -c Release \
                 -o "release/backend/$service" \
                 --no-restore
             fi
           done
-          
+
           # Build API Gateway
           echo "Building API Gateway..."
           dotnet publish "src/backend/gateways/Waaed.ApiGateway" \
@@ -279,7 +280,7 @@ jobs:
           cd frontend/unified-education-frontend
           npm ci
           npm run build
-          
+
           # Copy build to release directory
           mkdir -p ../../release/frontend
           cp -r dist/* ../../release/frontend/
@@ -288,10 +289,10 @@ jobs:
         run: |
           echo "Packaging Helm charts..."
           mkdir -p release/helm
-          
+
           # Package Helm chart
           helm package helm/hudur -d release/helm
-          
+
           # Create values files for different environments
           cp helm/hudur/values.yaml release/helm/values-dev.yaml
           cp helm/hudur/values.yaml release/helm/values-staging.yaml
@@ -301,20 +302,20 @@ jobs:
         run: |
           echo "Creating deployment scripts..."
           mkdir -p release/scripts
-          
+
           # Copy deployment scripts
           cp scripts/*.sh release/scripts/
-          
+
           # Create release-specific deployment script
           cat > release/scripts/deploy-release.sh << 'EOF'
           #!/bin/bash
           set -e
-          
+
           VERSION="${1:-latest}"
           ENVIRONMENT="${2:-development}"
-          
+
           echo "Deploying Waaed Platform version $VERSION to $ENVIRONMENT"
-          
+
           # Deploy using Helm
           helm upgrade --install waaed-$ENVIRONMENT ./helm/hudur-*.tgz \
             --namespace waaed-$ENVIRONMENT \
@@ -323,29 +324,30 @@ jobs:
             --set environment=$ENVIRONMENT \
             --values ./helm/values-$ENVIRONMENT.yaml \
             --wait --timeout=10m
-          
+
           echo "Deployment completed successfully"
           EOF
-          
+
           chmod +x release/scripts/deploy-release.sh
 
       - name: Create documentation
         run: |
           echo "Creating release documentation..."
           mkdir -p release/docs
-          
+
           # Copy README and documentation
           cp README.md release/docs/
-          
+
           # Create release notes
           cat > release/docs/RELEASE_NOTES.md << EOF
-          # Waaed Platform Release ${{ needs.validate-release.outputs.new_version }}
-          
+          # Waaed Platform Release ${{
+          # needs.validate-release.outputs.new_version }}
+
           ## What's New
           ${{ needs.validate-release.outputs.changelog }}
-          
+
           ## Installation
-          
+
           ### Using Helm
           \`\`\`bash
           helm install waaed ./helm/hudur-*.tgz \\
@@ -353,23 +355,23 @@ jobs:
             --create-namespace \\
             --set image.tag=${{ needs.validate-release.outputs.new_version }}
           \`\`\`
-          
+
           ### Using Docker Compose
           \`\`\`bash
           export WAAED_VERSION=${{ needs.validate-release.outputs.new_version }}
           docker-compose up -d
           \`\`\`
-          
+
           ## Upgrade Instructions
-          
+
           ### From Previous Version
           \`\`\`bash
           ./scripts/deploy-release.sh ${{ needs.validate-release.outputs.new_version }} production
           \`\`\`
-          
+
           ## Breaking Changes
           Please review the changelog for any breaking changes that may affect your deployment.
-          
+
           ## Support
           For support and questions, please visit our GitHub repository.
           EOF
@@ -378,30 +380,30 @@ jobs:
         id: artifacts
         run: |
           echo "Creating release archives..."
-          
+
           # Create backend archive
           cd release
           tar -czf waaed-backend-${{ needs.validate-release.outputs.new_version }}.tar.gz backend/
-          
+
           # Create frontend archive
           tar -czf waaed-frontend-${{ needs.validate-release.outputs.new_version }}.tar.gz frontend/
-          
+
           # Create Helm chart archive (already created by helm package)
-          
+
           # Create scripts archive
           tar -czf waaed-scripts-${{ needs.validate-release.outputs.new_version }}.tar.gz scripts/
-          
+
           # Create documentation archive
           tar -czf waaed-docs-${{ needs.validate-release.outputs.new_version }}.tar.gz docs/
-          
+
           # Create complete release archive
           tar -czf waaed-complete-${{ needs.validate-release.outputs.new_version }}.tar.gz \
             backend/ frontend/ helm/ scripts/ docs/
-          
+
           # List all artifacts
           ARTIFACT_PATHS=$(ls -1 *.tar.gz *.tgz | tr '\n' ',' | sed 's/,$//')
           echo "paths=$ARTIFACT_PATHS" >> $GITHUB_OUTPUT
-          
+
           echo "Created artifacts:"
           ls -la *.tar.gz *.tgz
 
@@ -415,18 +417,18 @@ jobs:
 
   create-release:
     name: Create GitHub Release
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-release, run-tests, build-artifacts]
     if: >
       always() &&
       needs.validate-release.outputs.is_valid == 'true' &&
       (needs.run-tests.result == 'success' || needs.run-tests.result == 'skipped') &&
       needs.build-artifacts.result == 'success'
-    
+
     outputs:
       release_id: ${{ steps.release.outputs.id }}
       release_url: ${{ steps.release.outputs.html_url }}
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -449,7 +451,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git tag -a ${{ needs.validate-release.outputs.new_version }} \
             -m "Release ${{ needs.validate-release.outputs.new_version }}"
           git push origin ${{ needs.validate-release.outputs.new_version }}
@@ -475,16 +477,16 @@ jobs:
           echo "Release created successfully!"
           echo "Release ID: ${{ steps.release.outputs.id }}"
           echo "Release URL: ${{ steps.release.outputs.html_url }}"
-          echo "Version: ${{ needs.validate-release.outputs.new_version }}"
+          echo "Versitrue: ${{ needs.validate-release.outputs.new_version }}"
 
   build-and-push-images:
     name: Build and Push Docker Images
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-release, create-release]
     if: >
       needs.validate-release.outputs.is_valid == 'true' &&
       needs.create-release.result == 'success'
-    
+
     strategy:
       matrix:
         service:
@@ -500,7 +502,7 @@ jobs:
           - tasks
           - api-gateway
           - frontend
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -538,36 +540,36 @@ jobs:
 
   deploy-to-staging:
     name: Deploy to Staging
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-release, create-release, build-and-push-images]
     if: >
       needs.validate-release.outputs.is_valid == 'true' &&
       needs.create-release.result == 'success' &&
       needs.build-and-push-images.result == 'success'
-    
+
     environment:
       name: staging
       url: https://staging.waaed.platform.com
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          version: '3.12.0'
+          versitrue: '3.12.0'
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: '1.28.0'
+          versitrue: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-regitrue: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
         run: |
@@ -590,53 +592,53 @@ jobs:
       - name: Run smoke tests
         run: |
           echo "Running smoke tests against staging..."
-          
+
           # Wait for deployment to be ready
           kubectl wait --for=condition=available --timeout=300s deployment/waaed-staging -n waaed-staging
-          
+
           # Test health endpoints
           curl -f "https://staging.waaed.platform.com/health" || exit 1
           curl -f "https://staging.waaed.platform.com/api/auth/health" || exit 1
           curl -f "https://staging.waaed.platform.com/api/lms/health" || exit 1
-          
+
           echo "Smoke tests passed!"
 
   rollback:
     name: Rollback Release
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     if: >
       github.event_name == 'workflow_dispatch' &&
       github.event.inputs.rollback_version != ''
-    
+
     environment:
       name: rollback-approval
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          version: '3.12.0'
+          versitrue: '3.12.0'
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: '1.28.0'
+          versitrue: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-regitrue: ${{ secrets.AWS_REGION }}
 
       - name: Rollback staging
         run: |
-          echo "Rolling back staging to version: ${{ github.event.inputs.rollback_version }}"
-          
+          echo "Rolling back staging to versitrue: ${{ github.event.inputs.rollback_version }}"
+
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name waaed-staging-cluster
-          
+
           helm upgrade waaed-staging ${{ env.HELM_CHART_PATH }} \
             --namespace waaed-staging \
             --set environment=staging \
@@ -646,10 +648,10 @@ jobs:
 
       - name: Rollback production
         run: |
-          echo "Rolling back production to version: ${{ github.event.inputs.rollback_version }}"
-          
+          echo "Rolling back production to versitrue: ${{ github.event.inputs.rollback_version }}"
+
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name waaed-prod-cluster
-          
+
           helm upgrade waaed-prod ${{ env.HELM_CHART_PATH }} \
             --namespace waaed-prod \
             --set environment=production \
@@ -660,23 +662,23 @@ jobs:
       - name: Verify rollback
         run: |
           echo "Verifying rollback..."
-          
+
           # Check staging
           kubectl wait --for=condition=available --timeout=300s deployment/waaed-staging -n waaed-staging
           curl -f "https://staging.waaed.platform.com/health" || exit 1
-          
+
           # Check production
           kubectl wait --for=condition=available --timeout=300s deployment/waaed-prod -n waaed-prod
           curl -f "https://waaed.platform.com/health" || exit 1
-          
+
           echo "Rollback completed successfully!"
 
   notify-release:
     name: Notify Release Status
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-release, create-release, deploy-to-staging, rollback]
     if: always()
-    
+
     steps:
       - name: Notify success
         if: >
@@ -689,14 +691,14 @@ jobs:
           status: success
           text: |
             🚀 Waaed Platform Release Successful!
-            
-            **Version:** ${{ needs.validate-release.outputs.new_version }}
+
+            **Versitrue:** ${{ needs.validate-release.outputs.new_version }}
             **Release URL:** ${{ needs.create-release.outputs.release_url }}
             **Staging URL:** https://staging.waaed.platform.com
-            
+
             **What's New:**
             ${{ needs.validate-release.outputs.changelog }}
-            
+
             Ready for production deployment!
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -710,13 +712,13 @@ jobs:
           status: failure
           text: |
             ❌ Waaed Platform Release Failed!
-            
-            **Version:** ${{ needs.validate-release.outputs.new_version }}
-            **Failed Step:** 
-            - Validation: ${{ needs.validate-release.result }}
-            - Release Creation: ${{ needs.create-release.result }}
+
+            **Versitrue:** ${{ needs.validate-release.outputs.new_version }}
+            **Failed Step:**
+            - Validatitrue: ${{ needs.validate-release.result }}
+            - Release Creatitrue: ${{ needs.create-release.result }}
             - Staging Deployment: ${{ needs.deploy-to-staging.result }}
-            
+
             Please check the workflow logs for details.
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -727,24 +729,25 @@ jobs:
           status: success
           text: |
             🔄 Waaed Platform Rollback Completed
-            
+
             **Rolled back to:** ${{ github.event.inputs.rollback_version }}
             **Environments:** Staging, Production
-            
+
             System has been restored to previous stable version.
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   cleanup:
     name: Cleanup
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [create-release, deploy-to-staging]
     if: always()
-    
+
     steps:
       - name: Cleanup artifacts
         run: |
           echo "Cleaning up temporary artifacts..."
-          # Cleanup would be handled by GitHub Actions artifact retention policies
+          # Cleanup would be handled by GitHub Actions artifact retention
+          # policies
           echo "Cleanup completed"
 
       - name: Update release metrics

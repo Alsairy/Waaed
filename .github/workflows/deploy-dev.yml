@@ -1,3 +1,4 @@
+---
 name: Deploy to Development
 
 on:
@@ -66,12 +67,12 @@ jobs:
     if: >
       needs.detect-changes.outputs.backend == 'true' ||
       needs.detect-changes.outputs.frontend == 'true'
-    
+
     strategy:
       matrix:
-        service: [authentication, attendance, lms, finance, hr, library, 
+        service: [authentication, attendance, lms, finance, hr, library,
                  inventory, polls, blogs, tasks]
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -119,12 +120,12 @@ jobs:
     if: >
       needs.detect-changes.outputs.docker == 'true' &&
       (success() || github.event.inputs.force_deploy == 'true')
-    
+
     strategy:
       matrix:
-        service: [authentication, attendance, lms, finance, hr, library, 
+        service: [authentication, attendance, lms, finance, hr, library,
                  inventory, polls, blogs, tasks, api-gateway, frontend]
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -161,11 +162,11 @@ jobs:
       (needs.detect-changes.outputs.backend == 'true' ||
        needs.detect-changes.outputs.frontend == 'true' ||
        needs.detect-changes.outputs.helm == 'true')
-    
+
     environment:
       name: development
       url: https://dev.waaed.platform.com
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -213,10 +214,10 @@ jobs:
         run: |
           # Get current deployment color
           CURRENT_COLOR=$(kubectl get deployment waaed-dev -n ${{ env.NAMESPACE }} -o jsonpath='{.metadata.labels.color}' 2>/dev/null || echo "blue")
-          NEW_COLOR=$([ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue")
-          
+          NEW_COLOR=$(["$CURRENT_COLOR" = "blue"] && echo "green" || echo "blue")
+
           echo "Current color: $CURRENT_COLOR, New color: $NEW_COLOR"
-          
+
           # Deploy new version with new color
           helm upgrade --install waaed-dev-$NEW_COLOR ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
@@ -230,13 +231,13 @@ jobs:
             --set redis.host=${{ secrets.DEV_REDIS_HOST }} \
             --set redis.password=${{ secrets.DEV_REDIS_PASSWORD }} \
             --wait --timeout=10m
-          
+
           # Health check
           kubectl wait --for=condition=available --timeout=300s deployment/waaed-dev-$NEW_COLOR -n ${{ env.NAMESPACE }}
-          
+
           # Switch traffic
           kubectl patch service waaed-dev -n ${{ env.NAMESPACE }} -p '{"spec":{"selector":{"color":"'$NEW_COLOR'"}}}'
-          
+
           # Wait and cleanup old deployment
           sleep 30
           helm uninstall waaed-dev-$CURRENT_COLOR -n ${{ env.NAMESPACE }} || true
@@ -259,27 +260,27 @@ jobs:
             --set redis.host=${{ secrets.DEV_REDIS_HOST }} \
             --set redis.password=${{ secrets.DEV_REDIS_PASSWORD }} \
             --wait --timeout=10m
-          
+
           # Wait for canary validation
           echo "Canary deployed with 10% traffic. Waiting 5 minutes for validation..."
           sleep 300
-          
+
           # Promote canary to 50%
           helm upgrade waaed-dev-canary ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --reuse-values \
             --set deployment.canaryWeight=50 \
             --set replicaCount=3
-          
+
           sleep 300
-          
+
           # Full promotion
           helm upgrade waaed-dev-canary ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --reuse-values \
             --set deployment.canaryWeight=100 \
             --set replicaCount=5
-          
+
           # Cleanup old stable version
           helm uninstall waaed-dev -n ${{ env.NAMESPACE }} || true
           helm upgrade --install waaed-dev ${{ env.HELM_CHART_PATH }} \
@@ -291,10 +292,10 @@ jobs:
         run: |
           # Wait for deployment to be ready
           kubectl wait --for=condition=available --timeout=300s deployment/waaed-dev -n ${{ env.NAMESPACE }}
-          
+
           # Basic health check
           kubectl get pods -n ${{ env.NAMESPACE }}
-          
+
           # Test API endpoints
           API_URL="https://dev.waaed.platform.com"
           curl -f "$API_URL/health" || exit 1
@@ -315,7 +316,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [deploy-development]
     if: always()
-    
+
     steps:
       - name: Notify success
         if: needs.deploy-development.result == 'success'

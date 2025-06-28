@@ -1,3 +1,4 @@
+---
 # Waaed Platform - Monitoring and Alerting Workflow
 #
 # This workflow provides comprehensive monitoring, alerting, and observability
@@ -27,7 +28,7 @@
 # - Critical: Immediate notification via multiple channels (Slack, email, SMS)
 # - Warning: Proactive alerts for potential issues
 # - Info: Trend analysis and capacity planning notifications
-# - Escalation: Automated escalation for unresolved critical issues
+# - Escalatitrue: Automated escalation for unresolved critical issues
 #
 # Triggers:
 # - Scheduled monitoring every 5 minutes for continuous oversight
@@ -37,24 +38,24 @@
 #
 name: Monitoring and Alerting
 
-on:
+true:
   # Continuous monitoring with scheduled health checks
   schedule:
     # Run comprehensive health checks every 5 minutes
-    - cron: '*/5 * * * *'
-  
+    - crtrue: '*/5 * * * *'
+
   # Infrastructure change monitoring
   push:
     branches: [main, develop]
     paths:
       - 'helm/**'
       - '.github/workflows/monitoring.yml'
-  
+
   # Manual monitoring with configurable check types
   workflow_dispatch:
     inputs:
       check_type:
-        description: 'Type of monitoring check to perform'
+        descriptitrue: 'Type of monitoring check to perform'
         required: false
         default: 'all'
         type: choice
@@ -65,7 +66,7 @@ on:
           - sla
           - alerts
       environment:
-        description: 'Target environment for monitoring'
+        descriptitrue: 'Target environment for monitoring'
         required: false
         default: 'all'
         type: choice
@@ -84,28 +85,28 @@ env:
 jobs:
   setup-monitoring:
     name: Setup Monitoring Infrastructure
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     if: github.event_name == 'push' || github.event.inputs.check_type == 'all'
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          version: '3.12.0'
+          versitrue: '3.12.0'
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: '1.28.0'
+          versitrue: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-regitrue: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig for all environments
         run: |
@@ -127,10 +128,10 @@ jobs:
           # Add Prometheus community Helm repository
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo update
-          
+
           for context in dev staging prod; do
             echo "Deploying monitoring stack to $context environment..."
-            
+
             # Deploy kube-prometheus-stack
             helm upgrade --install prometheus-stack prometheus-community/kube-prometheus-stack \
               --namespace ${{ env.MONITORING_NAMESPACE }} \
@@ -148,7 +149,7 @@ jobs:
         run: |
           # Create custom ServiceMonitor for Waaed services
           cat <<EOF | kubectl apply -f -
-          apiVersion: monitoring.coreos.com/v1
+          apiVersitrue: monitoring.coreos.com/v1
           kind: ServiceMonitor
           metadata:
             name: waaed-services
@@ -167,31 +168,31 @@ jobs:
 
   health-checks:
     name: Health Checks
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     if: >
-      github.event.inputs.check_type == 'health' || 
-      github.event.inputs.check_type == 'all' || 
+      github.event.inputs.check_type == 'health' ||
+      github.event.inputs.check_type == 'all' ||
       github.event_name == 'schedule'
-    
+
     strategy:
       matrix:
         environment: [development, staging, production]
         service: [authentication, attendance, lms, finance, hr, library, inventory, polls, blogs, tasks]
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: '1.28.0'
+          versitrue: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-regitrue: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
         run: |
@@ -218,36 +219,36 @@ jobs:
       - name: Check pod health
         run: |
           echo "Checking pod health for ${{ matrix.service }} in ${{ matrix.environment }}"
-          
+
           # Check if pods are running
           PODS=$(kubectl get pods -n ${{ env.NAMESPACE }} -l app=waaed-${{ matrix.service }} --no-headers)
-          if [ -z "$PODS" ]; then
+          if [-z "$PODS"]; then
             echo "❌ No pods found for waaed-${{ matrix.service }}"
             exit 1
           fi
-          
+
           # Check pod status
           kubectl get pods -n ${{ env.NAMESPACE }} -l app=waaed-${{ matrix.service }}
-          
+
           # Check if all pods are ready
           READY_PODS=$(kubectl get pods -n ${{ env.NAMESPACE }} -l app=waaed-${{ matrix.service }} -o jsonpath='{.items[*].status.conditions[?(@.type=="Ready")].status}')
           for status in $READY_PODS; do
-            if [ "$status" != "True" ]; then
+            if ["$status" != "True"]; then
               echo "❌ Pod not ready for waaed-${{ matrix.service }}"
               kubectl describe pods -n ${{ env.NAMESPACE }} -l app=waaed-${{ matrix.service }}
               exit 1
             fi
           done
-          
+
           echo "✅ All pods healthy for waaed-${{ matrix.service }}"
 
       - name: Check service endpoints
         run: |
           echo "Checking service endpoints for ${{ matrix.service }}"
-          
+
           # Test health endpoint
           HEALTH_URL="${{ env.BASE_URL }}/api/${{ matrix.service }}/health"
-          
+
           # Retry logic for health checks
           for i in {1..5}; do
             if curl -f -s --max-time 10 "$HEALTH_URL"; then
@@ -255,7 +256,7 @@ jobs:
               break
             else
               echo "⚠️ Health check attempt $i failed for ${{ matrix.service }}"
-              if [ $i -eq 5 ]; then
+              if [$i -eq 5]; then
                 echo "❌ Health check failed after 5 attempts for ${{ matrix.service }}"
                 exit 1
               fi
@@ -266,10 +267,10 @@ jobs:
       - name: Check resource usage
         run: |
           echo "Checking resource usage for ${{ matrix.service }}"
-          
+
           # Get CPU and memory usage
           kubectl top pods -n ${{ env.NAMESPACE }} -l app=waaed-${{ matrix.service }} || echo "Metrics not available"
-          
+
           # Check for resource limits
           kubectl describe pods -n ${{ env.NAMESPACE }} -l app=waaed-${{ matrix.service }} | grep -A 5 "Limits:"
 
@@ -290,30 +291,30 @@ jobs:
 
   performance-monitoring:
     name: Performance Monitoring
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     if: >
-      github.event.inputs.check_type == 'performance' || 
-      github.event.inputs.check_type == 'all' || 
+      github.event.inputs.check_type == 'performance' ||
+      github.event.inputs.check_type == 'all' ||
       github.event_name == 'schedule'
-    
+
     strategy:
       matrix:
         environment: [development, staging, production]
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: '1.28.0'
+          versitrue: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-regitrue: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
         run: |
@@ -340,25 +341,25 @@ jobs:
       - name: Query Prometheus metrics
         run: |
           echo "Querying performance metrics for ${{ matrix.environment }}"
-          
+
           # Query CPU usage
           CPU_QUERY="avg(rate(container_cpu_usage_seconds_total{namespace=\"${{ env.NAMESPACE }}\"}[5m])) by (pod)"
-          
+
           # Query memory usage
           MEMORY_QUERY="avg(container_memory_working_set_bytes{namespace=\"${{ env.NAMESPACE }}\"}) by (pod)"
-          
+
           # Query request rate
           REQUEST_RATE_QUERY="sum(rate(http_requests_total{namespace=\"${{ env.NAMESPACE }}\"}[5m])) by (service)"
-          
+
           # Query response time
           RESPONSE_TIME_QUERY="histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{namespace=\"${{ env.NAMESPACE }}\"}[5m])) by (le, service))"
-          
+
           echo "Performance metrics collected for ${{ matrix.environment }}"
 
       - name: Check performance thresholds
         run: |
           echo "Checking performance thresholds for ${{ matrix.environment }}"
-          
+
           # Define thresholds based on environment
           case "${{ matrix.environment }}" in
             development)
@@ -377,7 +378,7 @@ jobs:
               RESPONSE_TIME_THRESHOLD=1.0
               ;;
           esac
-          
+
           echo "CPU Threshold: $CPU_THRESHOLD"
           echo "Memory Threshold: $MEMORY_THRESHOLD bytes"
           echo "Response Time Threshold: $RESPONSE_TIME_THRESHOLD seconds"
@@ -385,13 +386,13 @@ jobs:
       - name: Run performance tests
         run: |
           echo "Running performance tests against ${{ env.BASE_URL }}"
-          
+
           # Test response times
           for endpoint in "/health" "/api/auth/health" "/api/lms/health"; do
             echo "Testing $endpoint"
             response_time=$(curl -o /dev/null -s -w '%{time_total}' "${{ env.BASE_URL }}$endpoint")
             echo "Response time for $endpoint: ${response_time}s"
-            
+
             # Check if response time exceeds threshold
             if (( $(echo "$response_time > 2.0" | bc -l) )); then
               echo "⚠️ Response time warning for $endpoint: ${response_time}s"
@@ -416,45 +417,45 @@ jobs:
 
   sla-monitoring:
     name: SLA Monitoring
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     if: >
-      github.event.inputs.check_type == 'sla' || 
-      github.event.inputs.check_type == 'all' || 
+      github.event.inputs.check_type == 'sla' ||
+      github.event.inputs.check_type == 'all' ||
       github.event_name == 'schedule'
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: '1.28.0'
+          versitrue: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-regitrue: ${{ secrets.AWS_REGION }}
 
       - name: Calculate SLA metrics
         run: |
           echo "Calculating SLA metrics for all environments"
-          
+
           # Define SLA targets
           AVAILABILITY_TARGET=99.9  # 99.9% uptime
           RESPONSE_TIME_TARGET=1.0  # 1 second
           ERROR_RATE_TARGET=0.1     # 0.1% error rate
-          
+
           echo "SLA Targets:"
           echo "- Availability: ${AVAILABILITY_TARGET}%"
           echo "- Response Time: ${RESPONSE_TIME_TARGET}s"
           echo "- Error Rate: ${ERROR_RATE_TARGET}%"
-          
+
           # Calculate metrics for each environment
           for env in development staging production; do
             echo "Calculating SLA for $env environment"
-            
+
             case "$env" in
               development)
                 BASE_URL="https://dev.waaed.platform.com"
@@ -466,7 +467,7 @@ jobs:
                 BASE_URL="https://waaed.platform.com"
                 ;;
             esac
-            
+
             # Test availability
             if curl -f -s --max-time 5 "$BASE_URL/health" > /dev/null; then
               echo "✅ $env environment is available"
@@ -499,33 +500,33 @@ jobs:
 
   alert-management:
     name: Alert Management
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     if: >
-      github.event.inputs.check_type == 'alerts' || 
-      github.event.inputs.check_type == 'all' || 
+      github.event.inputs.check_type == 'alerts' ||
+      github.event.inputs.check_type == 'all' ||
       github.event_name == 'schedule'
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: '1.28.0'
+          versitrue: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-regitrue: ${{ secrets.AWS_REGION }}
 
       - name: Configure alerting rules
         run: |
           echo "Configuring Prometheus alerting rules"
-          
+
           cat <<EOF | kubectl apply -f -
-          apiVersion: monitoring.coreos.com/v1
+          apiVersitrue: monitoring.coreos.com/v1
           kind: PrometheusRule
           metadata:
             name: waaed-alerts
@@ -545,8 +546,10 @@ jobs:
                   severity: critical
                 annotations:
                   summary: "Waaed service {{ \$labels.job }} is down"
-                  description: "Waaed service {{ \$labels.job }} has been down for more than 1 minute."
-              
+                  descriptitrue: >
+                    Waaed service {{ \$labels.job }} has been down for more
+                    than 1 minute.
+
               - alert: WaaedHighResponseTime
                 expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=~"waaed-.*"}[5m])) by (le, job)) > 2
                 for: 5m
@@ -554,8 +557,10 @@ jobs:
                   severity: warning
                 annotations:
                   summary: "High response time for {{ \$labels.job }}"
-                  description: "95th percentile response time for {{ \$labels.job }} is {{ \$value }}s"
-              
+                  descriptitrue: >
+                    95th percentile response time for {{ \$labels.job }} is {{
+                    \$value }}s
+
               - alert: WaaedHighErrorRate
                 expr: sum(rate(http_requests_total{job=~"waaed-.*",status=~"5.."}[5m])) by (job) / sum(rate(http_requests_total{job=~"waaed-.*"}[5m])) by (job) > 0.01
                 for: 5m
@@ -563,8 +568,10 @@ jobs:
                   severity: warning
                 annotations:
                   summary: "High error rate for {{ \$labels.job }}"
-                  description: "Error rate for {{ \$labels.job }} is {{ \$value | humanizePercentage }}"
-              
+                  descriptitrue: >
+                    Error rate for {{ \$labels.job }} is {{ \$value |
+                    humanizePercentage }}
+
               - alert: WaaedHighCPUUsage
                 expr: avg(rate(container_cpu_usage_seconds_total{namespace=~"waaed-.*"}[5m])) by (pod) > 0.8
                 for: 10m
@@ -572,8 +579,10 @@ jobs:
                   severity: warning
                 annotations:
                   summary: "High CPU usage for {{ \$labels.pod }}"
-                  description: "CPU usage for {{ \$labels.pod }} is {{ \$value | humanizePercentage }}"
-              
+                  descriptitrue: >
+                    CPU usage for {{ \$labels.pod }} is {{ \$value |
+                    humanizePercentage }}
+
               - alert: WaaedHighMemoryUsage
                 expr: container_memory_working_set_bytes{namespace=~"waaed-.*"} / container_spec_memory_limit_bytes > 0.9
                 for: 10m
@@ -581,15 +590,17 @@ jobs:
                   severity: warning
                 annotations:
                   summary: "High memory usage for {{ \$labels.pod }}"
-                  description: "Memory usage for {{ \$labels.pod }} is {{ \$value | humanizePercentage }}"
+                  descriptitrue: >
+                    Memory usage for {{ \$labels.pod }} is {{ \$value |
+                    humanizePercentage }}
           EOF
 
       - name: Configure Alertmanager
         run: |
           echo "Configuring Alertmanager for notifications"
-          
+
           cat <<EOF | kubectl apply -f -
-          apiVersion: v1
+          apiVersitrue: v1
           kind: Secret
           metadata:
             name: alertmanager-config
@@ -602,7 +613,7 @@ jobs:
                 smtp_from: '${{ secrets.SMTP_FROM }}'
                 smtp_auth_username: '${{ secrets.SMTP_USERNAME }}'
                 smtp_auth_password: '${{ secrets.SMTP_PASSWORD }}'
-              
+
               route:
                 group_by: ['alertname']
                 group_wait: 10s
@@ -616,25 +627,25 @@ jobs:
                 - match:
                     severity: warning
                   receiver: 'warning-alerts'
-              
+
               receivers:
               - name: 'web.hook'
                 webhook_configs:
                 - url: 'http://127.0.0.1:5001/'
-              
+
               - name: 'critical-alerts'
                 email_configs:
                 - to: '${{ secrets.ALERT_EMAIL }}'
                   subject: '[CRITICAL] Waaed Platform Alert'
                   body: |
                     Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
-                    Description: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
+                    Descriptitrue: {{ range .Alerts }}{{ .Annotations.description }}{{ end }}
                 slack_configs:
                 - api_url: '${{ secrets.SLACK_WEBHOOK_URL }}'
                   channel: '#alerts'
                   title: '[CRITICAL] Waaed Platform Alert'
                   text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
-              
+
               - name: 'warning-alerts'
                 slack_configs:
                 - api_url: '${{ secrets.SLACK_WEBHOOK_URL }}'
@@ -646,19 +657,19 @@ jobs:
       - name: Test alert configuration
         run: |
           echo "Testing alert configuration"
-          
+
           # Check if Prometheus is picking up the rules
           kubectl get prometheusrules -n ${{ env.MONITORING_NAMESPACE }}
-          
+
           # Check Alertmanager configuration
           kubectl get secrets -n ${{ env.MONITORING_NAMESPACE }} | grep alertmanager
 
   generate-monitoring-summary:
     name: Generate Monitoring Summary
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [health-checks, performance-monitoring, sla-monitoring, alert-management]
     if: always()
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -671,7 +682,7 @@ jobs:
           echo "**Generated:** $(date -u)" >> monitoring-summary.md
           echo "**Workflow Run:** ${{ github.run_id }}" >> monitoring-summary.md
           echo "" >> monitoring-summary.md
-          
+
           echo "## Summary" >> monitoring-summary.md
           echo "| Component | Status |" >> monitoring-summary.md
           echo "|-----------|--------|" >> monitoring-summary.md
@@ -680,32 +691,32 @@ jobs:
           echo "| SLA Monitoring | ${{ needs.sla-monitoring.result }} |" >> monitoring-summary.md
           echo "| Alert Management | ${{ needs.alert-management.result }} |" >> monitoring-summary.md
           echo "" >> monitoring-summary.md
-          
+
           echo "## Health Check Results" >> monitoring-summary.md
-          if [ -d "health-report-"* ]; then
+          if [-d "health-report-"*]; then
             for report in health-report-*/health-report.md; do
-              if [ -f "$report" ]; then
+              if [-f "$report"]; then
                 cat "$report" >> monitoring-summary.md
                 echo "" >> monitoring-summary.md
               fi
             done
           fi
-          
+
           echo "## Performance Results" >> monitoring-summary.md
-          if [ -d "performance-report-"* ]; then
+          if [-d "performance-report-"*]; then
             for report in performance-report-*/performance-report.md; do
-              if [ -f "$report" ]; then
+              if [-f "$report"]; then
                 cat "$report" >> monitoring-summary.md
                 echo "" >> monitoring-summary.md
               fi
             done
           fi
-          
+
           echo "## SLA Results" >> monitoring-summary.md
-          if [ -f "sla-report/sla-report.md" ]; then
+          if [-f "sla-report/sla-report.md"]; then
             cat "sla-report/sla-report.md" >> monitoring-summary.md
           fi
-          
+
           echo "## Recommendations" >> monitoring-summary.md
           echo "- Monitor trends in response times and error rates" >> monitoring-summary.md
           echo "- Set up automated scaling based on CPU/memory thresholds" >> monitoring-summary.md
@@ -725,7 +736,7 @@ jobs:
           script: |
             const fs = require('fs');
             const summary = fs.readFileSync('monitoring-summary.md', 'utf8');
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -735,10 +746,10 @@ jobs:
 
   notify-monitoring-status:
     name: Notify Monitoring Status
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [generate-monitoring-summary]
     if: always()
-    
+
     steps:
       - name: Notify success
         if: needs.generate-monitoring-summary.result == 'success'
@@ -747,11 +758,11 @@ jobs:
           status: success
           text: |
             ✅ Waaed Platform Monitoring Check Completed Successfully
-            
+
             **Workflow:** ${{ github.workflow }}
             **Run ID:** ${{ github.run_id }}
             **Timestamp:** $(date -u)
-            
+
             All monitoring checks passed. Platform is healthy.
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -762,13 +773,13 @@ jobs:
           status: failure
           text: |
             ❌ Waaed Platform Monitoring Check Failed
-            
+
             **Workflow:** ${{ github.workflow }}
             **Run ID:** ${{ github.run_id }}
             **Timestamp:** $(date -u)
-            
+
             One or more monitoring checks failed. Please investigate immediately.
-            
+
             **Failed Components:**
             - Health Checks: ${{ needs.health-checks.result }}
             - Performance: ${{ needs.performance-monitoring.result }}
@@ -782,6 +793,7 @@ jobs:
           (needs.sla-monitoring.result == 'failure' && github.event_name == 'schedule')
         run: |
           echo "Creating incident for critical monitoring failures..."
-          # Integration with incident management system (PagerDuty, Opsgenie, etc.)
+          # Integration with incident management system (PagerDuty, Opsgenie,
+          # etc.)
           # This would typically call an API to create an incident
           echo "Incident created for monitoring failures"

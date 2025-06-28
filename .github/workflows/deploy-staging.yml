@@ -1,17 +1,18 @@
+---
 name: Deploy to Staging
 
-on:
+true:
   push:
     branches: [main, release/*]
   workflow_dispatch:
     inputs:
       force_deploy:
-        description: 'Force deployment even if tests fail'
+        descriptitrue: 'Force deployment even if tests fail'
         required: false
         default: 'false'
         type: boolean
       deployment_strategy:
-        description: 'Deployment strategy'
+        descriptitrue: 'Deployment strategy'
         required: false
         default: 'blue-green'
         type: choice
@@ -20,7 +21,7 @@ on:
           - blue-green
           - canary
       run_load_tests:
-        description: 'Run load tests after deployment'
+        descriptitrue: 'Run load tests after deployment'
         required: false
         default: 'true'
         type: boolean
@@ -69,7 +70,7 @@ jobs:
     if: >
       needs.detect-changes.outputs.backend == 'true' ||
       needs.detect-changes.outputs.frontend == 'true'
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -95,12 +96,12 @@ jobs:
       (success() || github.event.inputs.force_deploy == 'true') &&
       (needs.detect-changes.outputs.backend == 'true' ||
        needs.detect-changes.outputs.frontend == 'true')
-    
+
     strategy:
       matrix:
-        service: [authentication, attendance, lms, finance, hr, library, 
+        service: [authentication, attendance, lms, finance, hr, library,
                  inventory, polls, blogs, tasks]
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -112,7 +113,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-versitrue: '18'
           cache: 'npm'
           cache-dependency-path: frontend/unified-education-frontend/package-lock.json
 
@@ -150,12 +151,12 @@ jobs:
       always() &&
       (success() || github.event.inputs.force_deploy == 'true') &&
       needs.detect-changes.outputs.docker == 'true'
-    
+
     strategy:
       matrix:
-        service: [authentication, attendance, lms, finance, hr, library, 
+        service: [authentication, attendance, lms, finance, hr, library,
                  inventory, polls, blogs, tasks, api-gateway, frontend]
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -201,11 +202,11 @@ jobs:
       (needs.detect-changes.outputs.backend == 'true' ||
        needs.detect-changes.outputs.frontend == 'true' ||
        needs.detect-changes.outputs.helm == 'true')
-    
+
     environment:
       name: staging
       url: https://staging.waaed.platform.com
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -258,10 +259,10 @@ jobs:
         run: |
           # Get current deployment color
           CURRENT_COLOR=$(kubectl get deployment waaed-staging -n ${{ env.NAMESPACE }} -o jsonpath='{.metadata.labels.color}' 2>/dev/null || echo "blue")
-          NEW_COLOR=$([ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue")
-          
+          NEW_COLOR=$(["$CURRENT_COLOR" = "blue"] && echo "green" || echo "blue")
+
           echo "Current color: $CURRENT_COLOR, New color: $NEW_COLOR"
-          
+
           # Deploy new version with new color
           helm upgrade --install waaed-staging-$NEW_COLOR ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
@@ -280,7 +281,7 @@ jobs:
             --set redis.host=${{ secrets.STAGING_REDIS_HOST }} \
             --set redis.password=${{ secrets.STAGING_REDIS_PASSWORD }} \
             --wait --timeout=15m
-          
+
           # Health check with retries
           for i in {1..10}; do
             if kubectl wait --for=condition=available --timeout=60s deployment/waaed-staging-$NEW_COLOR -n ${{ env.NAMESPACE }}; then
@@ -289,25 +290,25 @@ jobs:
             echo "Attempt $i failed, retrying..."
             sleep 30
           done
-          
+
           # Advanced health checks
           kubectl get pods -n ${{ env.NAMESPACE }} -l color=$NEW_COLOR
-          
+
           # Test new deployment
           NEW_SERVICE_IP=$(kubectl get service waaed-staging-$NEW_COLOR -n ${{ env.NAMESPACE }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          if [ -n "$NEW_SERVICE_IP" ]; then
+          if [-n "$NEW_SERVICE_IP"]; then
             curl -f "http://$NEW_SERVICE_IP/health" || exit 1
           fi
-          
+
           # Switch traffic
           kubectl patch service waaed-staging -n ${{ env.NAMESPACE }} -p '{"spec":{"selector":{"color":"'$NEW_COLOR'"}}}'
-          
+
           # Wait for traffic switch validation
           sleep 60
-          
+
           # Final validation
           curl -f "https://staging.waaed.platform.com/health" || exit 1
-          
+
           # Cleanup old deployment
           helm uninstall waaed-staging-$CURRENT_COLOR -n ${{ env.NAMESPACE }} || true
 
@@ -333,39 +334,39 @@ jobs:
             --set redis.host=${{ secrets.STAGING_REDIS_HOST }} \
             --set redis.password=${{ secrets.STAGING_REDIS_PASSWORD }} \
             --wait --timeout=15m
-          
+
           # Wait for canary validation (10 minutes)
           echo "Canary deployed with 5% traffic. Monitoring for 10 minutes..."
           sleep 600
-          
+
           # Check canary metrics and health
           kubectl get pods -n ${{ env.NAMESPACE }} -l canary=true
-          
+
           # Promote canary to 25%
           helm upgrade waaed-staging-canary ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --reuse-values \
             --set deployment.canaryWeight=25 \
             --set replicaCount=2
-          
+
           sleep 600
-          
+
           # Promote canary to 50%
           helm upgrade waaed-staging-canary ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --reuse-values \
             --set deployment.canaryWeight=50 \
             --set replicaCount=3
-          
+
           sleep 600
-          
+
           # Full promotion
           helm upgrade waaed-staging-canary ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --reuse-values \
             --set deployment.canaryWeight=100 \
             --set replicaCount=5
-          
+
           # Cleanup and promote
           helm uninstall waaed-staging -n ${{ env.NAMESPACE }} || true
           helm upgrade --install waaed-staging ${{ env.HELM_CHART_PATH }} \
@@ -378,7 +379,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [deploy-staging]
     if: success()
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -412,7 +413,7 @@ jobs:
     if: >
       success() &&
       (github.event.inputs.run_load_tests == 'true' || github.event.inputs.run_load_tests == '')
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -444,7 +445,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [deploy-staging, run-integration-tests, run-load-tests]
     if: always()
-    
+
     steps:
       - name: Notify success
         if: >

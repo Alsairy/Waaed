@@ -1,8 +1,12 @@
+---
 # Waaed Platform - Comprehensive Testing Workflow
 #
-# This workflow provides comprehensive testing capabilities for the Waaed platform,
-# including unit tests, integration tests, end-to-end tests, and performance testing.
-# It's designed to ensure code quality, functionality, and performance across all
+# This workflow provides comprehensive testing capabilities for the Waaed
+# platform,
+# including unit tests, integration tests, end-to-end tests, and performance
+# testing.
+# It's designed to ensure code quality, functionality, and performance across
+# all
 # microservices and components.
 #
 # Key Features:
@@ -27,13 +31,13 @@
 #
 name: Comprehensive Testing
 
-on:
+true:
   # Automatic triggers for code changes
   push:
-    branches: [ main, develop, 'feature/*', 'hotfix/*' ]
+    branches: [main, develop, 'feature/*', 'hotfix/*']
   pull_request:
-    branches: [ main, develop ]
-  
+    branches: [main, develop]
+
   # Manual testing with configurable options
   workflow_dispatch:
     inputs:
@@ -43,20 +47,20 @@ on:
         default: 'all'
         type: choice
         options:
-        - all
-        - unit
-        - integration
-        - e2e
-        - performance
+          - all
+          - unit
+          - integration
+          - e2e
+          - performance
       environment:
         description: 'Target environment for testing'
         required: false
         default: 'test'
         type: choice
         options:
-        - test
-        - staging
-        - production
+          - test
+          - staging
+          - production
 
 # Global environment variables for consistent testing
 env:
@@ -74,19 +78,19 @@ jobs:
   # reducing CI/CD execution time while maintaining comprehensive coverage.
   detect-test-changes:
     name: 🔍 Detect Test Changes
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     outputs:
       backend: ${{ steps.changes.outputs.backend }}
       frontend: ${{ steps.changes.outputs.frontend }}
       tests: ${{ steps.changes.outputs.tests }}
-    
+
     steps:
       # Checkout with full history for accurate change detection
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       # Detect changes in different parts of the codebase
       - name: 🔍 Detect Changed Paths
         uses: dorny/paths-filter@v2
@@ -107,22 +111,22 @@ jobs:
 
   unit-tests:
     name: Unit Tests
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: detect-test-changes
     if: needs.detect-test-changes.outputs.backend == 'true' || needs.detect-test-changes.outputs.tests == 'true' || github.event.inputs.test_type == 'unit' || github.event.inputs.test_type == 'all'
     strategy:
       matrix:
         test-project: [
           'tests/unit/Waaed.Tests.Unit.csproj'
-        ]
+       ]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-      
+          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
+
       - name: Cache NuGet packages
         uses: actions/cache@v3
         with:
@@ -130,13 +134,13 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-      
+
       - name: Restore dependencies
         run: dotnet restore
-      
+
       - name: Build test project
         run: dotnet build ${{ matrix.test-project }} --no-restore --configuration Release
-      
+
       - name: Run unit tests
         run: |
           dotnet test ${{ matrix.test-project }} \
@@ -148,7 +152,7 @@ jobs:
             --results-directory ${{ env.TEST_RESULTS_PATH }}/unit \
             --settings tests/coverlet.runsettings \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-      
+
       - name: Generate coverage report
         run: |
           dotnet tool install -g dotnet-reportgenerator-globaltool
@@ -156,7 +160,7 @@ jobs:
             -reports:"${{ env.TEST_RESULTS_PATH }}/unit/**/coverage.opencover.xml" \
             -targetdir:"${{ env.TEST_RESULTS_PATH }}/unit/coverage" \
             -reporttypes:"Html;Cobertura;JsonSummary"
-      
+
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()
@@ -164,7 +168,7 @@ jobs:
           name: unit-test-results
           path: ${{ env.TEST_RESULTS_PATH }}/unit/
           retention-days: 7
-      
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -172,7 +176,7 @@ jobs:
           flags: unittests
           name: codecov-unit-tests
           fail_ci_if_error: false
-      
+
       - name: Comment coverage on PR
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
@@ -182,10 +186,10 @@ jobs:
 
   integration-tests:
     name: Integration Tests
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: detect-test-changes
     if: needs.detect-test-changes.outputs.backend == 'true' || needs.detect-test-changes.outputs.tests == 'true' || github.event.inputs.test_type == 'integration' || github.event.inputs.test_type == 'all'
-    
+
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -199,7 +203,7 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-      
+
       redis:
         image: redis:7-alpine
         ports:
@@ -209,7 +213,7 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
-      
+
       rabbitmq:
         image: rabbitmq:3-management-alpine
         env:
@@ -226,12 +230,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-      
+          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
+
       - name: Cache NuGet packages
         uses: actions/cache@v3
         with:
@@ -239,27 +243,27 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-      
+
       - name: Wait for services to be ready
         run: |
           echo "Waiting for SQL Server..."
           timeout 60 bash -c 'until docker exec $(docker ps -q --filter ancestor=mcr.microsoft.com/mssql/server:2022-latest) /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -Q "SELECT 1"; do sleep 2; done'
-          
+
           echo "Waiting for Redis..."
           timeout 30 bash -c 'until redis-cli -h localhost -p 6379 ping; do sleep 2; done'
-          
+
           echo "Waiting for RabbitMQ..."
           timeout 60 bash -c 'until curl -f http://localhost:15672; do sleep 2; done'
-      
+
       - name: Restore dependencies
         run: dotnet restore
-      
+
       - name: Build integration test project
         run: dotnet build tests/integration/Waaed.Tests.Integration.csproj --no-restore --configuration Release
-      
+
       - name: Run integration tests
         env:
-          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WaaedIntegrationTest;User Id=sa;Password=WaaedTestP@ssw0rd123;TrustServerCertificate=true;"
+          ConnectionStrings__DefaultConnectitrue: "Server=localhost,1433;Database=WaaedIntegrationTest;User Id=sa;Password=WaaedTestP@ssw0rd123;TrustServerCertificate=true;"
           ConnectionStrings__Redis: "localhost:6379"
           ConnectionStrings__RabbitMQ: "amqp://waaed:waaedtest123@localhost:5672/"
           ASPNETCORE_ENVIRONMENT: Testing
@@ -273,7 +277,7 @@ jobs:
             --results-directory ${{ env.TEST_RESULTS_PATH }}/integration \
             --settings tests/coverlet.runsettings \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-      
+
       - name: Generate integration coverage report
         run: |
           dotnet tool install -g dotnet-reportgenerator-globaltool
@@ -281,7 +285,7 @@ jobs:
             -reports:"${{ env.TEST_RESULTS_PATH }}/integration/**/coverage.opencover.xml" \
             -targetdir:"${{ env.TEST_RESULTS_PATH }}/integration/coverage" \
             -reporttypes:"Html;Cobertura"
-      
+
       - name: Upload integration test results
         uses: actions/upload-artifact@v3
         if: always()
@@ -289,7 +293,7 @@ jobs:
           name: integration-test-results
           path: ${{ env.TEST_RESULTS_PATH }}/integration/
           retention-days: 7
-      
+
       - name: Upload integration coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
@@ -300,29 +304,29 @@ jobs:
 
   e2e-tests:
     name: End-to-End Tests
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: detect-test-changes
     if: needs.detect-test-changes.outputs.backend == 'true' || needs.detect-test-changes.outputs.frontend == 'true' || needs.detect-test-changes.outputs.tests == 'true' || github.event.inputs.test_type == 'e2e' || github.event.inputs.test_type == 'all'
-    
+
     strategy:
       matrix:
         browser: [chromium, firefox, webkit]
-        
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-      
+          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-versitrue: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/unified-education-frontend/package-lock.json
-      
+
       - name: Cache NuGet packages
         uses: actions/cache@v3
         with:
@@ -330,31 +334,31 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-      
+
       - name: Restore .NET dependencies
         run: dotnet restore
-      
+
       - name: Build E2E test project
         run: dotnet build tests/e2e/Waaed.Tests.E2E.csproj --no-restore --configuration Release
-      
+
       - name: Install Playwright browsers
         run: |
           dotnet tool install --global Microsoft.Playwright.CLI
           playwright install ${{ matrix.browser }} --with-deps
-      
+
       - name: Install frontend dependencies
         working-directory: frontend/unified-education-frontend
         run: npm ci
-      
+
       - name: Build frontend
         working-directory: frontend/unified-education-frontend
         run: npm run build
-      
+
       - name: Start test environment
         run: |
           # Create test docker-compose file
           cat > docker-compose.e2e.yml << 'EOF'
-          version: '3.8'
+          versitrue: '3.8'
           services:
             sqlserver:
               image: mcr.microsoft.com/mssql/server:2022-latest
@@ -363,12 +367,12 @@ jobs:
                 ACCEPT_EULA: Y
               ports:
                 - "1433:1433"
-            
+
             redis:
               image: redis:7-alpine
               ports:
                 - "6379:6379"
-            
+
             api-gateway:
               build:
                 context: .
@@ -379,10 +383,10 @@ jobs:
                 - ASPNETCORE_ENVIRONMENT=Testing
                 - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=WaaedE2ETest;User Id=sa;Password=WaaedE2EP@ssw0rd123;TrustServerCertificate=true;
                 - ConnectionStrings__Redis=redis:6379
-              depends_on:
+              depends_true:
                 - sqlserver
                 - redis
-            
+
             frontend:
               build:
                 context: frontend
@@ -391,20 +395,20 @@ jobs:
                 - "3000:80"
               environment:
                 - VITE_API_BASE_URL=http://localhost:5000
-              depends_on:
+              depends_true:
                 - api-gateway
           EOF
-          
+
           docker-compose -f docker-compose.e2e.yml up -d
-          
+
           # Wait for services to be ready
           echo "Waiting for services to start..."
           sleep 60
-          
+
           # Health check
           timeout 120 bash -c 'until curl -f http://localhost:5000/health; do sleep 5; done'
           timeout 120 bash -c 'until curl -f http://localhost:3000; do sleep 5; done'
-      
+
       - name: Run E2E tests
         env:
           PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
@@ -418,7 +422,7 @@ jobs:
             --logger "console;verbosity=detailed" \
             --results-directory ${{ env.TEST_RESULTS_PATH }}/e2e/${{ matrix.browser }} \
             -- Playwright.BrowserName=${{ matrix.browser }}
-      
+
       - name: Upload E2E test results
         uses: actions/upload-artifact@v3
         if: always()
@@ -426,7 +430,7 @@ jobs:
           name: e2e-test-results-${{ matrix.browser }}
           path: ${{ env.TEST_RESULTS_PATH }}/e2e/${{ matrix.browser }}/
           retention-days: 7
-      
+
       - name: Upload E2E screenshots and videos
         uses: actions/upload-artifact@v3
         if: failure()
@@ -436,7 +440,7 @@ jobs:
             tests/e2e/screenshots/
             tests/e2e/videos/
           retention-days: 7
-      
+
       - name: Cleanup test environment
         if: always()
         run: |
@@ -445,10 +449,10 @@ jobs:
 
   performance-tests:
     name: Performance Tests
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: detect-test-changes
     if: needs.detect-test-changes.outputs.backend == 'true' || needs.detect-test-changes.outputs.tests == 'true' || github.event.inputs.test_type == 'performance' || github.event.inputs.test_type == 'all'
-    
+
     strategy:
       matrix:
         test-scenario: [
@@ -456,16 +460,16 @@ jobs:
           'stress-test',
           'spike-test',
           'volume-test'
-        ]
-    
+       ]
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-      
+          dotnet-versitrue: ${{ env.DOTNET_VERSION }}
+
       - name: Cache NuGet packages
         uses: actions/cache@v3
         with:
@@ -473,13 +477,13 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-      
+
       - name: Restore dependencies
         run: dotnet restore
-      
+
       - name: Build performance test project
         run: dotnet build tests/performance/Waaed.Tests.Performance.csproj --no-restore --configuration Release
-      
+
       - name: Setup test environment
         run: |
           # Start minimal services for performance testing
@@ -488,19 +492,19 @@ jobs:
             -e ACCEPT_EULA=Y \
             -p 1433:1433 \
             mcr.microsoft.com/mssql/server:2022-latest
-          
+
           docker run -d --name redis-perf \
             -p 6379:6379 \
             redis:7-alpine
-          
+
           # Wait for services
           sleep 30
-      
+
       - name: Run performance tests
         env:
           TEST_SCENARIO: ${{ matrix.test-scenario }}
           TEST_BASE_URL: ${{ github.event.inputs.environment == 'staging' && 'https://staging.waaed.app' || github.event.inputs.environment == 'production' && 'https://app.waaed.app' || 'http://localhost:5000' }}
-          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WaaedPerfTest;User Id=sa;Password=WaaedPerfP@ssw0rd123;TrustServerCertificate=true;"
+          ConnectionStrings__DefaultConnectitrue: "Server=localhost,1433;Database=WaaedPerfTest;User Id=sa;Password=WaaedPerfP@ssw0rd123;TrustServerCertificate=true;"
           ConnectionStrings__Redis: "localhost:6379"
         run: |
           dotnet test tests/performance/Waaed.Tests.Performance.csproj \
@@ -510,7 +514,7 @@ jobs:
             --logger "console;verbosity=detailed" \
             --results-directory ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }} \
             --filter "Category=${{ matrix.test-scenario }}"
-      
+
       - name: Generate performance report
         run: |
           # Create performance summary
@@ -518,13 +522,13 @@ jobs:
           echo "## Test Scenario: ${{ matrix.test-scenario }}" >> ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/summary.md
           echo "## Environment: ${{ github.event.inputs.environment || 'test' }}" >> ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/summary.md
           echo "## Timestamp: $(date)" >> ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/summary.md
-          
+
           # Extract key metrics from test results
-          if [ -f "${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/performance-tests-${{ matrix.test-scenario }}.trx" ]; then
+          if [-f "${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/performance-tests-${{ matrix.test-scenario }}.trx"]; then
             echo "## Test Results" >> ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/summary.md
             echo "Test results available in TRX format" >> ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/summary.md
           fi
-      
+
       - name: Upload performance test results
         uses: actions/upload-artifact@v3
         if: always()
@@ -532,7 +536,7 @@ jobs:
           name: performance-test-results-${{ matrix.test-scenario }}
           path: ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/
           retention-days: 30
-      
+
       - name: Cleanup performance test environment
         if: always()
         run: |
@@ -541,36 +545,36 @@ jobs:
 
   frontend-tests:
     name: Frontend Tests
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: detect-test-changes
     if: needs.detect-test-changes.outputs.frontend == 'true' || needs.detect-test-changes.outputs.tests == 'true' || github.event.inputs.test_type == 'all'
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-versitrue: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: frontend/unified-education-frontend/package-lock.json
-      
+
       - name: Install dependencies
         working-directory: frontend/unified-education-frontend
         run: npm ci
-      
+
       - name: Run frontend linting
         working-directory: frontend/unified-education-frontend
         run: npm run lint
-      
+
       - name: Run frontend type checking
         working-directory: frontend/unified-education-frontend
         run: npm run type-check
-      
+
       - name: Run frontend unit tests
         working-directory: frontend/unified-education-frontend
         run: npm run test:unit -- --coverage --watchAll=false
-      
+
       - name: Upload frontend test results
         uses: actions/upload-artifact@v3
         if: always()
@@ -581,16 +585,16 @@ jobs:
 
   test-summary:
     name: Test Summary
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [unit-tests, integration-tests, e2e-tests, performance-tests, frontend-tests]
     if: always()
-    
+
     steps:
       - name: Download all test artifacts
         uses: actions/download-artifact@v3
         with:
           path: all-test-results
-      
+
       - name: Generate test summary
         run: |
           echo "# Test Execution Summary" > test-summary.md
@@ -600,7 +604,7 @@ jobs:
           echo "## Branch: ${{ github.ref_name }}" >> test-summary.md
           echo "## Timestamp: $(date)" >> test-summary.md
           echo "" >> test-summary.md
-          
+
           echo "## Job Results" >> test-summary.md
           echo "| Job | Status |" >> test-summary.md
           echo "|-----|--------|" >> test-summary.md
@@ -610,22 +614,22 @@ jobs:
           echo "| Performance Tests | ${{ needs.performance-tests.result }} |" >> test-summary.md
           echo "| Frontend Tests | ${{ needs.frontend-tests.result }} |" >> test-summary.md
           echo "" >> test-summary.md
-          
+
           # Count test artifacts
           echo "## Test Artifacts" >> test-summary.md
           find all-test-results -name "*.trx" | wc -l | xargs echo "- TRX files:" >> test-summary.md
           find all-test-results -name "coverage.opencover.xml" | wc -l | xargs echo "- Coverage files:" >> test-summary.md
           find all-test-results -name "*.png" | wc -l | xargs echo "- Screenshots:" >> test-summary.md
-          
+
           cat test-summary.md
-      
+
       - name: Upload test summary
         uses: actions/upload-artifact@v3
         with:
           name: test-summary
           path: test-summary.md
           retention-days: 30
-      
+
       - name: Comment test summary on PR
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
@@ -635,37 +639,37 @@ jobs:
 
   quality-gates:
     name: Quality Gates
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [unit-tests, integration-tests, e2e-tests]
     if: always()
-    
+
     steps:
       - name: Check test results
         run: |
           echo "Checking quality gates..."
-          
+
           # Check if critical tests passed
-          if [[ "${{ needs.unit-tests.result }}" != "success" && "${{ needs.unit-tests.result }}" != "skipped" ]]; then
+          if [["${{ needs.unit-tests.result }}" != "success" && "${{ needs.unit-tests.result }}" != "skipped"]]; then
             echo "❌ Unit tests failed"
             exit 1
           fi
-          
-          if [[ "${{ needs.integration-tests.result }}" != "success" && "${{ needs.integration-tests.result }}" != "skipped" ]]; then
+
+          if [["${{ needs.integration-tests.result }}" != "success" && "${{ needs.integration-tests.result }}" != "skipped"]]; then
             echo "❌ Integration tests failed"
             exit 1
           fi
-          
+
           # E2E tests are allowed to fail without blocking (can be flaky)
-          if [[ "${{ needs.e2e-tests.result }}" != "success" && "${{ needs.e2e-tests.result }}" != "skipped" ]]; then
+          if [["${{ needs.e2e-tests.result }}" != "success" && "${{ needs.e2e-tests.result }}" != "skipped"]]; then
             echo "⚠️ E2E tests failed (non-blocking)"
           fi
-          
+
           echo "✅ Quality gates passed"
-      
+
       - name: Set quality gate status
         run: |
-          if [[ "${{ needs.unit-tests.result }}" == "success" || "${{ needs.unit-tests.result }}" == "skipped" ]] && \
-             [[ "${{ needs.integration-tests.result }}" == "success" || "${{ needs.integration-tests.result }}" == "skipped" ]]; then
+          if [["${{ needs.unit-tests.result }}" == "success" || "${{ needs.unit-tests.result }}" == "skipped"]] && \
+             [["${{ needs.integration-tests.result }}" == "success" || "${{ needs.integration-tests.result }}" == "skipped"]]; then
             echo "QUALITY_GATE_STATUS=passed" >> $GITHUB_ENV
           else
             echo "QUALITY_GATE_STATUS=failed" >> $GITHUB_ENV

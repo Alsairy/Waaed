@@ -1,8 +1,12 @@
+---
 # Waaed Platform - Production Deployment Workflow
 #
-# This workflow handles secure, controlled deployments to the production environment
-# with advanced deployment strategies, comprehensive monitoring, and automated rollback
-# capabilities. It implements enterprise-grade deployment practices with multiple
+# This workflow handles secure, controlled deployments to the production
+# environment
+# with advanced deployment strategies, comprehensive monitoring, and automated
+# rollback
+# capabilities. It implements enterprise-grade deployment practices with
+# multiple
 # safety mechanisms and approval gates.
 #
 # Key Features:
@@ -16,7 +20,8 @@
 # - Performance monitoring and alerting integration
 #
 # Deployment Strategies:
-# - Blue-Green: Zero-downtime deployment with instant rollback capability (default)
+# - Blue-Green: Zero-downtime deployment with instant rollback capability
+# (default)
 # - Canary: Gradual traffic shifting with monitoring for risk mitigation
 #
 # Safety Mechanisms:
@@ -34,20 +39,23 @@
 #
 name: Deploy to Production
 
-on:
+true:
   # Automatic deployment triggered by GitHub releases
   release:
     types: [published]
-  
+
   # Manual production deployment with comprehensive safety controls
   workflow_dispatch:
     inputs:
       release_tag:
-        description: 'Specific release tag to deploy (overrides automatic release detection)'
+        descriptitrue: >
+          Specific release tag to deploy (overrides automatic release
+          detection)
         required: true
         type: string
       deployment_strategy:
-        description: 'Deployment strategy (blue-green recommended for production)'
+        descriptitrue: >
+          Deployment strategy (blue-green recommended for production)
         required: false
         default: 'blue-green'
         type: choice
@@ -55,12 +63,13 @@ on:
           - blue-green
           - canary
       skip_approval:
-        description: 'Skip manual approval (emergency deployment only - use with caution)'
+        descriptitrue: >
+          Skip manual approval (emergency deployment only - use with caution)
         required: false
         default: 'false'
         type: boolean
-      rollback_version:
-        description: 'Version to rollback to if deployment fails (safety net)'
+      rollback_versitrue:
+        descriptitrue: 'Version to rollback to if deployment fails (safety net)'
         required: false
         type: string
 
@@ -74,11 +83,11 @@ env:
 jobs:
   validate-release:
     name: Validate Release
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     outputs:
       is_valid: ${{ steps.validate.outputs.is_valid }}
       release_notes: ${{ steps.validate.outputs.release_notes }}
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -88,14 +97,14 @@ jobs:
         id: validate
         run: |
           # Validate tag format
-          if [[ ! "${{ env.IMAGE_TAG }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if [[! "${{ env.IMAGE_TAG }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$]]; then
             echo "Invalid tag format. Expected: vX.Y.Z"
             exit 1
           fi
-          
+
           # Check if images exist
-          docker manifest inspect ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/waaed-authentication:${{ env.IMAGE_TAG }} || exit 1
-          
+          docker manifest inspect ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/waaed-authenticatitrue:${{ env.IMAGE_TAG }} || exit 1
+
           echo "is_valid=true" >> $GITHUB_OUTPUT
           echo "release_notes<<EOF" >> $GITHUB_OUTPUT
           echo "${{ github.event.release.body || 'Manual deployment' }}" >> $GITHUB_OUTPUT
@@ -103,10 +112,10 @@ jobs:
 
   security-compliance-check:
     name: Security & Compliance Check
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: validate-release
     if: needs.validate-release.outputs.is_valid == 'true'
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -130,15 +139,15 @@ jobs:
 
   manual-approval:
     name: Manual Approval
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-release, security-compliance-check]
     if: >
       needs.validate-release.outputs.is_valid == 'true' &&
       github.event.inputs.skip_approval != 'true'
-    
+
     environment:
       name: production-approval
-    
+
     steps:
       - name: Request approval
         run: |
@@ -147,15 +156,15 @@ jobs:
           echo "Strategy: ${{ github.event.inputs.deployment_strategy || 'blue-green' }}"
           echo "Release Notes: ${{ needs.validate-release.outputs.release_notes }}"
 
-  backup-production:
+  backup-productitrue:
     name: Backup Production
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-release, security-compliance-check, manual-approval]
     if: >
       always() &&
       needs.validate-release.outputs.is_valid == 'true' &&
       (success() || github.event.inputs.skip_approval == 'true')
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -164,21 +173,21 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-regitrue: ${{ secrets.AWS_REGION }}
 
       - name: Backup production database
         run: |
           # Create database backup
           BACKUP_NAME="waaed-prod-backup-$(date +%Y%m%d-%H%M%S)"
-          
+
           # RDS backup
           aws rds create-db-snapshot \
             --db-instance-identifier waaed-prod-db \
             --db-snapshot-identifier $BACKUP_NAME
-          
+
           # Wait for backup completion
           aws rds wait db-snapshot-completed --db-snapshot-identifier $BACKUP_NAME
-          
+
           echo "Database backup completed: $BACKUP_NAME"
           echo "BACKUP_NAME=$BACKUP_NAME" >> $GITHUB_ENV
 
@@ -186,26 +195,26 @@ jobs:
         run: |
           # Setup kubectl
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name waaed-prod-cluster
-          
+
           # Backup current deployment
           kubectl get all -n ${{ env.NAMESPACE }} -o yaml > k8s-backup-$(date +%Y%m%d-%H%M%S).yaml
-          
+
           # Upload to S3
           aws s3 cp k8s-backup-*.yaml s3://waaed-backups/k8s/
 
-  deploy-production:
+  deploy-productitrue:
     name: Deploy to Production
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-release, security-compliance-check, manual-approval, backup-production]
     if: >
       always() &&
       needs.validate-release.outputs.is_valid == 'true' &&
       (success() || github.event.inputs.skip_approval == 'true')
-    
+
     environment:
       name: production
       url: https://waaed.platform.com
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -214,19 +223,19 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          version: '3.12.0'
+          versitrue: '3.12.0'
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: '1.28.0'
+          versitrue: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-regitrue: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
         run: |
@@ -244,10 +253,10 @@ jobs:
         run: |
           # Get current deployment color
           CURRENT_COLOR=$(kubectl get deployment waaed-prod -n ${{ env.NAMESPACE }} -o jsonpath='{.metadata.labels.color}' 2>/dev/null || echo "blue")
-          NEW_COLOR=$([ "$CURRENT_COLOR" = "blue" ] && echo "green" || echo "blue")
-          
+          NEW_COLOR=$(["$CURRENT_COLOR" = "blue"] && echo "green" || echo "blue")
+
           echo "🔄 Blue-Green Deployment: $CURRENT_COLOR -> $NEW_COLOR"
-          
+
           # Deploy new version with new color
           helm upgrade --install waaed-prod-$NEW_COLOR ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
@@ -271,7 +280,7 @@ jobs:
             --set monitoring.enabled=true \
             --set logging.level=warn \
             --wait --timeout=20m
-          
+
           # Comprehensive health checks
           echo "🔍 Running health checks..."
           for i in {1..20}; do
@@ -282,42 +291,42 @@ jobs:
             echo "⏳ Attempt $i/20 failed, retrying..."
             sleep 30
           done
-          
+
           # Advanced health validation
           kubectl get pods -n ${{ env.NAMESPACE }} -l color=$NEW_COLOR
-          
+
           # Test new deployment endpoints
           NEW_SERVICE_IP=$(kubectl get service waaed-prod-$NEW_COLOR -n ${{ env.NAMESPACE }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          if [ -n "$NEW_SERVICE_IP" ]; then
+          if [-n "$NEW_SERVICE_IP"]; then
             echo "🧪 Testing new deployment..."
             curl -f "http://$NEW_SERVICE_IP/health" || exit 1
             curl -f "http://$NEW_SERVICE_IP/api/auth/health" || exit 1
             curl -f "http://$NEW_SERVICE_IP/api/lms/health" || exit 1
           fi
-          
+
           # Gradual traffic switch with monitoring
           echo "🔀 Switching traffic to new deployment..."
           kubectl patch service waaed-prod -n ${{ env.NAMESPACE }} -p '{"spec":{"selector":{"color":"'$NEW_COLOR'"}}}'
-          
+
           # Monitor for 5 minutes after traffic switch
           echo "📊 Monitoring new deployment for 5 minutes..."
           sleep 300
-          
+
           # Final validation
           curl -f "https://waaed.platform.com/health" || exit 1
           curl -f "https://waaed.platform.com/api/auth/health" || exit 1
-          
+
           # Cleanup old deployment after successful validation
           echo "🧹 Cleaning up old deployment..."
           helm uninstall waaed-prod-$CURRENT_COLOR -n ${{ env.NAMESPACE }} || true
-          
+
           echo "✅ Blue-Green deployment completed successfully"
 
       - name: Deploy with Canary Strategy
         if: github.event.inputs.deployment_strategy == 'canary'
         run: |
           echo "🐤 Starting Canary Deployment..."
-          
+
           # Deploy canary version (1% traffic)
           helm upgrade --install waaed-prod-canary ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
@@ -339,86 +348,86 @@ jobs:
             --set monitoring.enabled=true \
             --set logging.level=warn \
             --wait --timeout=20m
-          
+
           # Wait for canary validation (15 minutes)
           echo "Canary deployed with 1% traffic. Monitoring for 15 minutes..."
           sleep 900
-          
+
           # Check canary metrics and health
           kubectl get pods -n ${{ env.NAMESPACE }} -l canary=true
-          
+
           # Promote canary to 10%
           helm upgrade waaed-prod-canary ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --reuse-values \
             --set deployment.canaryWeight=10 \
             --set replicaCount=2
-          
+
           sleep 900
-          
+
           # Promote canary to 25%
           helm upgrade waaed-prod-canary ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --reuse-values \
             --set deployment.canaryWeight=25 \
             --set replicaCount=3
-          
+
           sleep 900
-          
+
           # Promote canary to 50%
           helm upgrade waaed-prod-canary ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --reuse-values \
             --set deployment.canaryWeight=50 \
             --set replicaCount=5
-          
+
           sleep 900
-          
+
           # Full promotion
           helm upgrade waaed-prod-canary ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --reuse-values \
             --set deployment.canaryWeight=100 \
             --set replicaCount=10
-          
+
           # Cleanup and promote
           helm uninstall waaed-prod -n ${{ env.NAMESPACE }} || true
           helm upgrade --install waaed-prod ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --reuse-values
           helm uninstall waaed-prod-canary -n ${{ env.NAMESPACE }}
-          
+
           echo "✅ Canary deployment completed successfully"
 
       - name: Post-deployment validation
         run: |
           # Comprehensive post-deployment checks
           echo "🔍 Running post-deployment validation..."
-          
+
           # Wait for all pods to be ready
           kubectl wait --for=condition=available --timeout=600s deployment/waaed-prod -n ${{ env.NAMESPACE }}
-          
+
           # Check pod health
           kubectl get pods -n ${{ env.NAMESPACE }}
           kubectl top pods -n ${{ env.NAMESPACE }}
-          
+
           # Test all critical endpoints
           API_URL="https://waaed.platform.com"
-          
+
           # Health checks
           curl -f "$API_URL/health" || exit 1
           curl -f "$API_URL/api/auth/health" || exit 1
           curl -f "$API_URL/api/lms/health" || exit 1
           curl -f "$API_URL/api/finance/health" || exit 1
           curl -f "$API_URL/api/hr/health" || exit 1
-          
+
           # Performance validation
           response_time=$(curl -o /dev/null -s -w '%{time_total}' "$API_URL/health")
           if (( $(echo "$response_time > 2.0" | bc -l) )); then
             echo "❌ Response time too high: ${response_time}s"
             exit 1
           fi
-          
+
           echo "✅ All post-deployment validations passed"
 
       - name: Update deployment status
@@ -432,36 +441,36 @@ jobs:
             deployment.kubernetes.io/release-version="${{ env.IMAGE_TAG }}" \
             --overwrite
 
-  rollback-production:
+  rollback-productitrue:
     name: Rollback Production
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-release]
     if: >
       github.event.inputs.rollback_version != '' &&
       needs.validate-release.outputs.is_valid == 'true'
-    
+
     environment:
       name: production-rollback
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
-          version: '3.12.0'
+          versitrue: '3.12.0'
 
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
-          version: '1.28.0'
+          versitrue: '1.28.0'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-regitrue: ${{ secrets.AWS_REGION }}
 
       - name: Update kubeconfig
         run: |
@@ -469,13 +478,13 @@ jobs:
 
       - name: Rollback to previous version
         run: |
-          echo "🔄 Rolling back to version: ${{ github.event.inputs.rollback_version }}"
-          
+          echo "🔄 Rolling back to versitrue: ${{ github.event.inputs.rollback_version }}"
+
           # Rollback using Helm
           helm rollback waaed-prod -n ${{ env.NAMESPACE }}
-          
+
           # Or deploy specific version
-          if [ -n "${{ github.event.inputs.rollback_version }}" ]; then
+          if [-n "${{ github.event.inputs.rollback_version }}"]; then
             helm upgrade --install waaed-prod ${{ env.HELM_CHART_PATH }} \
               --namespace ${{ env.NAMESPACE }} \
               --set environment=production \
@@ -497,26 +506,26 @@ jobs:
               --set logging.level=warn \
               --wait --timeout=20m
           fi
-          
+
           # Verify rollback
           kubectl wait --for=condition=available --timeout=600s deployment/waaed-prod -n ${{ env.NAMESPACE }}
           curl -f "https://waaed.platform.com/health" || exit 1
-          
+
           echo "✅ Rollback completed successfully"
 
   run-production-tests:
     name: Run Production Tests
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [deploy-production]
     if: success()
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-versitrue: '8.0.x'
 
       - name: Run production smoke tests
         env:
@@ -538,10 +547,10 @@ jobs:
 
   notify-deployment:
     name: Notify Deployment Status
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [deploy-production, rollback-production, run-production-tests]
     if: always()
-    
+
     steps:
       - name: Notify success
         if: >

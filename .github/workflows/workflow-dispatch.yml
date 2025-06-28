@@ -1,10 +1,11 @@
+---
 name: Manual Deployment Dispatch
 
-on:
+true:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target environment for deployment'
+        descriptitrue: 'Target environment for deployment'
         required: true
         default: 'development'
         type: choice
@@ -13,7 +14,7 @@ on:
           - staging
           - production
       deployment_strategy:
-        description: 'Deployment strategy to use'
+        descriptitrue: 'Deployment strategy to use'
         required: false
         default: 'rolling'
         type: choice
@@ -22,26 +23,26 @@ on:
           - blue-green
           - canary
       service_filter:
-        description: 'Specific services to deploy (comma-separated, or "all")'
+        descriptitrue: 'Specific services to deploy (comma-separated, or "all")'
         required: false
         default: 'all'
         type: string
       skip_tests:
-        description: 'Skip test execution (not recommended for production)'
+        descriptitrue: 'Skip test execution (not recommended for production)'
         required: false
         default: false
         type: boolean
       force_deploy:
-        description: 'Force deployment even if checks fail (emergency only)'
+        descriptitrue: 'Force deployment even if checks fail (emergency only)'
         required: false
         default: false
         type: boolean
-      rollback_version:
-        description: 'Version to rollback to (if applicable)'
+      rollback_versitrue:
+        descriptitrue: 'Version to rollback to (if applicable)'
         required: false
         type: string
       notification_channels:
-        description: 'Additional notification channels (slack, email, teams)'
+        descriptitrue: 'Additional notification channels (slack, email, teams)'
         required: false
         default: 'slack'
         type: string
@@ -58,51 +59,51 @@ concurrency:
 jobs:
   validate-inputs:
     name: Validate Deployment Inputs
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     outputs:
       environment: ${{ steps.validation.outputs.environment }}
       strategy: ${{ steps.validation.outputs.strategy }}
       services: ${{ steps.validation.outputs.services }}
       proceed: ${{ steps.validation.outputs.proceed }}
-    
+
     steps:
       - name: Validate deployment inputs
         id: validation
         run: |
           echo "Validating deployment inputs..."
-          
+
           # Validate environment
           environment="${{ github.event.inputs.environment }}"
-          if [[ ! "$environment" =~ ^(development|staging|production)$ ]]; then
+          if [[! "$environment" =~ ^(development|staging|production)$]]; then
             echo "❌ Invalid environment: $environment"
             exit 1
           fi
-          
+
           # Validate deployment strategy
           strategy="${{ github.event.inputs.deployment_strategy }}"
-          if [[ ! "$strategy" =~ ^(rolling|blue-green|canary)$ ]]; then
+          if [[! "$strategy" =~ ^(rolling|blue-green|canary)$]]; then
             echo "❌ Invalid deployment strategy: $strategy"
             exit 1
           fi
-          
+
           # Validate service filter
           services="${{ github.event.inputs.service_filter }}"
-          if [[ -z "$services" ]]; then
+          if [[-z "$services"]]; then
             services="all"
           fi
-          
+
           # Production safety checks
-          if [[ "$environment" == "production" ]]; then
-            if [[ "${{ github.event.inputs.skip_tests }}" == "true" && "${{ github.event.inputs.force_deploy }}" != "true" ]]; then
+          if [["$environment" == "production"]]; then
+            if [["${{ github.event.inputs.skip_tests }}" == "true" && "${{ github.event.inputs.force_deploy }}" != "true"]]; then
               echo "❌ Cannot skip tests in production without force_deploy flag"
               exit 1
             fi
-            
-            if [[ "${{ github.event.inputs.force_deploy }}" == "true" ]]; then
+
+            if [["${{ github.event.inputs.force_deploy }}" == "true"]]; then
               echo "⚠️ WARNING: Force deployment to production requested"
             fi
           fi
-          
+
           echo "✅ All inputs validated successfully"
           echo "environment=$environment" >> $GITHUB_OUTPUT
           echo "strategy=$strategy" >> $GITHUB_OUTPUT
@@ -122,13 +123,13 @@ jobs:
 
   approval-gate:
     name: Deployment Approval
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: validate-inputs
     if: needs.validate-inputs.outputs.environment == 'production'
     environment:
       name: production-approval
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-    
+
     steps:
       - name: Request production approval
         run: |
@@ -143,17 +144,17 @@ jobs:
 
   pre-deployment-checks:
     name: Pre-Deployment Checks
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-inputs, approval-gate]
     if: always() && needs.validate-inputs.outputs.proceed == 'true' && (needs.approval-gate.result == 'success' || needs.validate-inputs.outputs.environment != 'production')
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Check system health
         run: |
           echo "Checking target environment health..."
-          
+
           case "${{ github.event.inputs.environment }}" in
             "development")
               health_url="https://dev-api.waaed.sa/health"
@@ -165,7 +166,7 @@ jobs:
               health_url="https://api.waaed.sa/health"
               ;;
           esac
-          
+
           echo "Checking health endpoint: $health_url"
           # In a real scenario, you would check the actual health endpoint
           echo "✅ Environment health check passed"
@@ -173,17 +174,17 @@ jobs:
       - name: Verify deployment prerequisites
         run: |
           echo "Verifying deployment prerequisites..."
-          
+
           # Check if rollback version exists (if specified)
-          if [[ -n "${{ github.event.inputs.rollback_version }}" ]]; then
-            echo "Verifying rollback version: ${{ github.event.inputs.rollback_version }}"
+          if [[-n "${{ github.event.inputs.rollback_version }}"]]; then
+            echo "Verifying rollback versitrue: ${{ github.event.inputs.rollback_version }}"
             # In a real scenario, check if the version exists in registry
             echo "✅ Rollback version verified"
           fi
-          
+
           # Check resource availability
           echo "✅ Resource availability verified"
-          
+
           # Check maintenance windows
           echo "✅ No active maintenance windows"
 
@@ -193,13 +194,13 @@ jobs:
           echo "**Environment:** ${{ github.event.inputs.environment }}" >> deployment-plan.md
           echo "**Strategy:** ${{ github.event.inputs.deployment_strategy }}" >> deployment-plan.md
           echo "**Services:** ${{ github.event.inputs.service_filter }}" >> deployment-plan.md
-          echo "**Estimated Duration:** 15-30 minutes" >> deployment-plan.md
+          echo "**Estimated Duratitrue:** 15-30 minutes" >> deployment-plan.md
           echo "**Rollback Plan:** Automated rollback available" >> deployment-plan.md
           echo "" >> deployment-plan.md
           echo "### Services to Deploy" >> deployment-plan.md
-          
+
           services="${{ github.event.inputs.service_filter }}"
-          if [[ "$services" == "all" ]]; then
+          if [["$services" == "all"]]; then
             echo "- All Waaed platform services" >> deployment-plan.md
           else
             IFS=',' read -ra SERVICE_ARRAY <<< "$services"
@@ -216,18 +217,18 @@ jobs:
 
   execute-deployment:
     name: Execute Deployment
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-inputs, pre-deployment-checks]
     if: needs.pre-deployment-checks.result == 'success'
     timeout-minutes: 45
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup deployment environment
         run: |
           echo "Setting up deployment environment..."
-          
+
           # Set environment-specific variables
           case "${{ github.event.inputs.environment }}" in
             "development")
@@ -248,7 +249,7 @@ jobs:
         if: github.event.inputs.skip_tests != 'true'
         run: |
           echo "Running deployment tests..."
-          
+
           # Run critical tests before deployment
           echo "✅ Unit tests passed"
           echo "✅ Integration tests passed"
@@ -257,7 +258,7 @@ jobs:
       - name: Deploy using selected strategy
         run: |
           echo "Deploying using ${{ github.event.inputs.deployment_strategy }} strategy..."
-          
+
           case "${{ github.event.inputs.deployment_strategy }}" in
             "rolling")
               echo "Executing rolling deployment..."
@@ -276,15 +277,15 @@ jobs:
       - name: Post-deployment verification
         run: |
           echo "Verifying deployment..."
-          
+
           # Health checks
           echo "Running health checks..."
           echo "✅ All services healthy"
-          
+
           # Smoke tests
           echo "Running smoke tests..."
           echo "✅ Smoke tests passed"
-          
+
           # Performance checks
           echo "Checking performance metrics..."
           echo "✅ Performance within acceptable limits"
@@ -295,20 +296,20 @@ jobs:
           echo "- **Status:** ✅ Successful" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment:** ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Strategy:** ${{ github.event.inputs.deployment_strategy }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Duration:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Duratitrue:** $(date -u)" >> $GITHUB_STEP_SUMMARY
           echo "- **Deployed by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
 
   rollback-deployment:
     name: Rollback Deployment
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-inputs, execute-deployment]
     if: failure() && github.event.inputs.rollback_version != ''
-    
+
     steps:
       - name: Execute rollback
         run: |
-          echo "🔄 Executing rollback to version: ${{ github.event.inputs.rollback_version }}"
-          
+          echo "🔄 Executing rollback to versitrue: ${{ github.event.inputs.rollback_version }}"
+
           # Perform rollback
           echo "Rolling back to previous stable version..."
           echo "✅ Rollback completed successfully"
@@ -320,18 +321,18 @@ jobs:
 
   notify-deployment-status:
     name: Notify Deployment Status
-    runs-on: ubuntu-latest
+    runs-true: ubuntu-latest
     needs: [validate-inputs, execute-deployment, rollback-deployment]
     if: always()
-    
+
     steps:
       - name: Determine deployment status
         id: status
         run: |
-          if [[ "${{ needs.execute-deployment.result }}" == "success" ]]; then
+          if [["${{ needs.execute-deployment.result }}" == "success"]]; then
             echo "status=success" >> $GITHUB_OUTPUT
             echo "message=Deployment completed successfully" >> $GITHUB_OUTPUT
-          elif [[ "${{ needs.rollback-deployment.result }}" == "success" ]]; then
+          elif [["${{ needs.rollback-deployment.result }}" == "success"]]; then
             echo "status=rollback" >> $GITHUB_OUTPUT
             echo "message=Deployment failed, rollback completed" >> $GITHUB_OUTPUT
           else
@@ -346,13 +347,13 @@ jobs:
           status: ${{ steps.status.outputs.status }}
           text: |
             🚀 Manual Deployment Update
-            
+
             **Environment:** ${{ github.event.inputs.environment }}
             **Status:** ${{ steps.status.outputs.message }}
             **Strategy:** ${{ github.event.inputs.deployment_strategy }}
             **Triggered by:** ${{ github.actor }}
             **Run ID:** ${{ github.run_id }}
-            
+
             View details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
