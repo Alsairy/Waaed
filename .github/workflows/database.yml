@@ -3,7 +3,7 @@ name: Database Migrations & Schema Management
 
 on:
   push:
-    branches: [main, develop]
+    branches: ["main", "develop"]
     paths:
       - 'src/backend/services/*/Migrations/**'
       - 'src/backend/services/*/Data/**'
@@ -11,7 +11,7 @@ on:
       - 'src/backend/shared/Infrastructure/*/Migrations/**'
       - '.github/workflows/database.yml'
   pull_request:
-    branches: [main, develop]
+    branches: ["main", "develop"]
     paths:
       - 'src/backend/services/*/Migrations/**'
       - 'src/backend/services/*/Data/**'
@@ -119,7 +119,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: detect-migration-changes
     if: >
-      needs.detect-migration-changes.outputs.any_changed == 'true' ||
+      needs.detect-migration-changes.outputs.any_changed == true ||
       github.event.inputs.migration_action == 'validate' ||
       github.event.inputs.migration_action == 'apply'
 
@@ -142,7 +142,8 @@ jobs:
               needs.detect-migration-changes.outputs.library_changed }}
           - name: inventory
             path: >-
-              src/backend/services/Inventory/Waaed.Inventory.Api/Waaed.Inventory.Api
+              src/backend/services/Inventory/Waaed.Inventory.Api/
+              Waaed.Inventory.Api
             context: InventoryDbContext
             changed: ${{
               needs.detect-migration-changes.outputs.inventory_changed }}
@@ -173,7 +174,7 @@ jobs:
 
       - name: Skip if service unchanged
         if: >
-          matrix.service.changed == 'false' &&
+          matrix.service.changed == false &&
           github.event.inputs.target_service != 'all' &&
           github.event.inputs.target_service != matrix.service.name
         run: |
@@ -296,7 +297,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [detect-migration-changes, validate-migration-files]
     if: >
-      needs.detect-migration-changes.outputs.any_changed == 'true' ||
+      needs.detect-migration-changes.outputs.any_changed == true ||
       github.event.inputs.migration_action == 'apply' ||
       github.event.inputs.migration_action == 'validate'
 
@@ -317,7 +318,8 @@ jobs:
             db_name: Waaed_Library_Test
           - name: inventory
             path: >-
-              src/backend/services/Inventory/Waaed.Inventory.Api/Waaed.Inventory.Api
+              src/backend/services/Inventory/Waaed.Inventory.Api/
+              Waaed.Inventory.Api
             context: InventoryDbContext
             db_name: Waaed_Inventory_Test
           - name: polls
@@ -540,7 +542,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: detect-migration-changes
     if: >
-      needs.detect-migration-changes.outputs.shared_changed == 'true' ||
+      needs.detect-migration-changes.outputs.shared_changed == true ||
       github.event.inputs.target_service == 'shared' ||
       github.event.inputs.target_service == 'all'
 
@@ -574,7 +576,8 @@ jobs:
         run: |
           echo "Testing shared infrastructure migrations..."
 
-          shared_path="src/backend/shared/Infrastructure/Waaed.Shared.Infrastructure"
+          shared_path="src/backend/shared/Infrastructure/\
+            Waaed.Shared.Infrastructure"
 
           if [ ! -d "$shared_path" ]; then
             echo "Shared infrastructure path not found: $shared_path"
@@ -616,7 +619,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [detect-migration-changes, test-migrations]
     if: >
-      needs.detect-migration-changes.outputs.any_changed == 'true' ||
+      needs.detect-migration-changes.outputs.any_changed == true ||
       github.event.inputs.migration_action == 'validate'
 
     services:
@@ -713,7 +716,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [detect-migration-changes, test-migrations]
     if: >
-      needs.detect-migration-changes.outputs.any_changed == 'true' ||
+      needs.detect-migration-changes.outputs.any_changed == true ||
       github.event.inputs.migration_action == 'validate'
 
     services:

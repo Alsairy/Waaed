@@ -19,7 +19,7 @@ inputs:
   fail-on-findings:
     description: 'Whether to fail the build on security findings'
     required: false
-    default: 'true'
+    default: true
   docker-image:
     description: 'Docker image to scan (for container scanning)'
     required: false

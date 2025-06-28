@@ -22,11 +22,11 @@ inputs:
   enable-tests:
     description: 'Whether to run tests after build'
     required: false
-    default: 'true'
+    default: true
   enable-lint:
     description: 'Whether to run linting'
     required: false
-    default: 'true'
+    default: true
 outputs:
   build-status:
     description: 'Build status (success/failure)'
@@ -70,7 +70,7 @@ runs:
         esac
 
     - name: Run linting
-      if: inputs.enable-lint == 'true'
+      if: inputs.enable-lint == true
       shell: bash
       working-directory: ${{ inputs.app-path }}
       run: |
@@ -89,7 +89,7 @@ runs:
 
     - name: Run tests
       id: test
-      if: inputs.enable-tests == 'true'
+      if: inputs.enable-tests == true
       shell: bash
       working-directory: ${{ inputs.app-path }}
       run: |
@@ -166,9 +166,13 @@ runs:
       shell: bash
       run: |
         echo "## Build Summary for ${{ inputs.app-name }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Status:** ${{ steps.build.outputs.status }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Package Manager:** ${{ inputs.package-manager }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Node Version:** ${{ inputs.node-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status:** ${{ steps.build.outputs.status }}" >> \
+          $GITHUB_STEP_SUMMARY
+        echo "- **Package Manager:** ${{ inputs.package-manager }}" >> \
+          $GITHUB_STEP_SUMMARY
+        echo "- **Node Version:** ${{ inputs.node-version }}" >> \
+          $GITHUB_STEP_SUMMARY
         echo "- **Tests:** ${{ inputs.enable-tests }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Linting:** ${{ inputs.enable-lint }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Dist Path:** ${{ steps.build.outputs.dist-path }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Dist Path:** ${{ steps.build.outputs.dist-path }}" >> \
+          $GITHUB_STEP_SUMMARY

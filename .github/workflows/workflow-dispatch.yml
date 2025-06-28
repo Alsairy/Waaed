@@ -94,7 +94,8 @@ jobs:
 
           # Production safety checks
           if [["$environment" == "production"]]; then
-            if [["${{ github.event.inputs.skip_tests }}" == "true" && "${{ github.event.inputs.force_deploy }}" != "true"]]; then
+            if [["${{ github.event.inputs.skip_tests }}" == "true" && \
+                 "${{ github.event.inputs.force_deploy }}" != "true"]]; then
               echo "❌ Cannot skip tests in production without force_deploy flag"
               exit 1
             fi
@@ -113,11 +114,16 @@ jobs:
       - name: Log deployment details
         run: |
           echo "## Deployment Configuration" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment:** ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Strategy:** ${{ github.event.inputs.deployment_strategy }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Services:** ${{ github.event.inputs.service_filter }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Skip Tests:** ${{ github.event.inputs.skip_tests }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Force Deploy:** ${{ github.event.inputs.force_deploy }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** ${{ github.event.inputs.environment }}" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "- **Strategy:** ${{ github.event.inputs.deployment_strategy }}" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "- **Services:** ${{ github.event.inputs.service_filter }}" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "- **Skip Tests:** ${{ github.event.inputs.skip_tests }}" \
+            >> $GITHUB_STEP_SUMMARY
+          echo "- **Force Deploy:** ${{ github.event.inputs.force_deploy }}" \
+            >> $GITHUB_STEP_SUMMARY
           echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
 
@@ -128,14 +134,16 @@ jobs:
     if: needs.validate-inputs.outputs.environment == 'production'
     environment:
       name: production-approval
-      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      url: >-
+        https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
       - name: Request production approval
         run: |
           echo "🔐 Production deployment requires approval"
           echo "Deployment will proceed after manual approval"
-          echo "Reviewer: Please verify all deployment parameters before approving"
+          echo "Reviewer: Please verify all deployment parameters before \
+            approving"
 
       - name: Log approval granted
         run: |
@@ -146,7 +154,10 @@ jobs:
     name: Pre-Deployment Checks
     runs-on: ubuntu-latest
     needs: [validate-inputs, approval-gate]
-    if: always() && needs.validate-inputs.outputs.proceed == 'true' && (needs.approval-gate.result == 'success' || needs.validate-inputs.outputs.environment != 'production')
+    if: >-
+      always() && needs.validate-inputs.outputs.proceed == true && 
+      (needs.approval-gate.result == 'success' || 
+       needs.validate-inputs.outputs.environment != 'production')
 
     steps:
       - uses: actions/checkout@v4
@@ -177,7 +188,8 @@ jobs:
 
           # Check if rollback version exists (if specified)
           if [[-n "${{ github.event.inputs.rollback_version }}"]]; then
-            echo "Verifying rollback version: ${{ github.event.inputs.rollback_version }}"
+            echo "Verifying rollback version: \
+              ${{ github.event.inputs.rollback_version }}"
             # In a real scenario, check if the version exists in registry
             echo "✅ Rollback version verified"
           fi
@@ -191,11 +203,15 @@ jobs:
       - name: Generate deployment plan
         run: |
           echo "## Deployment Plan" > deployment-plan.md
-          echo "**Environment:** ${{ github.event.inputs.environment }}" >> deployment-plan.md
-          echo "**Strategy:** ${{ github.event.inputs.deployment_strategy }}" >> deployment-plan.md
-          echo "**Services:** ${{ github.event.inputs.service_filter }}" >> deployment-plan.md
-          echo "**Estimated Duratitrue:** 15-30 minutes" >> deployment-plan.md
-          echo "**Rollback Plan:** Automated rollback available" >> deployment-plan.md
+          echo "**Environment:** ${{ github.event.inputs.environment }}" \
+            >> deployment-plan.md
+          echo "**Strategy:** ${{ github.event.inputs.deployment_strategy }}" \
+            >> deployment-plan.md
+          echo "**Services:** ${{ github.event.inputs.service_filter }}" \
+            >> deployment-plan.md
+          echo "**Estimated Duration:** 15-30 minutes" >> deployment-plan.md
+          echo "**Rollback Plan:** Automated rollback available" \
+            >> deployment-plan.md
           echo "" >> deployment-plan.md
           echo "### Services to Deploy" >> deployment-plan.md
 
@@ -246,7 +262,7 @@ jobs:
           esac
 
       - name: Run tests (if not skipped)
-        if: github.event.inputs.skip_tests != 'true'
+        if: github.event.inputs.skip_tests != true
         run: |
           echo "Running deployment tests..."
 

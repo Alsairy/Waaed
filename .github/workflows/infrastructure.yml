@@ -108,8 +108,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: detect-infrastructure-changes
     if: >
-      needs.detect-infrastructure-changes.outputs.helm == 'true' ||
-      needs.detect-infrastructure-changes.outputs.infrastructure == 'true'
+      needs.detect-infrastructure-changes.outputs.helm == true ||
+      needs.detect-infrastructure-changes.outputs.infrastructure == true
 
     steps:
       - uses: actions/checkout@v4
@@ -203,8 +203,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: detect-infrastructure-changes
     if: >
-      needs.detect-infrastructure-changes.outputs.terraform == 'true' ||
-      needs.detect-infrastructure-changes.outputs.infrastructure == 'true'
+      needs.detect-infrastructure-changes.outputs.terraform == true ||
+      needs.detect-infrastructure-changes.outputs.infrastructure == true
 
     strategy:
       matrix:
@@ -299,7 +299,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [detect-infrastructure-changes, validate-terraform]
     if: >
-      needs.detect-infrastructure-changes.outputs.terraform == 'true' ||
+      needs.detect-infrastructure-changes.outputs.terraform == true ||
       github.event.inputs.action == 'cost-estimate'
 
     strategy:
@@ -387,7 +387,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [detect-infrastructure-changes, validate-terraform]
     if: >
-      needs.detect-infrastructure-changes.outputs.terraform == 'true' ||
+      needs.detect-infrastructure-changes.outputs.terraform == true ||
       github.event.inputs.action == 'plan'
 
     strategy:
@@ -519,7 +519,7 @@ jobs:
           fi
 
       - name: Upload drift detection results
-        if: env.DRIFT_DETECTED == 'true'
+        if: env.DRIFT_DETECTED == true
         uses: actions/upload-artifact@v4
         with:
           name: drift-detection-${{ matrix.environment }}
@@ -527,7 +527,7 @@ jobs:
           retention-days: 30
 
       - name: Notify on drift detection
-        if: env.DRIFT_DETECTED == 'true'
+        if: env.DRIFT_DETECTED == true
         uses: 8398a7/action-slack@v3
         with:
           status: warning
@@ -540,10 +540,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [detect-infrastructure-changes, validate-helm-charts]
     if: >
-      (needs.detect-infrastructure-changes.outputs.helm == 'true' ||
+      (needs.detect-infrastructure-changes.outputs.helm == true ||
        github.event.inputs.action == 'apply') &&
       (github.ref == 'refs/heads/main' ||
-       github.event.inputs.force_apply == 'true')
+       github.event.inputs.force_apply == true)
 
     strategy:
       matrix:

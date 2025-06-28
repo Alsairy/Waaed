@@ -25,11 +25,11 @@ inputs:
   enable-health-checks:
     description: 'Whether to perform health checks after deployment'
     required: false
-    default: 'true'
+    default: true
   rollback-on-failure:
     description: 'Whether to rollback on deployment failure'
     required: false
-    default: 'true'
+    default: true
   wait-timeout:
     description: 'Timeout for deployment wait (in seconds)'
     required: false
@@ -163,7 +163,7 @@ runs:
         fi
 
     - name: Health checks
-      if: inputs.enable-health-checks == 'true'
+      if: inputs.enable-health-checks == true
       shell: bash
       run: |
         echo "Performing health checks for ${{ inputs.service-name }}..."
@@ -194,7 +194,7 @@ runs:
         fi
 
     - name: Rollback on failure
-      if: failure() && inputs.rollback-on-failure == 'true'
+      if: failure() && inputs.rollback-on-failure == true
       shell: bash
       run: |
         echo "🔄 Rolling back deployment due to failure..."

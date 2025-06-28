@@ -16,12 +16,12 @@ on:
       pre_release:
         description: 'Create as pre-release'
         required: false
-        default: 'false'
+        default: false
         type: boolean
       skip_tests:
         description: 'Skip tests (emergency release)'
         required: false
-        default: 'false'
+        default: false
         type: boolean
       rollback_version:
         description: 'Version to rollback to (if needed)'
@@ -57,7 +57,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -159,8 +159,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate-release
     if: >
-      needs.validate-release.outputs.is_valid == 'true' &&
-      github.event.inputs.skip_tests != 'true'
+      needs.validate-release.outputs.is_valid == true &&
+      github.event.inputs.skip_tests != true
 
     strategy:
       matrix:
@@ -175,7 +175,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -223,7 +223,7 @@ jobs:
     needs: [validate-release, run-tests]
     if: >
       always() &&
-      needs.validate-release.outputs.is_valid == 'true' &&
+      needs.validate-release.outputs.is_valid == true &&
       (needs.run-tests.result == 'success' || needs.run-tests.result == 'skipped')
 
     outputs:
@@ -238,7 +238,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -421,7 +421,7 @@ jobs:
     needs: [validate-release, run-tests, build-artifacts]
     if: >
       always() &&
-      needs.validate-release.outputs.is_valid == 'true' &&
+      needs.validate-release.outputs.is_valid == true &&
       (needs.run-tests.result == 'success' || needs.run-tests.result == 'skipped') &&
       needs.build-artifacts.result == 'success'
 
@@ -435,13 +435,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: release-artifacts
           path: ./artifacts
 
       - name: Download changelog
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: changelog
           path: ./
@@ -464,7 +464,7 @@ jobs:
           name: "Waaed Platform ${{ needs.validate-release.outputs.new_version }}"
           body_path: ./CHANGELOG.md
           draft: false
-          prerelease: ${{ github.event.inputs.pre_release == 'true' }}
+          prerelease: ${{ github.event.inputs.pre_release == true }}
           files: |
             ./artifacts/*.tar.gz
             ./artifacts/helm/*.tgz
@@ -484,7 +484,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate-release, create-release]
     if: >
-      needs.validate-release.outputs.is_valid == 'true' &&
+      needs.validate-release.outputs.is_valid == true &&
       needs.create-release.result == 'success'
 
     strategy:
@@ -543,7 +543,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [validate-release, create-release, build-and-push-images]
     if: >
-      needs.validate-release.outputs.is_valid == 'true' &&
+      needs.validate-release.outputs.is_valid == true &&
       needs.create-release.result == 'success' &&
       needs.build-and-push-images.result == 'success'
 

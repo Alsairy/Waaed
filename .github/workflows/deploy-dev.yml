@@ -1,7 +1,7 @@
 ---
 name: Deploy to Development
 
-on:
+'on':
   push:
     branches: [develop, feature/*]
   pull_request:
@@ -11,7 +11,7 @@ on:
       force_deploy:
         description: 'Force deployment even if tests fail'
         required: false
-        default: 'false'
+        default: false
         type: boolean
       deployment_strategy:
         description: 'Deployment strategy'
@@ -29,6 +29,13 @@ env:
   HELM_CHART_PATH: ./helm/hudur
   DOCKER_REGISTRY: ghcr.io
   IMAGE_TAG: dev-${{ github.sha }}
+  REGISTRY_PREFIX: ghcr.io/${{ github.repository_owner }}/waaed
+  DEPLOYMENT_STRATEGY: >-
+    ${{ github.event.inputs.deployment_strategy || 'rolling' }}
+  SERVICE_IMAGE: ${{ env.REGISTRY_PREFIX }}-${{ matrix.service }}
+  TIMESTAMP_CMD: date -u +%Y-%m-%dT%H:%M:%SZ
+  DEPLOY_TIME_KEY: deployment.kubernetes.io/last-deployment-time
+  DEPLOY_STRATEGY_KEY: deployment.kubernetes.io/deployment-strategy
 
 jobs:
   detect-changes:
@@ -65,8 +72,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: detect-changes
     if: >
-      needs.detect-changes.outputs.backend == 'true' ||
-      needs.detect-changes.outputs.frontend == 'true'
+      needs.detect-changes.outputs.backend == true ||
+      needs.detect-changes.outputs.frontend == true
 
     strategy:
       matrix:
@@ -82,11 +89,12 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: frontend/unified-education-frontend/package-lock.json
+          cache-dependency-path: >-
+            frontend/unified-education-frontend/package-lock.json
 
       - name: Restore backend dependencies
         run: |
@@ -95,31 +103,33 @@ jobs:
 
       - name: Build backend services
         run: |
-          dotnet build src/backend/services/${{ matrix.service }}/*/ --no-restore
+          dotnet build src/backend/services/${{ matrix.service }}/*/ \
+            --no-restore
           dotnet build src/backend/gateways/Waaed.ApiGateway/ --no-restore
 
       - name: Install frontend dependencies
-        if: needs.detect-changes.outputs.frontend == 'true'
+        if: needs.detect-changes.outputs.frontend == true
         working-directory: frontend/unified-education-frontend
         run: npm ci
 
       - name: Build frontend
-        if: needs.detect-changes.outputs.frontend == 'true'
+        if: needs.detect-changes.outputs.frontend == true
         working-directory: frontend/unified-education-frontend
         run: npm run build
 
       - name: Run unit tests
         run: |
           dotnet test tests/unit/ --no-build --verbosity normal
-          dotnet test src/backend/services/${{ matrix.service }}/*/ --no-build --verbosity normal
+          dotnet test src/backend/services/${{ matrix.service }}/*/ \
+            --no-build --verbosity normal
 
   build-docker-images:
     name: Build Docker Images
     runs-on: ubuntu-latest
     needs: [detect-changes, build-and-test]
     if: >
-      needs.detect-changes.outputs.docker == 'true' &&
-      (success() || github.event.inputs.force_deploy == 'true')
+      needs.detect-changes.outputs.docker == true &&
+      (success() || github.event.inputs.force_deploy == true)
 
     strategy:
       matrix:
@@ -146,8 +156,8 @@ jobs:
           file: src/backend/services/${{ matrix.service }}/Dockerfile
           push: true
           tags: |
-            ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/waaed-${{ matrix.service }}:${{ env.IMAGE_TAG }}
-            ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/waaed-${{ matrix.service }}:dev-latest
+            ${{ env.SERVICE_IMAGE }}:${{ env.IMAGE_TAG }}
+            ${{ env.SERVICE_IMAGE }}:dev-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
@@ -158,10 +168,10 @@ jobs:
     needs: [detect-changes, build-and-test, build-docker-images]
     if: >
       always() &&
-      (success() || github.event.inputs.force_deploy == 'true') &&
-      (needs.detect-changes.outputs.backend == 'true' ||
-       needs.detect-changes.outputs.frontend == 'true' ||
-       needs.detect-changes.outputs.helm == 'true')
+      (success() || github.event.inputs.force_deploy == true) &&
+      (needs.detect-changes.outputs.backend == true ||
+       needs.detect-changes.outputs.frontend == true ||
+       needs.detect-changes.outputs.helm == true)
 
     environment:
       name: development
@@ -189,14 +199,19 @@ jobs:
 
       - name: Update kubeconfig
         run: |
-          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name waaed-dev-cluster
+          aws eks update-kubeconfig \
+            --region ${{ secrets.AWS_REGION }} \
+            --name waaed-dev-cluster
 
       - name: Create namespace if not exists
         run: |
-          kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace ${{ env.NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy with Rolling Update (Default)
-        if: github.event.inputs.deployment_strategy != 'blue-green' && github.event.inputs.deployment_strategy != 'canary'
+        if: >-
+          github.event.inputs.deployment_strategy != 'blue-green' &&
+          github.event.inputs.deployment_strategy != 'canary'
         run: |
           helm upgrade --install waaed-dev ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
@@ -213,13 +228,18 @@ jobs:
         if: github.event.inputs.deployment_strategy == 'blue-green'
         run: |
           # Get current deployment color
-          CURRENT_COLOR=$(kubectl get deployment waaed-dev -n ${{ env.NAMESPACE }} -o jsonpath='{.metadata.labels.color}' 2>/dev/null || echo "blue")
-          NEW_COLOR=$(["$CURRENT_COLOR" = "blue"] && echo "green" || echo "blue")
+          CURRENT_COLOR=$(kubectl get deployment waaed-dev \
+            -n ${{ env.NAMESPACE }} \
+            -o jsonpath='{.metadata.labels.color}' \
+            2>/dev/null || echo "blue")
+          NEW_COLOR=$(["$CURRENT_COLOR" = "blue"] && \
+            echo "green" || echo "blue")
 
           echo "Current color: $CURRENT_COLOR, New color: $NEW_COLOR"
 
           # Deploy new version with new color
-          helm upgrade --install waaed-dev-$NEW_COLOR ${{ env.HELM_CHART_PATH }} \
+          helm upgrade --install waaed-dev-$NEW_COLOR \
+            ${{ env.HELM_CHART_PATH }} \
             --namespace ${{ env.NAMESPACE }} \
             --set environment=development \
             --set image.tag=${{ env.IMAGE_TAG }} \
@@ -233,14 +253,17 @@ jobs:
             --wait --timeout=10m
 
           # Health check
-          kubectl wait --for=condition=available --timeout=300s deployment/waaed-dev-$NEW_COLOR -n ${{ env.NAMESPACE }}
+          kubectl wait --for=condition=available --timeout=300s \
+            deployment/waaed-dev-$NEW_COLOR -n ${{ env.NAMESPACE }}
 
           # Switch traffic
-          kubectl patch service waaed-dev -n ${{ env.NAMESPACE }} -p '{"spec":{"selector":{"color":"'$NEW_COLOR'"}}}'
+          kubectl patch service waaed-dev -n ${{ env.NAMESPACE }} \
+            -p '{"spec":{"selector":{"color":"'$NEW_COLOR'"}}}'
 
           # Wait and cleanup old deployment
           sleep 30
-          helm uninstall waaed-dev-$CURRENT_COLOR -n ${{ env.NAMESPACE }} || true
+          helm uninstall waaed-dev-$CURRENT_COLOR \
+            -n ${{ env.NAMESPACE }} || true
 
       - name: Deploy with Canary Strategy
         if: github.event.inputs.deployment_strategy == 'canary'
@@ -262,7 +285,7 @@ jobs:
             --wait --timeout=10m
 
           # Wait for canary validation
-          echo "Canary deployed with 10% traffic. Waiting 5 minutes for validation..."
+          echo "Canary deployed with 10% traffic. Waiting 5 minutes..."
           sleep 300
 
           # Promote canary to 50%
@@ -291,7 +314,8 @@ jobs:
       - name: Run smoke tests
         run: |
           # Wait for deployment to be ready
-          kubectl wait --for=condition=available --timeout=300s deployment/waaed-dev -n ${{ env.NAMESPACE }}
+          kubectl wait --for=condition=available --timeout=300s \
+            deployment/waaed-dev -n ${{ env.NAMESPACE }}
 
           # Basic health check
           kubectl get pods -n ${{ env.NAMESPACE }}
@@ -305,10 +329,15 @@ jobs:
         if: always()
         run: |
           STATUS=${{ job.status }}
+          STRATEGY="${{ github.event.inputs.deployment_strategy || 'rolling' }}"
           kubectl annotate deployment waaed-dev -n ${{ env.NAMESPACE }} \
             deployment.kubernetes.io/last-deployment-status="$STATUS" \
-            deployment.kubernetes.io/last-deployment-time="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            deployment.kubernetes.io/deployment-strategy="${{ github.event.inputs.deployment_strategy || 'rolling' }}" \
+            --overwrite
+          kubectl annotate deployment waaed-dev -n ${{ env.NAMESPACE }} \
+            ${{ env.DEPLOY_TIME_KEY }}="$(${{ env.TIMESTAMP_CMD }})" \
+            --overwrite
+          kubectl annotate deployment waaed-dev -n ${{ env.NAMESPACE }} \
+            ${{ env.DEPLOY_STRATEGY_KEY }}="$STRATEGY" \
             --overwrite
 
   notify-deployment:
@@ -326,7 +355,7 @@ jobs:
           text: |
             🚀 Development deployment successful!
             Environment: Development
-            Strategy: ${{ github.event.inputs.deployment_strategy || 'rolling' }}
+            Strategy: ${{ env.DEPLOYMENT_STRATEGY }}
             URL: https://dev.waaed.platform.com
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -338,6 +367,6 @@ jobs:
           text: |
             ❌ Development deployment failed!
             Environment: Development
-            Strategy: ${{ github.event.inputs.deployment_strategy || 'rolling' }}
+            Strategy: ${{ env.DEPLOYMENT_STRATEGY }}
             Please check the logs for details.
           webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

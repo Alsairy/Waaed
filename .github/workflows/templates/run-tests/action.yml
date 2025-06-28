@@ -19,11 +19,11 @@ inputs:
   enable-mutation-testing:
     description: 'Whether to run mutation testing'
     required: false
-    default: 'false'
+    default: false
   parallel-execution:
     description: 'Whether to run tests in parallel'
     required: false
-    default: 'true'
+    default: true
 outputs:
   test-status:
     description: 'Overall test status (success/failure)'
@@ -71,7 +71,7 @@ runs:
             --logger "console;verbosity=minimal" \
             --collect:"XPlat Code Coverage" \
             --results-directory ./TestResults/Unit \
-            ${{ inputs.parallel-execution == 'true' && '--parallel' || '' }} \
+            ${{ inputs.parallel-execution == true && '--parallel' || '' }} \
             $unit_test_projects
         else
           echo "No unit test projects found"
@@ -154,7 +154,7 @@ runs:
         fi
 
     - name: Run mutation testing
-      if: inputs.enable-mutation-testing == 'true'
+      if: inputs.enable-mutation-testing == true
       shell: bash
       working-directory: ${{ inputs.project-path }}
       run: |
