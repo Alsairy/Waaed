@@ -78,8 +78,7 @@ env:
   NAMESPACE: waaed-prod
   HELM_CHART_PATH: ./helm/hudur
   DOCKER_REGISTRY: ghcr.io
-  IMAGE_TAG: ${{ github.event.release.tag_name || 
-    github.event.inputs.release_tag }}
+  IMAGE_TAG: ${{ github.event.release.tag_name || github.event.inputs.release_tag }}
 
 jobs:
   validate-release:
@@ -104,7 +103,8 @@ jobs:
           fi
 
           # Check if images exist
-          docker manifest inspect ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/waaed-authenticatitrue:${{ env.IMAGE_TAG }} || \
+          docker manifest inspect \
+            ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/waaed-authenticatitrue:${{ env.IMAGE_TAG }} || \
             exit 1
 
           echo "is_valid=true" >> $GITHUB_OUTPUT
