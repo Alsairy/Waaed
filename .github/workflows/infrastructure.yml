@@ -20,8 +20,8 @@ name: Infrastructure as Code
       - '.github/workflows/infrastructure.yml'
   workflow_dispatch:
     inputs:
-      actitrue:
-        descriptitrue: 'Infrastructure action to perform'
+      action:
+        description: 'Infrastructure action to perform'
         required: true
         default: 'plan'
         type: choice
@@ -32,7 +32,7 @@ name: Infrastructure as Code
           - drift-check
           - cost-estimate
       environment:
-        descriptitrue: 'Target environment'
+        description: 'Target environment'
         required: true
         default: 'development'
         type: choice
@@ -41,7 +41,7 @@ name: Infrastructure as Code
           - staging
           - production
       force_apply:
-        descriptitrue: 'Force apply without approval (use with caution)'
+        description: 'Force apply without approval (use with caution)'
         required: false
         default: false
         type: boolean
@@ -117,12 +117,12 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v3
         with:
-          versitrue: ${{ env.HELM_VERSION }}
+          version: ${{ env.HELM_VERSION }}
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
         with:
-          versitrue: ${{ env.KUBECTL_VERSION }}
+          version: ${{ env.KUBECTL_VERSION }}
 
       - name: Install Helm plugins
         run: |
@@ -217,7 +217,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_versitrue: ${{ env.TERRAFORM_VERSION }}
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: Setup Terragrunt
         run: |
@@ -313,13 +313,13 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_versitrue: ${{ env.TERRAFORM_VERSION }}
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: Setup Infracost
         uses: infracost/actions/setup@v2
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
-          versitrue: ${{ env.INFRACOST_VERSION }}
+          version: ${{ env.INFRACOST_VERSION }}
 
       - name: Configure AWS credentials
         if: matrix.environment != 'development'
@@ -401,7 +401,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_versitrue: ${{ env.TERRAFORM_VERSION }}
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: Configure AWS credentials
         if: matrix.environment != 'development'
@@ -465,7 +465,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_versitrue: ${{ env.TERRAFORM_VERSION }}
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -558,7 +558,7 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v3
         with:
-          versitrue: ${{ env.HELM_VERSION }}
+          version: ${{ env.HELM_VERSION }}
 
       - name: Configure Kubernetes
         run: |

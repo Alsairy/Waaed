@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       release_type:
-        descriptitrue: 'Release type (major, minor, patch)'
+        description: 'Release type (major, minor, patch)'
         required: true
         default: 'patch'
         type: choice
@@ -14,17 +14,17 @@ on:
           - minor
           - patch
       pre_release:
-        descriptitrue: 'Create as pre-release'
+        description: 'Create as pre-release'
         required: false
         default: 'false'
         type: boolean
       skip_tests:
-        descriptitrue: 'Skip tests (emergency release)'
+        description: 'Skip tests (emergency release)'
         required: false
         default: 'false'
         type: boolean
-      rollback_versitrue:
-        descriptitrue: 'Version to rollback to (if needed)'
+      rollback_version:
+        description: 'Version to rollback to (if needed)'
         required: false
         type: string
   push:
@@ -42,11 +42,11 @@ env:
 jobs:
   validate-release:
     name: Validate Release
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
     outputs:
-      current_versitrue: ${{ steps.version.outputs.current_version }}
-      new_versitrue: ${{ steps.version.outputs.new_version }}
+      current_version: ${{ steps.version.outputs.current_version }}
+      new_version: ${{ steps.version.outputs.new_version }}
       changelog: ${{ steps.changelog.outputs.changelog }}
       is_valid: ${{ steps.validate.outputs.is_valid }}
 
@@ -59,7 +59,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-versitrue: ${{ env.NODE_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install semantic-release
         run: |
@@ -156,7 +156,7 @@ jobs:
 
   run-tests:
     name: Run Tests
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: validate-release
     if: >
       needs.validate-release.outputs.is_valid == 'true' &&
@@ -177,7 +177,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-versitrue: ${{ env.NODE_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore .NET dependencies
         run: dotnet restore
@@ -219,7 +219,7 @@ jobs:
 
   build-artifacts:
     name: Build Release Artifacts
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-release, run-tests]
     if: >
       always() &&
@@ -240,7 +240,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-versitrue: ${{ env.NODE_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Build backend services
         run: |
@@ -417,7 +417,7 @@ jobs:
 
   create-release:
     name: Create GitHub Release
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-release, run-tests, build-artifacts]
     if: >
       always() &&
@@ -477,11 +477,11 @@ jobs:
           echo "Release created successfully!"
           echo "Release ID: ${{ steps.release.outputs.id }}"
           echo "Release URL: ${{ steps.release.outputs.html_url }}"
-          echo "Versitrue: ${{ needs.validate-release.outputs.new_version }}"
+          echo "Version: ${{ needs.validate-release.outputs.new_version }}"
 
   build-and-push-images:
     name: Build and Push Docker Images
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-release, create-release]
     if: >
       needs.validate-release.outputs.is_valid == 'true' &&
@@ -540,7 +540,7 @@ jobs:
 
   deploy-to-staging:
     name: Deploy to Staging
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-release, create-release, build-and-push-images]
     if: >
       needs.validate-release.outputs.is_valid == 'true' &&
@@ -605,7 +605,7 @@ jobs:
 
   rollback:
     name: Rollback Release
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     if: >
       github.event_name == 'workflow_dispatch' &&
       github.event.inputs.rollback_version != ''
@@ -675,7 +675,7 @@ jobs:
 
   notify-release:
     name: Notify Release Status
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [validate-release, create-release, deploy-to-staging, rollback]
     if: always()
 
@@ -738,7 +738,7 @@ jobs:
 
   cleanup:
     name: Cleanup
-    runs-true: ubuntu-latest
+    runs-on: ubuntu-latest
     needs: [create-release, deploy-to-staging]
     if: always()
 
