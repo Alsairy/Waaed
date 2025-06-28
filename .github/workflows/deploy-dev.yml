@@ -71,7 +71,7 @@ jobs:
     strategy:
       matrix:
         service: [authentication, attendance, lms, finance, hr, library,
-                 inventory, polls, blogs, tasks]
+                  inventory, polls, blogs, tasks]
 
     steps:
       - uses: actions/checkout@v4
@@ -124,7 +124,7 @@ jobs:
     strategy:
       matrix:
         service: [authentication, attendance, lms, finance, hr, library,
-                 inventory, polls, blogs, tasks, api-gateway, frontend]
+                  inventory, polls, blogs, tasks, api-gateway, frontend]
 
     steps:
       - uses: actions/checkout@v4
