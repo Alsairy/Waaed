@@ -186,7 +186,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8080
+          "Port": 8083
         }
       ],
       "UpstreamPathTemplate": "/api/lms/{everything}",
@@ -198,7 +198,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8001
+          "Port": 8081
         }
       ],
       "UpstreamPathTemplate": "/api/finance/{everything}",
@@ -210,7 +210,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 8002
+          "Port": 8082
         }
       ],
       "UpstreamPathTemplate": "/api/hr/{everything}",

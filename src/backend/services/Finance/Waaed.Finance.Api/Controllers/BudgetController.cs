@@ -64,8 +64,8 @@ public class BudgetController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving budgets");
-            return StatusCode(500, "An error occurred while retrieving budgets");
+            _logger.LogError(ex, "Error retrieving budgets: {Message}. StackTrace: {StackTrace}", ex.Message, ex.StackTrace);
+            return StatusCode(500, $"An error occurred while retrieving budgets: {ex.Message}");
         }
     }
 

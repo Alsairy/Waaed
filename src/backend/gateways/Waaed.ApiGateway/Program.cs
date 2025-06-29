@@ -6,8 +6,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure to listen on port 5001
-builder.WebHost.UseUrls("http://localhost:5001");
+// Configure to listen on port 5000
+builder.WebHost.UseUrls("http://localhost:5000");
 
 // Add configuration
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
@@ -38,7 +38,7 @@ builder.Services.AddCors(options =>
 
 // Add JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secretKey = jwtSettings["SecretKey"] ?? "Hudur_Super_Secret_Key_2024_Enterprise_Grade_Security";
+var secretKey = jwtSettings["SecretKey"] ?? "Waaed_Super_Secret_Key_2024_Enterprise_Grade_Security";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer("Bearer", options =>
@@ -49,8 +49,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtSettings["Issuer"] ?? "Hudur",
-            ValidAudience = jwtSettings["Audience"] ?? "Hudur.Users",
+            ValidIssuer = jwtSettings["Issuer"] ?? "Waaed",
+            ValidAudience = jwtSettings["Audience"] ?? "Waaed.Users",
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
             ClockSkew = TimeSpan.Zero
         };
@@ -138,7 +138,7 @@ app.MapHealthChecks("/health");
 // Add API Gateway info endpoint
 app.MapGet("/api/gateway/info", () => new
 {
-    Service = "Hudur API Gateway",
+    Service = "Waaed API Gateway",
     Version = "1.0.0",
     Environment = app.Environment.EnvironmentName,
     Timestamp = DateTime.UtcNow,
