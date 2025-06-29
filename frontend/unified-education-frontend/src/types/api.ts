@@ -337,7 +337,7 @@ export interface Widget {
   id: string;
   type: string;
   title: string;
-  data: any;
+  data: Record<string, unknown>;
   position: {
     x: number;
     y: number;
