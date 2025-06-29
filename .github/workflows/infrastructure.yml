@@ -109,7 +109,8 @@ jobs:
     needs: detect-infrastructure-changes
     if: >
       needs.detect-infrastructure-changes.outputs.helm == true ||
-      needs.detect-infrastructure-changes.outputs.infrastructure == true
+      needs.detect-infrastructure-changes.outputs.infrastructure == true ||
+      github.event_name == 'pull_request'
 
     steps:
       - uses: actions/checkout@v4
@@ -204,7 +205,8 @@ jobs:
     needs: detect-infrastructure-changes
     if: >
       needs.detect-infrastructure-changes.outputs.terraform == true ||
-      needs.detect-infrastructure-changes.outputs.infrastructure == true
+      needs.detect-infrastructure-changes.outputs.infrastructure == true ||
+      github.event_name == 'pull_request'
 
     strategy:
       matrix:
@@ -300,7 +302,8 @@ jobs:
     needs: [detect-infrastructure-changes, validate-terraform]
     if: >
       needs.detect-infrastructure-changes.outputs.terraform == true ||
-      github.event.inputs.action == 'cost-estimate'
+      github.event.inputs.action == 'cost-estimate' ||
+      github.event_name == 'pull_request'
 
     strategy:
       matrix:
@@ -388,7 +391,8 @@ jobs:
     needs: [detect-infrastructure-changes, validate-terraform]
     if: >
       needs.detect-infrastructure-changes.outputs.terraform == true ||
-      github.event.inputs.action == 'plan'
+      github.event.inputs.action == 'plan' ||
+      github.event_name == 'pull_request'
 
     strategy:
       matrix:
@@ -453,7 +457,8 @@ jobs:
     needs: detect-infrastructure-changes
     if: >
       github.event_name == 'schedule' ||
-      github.event.inputs.action == 'drift-check'
+      github.event.inputs.action == 'drift-check' ||
+      github.event_name == 'pull_request'
 
     strategy:
       matrix:
@@ -541,9 +546,11 @@ jobs:
     needs: [detect-infrastructure-changes, validate-helm-charts]
     if: >
       (needs.detect-infrastructure-changes.outputs.helm == true ||
-       github.event.inputs.action == 'apply') &&
+       github.event.inputs.action == 'apply' ||
+       github.event_name == 'pull_request') &&
       (github.ref == 'refs/heads/main' ||
-       github.event.inputs.force_apply == true)
+       github.event.inputs.force_apply == true ||
+       github.event_name == 'pull_request')
 
     strategy:
       matrix:
