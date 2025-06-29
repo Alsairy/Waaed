@@ -634,6 +634,11 @@ jobs:
     needs: [validate-helm-charts, validate-terraform, cost-estimation,
             terraform-plan, drift-detection, helm-deploy]
     if: always()
+    
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
 
     steps:
       - name: Generate infrastructure summary
