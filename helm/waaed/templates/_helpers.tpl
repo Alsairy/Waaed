@@ -87,7 +87,7 @@ Image name helper
 {{- define "waaed.image" -}}
 {{- $registry := .Values.global.imageRegistry | default .Values.image.registry -}}
 {{- $repository := .repository -}}
-{{- $tag := .tag | default .Values.image.tag | default .Chart.AppVersion -}}
+{{- $tag := .tag | default .Values.image.tag | default (.Chart.AppVersion | default "latest") -}}
 {{- printf "%s/%s:%s" $registry $repository $tag -}}
 {{- end }}
 

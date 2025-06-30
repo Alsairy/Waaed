@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: {{ include "waaed.image" (dict "repository" .Values.services.apiGateway.image.repository "tag" .Values.services.apiGateway.image.tag "Values" .Values) }}
+        image: {{ include "waaed.image" (dict "repository" .Values.services.apiGateway.image.repository "tag" .Values.services.apiGateway.image.tag "Values" .Values "Chart" .Chart) }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - name: http
