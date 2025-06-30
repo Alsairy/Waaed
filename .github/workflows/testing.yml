@@ -263,7 +263,7 @@ jobs:
 
       - name: Run integration tests
         env:
-          ConnectionStrings__DefaultConnectitrue: "Server=localhost,1433;Database=WaaedIntegrationTest;User Id=sa;Password=WaaedTestP@ssw0rd123;TrustServerCertificate=true;"
+          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WaaedIntegrationTest;User Id=sa;Password=WaaedTestP@ssw0rd123;TrustServerCertificate=true;"
           ConnectionStrings__Redis: "localhost:6379"
           ConnectionStrings__RabbitMQ: "amqp://waaed:waaedtest123@localhost:5672/"
           ASPNETCORE_ENVIRONMENT: Testing
@@ -654,18 +654,18 @@ jobs:
           echo "Checking quality gates..."
 
           # Check if critical tests passed
-          if [["${{ needs.unit-tests.result }}" != "success" && "${{ needs.unit-tests.result }}" != "skipped"]]; then
+          if [[ "${{ needs.unit-tests.result }}" != "success" && "${{ needs.unit-tests.result }}" != "skipped" ]]; then
             echo "❌ Unit tests failed"
             exit 1
           fi
 
-          if [["${{ needs.integration-tests.result }}" != "success" && "${{ needs.integration-tests.result }}" != "skipped"]]; then
+          if [[ "${{ needs.integration-tests.result }}" != "success" && "${{ needs.integration-tests.result }}" != "skipped" ]]; then
             echo "❌ Integration tests failed"
             exit 1
           fi
 
           # E2E tests are allowed to fail without blocking (can be flaky)
-          if [["${{ needs.e2e-tests.result }}" != "success" && "${{ needs.e2e-tests.result }}" != "skipped"]]; then
+          if [[ "${{ needs.e2e-tests.result }}" != "success" && "${{ needs.e2e-tests.result }}" != "skipped" ]]; then
             echo "⚠️ E2E tests failed (non-blocking)"
           fi
 
@@ -673,8 +673,8 @@ jobs:
 
       - name: Set quality gate status
         run: |
-          if [["${{ needs.unit-tests.result }}" == "success" || "${{ needs.unit-tests.result }}" == "skipped"]] && \
-             [["${{ needs.integration-tests.result }}" == "success" || "${{ needs.integration-tests.result }}" == "skipped"]]; then
+          if [[ "${{ needs.unit-tests.result }}" == "success" || "${{ needs.unit-tests.result }}" == "skipped" ]] && \
+             [[ "${{ needs.integration-tests.result }}" == "success" || "${{ needs.integration-tests.result }}" == "skipped" ]]; then
             echo "QUALITY_GATE_STATUS=passed" >> $GITHUB_ENV
           else
             echo "QUALITY_GATE_STATUS=failed" >> $GITHUB_ENV

@@ -43,7 +43,7 @@ namespace Waaed.Tests.Performance
                         return Response.Fail();
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return Response.Fail();
                 }
@@ -105,7 +105,7 @@ namespace Waaed.Tests.Performance
                         return Response.Fail();
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return Response.Fail();
                 }
@@ -165,7 +165,7 @@ namespace Waaed.Tests.Performance
                         return Response.Fail();
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return Response.Fail();
                 }

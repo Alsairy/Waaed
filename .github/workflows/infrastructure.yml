@@ -49,7 +49,7 @@ name: Infrastructure as Code
 env:
   TERRAFORM_VERSION: '1.6.0'
   HELM_VERSION: '3.13.0'
-  KUBECTL_VERSION: '1.27.0'
+  KUBECTL_VERSION: '1.28.0'
   TERRAGRUNT_VERSION: '0.53.0'
   INFRACOST_VERSION: '0.10.29'
 
@@ -256,7 +256,7 @@ jobs:
 
           find . -name "*.tf" -exec dirname {} \; | sort -u | \
             while read tf_dir; do
-              if [["$tf_dir" == "."]]; then continue; fi
+              if [[ "$tf_dir" == "." ]]; then continue; fi
 
               echo "Validating: $tf_dir"
               cd "$tf_dir"
@@ -274,13 +274,13 @@ jobs:
           curl -s "$TFSEC_URL" | bash
 
           echo "Security scanning Terraform configurations..."
-          if [[-d "terraform"]]; then
+          if [[ -d "terraform" ]]; then
             tfsec terraform/ --format sarif \
               --out terraform-security-${{ matrix.environment }}.sarif \
               || true
           fi
 
-          if [[-d "infrastructure"]]; then
+          if [[ -d "infrastructure" ]]; then
             tfsec infrastructure/ --format sarif \
               --out infrastructure-security-${{ matrix.environment }}.sarif \
               || true
@@ -341,7 +341,7 @@ jobs:
             echo "terraform")
 
           for tf_dir in $tf_dirs; do
-            if [[! -d "$tf_dir"]]; then continue; fi
+            if [[ ! -d "$tf_dir" ]]; then continue; fi
 
             echo "Planning: $tf_dir"
             cd "$tf_dir"
@@ -424,7 +424,7 @@ jobs:
             echo "terraform")
 
           for tf_dir in $tf_dirs; do
-            if [[! -d "$tf_dir"]]; then continue; fi
+            if [[ ! -d "$tf_dir" ]]; then continue; fi
 
             echo "Planning: $tf_dir"
             cd "$tf_dir"
