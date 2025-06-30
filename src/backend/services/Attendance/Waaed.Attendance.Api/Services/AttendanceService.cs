@@ -349,10 +349,11 @@ namespace Waaed.Attendance.Api.Services
 
                 if (!string.IsNullOrEmpty(request.SearchTerm))
                 {
-                    query = query.Where(ar => ar.User.FirstName.Contains(request.SearchTerm) ||
-                                             ar.User.LastName.Contains(request.SearchTerm) ||
-                                             ar.User.Email.Contains(request.SearchTerm) ||
-                                             ar.User.EmployeeId.Contains(request.SearchTerm));
+                    query = query.Where(ar => ar.User != null && 
+                                             (ar.User.FirstName != null && ar.User.FirstName.Contains(request.SearchTerm) ||
+                                              ar.User.LastName != null && ar.User.LastName.Contains(request.SearchTerm) ||
+                                              ar.User.Email != null && ar.User.Email.Contains(request.SearchTerm) ||
+                                              ar.User.EmployeeId != null && ar.User.EmployeeId.Contains(request.SearchTerm)));
                 }
 
                 var totalCount = await query.CountAsync();
