@@ -65,23 +65,26 @@ namespace Waaed.Shared.Infrastructure.Middleware
                 _cache.Set(key, rateLimitInfo, cacheEntryOptions);
             }
 
-            if (rateLimitInfo.RequestCount > _options.MaxRequests)
+            if (rateLimitInfo?.RequestCount > _options.MaxRequests)
             {
                 _logger.LogWarning("Rate limit exceeded for client: {ClientId}, Requests: {RequestCount}", 
                     clientId, rateLimitInfo.RequestCount);
 
                 context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
-                context.Response.Headers.Add("Retry-After", (_options.WindowSizeInMinutes * 60).ToString());
+                context.Response.Headers["Retry-After"] = (_options.WindowSizeInMinutes * 60).ToString();
                 
                 await context.Response.WriteAsync("Rate limit exceeded. Please try again later.");
                 return;
             }
 
-            context.Response.Headers.Add("X-RateLimit-Limit", _options.MaxRequests.ToString());
-            context.Response.Headers.Add("X-RateLimit-Remaining", 
-                Math.Max(0, _options.MaxRequests - rateLimitInfo.RequestCount).ToString());
-            context.Response.Headers.Add("X-RateLimit-Reset", 
-                ((DateTimeOffset)(rateLimitInfo.WindowStart.AddMinutes(_options.WindowSizeInMinutes))).ToUnixTimeSeconds().ToString());
+            if (rateLimitInfo != null)
+            {
+                context.Response.Headers["X-RateLimit-Limit"] = _options.MaxRequests.ToString();
+                context.Response.Headers["X-RateLimit-Remaining"] = 
+                    Math.Max(0, _options.MaxRequests - rateLimitInfo.RequestCount).ToString();
+                context.Response.Headers["X-RateLimit-Reset"] = 
+                    ((DateTimeOffset)(rateLimitInfo.WindowStart.AddMinutes(_options.WindowSizeInMinutes))).ToUnixTimeSeconds().ToString();
+            }
 
             await _next(context);
         }

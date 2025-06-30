@@ -155,12 +155,12 @@ namespace Waaed.Attendance.Api.Services
                 return new EmployeeDto
                 {
                     Id = user.Id.ToString(),
-                    EmployeeId = user.EmployeeId,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    Department = user.Department,
-                    Position = user.Position,
+                    EmployeeId = user.EmployeeId ?? string.Empty,
+                    FirstName = user.FirstName ?? string.Empty,
+                    LastName = user.LastName ?? string.Empty,
+                    Email = user.Email ?? string.Empty,
+                    Department = user.Department ?? string.Empty,
+                    Position = user.Position ?? string.Empty,
                     IsActive = true
                 };
             }
