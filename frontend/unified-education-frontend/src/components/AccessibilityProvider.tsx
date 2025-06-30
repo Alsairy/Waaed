@@ -181,7 +181,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
         region.remove();
       }
     };
-  }, [updateSetting]);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
