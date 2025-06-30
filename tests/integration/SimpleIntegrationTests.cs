@@ -1,4 +1,4 @@
-using Hudur.Shared.Domain.Entities;
+using Waaed.Shared.Domain.Entities;
 using Xunit;
 
 namespace Waaed.Tests.Integration
