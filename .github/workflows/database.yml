@@ -184,7 +184,7 @@ jobs:
       - name: Restore dependencies
         run: |
           cd ${{ matrix.service.path }}
-          dotnet restore
+          dotnet restore Waaed.sln
 
       - name: Validate migration files syntax
         run: |
@@ -368,7 +368,7 @@ jobs:
       - name: Restore dependencies
         run: |
           cd ${{ matrix.service.path }}
-          dotnet restore
+          dotnet restore Waaed.sln
 
       - name: Create test database
         run: |
@@ -587,7 +587,7 @@ jobs:
           cd "$shared_path"
 
           # Restore dependencies
-          dotnet restore
+          dotnet restore Waaed.sln
 
           # Create test database
           PGPASSWORD=postgres psql -h localhost -U postgres \
@@ -683,7 +683,7 @@ jobs:
           EOF
 
               # Restore and apply migrations
-              dotnet restore
+              dotnet restore Waaed.sln
               export ASPNETCORE_ENVIRONMENT=Test
               dotnet ef database update --context "$context_name" || \
                 echo "Migration failed for $service_path"
@@ -782,7 +782,7 @@ jobs:
           EOF
 
               # Restore dependencies
-              dotnet restore
+              dotnet restore Waaed.sln
 
               # Time the migration
               start_time=$(date +%s)

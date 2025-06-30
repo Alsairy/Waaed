@@ -136,7 +136,7 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Waaed.sln
 
       - name: Build test project
         run: dotnet build ${{ matrix.test-project }} --no-restore --configuration Release
@@ -256,7 +256,7 @@ jobs:
           timeout 60 bash -c 'until curl -f http://localhost:15672; do sleep 2; done'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Waaed.sln
 
       - name: Build integration test project
         run: dotnet build tests/integration/Waaed.Tests.Integration.csproj --no-restore --configuration Release
@@ -336,7 +336,7 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore .NET dependencies
-        run: dotnet restore
+        run: dotnet restore Waaed.sln
 
       - name: Build E2E test project
         run: dotnet build tests/e2e/Waaed.Tests.E2E.csproj --no-restore --configuration Release
@@ -383,7 +383,7 @@ jobs:
                 - ASPNETCORE_ENVIRONMENT=Testing
                 - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=WaaedE2ETest;User Id=sa;Password=WaaedE2EP@ssw0rd123;TrustServerCertificate=true;
                 - ConnectionStrings__Redis=redis:6379
-              depends_true:
+              depends_on:
                 - sqlserver
                 - redis
 
@@ -395,7 +395,7 @@ jobs:
                 - "3000:80"
               environment:
                 - VITE_API_BASE_URL=http://localhost:5000
-              depends_true:
+              depends_on:
                 - api-gateway
           EOF
 
@@ -479,7 +479,7 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Waaed.sln
 
       - name: Build performance test project
         run: dotnet build tests/performance/Waaed.Tests.Performance.csproj --no-restore --configuration Release
@@ -504,7 +504,7 @@ jobs:
         env:
           TEST_SCENARIO: ${{ matrix.test-scenario }}
           TEST_BASE_URL: ${{ github.event.inputs.environment == 'staging' && 'https://staging.waaed.app' || github.event.inputs.environment == 'production' && 'https://app.waaed.app' || 'http://localhost:5000' }}
-          ConnectionStrings__DefaultConnectitrue: "Server=localhost,1433;Database=WaaedPerfTest;User Id=sa;Password=WaaedPerfP@ssw0rd123;TrustServerCertificate=true;"
+          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WaaedPerfTest;User Id=sa;Password=WaaedPerfP@ssw0rd123;TrustServerCertificate=true;"
           ConnectionStrings__Redis: "localhost:6379"
         run: |
           dotnet test tests/performance/Waaed.Tests.Performance.csproj \
@@ -524,7 +524,7 @@ jobs:
           echo "## Timestamp: $(date)" >> ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/summary.md
 
           # Extract key metrics from test results
-          if [-f "${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/performance-tests-${{ matrix.test-scenario }}.trx"]; then
+          if [ -f "${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/performance-tests-${{ matrix.test-scenario }}.trx" ]; then
             echo "## Test Results" >> ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/summary.md
             echo "Test results available in TRX format" >> ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}/summary.md
           fi

@@ -180,7 +180,7 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Restore .NET dependencies
-        run: dotnet restore
+        run: dotnet restore Waaed.sln
 
       - name: Install frontend dependencies
         run: |

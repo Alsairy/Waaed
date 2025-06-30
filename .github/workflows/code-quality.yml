@@ -113,7 +113,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Waaed.sln
 
       - name: Check code formatting
         run: |
@@ -680,7 +680,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Waaed.sln
 
       - name: Run tests with coverage
         run: |

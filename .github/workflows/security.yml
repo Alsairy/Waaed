@@ -180,7 +180,7 @@ jobs:
           dotnet tool install --global dotnet-outdated-tool
 
           # Restore packages
-          dotnet restore
+          dotnet restore Waaed.sln
 
           # Check for vulnerable packages
           dotnet list package --vulnerable --include-transitive > dotnet-vulnerabilities.txt 2>&1 || true
@@ -273,7 +273,7 @@ jobs:
       - name: Build .NET projects
         if: matrix.language == 'csharp'
         run: |
-          dotnet restore
+          dotnet restore Waaed.sln
           dotnet build --no-restore --configuration Release
 
       - name: Build frontend
@@ -409,7 +409,7 @@ jobs:
 
       - name: Scan .NET licenses
         run: |
-          dotnet restore
+          dotnet restore Waaed.sln
 
           # Generate license report for .NET projects
           dotnet-project-licenses --input . --output-format json --output dotnet-licenses.json --include-transitive
