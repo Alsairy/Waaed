@@ -573,7 +573,7 @@ jobs:
 
       - name: Run frontend unit tests
         working-directory: frontend/unified-education-frontend
-        run: npm run test:unit -- --coverage --watchAll=false
+        run: npm run test:unit -- --coverage
 
       - name: Upload frontend test results
         uses: actions/upload-artifact@v4
