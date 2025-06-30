@@ -1,11 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Store, Plus, Download, Search, Eye, Edit, MoreVertical, MapPin, User, Phone, Mail, Building } from 'lucide-react';
+import { Store as StoreIcon, Plus, Download, Search, Eye, Edit, MoreVertical, MapPin, User, Phone, Mail, Building } from 'lucide-react';
 import { inventoryService } from '../../services';
+
+interface Store {
+  id: string;
+  name: string;
+  code: string;
+  location: string;
+  type: string;
+  managerName: string;
+  phone: string;
+  email: string;
+  status: string;
+  totalItems: number;
+  lowStockItems: number;
+  totalValue: number;
+}
 
 const StoreManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [stores, setStores] = useState<any[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +46,7 @@ const StoreManagement: React.FC = () => {
     }
   };
 
-  const filteredStores = stores.filter((store: any) => {
+  const filteredStores = stores.filter((store: Store) => {
     const matchesSearch = searchTerm === '' || 
       store.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       store.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -43,12 +58,12 @@ const StoreManagement: React.FC = () => {
 
   const storeStats = {
     total: stores.length,
-    active: stores.filter((s: any) => s.status === 'Active').length,
-    inactive: stores.filter((s: any) => s.status === 'Inactive').length,
-    maintenance: stores.filter((s: any) => s.status === 'Maintenance').length,
+    active: stores.filter((s: Store) => s.status === 'Active').length,
+    inactive: stores.filter((s: Store) => s.status === 'Inactive').length,
+    maintenance: stores.filter((s: Store) => s.status === 'Maintenance').length,
   };
 
-  const storeTypes = [...new Set(stores.map((s: any) => s.type).filter(Boolean))];
+  const storeTypes = [...new Set(stores.map((s: Store) => s.type).filter(Boolean))];
 
   if (loading) {
     return (
@@ -65,7 +80,7 @@ const StoreManagement: React.FC = () => {
     return (
       <div className="content-area">
         <div className="error-state">
-          <Store className="error-icon" size={48} />
+          <StoreIcon className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
           <button className="error-action" onClick={loadStores}>
@@ -100,7 +115,7 @@ const StoreManagement: React.FC = () => {
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
             <div className="stat-icon">
-              <Store size={24} />
+              <StoreIcon size={24} />
             </div>
             <div className="stat-content">
               <div className="stat-value">{storeStats.total}</div>
@@ -183,7 +198,7 @@ const StoreManagement: React.FC = () => {
                 <div key={store.id} className="card card-hover store-card">
                   <div className="card-header">
                     <div className="store-info">
-                      <Store size={20} className="store-icon" />
+                      <StoreIcon size={20} className="store-icon" />
                       <div className="store-details">
                         <div className="store-name">{store.name || 'Main Store'}</div>
                         <div className="store-code">{store.code || 'ST001'}</div>
@@ -258,7 +273,7 @@ const StoreManagement: React.FC = () => {
           ) : (
             <div className="empty-state">
               <div className="empty-icon">
-                <Store size={48} />
+                <StoreIcon size={48} />
               </div>
               <div className="empty-title">{t('inventory.noStoresFound')}</div>
               <div className="empty-description">

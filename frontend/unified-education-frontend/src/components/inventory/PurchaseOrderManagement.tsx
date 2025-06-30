@@ -3,9 +3,26 @@ import { useTranslation } from 'react-i18next';
 import { ShoppingCart, Plus, Download, Search, Eye, Edit, MoreVertical, User, Calendar, DollarSign, Package, Truck } from 'lucide-react';
 import { inventoryService } from '../../services';
 
+interface PurchaseOrder {
+  id: string;
+  poNumber: string;
+  supplierName: string;
+  orderDate: string;
+  expectedDate: string;
+  status: string;
+  totalAmount: number;
+  currency: string;
+  itemCount: number;
+  requestedBy: string;
+  approvedBy?: string;
+  description?: string;
+  notes?: string;
+  items?: any[];
+}
+
 const PurchaseOrderManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [purchaseOrders, setPurchaseOrders] = useState<any[]>([]);
+  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +48,7 @@ const PurchaseOrderManagement: React.FC = () => {
     }
   };
 
-  const filteredPurchaseOrders = purchaseOrders.filter((po: any) => {
+  const filteredPurchaseOrders = purchaseOrders.filter((po: PurchaseOrder) => {
     const matchesSearch = searchTerm === '' || 
       po.poNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       po.supplierName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -43,13 +60,13 @@ const PurchaseOrderManagement: React.FC = () => {
 
   const poStats = {
     total: purchaseOrders.length,
-    pending: purchaseOrders.filter((po: any) => po.status === 'Pending').length,
-    approved: purchaseOrders.filter((po: any) => po.status === 'Approved').length,
-    received: purchaseOrders.filter((po: any) => po.status === 'Received').length,
-    cancelled: purchaseOrders.filter((po: any) => po.status === 'Cancelled').length,
+    pending: purchaseOrders.filter((po: PurchaseOrder) => po.status === 'Pending').length,
+    approved: purchaseOrders.filter((po: PurchaseOrder) => po.status === 'Approved').length,
+    received: purchaseOrders.filter((po: PurchaseOrder) => po.status === 'Received').length,
+    cancelled: purchaseOrders.filter((po: PurchaseOrder) => po.status === 'Cancelled').length,
   };
 
-  const suppliers = [...new Set(purchaseOrders.map((po: any) => po.supplierName).filter(Boolean))];
+  const suppliers = [...new Set(purchaseOrders.map((po: PurchaseOrder) => po.supplierName).filter(Boolean))];
 
   const getStatusColor = (status: string) => {
     switch (status) {
