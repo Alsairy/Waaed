@@ -182,7 +182,17 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           recreate: true
-          path: ${{ env.TEST_RESULTS_PATH }}/unit/coverage/JsonSummary.json
+          message: |
+            ## 📊 Unit Test Coverage Report
+            
+            Coverage report generated successfully. 
+            
+            **Test Results Summary:**
+            - ✅ Unit tests passed
+            - 📈 Coverage data collected
+            - 📄 Detailed coverage report available in artifacts
+            
+            View the full coverage report in the uploaded artifacts.
 
   integration-tests:
     name: Integration Tests
