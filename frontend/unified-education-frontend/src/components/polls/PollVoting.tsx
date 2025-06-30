@@ -62,7 +62,7 @@ const PollVoting: React.FC = () => {
       setVotingLoading(pollId);
       setError(null);
 
-      await pollsService.vote(pollId, optionId);
+      await pollsService.vote(pollId, { optionId });
       
       await loadPolls();
       

@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Receipt, Plus, Download, Search, Eye, Edit, MoreVertical, DollarSign, Tag, TrendingUp } from 'lucide-react';
 import { financeService } from '../../services';
 
+interface Expense {
+  id: string;
+  description: string;
+  vendor: string;
+  category: string;
+  amount: number;
+  date: string;
+  status: string;
+}
+
 const ExpenseTracking: React.FC = () => {
   const { t } = useTranslation();
-  const [expenses, setExpenses] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
 
-  useEffect(() => {
-    loadExpenses();
-  }, []);
-
-  const loadExpenses = async () => {
+  const loadExpenses = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -29,9 +35,13 @@ const ExpenseTracking: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const filteredExpenses = expenses.filter((expense: any) => {
+  useEffect(() => {
+    loadExpenses();
+  }, [loadExpenses]);
+
+  const filteredExpenses = expenses.filter((expense: Expense) => {
     const matchesSearch = searchTerm === '' || 
       expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       expense.vendor?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -42,15 +52,15 @@ const ExpenseTracking: React.FC = () => {
   });
 
   const expenseStats = {
-    total: expenses.reduce((sum: number, e: any) => sum + (e.amount || 0), 0),
+    total: expenses.reduce((sum: number, e: Expense) => sum + (e.amount || 0), 0),
     thisMonth: expenses
-      .filter((e: any) => e.date && new Date(e.date).getMonth() === new Date().getMonth())
-      .reduce((sum: number, e: any) => sum + (e.amount || 0), 0),
-    pending: expenses.filter((e: any) => e.status === 'Pending').length,
-    approved: expenses.filter((e: any) => e.status === 'Approved').length,
+      .filter((e: Expense) => e.date && new Date(e.date).getMonth() === new Date().getMonth())
+      .reduce((sum: number, e: Expense) => sum + (e.amount || 0), 0),
+    pending: expenses.filter((e: Expense) => e.status === 'Pending').length,
+    approved: expenses.filter((e: Expense) => e.status === 'Approved').length,
   };
 
-  const categories = [...new Set(expenses.map((e: any) => e.category).filter(Boolean))];
+  const categories = [...new Set(expenses.map((e: Expense) => e.category).filter(Boolean))];
 
   if (loading) {
     return (

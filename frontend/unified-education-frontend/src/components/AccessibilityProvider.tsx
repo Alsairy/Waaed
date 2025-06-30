@@ -162,7 +162,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
       mediaQueries.reducedMotion.removeEventListener('change', handleReducedMotionChange);
       mediaQueries.highContrast.removeEventListener('change', handleContrastChange);
     };
-  }, [settings.colorScheme]);
+  }, [settings.colorScheme, updateSetting]);
 
   useEffect(() => {
     let ariaLiveRegion = document.getElementById('aria-live-region');
@@ -181,7 +181,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
         region.remove();
       }
     };
-  }, []);
+  }, [updateSetting]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

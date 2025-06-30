@@ -1,5 +1,53 @@
 import { apiClient } from './api';
 
+interface Employee {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  department: string;
+  position: string;
+  status: string;
+}
+
+interface Department {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface Position {
+  id: string;
+  title: string;
+  department: string;
+  description: string;
+}
+
+interface LeaveRequest {
+  id: string;
+  employeeId: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  reason: string;
+}
+
+interface PerformanceReview {
+  id: string;
+  employeeId: string;
+  reviewDate: string;
+  rating: number;
+  comments: string;
+}
+
+interface Recruitment {
+  id: string;
+  position: string;
+  status: string;
+  applicants: number;
+}
+
 export const hrService = {
   getEmployees: async (params?: { page?: number; pageSize?: number; department?: string; position?: string; status?: string }) => {
     const response = await apiClient.get('/api/hr/employees', { params });
@@ -11,12 +59,12 @@ export const hrService = {
     return response.data.data || response.data;
   },
 
-  createEmployee: async (employeeData: any) => {
+  createEmployee: async (employeeData: Partial<Employee>) => {
     const response = await apiClient.post('/api/hr/employees', employeeData);
     return response.data.data || response.data;
   },
 
-  updateEmployee: async (id: string, employeeData: any) => {
+  updateEmployee: async (id: string, employeeData: Partial<Employee>) => {
     const response = await apiClient.put(`/api/hr/employees/${id}`, employeeData);
     return response.data.data || response.data;
   },
@@ -36,12 +84,12 @@ export const hrService = {
     return response.data.data || response.data;
   },
 
-  createDepartment: async (departmentData: any) => {
+  createDepartment: async (departmentData: Partial<Department>) => {
     const response = await apiClient.post('/api/hr/departments', departmentData);
     return response.data.data || response.data;
   },
 
-  updateDepartment: async (id: string, departmentData: any) => {
+  updateDepartment: async (id: string, departmentData: Partial<Department>) => {
     const response = await apiClient.put(`/api/hr/departments/${id}`, departmentData);
     return response.data.data || response.data;
   },
@@ -61,12 +109,12 @@ export const hrService = {
     return response.data.data || response.data;
   },
 
-  createPosition: async (positionData: any) => {
+  createPosition: async (positionData: Partial<Position>) => {
     const response = await apiClient.post('/api/hr/positions', positionData);
     return response.data.data || response.data;
   },
 
-  updatePosition: async (id: string, positionData: any) => {
+  updatePosition: async (id: string, positionData: Partial<Position>) => {
     const response = await apiClient.put(`/api/hr/positions/${id}`, positionData);
     return response.data.data || response.data;
   },
@@ -86,22 +134,22 @@ export const hrService = {
     return response.data.data || response.data;
   },
 
-  createLeaveRequest: async (leaveRequestData: any) => {
+  createLeaveRequest: async (leaveRequestData: Partial<LeaveRequest>) => {
     const response = await apiClient.post('/api/hr/leave-requests', leaveRequestData);
     return response.data.data || response.data;
   },
 
-  updateLeaveRequest: async (id: string, leaveRequestData: any) => {
+  updateLeaveRequest: async (id: string, leaveRequestData: Partial<LeaveRequest>) => {
     const response = await apiClient.put(`/api/hr/leave-requests/${id}`, leaveRequestData);
     return response.data.data || response.data;
   },
 
-  approveLeaveRequest: async (id: string, approvalData: any) => {
+  approveLeaveRequest: async (id: string, approvalData: Record<string, unknown>) => {
     const response = await apiClient.put(`/api/hr/leave-requests/${id}/approve`, approvalData);
     return response.data.data || response.data;
   },
 
-  rejectLeaveRequest: async (id: string, rejectionData: any) => {
+  rejectLeaveRequest: async (id: string, rejectionData: Record<string, unknown>) => {
     const response = await apiClient.put(`/api/hr/leave-requests/${id}/reject`, rejectionData);
     return response.data.data || response.data;
   },
@@ -121,12 +169,12 @@ export const hrService = {
     return response.data.data || response.data;
   },
 
-  createPerformanceReview: async (reviewData: any) => {
+  createPerformanceReview: async (reviewData: Partial<PerformanceReview>) => {
     const response = await apiClient.post('/api/hr/performance-reviews', reviewData);
     return response.data.data || response.data;
   },
 
-  updatePerformanceReview: async (id: string, reviewData: any) => {
+  updatePerformanceReview: async (id: string, reviewData: Partial<PerformanceReview>) => {
     const response = await apiClient.put(`/api/hr/performance-reviews/${id}`, reviewData);
     return response.data.data || response.data;
   },
@@ -151,12 +199,12 @@ export const hrService = {
     return response.data.data || response.data;
   },
 
-  createRecruitment: async (recruitmentData: any) => {
+  createRecruitment: async (recruitmentData: Partial<Recruitment>) => {
     const response = await apiClient.post('/api/hr/recruitment', recruitmentData);
     return response.data.data || response.data;
   },
 
-  updateRecruitment: async (id: string, recruitmentData: any) => {
+  updateRecruitment: async (id: string, recruitmentData: Partial<Recruitment>) => {
     const response = await apiClient.put(`/api/hr/recruitment/${id}`, recruitmentData);
     return response.data.data || response.data;
   },
@@ -166,17 +214,17 @@ export const hrService = {
     return response.data.data || response.data;
   },
 
-  generateEmployeeReport: async (reportData: any) => {
+  generateEmployeeReport: async (reportData: Record<string, unknown>) => {
     const response = await apiClient.post('/api/hr/reports/employees', reportData);
     return response.data.data || response.data;
   },
 
-  generateAttendanceReport: async (reportData: any) => {
+  generateAttendanceReport: async (reportData: Record<string, unknown>) => {
     const response = await apiClient.post('/api/hr/reports/attendance', reportData);
     return response.data.data || response.data;
   },
 
-  generateLeaveReport: async (reportData: any) => {
+  generateLeaveReport: async (reportData: Record<string, unknown>) => {
     const response = await apiClient.post('/api/hr/reports/leave', reportData);
     return response.data.data || response.data;
   },

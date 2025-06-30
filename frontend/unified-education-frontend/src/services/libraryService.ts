@@ -1,5 +1,40 @@
 import { apiClient } from './api';
 
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  isbn: string;
+  category: string;
+  status: string;
+}
+
+interface Member {
+  id: string;
+  name: string;
+  memberType: string;
+  email: string;
+  phone: string;
+  status: string;
+}
+
+interface BookIssue {
+  id: string;
+  bookId: string;
+  memberId: string;
+  issueDate: string;
+  dueDate: string;
+  status: string;
+}
+
+interface BookReservation {
+  id: string;
+  bookId: string;
+  memberId: string;
+  reservationDate: string;
+  status: string;
+}
+
 export const libraryService = {
   getBooks: async (params?: { page?: number; pageSize?: number; category?: string; author?: string; isbn?: string; status?: string }) => {
     const response = await apiClient.get('/api/library/books', { params });
@@ -11,12 +46,12 @@ export const libraryService = {
     return response.data.data || response.data;
   },
 
-  createBook: async (bookData: any) => {
+  createBook: async (bookData: Partial<Book>) => {
     const response = await apiClient.post('/api/library/books', bookData);
     return response.data.data || response.data;
   },
 
-  updateBook: async (id: string, bookData: any) => {
+  updateBook: async (id: string, bookData: Partial<Book>) => {
     const response = await apiClient.put(`/api/library/books/${id}`, bookData);
     return response.data.data || response.data;
   },
@@ -43,12 +78,12 @@ export const libraryService = {
     return response.data.data || response.data;
   },
 
-  createMember: async (memberData: any) => {
+  createMember: async (memberData: Partial<Member>) => {
     const response = await apiClient.post('/api/library/members', memberData);
     return response.data.data || response.data;
   },
 
-  updateMember: async (id: string, memberData: any) => {
+  updateMember: async (id: string, memberData: Partial<Member>) => {
     const response = await apiClient.put(`/api/library/members/${id}`, memberData);
     return response.data.data || response.data;
   },
@@ -68,17 +103,17 @@ export const libraryService = {
     return response.data.data || response.data;
   },
 
-  issueBook: async (issueData: any) => {
+  issueBook: async (issueData: Partial<BookIssue>) => {
     const response = await apiClient.post('/api/library/book-issues', issueData);
     return response.data.data || response.data;
   },
 
-  returnBook: async (id: string, returnData: any) => {
+  returnBook: async (id: string, returnData: Record<string, unknown>) => {
     const response = await apiClient.put(`/api/library/book-issues/${id}/return`, returnData);
     return response.data.data || response.data;
   },
 
-  renewBook: async (id: string, renewData: any) => {
+  renewBook: async (id: string, renewData: Record<string, unknown>) => {
     const response = await apiClient.put(`/api/library/book-issues/${id}/renew`, renewData);
     return response.data.data || response.data;
   },
@@ -93,7 +128,7 @@ export const libraryService = {
     return response.data.data || response.data;
   },
 
-  createBookReservation: async (reservationData: any) => {
+  createBookReservation: async (reservationData: Partial<BookReservation>) => {
     const response = await apiClient.post('/api/library/book-reservations', reservationData);
     return response.data.data || response.data;
   },
@@ -118,12 +153,12 @@ export const libraryService = {
     return response.data.data || response.data;
   },
 
-  payFine: async (id: string, paymentData: any) => {
+  payFine: async (id: string, paymentData: Record<string, unknown>) => {
     const response = await apiClient.put(`/api/library/fines/${id}/pay`, paymentData);
     return response.data.data || response.data;
   },
 
-  waiveFine: async (id: string, waiveData: any) => {
+  waiveFine: async (id: string, waiveData: Record<string, unknown>) => {
     const response = await apiClient.put(`/api/library/fines/${id}/waive`, waiveData);
     return response.data.data || response.data;
   },
@@ -138,7 +173,7 @@ export const libraryService = {
     return response.data.data || response.data;
   },
 
-  generateLibraryReport: async (reportData: any) => {
+  generateLibraryReport: async (reportData: Record<string, unknown>) => {
     const response = await apiClient.post('/api/library/reports/generate', reportData);
     return response.data.data || response.data;
   },
