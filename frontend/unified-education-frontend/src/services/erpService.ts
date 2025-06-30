@@ -1,5 +1,13 @@
 import { apiClient } from './api';
 
+interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  department: string;
+  position: string;
+}
+
 export const erpService = {
   getEmployees: async () => {
     const response = await apiClient.get('/api/erp/employees');
@@ -11,12 +19,12 @@ export const erpService = {
     return response.data;
   },
   
-  createEmployee: async (employeeData: any) => {
+  createEmployee: async (employeeData: Partial<Employee>) => {
     const response = await apiClient.post('/api/erp/employees', employeeData);
     return response.data;
   },
   
-  updateEmployee: async (id: string, employeeData: any) => {
+  updateEmployee: async (id: string, employeeData: Partial<Employee>) => {
     const response = await apiClient.put(`/api/erp/employees/${id}`, employeeData);
     return response.data;
   },

@@ -106,7 +106,7 @@ export const lmsService = {
     return response.data.data || response.data;
   },
 
-  submitQuizAttempt: async (courseId: string, quizId: string, attemptId: string, responses: any[]) => {
+  submitQuizAttempt: async (courseId: string, quizId: string, attemptId: string, responses: Record<string, unknown>[]) => {
     const response = await apiClient.put(`/api/lms/courses/${courseId}/quizzes/${quizId}/attempts/${attemptId}`, { responses });
     return response.data.data || response.data;
   },

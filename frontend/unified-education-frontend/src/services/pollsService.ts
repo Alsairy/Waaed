@@ -1,5 +1,27 @@
 import { apiClient } from './api';
 
+interface Poll {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  category: string;
+}
+
+interface PollOption {
+  id: string;
+  pollId: string;
+  text: string;
+  order: number;
+}
+
+interface PollVote {
+  id: string;
+  pollId: string;
+  optionId: string;
+  userId: string;
+}
+
 export const pollsService = {
   getPolls: async (params?: { page?: number; pageSize?: number; status?: string; category?: string; createdBy?: string }) => {
     const response = await apiClient.get('/api/polls', { params });
@@ -11,12 +33,12 @@ export const pollsService = {
     return response.data.data || response.data;
   },
 
-  createPoll: async (pollData: any) => {
+  createPoll: async (pollData: Partial<Poll>) => {
     const response = await apiClient.post('/api/polls', pollData);
     return response.data.data || response.data;
   },
 
-  updatePoll: async (id: string, pollData: any) => {
+  updatePoll: async (id: string, pollData: Partial<Poll>) => {
     const response = await apiClient.put(`/api/polls/${id}`, pollData);
     return response.data.data || response.data;
   },
@@ -41,12 +63,12 @@ export const pollsService = {
     return response.data.data || response.data;
   },
 
-  addPollOption: async (pollId: string, optionData: any) => {
+  addPollOption: async (pollId: string, optionData: Partial<PollOption>) => {
     const response = await apiClient.post(`/api/polls/${pollId}/options`, optionData);
     return response.data.data || response.data;
   },
 
-  updatePollOption: async (pollId: string, optionId: string, optionData: any) => {
+  updatePollOption: async (pollId: string, optionId: string, optionData: Partial<PollOption>) => {
     const response = await apiClient.put(`/api/polls/${pollId}/options/${optionId}`, optionData);
     return response.data.data || response.data;
   },
@@ -56,7 +78,7 @@ export const pollsService = {
     return response.data.data || response.data;
   },
 
-  vote: async (pollId: string, voteData: any) => {
+  vote: async (pollId: string, voteData: Partial<PollVote>) => {
     const response = await apiClient.post(`/api/polls/${pollId}/vote`, voteData);
     return response.data.data || response.data;
   },
@@ -71,7 +93,7 @@ export const pollsService = {
     return response.data.data || response.data;
   },
 
-  updateVote: async (pollId: string, voteId: string, voteData: any) => {
+  updateVote: async (pollId: string, voteId: string, voteData: Partial<PollVote>) => {
     const response = await apiClient.put(`/api/polls/${pollId}/votes/${voteId}`, voteData);
     return response.data.data || response.data;
   },
@@ -104,7 +126,7 @@ export const pollsService = {
     return response.data.data || response.data;
   },
 
-  votePublic: async (pollId: string, voteData: any) => {
+  votePublic: async (pollId: string, voteData: Partial<PollVote>) => {
     const response = await apiClient.post(`/api/polls/public/${pollId}/vote`, voteData);
     return response.data.data || response.data;
   },
@@ -124,7 +146,7 @@ export const pollsService = {
     return response.data.data || response.data;
   },
 
-  createPollFromTemplate: async (templateId: string, pollData: any) => {
+  createPollFromTemplate: async (templateId: string, pollData: Partial<Poll>) => {
     const response = await apiClient.post(`/api/polls/templates/${templateId}/create`, pollData);
     return response.data.data || response.data;
   },

@@ -1,5 +1,14 @@
 import { apiClient } from './api';
 
+interface Exam {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  duration: number;
+  status: string;
+}
+
 export const examsService = {
   getExams: async () => {
     const response = await apiClient.get('/api/exams/exams');
@@ -11,12 +20,12 @@ export const examsService = {
     return response.data.data || response.data;
   },
   
-  createExam: async (examData: any) => {
+  createExam: async (examData: Partial<Exam>) => {
     const response = await apiClient.post('/api/exams/exams', examData);
     return response.data.data || response.data;
   },
   
-  updateExam: async (id: string, examData: any) => {
+  updateExam: async (id: string, examData: Partial<Exam>) => {
     const response = await apiClient.put(`/api/exams/exams/${id}`, examData);
     return response.data.data || response.data;
   },

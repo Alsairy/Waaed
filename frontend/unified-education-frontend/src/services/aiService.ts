@@ -1,5 +1,12 @@
 import { apiClient } from './api';
 
+interface ChatSession {
+  id: string;
+  title: string;
+  status: string;
+  createdAt: string;
+}
+
 export const aiService = {
   getChatSessions: async () => {
     const response = await apiClient.get('/api/ai/chat-sessions');
@@ -11,7 +18,7 @@ export const aiService = {
     return response.data.data || response.data;
   },
   
-  createChatSession: async (sessionData: any) => {
+  createChatSession: async (sessionData: Partial<ChatSession>) => {
     const response = await apiClient.post('/api/ai/chat-sessions', sessionData);
     return response.data.data || response.data;
   },
@@ -21,7 +28,7 @@ export const aiService = {
     return response.data.data || response.data;
   },
   
-  generateContent: async (contentData: any) => {
+  generateContent: async (contentData: Record<string, unknown>) => {
     const response = await apiClient.post('/api/ai/content-generation', contentData);
     return response.data.data || response.data;
   },
