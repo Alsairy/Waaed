@@ -43,7 +43,7 @@ const PollCreation: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleInputChange = (field: keyof PollFormData, value: any) => {
+  const handleInputChange = (field: keyof PollFormData, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
