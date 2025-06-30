@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { 
@@ -27,13 +27,7 @@ const AssignmentManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
 
-  useEffect(() => {
-    if (courseId) {
-      loadAssignments();
-    }
-  }, [courseId]);
-
-  const loadAssignments = async () => {
+  const loadAssignments = useCallback(async () => {
     if (!courseId) return;
     
     try {
@@ -48,7 +42,13 @@ const AssignmentManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId]);
+
+  useEffect(() => {
+    if (courseId) {
+      loadAssignments();
+    }
+  }, [courseId, loadAssignments]);
 
   const filteredAssignments = assignments.filter((assignment: Assignment) => {
     const matchesSearch = searchTerm === '' || 

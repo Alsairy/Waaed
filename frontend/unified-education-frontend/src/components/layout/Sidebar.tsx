@@ -173,7 +173,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     if (currentSection && !expandedMenus.includes(currentSection.key)) {
       setExpandedMenus(prev => [...prev, currentSection.key]);
     }
-  }, [location.pathname]);
+  }, [location.pathname, menuItems, isActiveLink, expandedMenus]);
 
   return (
     <>

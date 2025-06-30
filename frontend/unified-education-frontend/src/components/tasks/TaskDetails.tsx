@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, Calendar, User, AlertCircle, CheckSquare, Clock, Edit, Paperclip, Download } from 'lucide-react';
 import { tasksService } from '../../services';
@@ -49,11 +49,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ taskId = '1', onBack }) => {
   const [updating, setUpdating] = useState(false);
   const [newStatus, setNewStatus] = useState<string>('');
 
-  useEffect(() => {
-    loadTask();
-  }, [taskId]);
-
-  const loadTask = async () => {
+  const loadTask = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -67,7 +63,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ taskId = '1', onBack }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [taskId]);
+
+  useEffect(() => {
+    loadTask();
+  }, [taskId, loadTask]);
 
   const handleStatusUpdate = async () => {
     if (!task || newStatus === task.status) return;
