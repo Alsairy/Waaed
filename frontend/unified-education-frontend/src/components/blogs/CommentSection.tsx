@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageCircle, Send, Reply, Edit, Trash2, MoreVertical, User, Calendar, Heart } from 'lucide-react';
 import { blogsService } from '../../services';
@@ -34,11 +34,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [editContent, setEditContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    loadComments();
-  }, [postId]);
-
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -51,7 +47,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId]);
+
+  useEffect(() => {
+    loadComments();
+  }, [loadComments]);
 
   const handleSubmitComment = async () => {
     if (!newComment.trim()) return;

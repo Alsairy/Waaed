@@ -55,7 +55,7 @@ const BlogPostEditor: React.FC = () => {
     }
   };
 
-  const handleInputChange = (field: keyof BlogPostFormData, value: any) => {
+  const handleInputChange = (field: keyof BlogPostFormData, value: string | boolean | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
