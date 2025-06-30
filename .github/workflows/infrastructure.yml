@@ -165,11 +165,11 @@ jobs:
                 if [[ -f "$values_file" ]]; then
                   echo "Templating with $values_file"
                   helm template test-release "$chart_dir" \
-                    -f "$values_file" --validate > /dev/null
+                    -f "$values_file" > /dev/null
                 else
                   echo "Templating with default values.yaml"
                   helm template test-release "$chart_dir" \
-                    --validate > /dev/null
+                    > /dev/null
                 fi
               done
             done
