@@ -3,10 +3,29 @@ import { useTranslation } from 'react-i18next';
 import { DollarSign, Plus, Download, Search, Eye, Edit, MoreVertical, User, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { financeService } from '../../services';
 
+interface FeeStructure {
+  id: string;
+  name: string;
+  class: string;
+  amount: number;
+  academicYear: string;
+  status: string;
+}
+
+interface FeeCollection {
+  id: string;
+  studentName: string;
+  receiptNumber: string;
+  feeType: string;
+  amount: number;
+  dueDate: string;
+  status: string;
+}
+
 const FeeManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [feeStructures, setFeeStructures] = useState<any[]>([]);
-  const [feeCollections, setFeeCollections] = useState<any[]>([]);
+  const [feeStructures, setFeeStructures] = useState<FeeStructure[]>([]);
+  const [feeCollections, setFeeCollections] = useState<FeeCollection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,7 +56,7 @@ const FeeManagement: React.FC = () => {
     }
   };
 
-  const filteredFeeStructures = feeStructures.filter((structure: any) => {
+  const filteredFeeStructures = feeStructures.filter((structure: FeeStructure) => {
     const matchesSearch = searchTerm === '' || 
       structure.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       structure.class?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -45,7 +64,7 @@ const FeeManagement: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const filteredFeeCollections = feeCollections.filter((collection: any) => {
+  const filteredFeeCollections = feeCollections.filter((collection: FeeCollection) => {
     const matchesSearch = searchTerm === '' || 
       collection.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       collection.receiptNumber?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -54,14 +73,14 @@ const FeeManagement: React.FC = () => {
   });
 
   const collectionStats = {
-    Paid: feeCollections.filter((c: any) => c.status === 'Paid').length,
-    Pending: feeCollections.filter((c: any) => c.status === 'Pending').length,
-    Overdue: feeCollections.filter((c: any) => c.status === 'Overdue').length,
+    Paid: feeCollections.filter((c: FeeCollection) => c.status === 'Paid').length,
+    Pending: feeCollections.filter((c: FeeCollection) => c.status === 'Pending').length,
+    Overdue: feeCollections.filter((c: FeeCollection) => c.status === 'Overdue').length,
   };
 
   const totalCollected = feeCollections
-    .filter((c: any) => c.status === 'Paid')
-    .reduce((sum: number, c: any) => sum + (c.amount || 0), 0);
+    .filter((c: FeeCollection) => c.status === 'Paid')
+    .reduce((sum: number, c: FeeCollection) => sum + (c.amount || 0), 0);
 
   if (loading) {
     return (

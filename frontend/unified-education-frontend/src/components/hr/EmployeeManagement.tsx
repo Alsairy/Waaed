@@ -3,9 +3,22 @@ import { useTranslation } from 'react-i18next';
 import { Users, Plus, Download, Search, Eye, Edit, MoreVertical, User, Mail, Phone, Calendar, MapPin, Briefcase } from 'lucide-react';
 import { hrService } from '../../services';
 
+interface Employee {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  department: string;
+  position: string;
+  hireDate: string;
+  status: string;
+  employeeId: string;
+}
+
 const EmployeeManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [employees, setEmployees] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +44,7 @@ const EmployeeManagement: React.FC = () => {
     }
   };
 
-  const filteredEmployees = employees.filter((employee: any) => {
+  const filteredEmployees = employees.filter((employee: Employee) => {
     const matchesSearch = searchTerm === '' || 
       employee.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,12 +57,12 @@ const EmployeeManagement: React.FC = () => {
 
   const employeeStats = {
     total: employees.length,
-    active: employees.filter((e: any) => e.status === 'Active').length,
-    inactive: employees.filter((e: any) => e.status === 'Inactive').length,
-    onLeave: employees.filter((e: any) => e.status === 'On Leave').length,
+    active: employees.filter((e: Employee) => e.status === 'Active').length,
+    inactive: employees.filter((e: Employee) => e.status === 'Inactive').length,
+    onLeave: employees.filter((e: Employee) => e.status === 'On Leave').length,
   };
 
-  const departments = [...new Set(employees.map((e: any) => e.department).filter(Boolean))];
+  const departments = [...new Set(employees.map((e: Employee) => e.department).filter(Boolean))];
 
   if (loading) {
     return (

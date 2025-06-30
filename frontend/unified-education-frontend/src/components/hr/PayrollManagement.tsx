@@ -3,9 +3,22 @@ import { useTranslation } from 'react-i18next';
 import { DollarSign, Plus, Download, Search, Eye, Edit, MoreVertical, User, Calculator, TrendingUp, TrendingDown } from 'lucide-react';
 import { hrService } from '../../services';
 
+interface PayrollData {
+  id: string;
+  employeeName: string;
+  employeeId: string;
+  department: string;
+  basicSalary: number;
+  allowances: number;
+  deductions: number;
+  netSalary: number;
+  payPeriod: string;
+  status: string;
+}
+
 const PayrollManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [payrollData, setPayrollData] = useState<any[]>([]);
+  const [payrollData, setPayrollData] = useState<PayrollData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +44,7 @@ const PayrollManagement: React.FC = () => {
     }
   };
 
-  const filteredPayrollData = payrollData.filter((payroll: any) => {
+  const filteredPayrollData = payrollData.filter((payroll: PayrollData) => {
     const matchesSearch = searchTerm === '' || 
       payroll.employeeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       payroll.employeeId?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -41,13 +54,13 @@ const PayrollManagement: React.FC = () => {
   });
 
   const payrollStats = {
-    totalPayroll: payrollData.reduce((sum: number, p: any) => sum + (p.netSalary || 0), 0),
+    totalPayroll: payrollData.reduce((sum: number, p: PayrollData) => sum + (p.netSalary || 0), 0),
     totalEmployees: payrollData.length,
-    processed: payrollData.filter((p: any) => p.status === 'Processed').length,
-    pending: payrollData.filter((p: any) => p.status === 'Pending').length,
+    processed: payrollData.filter((p: PayrollData) => p.status === 'Processed').length,
+    pending: payrollData.filter((p: PayrollData) => p.status === 'Pending').length,
   };
 
-  const departments = [...new Set(payrollData.map((p: any) => p.department).filter(Boolean))];
+  const departments = [...new Set(payrollData.map((p: PayrollData) => p.department).filter(Boolean))];
 
   if (loading) {
     return (

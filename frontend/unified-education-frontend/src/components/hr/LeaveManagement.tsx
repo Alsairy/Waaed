@@ -3,9 +3,21 @@ import { useTranslation } from 'react-i18next';
 import { Calendar, Plus, Download, Search, Eye, MoreVertical, Clock, CheckCircle, XCircle, User } from 'lucide-react';
 import { hrService } from '../../services';
 
+interface LeaveRequest {
+  id: string;
+  employeeName: string;
+  employeeId: string;
+  leaveType: string;
+  startDate: string;
+  endDate: string;
+  duration: number;
+  reason: string;
+  status: string;
+}
+
 const LeaveManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [leaveRequests, setLeaveRequests] = useState<any[]>([]);
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +43,7 @@ const LeaveManagement: React.FC = () => {
     }
   };
 
-  const filteredLeaveRequests = leaveRequests.filter((request: any) => {
+  const filteredLeaveRequests = leaveRequests.filter((request: LeaveRequest) => {
     const matchesSearch = searchTerm === '' || 
       request.employeeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.employeeId?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -42,12 +54,12 @@ const LeaveManagement: React.FC = () => {
 
   const leaveStats = {
     total: leaveRequests.length,
-    pending: leaveRequests.filter((r: any) => r.status === 'Pending').length,
-    approved: leaveRequests.filter((r: any) => r.status === 'Approved').length,
-    rejected: leaveRequests.filter((r: any) => r.status === 'Rejected').length,
+    pending: leaveRequests.filter((r: LeaveRequest) => r.status === 'Pending').length,
+    approved: leaveRequests.filter((r: LeaveRequest) => r.status === 'Approved').length,
+    rejected: leaveRequests.filter((r: LeaveRequest) => r.status === 'Rejected').length,
   };
 
-  const leaveTypes = [...new Set(leaveRequests.map((r: any) => r.leaveType).filter(Boolean))];
+  const leaveTypes = [...new Set(leaveRequests.map((r: LeaveRequest) => r.leaveType).filter(Boolean))];
 
   if (loading) {
     return (
