@@ -91,7 +91,7 @@ module "rds" {
   password = var.db_password
 
   vpc_security_group_ids = [module.security_groups.rds_security_group_id]
-  db_subnet_group_name   = module.vpc.database_subnet_group
+  subnet_ids             = module.vpc.private_subnets
 
   backup_retention_period = 7
   backup_window           = "03:00-04:00"
@@ -110,7 +110,7 @@ module "redis" {
   parameter_group_name = "default.redis7"
   port                 = 6379
 
-  subnet_group_name  = module.vpc.elasticache_subnet_group
+  subnet_ids         = module.vpc.private_subnets
   security_group_ids = [module.security_groups.redis_security_group_id]
 
   tags = var.common_tags

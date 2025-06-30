@@ -11,7 +11,7 @@ module "eks" {
 
   eks_managed_node_groups = var.node_groups
 
-  enable_cluster_creator_admin_permissions = true
+  # Note: enable_cluster_creator_admin_permissions is deprecated in v19+
 
   cluster_addons = {
     coredns = {
