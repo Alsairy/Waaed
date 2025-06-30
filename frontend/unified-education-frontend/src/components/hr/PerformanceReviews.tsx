@@ -3,9 +3,22 @@ import { useTranslation } from 'react-i18next';
 import { Star, Plus, Download, Search, Eye, Edit, MoreVertical, User, Calendar, Target, TrendingUp } from 'lucide-react';
 import { hrService } from '../../services';
 
+interface PerformanceReview {
+  id: string;
+  employeeName: string;
+  employeeId: string;
+  position: string;
+  status: string;
+  reviewPeriod: string;
+  reviewerName: string;
+  overallScore?: number;
+  completionPercentage: number;
+  goals?: Array<{ title: string }>;
+}
+
 const PerformanceReviews: React.FC = () => {
   const { t } = useTranslation();
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<PerformanceReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +44,7 @@ const PerformanceReviews: React.FC = () => {
     }
   };
 
-  const filteredReviews = reviews.filter((review: any) => {
+  const filteredReviews = reviews.filter((review: PerformanceReview) => {
     const matchesSearch = searchTerm === '' || 
       review.employeeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       review.employeeId?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -42,12 +55,12 @@ const PerformanceReviews: React.FC = () => {
 
   const reviewStats = {
     total: reviews.length,
-    completed: reviews.filter((r: any) => r.status === 'Completed').length,
-    inProgress: reviews.filter((r: any) => r.status === 'In Progress').length,
-    pending: reviews.filter((r: any) => r.status === 'Pending').length,
+    completed: reviews.filter((r: PerformanceReview) => r.status === 'Completed').length,
+    inProgress: reviews.filter((r: PerformanceReview) => r.status === 'In Progress').length,
+    pending: reviews.filter((r: PerformanceReview) => r.status === 'Pending').length,
   };
 
-  const periods = [...new Set(reviews.map((r: any) => r.reviewPeriod).filter(Boolean))];
+  const periods = [...new Set(reviews.map((r: PerformanceReview) => r.reviewPeriod).filter(Boolean))];
 
   const getScoreColor = (score: number) => {
     if (score >= 4.5) return 'excellent';
@@ -244,7 +257,7 @@ const PerformanceReviews: React.FC = () => {
                       <div className="review-goals">
                         <div className="goals-label">{t('hr.keyGoals')}</div>
                         <div className="goals-list">
-                          {review.goals.slice(0, 2).map((goal: any, index: number) => (
+                          {review.goals.slice(0, 2).map((goal: { title: string }, index: number) => (
                             <div key={index} className="goal-item">
                               <Target size={12} className="goal-icon" />
                               <span className="goal-text">{goal.title || `Goal ${index + 1}`}</span>

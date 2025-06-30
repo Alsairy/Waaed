@@ -18,10 +18,22 @@ interface StockMovement {
   userName?: string;
 }
 
+interface StockAdjustment {
+  id: string;
+  itemName: string;
+  itemCode: string;
+  adjustmentType: string;
+  quantity: number;
+  date: string;
+  reason: string;
+  storeName: string;
+  userName: string;
+}
+
 const StockManagement: React.FC = () => {
   const { t } = useTranslation();
   const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
-  const [stockAdjustments, setStockAdjustments] = useState<any[]>([]);
+  const [stockAdjustments, setStockAdjustments] = useState<StockAdjustment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -63,7 +75,7 @@ const StockManagement: React.FC = () => {
     return matchesSearch && matchesType && matchesStore;
   });
 
-  const filteredAdjustments = stockAdjustments.filter((adjustment: any) => {
+  const filteredAdjustments = stockAdjustments.filter((adjustment: StockAdjustment) => {
     const matchesSearch = searchTerm === '' || 
       adjustment.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       adjustment.itemCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -80,7 +92,7 @@ const StockManagement: React.FC = () => {
   };
 
   const movementTypes = [...new Set(stockMovements.map((m: StockMovement) => m.type).filter(Boolean))];
-  const stores = [...new Set([...stockMovements.map((m: StockMovement) => m.storeName), ...stockAdjustments.map((a: any) => a.storeName)].filter(Boolean))];
+  const stores = [...new Set([...stockMovements.map((m: StockMovement) => m.storeName), ...stockAdjustments.map((a: StockAdjustment) => a.storeName)].filter(Boolean))];
 
   const getMovementIcon = (type: string) => {
     switch (type) {

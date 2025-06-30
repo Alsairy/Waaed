@@ -3,6 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { ShoppingCart, Plus, Download, Search, Eye, Edit, MoreVertical, User, Calendar, DollarSign, Package, Truck } from 'lucide-react';
 import { inventoryService } from '../../services';
 
+interface PurchaseOrderItem {
+  itemName: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+}
+
 interface PurchaseOrder {
   id: string;
   poNumber: string;
@@ -17,7 +24,7 @@ interface PurchaseOrder {
   approvedBy?: string;
   description?: string;
   notes?: string;
-  items?: any[];
+  items?: PurchaseOrderItem[];
 }
 
 const PurchaseOrderManagement: React.FC = () => {
@@ -259,7 +266,7 @@ const PurchaseOrderManagement: React.FC = () => {
                       <div className="items-header">{t('inventory.orderedItems')}</div>
                       <div className="items-list">
                         {po.items && po.items.length > 0 ? (
-                          po.items.slice(0, 3).map((item: any, index: number) => (
+                          po.items.slice(0, 3).map((item: PurchaseOrderItem, index: number) => (
                             <div key={index} className="item-row">
                               <span className="item-name">{item.itemName || `Item ${index + 1}`}</span>
                               <span className="item-quantity">{item.quantity || 1} {item.unit || 'PCS'}</span>

@@ -3,6 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { FileText, Plus, Download, Search, Eye, MoreVertical, User, Calendar, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { inventoryService } from '../../services';
 
+interface IndentItem {
+  itemName: string;
+  quantity: number;
+  unit: string;
+}
+
 interface Indent {
   id: string;
   indentNumber: string;
@@ -17,7 +23,7 @@ interface Indent {
   approvalDate?: string;
   title?: string;
   justification?: string;
-  items?: any[];
+  items?: IndentItem[];
 }
 
 const IndentManagement: React.FC = () => {
@@ -304,7 +310,7 @@ const IndentManagement: React.FC = () => {
                         <div className="items-header">{t('inventory.requestedItems')}</div>
                         <div className="items-list">
                           {indent.items && indent.items.length > 0 ? (
-                            indent.items.slice(0, 3).map((item: any, index: number) => (
+                            indent.items.slice(0, 3).map((item: IndentItem, index: number) => (
                               <div key={index} className="item-row">
                                 <span className="item-name">{item.itemName || `Item ${index + 1}`}</span>
                                 <span className="item-quantity">{item.quantity || 1} {item.unit || 'PCS'}</span>

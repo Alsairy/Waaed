@@ -3,10 +3,30 @@ import { useTranslation } from 'react-i18next';
 import { Briefcase, Plus, Download, Search, Eye, Edit, MoreVertical, Users, Clock, CheckCircle, MapPin, Calendar } from 'lucide-react';
 import { hrService } from '../../services';
 
+interface JobPosting {
+  id: string;
+  title: string;
+  department: string;
+  description: string;
+  status: string;
+  postedDate: string;
+  applicationsCount: number;
+}
+
+interface Application {
+  id: string;
+  candidateName: string;
+  email: string;
+  position: string;
+  appliedDate: string;
+  experience: string;
+  status: string;
+}
+
 const RecruitmentManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [jobPostings, setJobPostings] = useState<any[]>([]);
-  const [applications, setApplications] = useState<any[]>([]);
+  const [jobPostings, setJobPostings] = useState<JobPosting[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,7 +54,7 @@ const RecruitmentManagement: React.FC = () => {
     }
   };
 
-  const filteredJobPostings = jobPostings.filter((posting: any) => {
+  const filteredJobPostings = jobPostings.filter((posting: JobPosting) => {
     const matchesSearch = searchTerm === '' || 
       posting.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       posting.department?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -42,7 +62,7 @@ const RecruitmentManagement: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const filteredApplications = applications.filter((application: any) => {
+  const filteredApplications = applications.filter((application: Application) => {
     const matchesSearch = searchTerm === '' || 
       application.candidateName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       application.position?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -51,10 +71,10 @@ const RecruitmentManagement: React.FC = () => {
   });
 
   const recruitmentStats = {
-    activePostings: jobPostings.filter((p: any) => p.status === 'Active').length,
+    activePostings: jobPostings.filter((p: JobPosting) => p.status === 'Active').length,
     totalApplications: applications.length,
-    pendingReview: applications.filter((a: any) => a.status === 'Pending').length,
-    interviewed: applications.filter((a: any) => a.status === 'Interviewed').length,
+    pendingReview: applications.filter((a: Application) => a.status === 'Pending').length,
+    interviewed: applications.filter((a: Application) => a.status === 'Interviewed').length,
   };
 
   if (loading) {
