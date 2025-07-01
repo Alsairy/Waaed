@@ -359,7 +359,8 @@ jobs:
           dotnet add tests/e2e/Waaed.Tests.E2E.csproj \
             package Microsoft.Playwright
           dotnet build tests/e2e/Waaed.Tests.E2E.csproj
-          pwsh tests/e2e/bin/Debug/net8.0/playwright.ps1 install
+          dotnet tool install --global Microsoft.Playwright.CLI --version 1.47.0
+          playwright install --with-deps
 
       - name: Download backend artifacts
         uses: actions/download-artifact@v4
