@@ -212,7 +212,7 @@ jobs:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
         env:
-          SA_PASSWORD: WaaedTestP@ssw0rd123
+          SA_PASSWORD: AttendanceP@ssw0rd123
           ACCEPT_EULA: Y
           MSSQL_PID: Express
           MSSQL_MEMORY_LIMIT_MB: 2048
@@ -241,8 +241,8 @@ jobs:
       rabbitmq:
         image: rabbitmq:3-management-alpine
         env:
-          RABBITMQ_DEFAULT_USER: waaed
-          RABBITMQ_DEFAULT_PASS: waaedtest123
+          RABBITMQ_DEFAULT_USER: admin
+          RABBITMQ_DEFAULT_PASS: AttendanceP@ssw0rd123
         ports:
           - 5672:5672
           - 15672:15672
@@ -271,15 +271,15 @@ jobs:
       - name: Wait for services to be ready
         run: |
           echo "Waiting for SQL Server..."
-          timeout 600 bash -c 'until /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server..."; sleep 10; done'
+          timeout 300 bash -c 'until /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P AttendanceP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server..."; sleep 5; done'
           echo "SQL Server is ready!"
 
           echo "Waiting for Redis..."
-          timeout 120 bash -c 'until redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; do echo "Waiting for Redis..."; sleep 5; done'
+          timeout 60 bash -c 'until redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; do echo "Waiting for Redis..."; sleep 3; done'
           echo "Redis is ready!"
 
           echo "Waiting for RabbitMQ..."
-          timeout 180 bash -c 'until curl -f http://localhost:15672 > /dev/null 2>&1; do echo "Waiting for RabbitMQ..."; sleep 10; done'
+          timeout 120 bash -c 'until curl -f http://localhost:15672 > /dev/null 2>&1; do echo "Waiting for RabbitMQ..."; sleep 5; done'
           echo "RabbitMQ is ready!"
 
       - name: Restore dependencies
@@ -290,9 +290,9 @@ jobs:
 
       - name: Run integration tests
         env:
-          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WaaedIntegrationTest;User Id=sa;Password=WaaedTestP@ssw0rd123;TrustServerCertificate=true;"
+          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WaaedIntegrationTest;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true;"
           ConnectionStrings__Redis: "localhost:6379"
-          ConnectionStrings__RabbitMQ: "amqp://waaed:waaedtest123@localhost:5672/"
+          ConnectionStrings__RabbitMQ: "amqp://admin:AttendanceP@ssw0rd123@localhost:5672/"
           ASPNETCORE_ENVIRONMENT: Testing
         run: |
           dotnet test tests/integration/Waaed.Tests.Integration.csproj \
@@ -372,7 +372,7 @@ jobs:
 
       - name: Install Playwright browsers
         run: |
-          dotnet tool install --global Microsoft.Playwright.CLI --version 1.40.0
+          dotnet tool install --global Microsoft.Playwright.CLI --version 1.47.0
           playwright install ${{ matrix.browser }} --with-deps
         continue-on-error: false
 
@@ -393,7 +393,7 @@ jobs:
             sqlserver:
               image: mcr.microsoft.com/mssql/server:2022-latest
               environment:
-                SA_PASSWORD: WaaedE2EP@ssw0rd123
+                SA_PASSWORD: AttendanceP@ssw0rd123
                 ACCEPT_EULA: Y
               ports:
                 - "1433:1433"
@@ -411,7 +411,7 @@ jobs:
                 - "5000:80"
               environment:
                 - ASPNETCORE_ENVIRONMENT=Testing
-                - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=WaaedE2ETest;User Id=sa;Password=WaaedE2EP@ssw0rd123;TrustServerCertificate=true;
+                - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=WaaedE2ETest;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true;
                 - ConnectionStrings__Redis=redis:6379
               depends_on:
                 - sqlserver
@@ -445,6 +445,9 @@ jobs:
           
           echo "Checking Frontend health..."
           timeout 300 bash -c 'until curl -f http://localhost:3000; do echo "Waiting for Frontend..."; sleep 10; done' || echo "Frontend health check failed"
+
+      - name: Create E2E test results directory
+        run: mkdir -p ${{ env.TEST_RESULTS_PATH }}/e2e/${{ matrix.browser }}
 
       - name: Run E2E tests
         env:
@@ -527,7 +530,7 @@ jobs:
         run: |
           # Start minimal services for performance testing
           docker run -d --name sqlserver-perf \
-            -e SA_PASSWORD=WaaedPerfP@ssw0rd123 \
+            -e SA_PASSWORD=AttendanceP@ssw0rd123 \
             -e ACCEPT_EULA=Y \
             -p 1433:1433 \
             mcr.microsoft.com/mssql/server:2022-latest
@@ -538,16 +541,19 @@ jobs:
 
           # Wait for services
           echo "Waiting for SQL Server to be ready..."
-          timeout 120 bash -c 'until /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server..."; sleep 5; done'
+          timeout 120 bash -c 'until /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P AttendanceP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server..."; sleep 5; done'
           
           echo "Waiting for Redis to be ready..."
           timeout 60 bash -c 'until redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; do echo "Waiting for Redis..."; sleep 2; done'
+
+      - name: Create performance test results directory
+        run: mkdir -p ${{ env.TEST_RESULTS_PATH }}/performance/${{ matrix.test-scenario }}
 
       - name: Run performance tests
         env:
           TEST_SCENARIO: ${{ matrix.test-scenario }}
           TEST_BASE_URL: ${{ github.event.inputs.environment == 'staging' && 'https://staging.waaed.app' || github.event.inputs.environment == 'production' && 'https://app.waaed.app' || 'http://localhost:5000' }}
-          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WaaedPerfTest;User Id=sa;Password=WaaedPerfP@ssw0rd123;TrustServerCertificate=true;"
+          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WaaedPerfTest;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true;"
           ConnectionStrings__Redis: "localhost:6379"
         run: |
           dotnet test tests/performance/Waaed.Tests.Performance.csproj \

@@ -526,7 +526,7 @@ jobs:
         with:
           status: success
           text: '🐳 Docker images successfully built and pushed for Waaed Platform!'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Notify on failure
         if: needs.build-and-push.result == 'failure' || needs.create-multi-arch-manifests.result == 'failure'
@@ -534,4 +534,4 @@ jobs:
         with:
           status: failure
           text: '❌ Docker build failed for Waaed Platform. Please check the logs.'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

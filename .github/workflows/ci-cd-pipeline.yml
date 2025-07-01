@@ -731,7 +731,7 @@ jobs:
         with:
           status: success
           text: '🚀 Waaed Platform successfully deployed to production!'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Notify on failure
         if: failure()
@@ -739,4 +739,4 @@ jobs:
         with:
           status: failure
           text: '❌ Waaed Platform deployment failed. Please check the logs.'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

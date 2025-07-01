@@ -530,7 +530,7 @@ jobs:
           text: >
             ⚠️ Infrastructure drift detected in ${{ matrix.environment }} env!
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   helm-deploy:
     name: Deploy Helm Charts
@@ -707,7 +707,7 @@ jobs:
           status: success
           text: '🚀 Infrastructure successfully deployed for Waaed Platform!'
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Notify on deployment failure
         if: needs.helm-deploy.result == 'failure'
@@ -718,7 +718,7 @@ jobs:
             ❌ Infrastructure deployment failed for Waaed Platform.
             Please check the logs.
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Notify on drift detection
         if: needs.drift-detection.result == 'failure'
@@ -729,4 +729,4 @@ jobs:
             ⚠️ Infrastructure drift detected in Waaed Platform.
             Manual intervention may be required.
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
