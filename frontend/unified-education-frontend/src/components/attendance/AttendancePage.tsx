@@ -37,10 +37,10 @@ const AttendancePage: React.FC = () => {
               <p>Sample attendance record</p>
             </div>
             <div data-testid="check-in-success" className="success-message" style={{ display: 'none' }}>
-              Check-in successful!
+              Checked in successfully
             </div>
             <div data-testid="check-out-success" className="success-message" style={{ display: 'none' }}>
-              Check-out successful!
+              Checked out successfully
             </div>
           </div>
         </div>
