@@ -7,6 +7,9 @@ import { formatDate, formatTime } from './utils/formatters';
 import { sisService, lmsService, erpService, analyticsService } from './services';
 import { Metric, Course } from './types/api';
 import { AccessibilityProvider } from './components/AccessibilityProvider';
+
+import LoginPage from './components/auth/LoginPage';
+import RegisterPage from './components/auth/RegisterPage';
 import { 
   GraduationCap, 
   BookOpen, 
@@ -44,6 +47,11 @@ import StoreManagement from './components/inventory/StoreManagement';
 import PollCreation from './components/polls/PollCreation';
 import BlogPostList from './components/blogs/BlogPostList';
 import TaskList from './components/tasks/TaskList';
+import AttendancePage from './components/attendance/AttendancePage';
+import AnalyticsPage from './components/analytics/AnalyticsPage';
+import UsersPage from './components/users/UsersPage';
+import ProfilePage from './components/profile/ProfilePage';
+import SettingsPage from './components/settings/SettingsPage';
 import Layout from './components/layout/Layout';
 import './styles/main.scss';
 
@@ -332,17 +340,17 @@ function Dashboard() {
           description: t('dashboard.studentsGrowth')
         },
         {
-          key: 'activeCourses',
+          key: 'present-today',
           icon: BookOpen,
           value: dashboardData.activeCourses,
-          label: t('dashboard.activeCourses'),
+          label: t('dashboard.presentToday'),
           color: 'success',
           change: '+8%',
           trend: 'up',
-          description: t('dashboard.coursesActive')
+          description: t('dashboard.presentTodayDesc')
         },
         {
-          key: 'totalEmployees',
+          key: 'total-employees',
           icon: Users,
           value: dashboardData.totalEmployees,
           label: t('dashboard.totalEmployees'),
@@ -352,7 +360,7 @@ function Dashboard() {
           description: t('dashboard.staffMembers')
         },
         {
-          key: 'attendanceRate',
+          key: 'attendance-rate',
           icon: Activity,
           value: `${dashboardData.attendanceRate}%`,
           label: t('dashboard.attendanceRate'),
@@ -523,7 +531,7 @@ function Dashboard() {
       <div className="page-header">
         <div className="page-header-content">
           <div className="page-header-main">
-            <h1 className="page-title">{getRoleSpecificTitle(userRole)}</h1>
+            <h1 className="page-title" data-testid="dashboard-header">{getRoleSpecificTitle(userRole)}</h1>
             <p className="page-subtitle">{getRoleSpecificWelcome(userRole)}</p>
             {user && (
               <div className="user-info">
@@ -557,7 +565,7 @@ function Dashboard() {
           {statCards.map((stat: any, index: number) => {
             const IconComponent = stat.icon;
             return (
-              <div key={stat.key} className={`stat-card stat-card-${stat.color}`} style={{ animationDelay: `${index * 0.1}s` }}>
+              <div key={stat.key} className={`stat-card stat-card-${stat.color}`} style={{ animationDelay: `${index * 0.1}s` }} data-testid={`${stat.key}-card`}>
                 <div className="stat-card-header">
                   <div className="stat-icon">
                     <IconComponent size={24} />
@@ -568,7 +576,7 @@ function Dashboard() {
                   </div>
                 </div>
                 <div className="stat-content">
-                  <div className="stat-value">
+                  <div className="stat-value" data-testid={`${stat.key}-value`}>
                     {loading ? (
                       <div className="stat-skeleton"></div>
                     ) : (
@@ -723,7 +731,7 @@ function Dashboard() {
 
       {/* Enhanced System Status */}
       {!loading && (
-        <div className="content-section">
+        <div className="content-section" data-testid="recent-activity-section">
           <div className="section-header">
             <h2 className="section-title">{t('dashboard.systemStatus')}</h2>
             <p className="section-subtitle">{t('dashboard.systemHealth')}</p>
@@ -777,6 +785,7 @@ function Dashboard() {
 
 function App() {
   const { language, isRTL } = useSelector((state: RootState) => state.ui);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
@@ -787,28 +796,47 @@ function App() {
   return (
     <AccessibilityProvider>
       <Router>
-        <Layout>
-          <main id="main-content" tabIndex={-1}>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/sis" element={<StudentManagement />} />
-              <Route path="/lms" element={<CourseManagement />} />
-              <Route path="/erp" element={<EmployeeManagement />} />
-              <Route path="/exams" element={<ExamManagement />} />
-              <Route path="/analytics" element={<AnalyticsManagement />} />
-              <Route path="/admin" element={<AdminManagement />} />
-              <Route path="/ai" element={<AIManagement />} />
-              <Route path="/bpm" element={<WorkflowManagement />} />
-              <Route path="/finance" element={<FeeManagement />} />
-              <Route path="/hr" element={<HREmployeeManagement />} />
-              <Route path="/library" element={<BookCatalog />} />
-              <Route path="/inventory" element={<StoreManagement />} />
-              <Route path="/polls" element={<PollCreation />} />
-              <Route path="/blogs" element={<BlogPostList />} />
-              <Route path="/tasks" element={<TaskList />} />
-            </Routes>
-          </main>
-        </Layout>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          
+          {/* Protected routes */}
+          <Route path="/*" element={
+            isAuthenticated ? (
+              <Layout>
+                <main id="main-content" tabIndex={-1}>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/sis" element={<StudentManagement />} />
+                    <Route path="/lms" element={<CourseManagement />} />
+                    <Route path="/erp" element={<EmployeeManagement />} />
+                    <Route path="/exams" element={<ExamManagement />} />
+                    <Route path="/analytics" element={<AnalyticsManagement />} />
+                    <Route path="/admin" element={<AdminManagement />} />
+                    <Route path="/ai" element={<AIManagement />} />
+                    <Route path="/bpm" element={<WorkflowManagement />} />
+                    <Route path="/finance" element={<FeeManagement />} />
+                    <Route path="/hr" element={<HREmployeeManagement />} />
+                    <Route path="/library" element={<BookCatalog />} />
+                    <Route path="/inventory" element={<StoreManagement />} />
+                    <Route path="/polls" element={<PollCreation />} />
+                    <Route path="/blogs" element={<BlogPostList />} />
+                    <Route path="/tasks" element={<TaskList />} />
+                    <Route path="/attendance" element={<AttendancePage />} />
+                    <Route path="/analytics" element={<AnalyticsPage />} />
+                    <Route path="/users" element={<UsersPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                  </Routes>
+                </main>
+              </Layout>
+            ) : (
+              <LoginPage />
+            )
+          } />
+        </Routes>
       </Router>
     </AccessibilityProvider>
   );

@@ -8,7 +8,7 @@ namespace Waaed.Tests.E2E
     {
         public IPlaywright Playwright { get; private set; } = null!;
         public IBrowser Browser { get; private set; } = null!;
-        public string BaseUrl { get; private set; } = "https://app.hudur.sa";
+        public string BaseUrl { get; private set; } = Environment.GetEnvironmentVariable("E2E_BASE_URL") ?? "http://localhost:5175";
 
         public async Task InitializeAsync()
         {
@@ -50,7 +50,6 @@ namespace Waaed.Tests.E2E
 
                 await page.FillAsync("[data-testid=email-input]", "admin@test.com");
                 await page.FillAsync("[data-testid=password-input]", "Test123!");
-                await page.FillAsync("[data-testid=tenant-input]", "test");
                 
                 await page.ClickAsync("[data-testid=login-button]");
                 
@@ -83,7 +82,6 @@ namespace Waaed.Tests.E2E
 
                 await page.FillAsync("[data-testid=email-input]", "invalid@test.com");
                 await page.FillAsync("[data-testid=password-input]", "WrongPassword");
-                await page.FillAsync("[data-testid=tenant-input]", "test");
                 
                 await page.ClickAsync("[data-testid=login-button]");
                 
@@ -119,7 +117,6 @@ namespace Waaed.Tests.E2E
                 await page.FillAsync("[data-testid=email-input]", uniqueEmail);
                 await page.FillAsync("[data-testid=password-input]", "NewUser123!");
                 await page.FillAsync("[data-testid=confirm-password-input]", "NewUser123!");
-                await page.FillAsync("[data-testid=tenant-input]", "test");
                 
                 await page.ClickAsync("[data-testid=register-button]");
                 
@@ -189,7 +186,6 @@ namespace Waaed.Tests.E2E
 
             await page.FillAsync("[data-testid=email-input]", "admin@test.com");
             await page.FillAsync("[data-testid=password-input]", "Test123!");
-            await page.FillAsync("[data-testid=tenant-input]", "test");
             
             await page.ClickAsync("[data-testid=login-button]");
             await page.WaitForURLAsync("**/dashboard", new PageWaitForURLOptions { Timeout = 10000 });
@@ -278,7 +274,6 @@ namespace Waaed.Tests.E2E
 
             await page.FillAsync("[data-testid=email-input]", "admin@test.com");
             await page.FillAsync("[data-testid=password-input]", "Test123!");
-            await page.FillAsync("[data-testid=tenant-input]", "test");
             
             await page.ClickAsync("[data-testid=login-button]");
             await page.WaitForURLAsync("**/dashboard", new PageWaitForURLOptions { Timeout = 10000 });
