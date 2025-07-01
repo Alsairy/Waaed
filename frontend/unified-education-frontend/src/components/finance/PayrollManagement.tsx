@@ -3,9 +3,21 @@ import { useTranslation } from 'react-i18next';
 import { Users, Plus, Download, Search, Eye, Edit, MoreVertical, Calendar, DollarSign, User, CheckCircle, Clock } from 'lucide-react';
 import { financeService } from '../../services';
 
+interface PayrollEntry {
+  id: string;
+  employeeName: string;
+  employeeId: string;
+  payPeriod: string;
+  basicSalary: number;
+  allowances: number;
+  deductions: number;
+  netSalary: number;
+  status: string;
+}
+
 const PayrollManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [payrollEntries, setPayrollEntries] = useState<any[]>([]);
+  const [payrollEntries, setPayrollEntries] = useState<PayrollEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +43,7 @@ const PayrollManagement: React.FC = () => {
     }
   };
 
-  const filteredPayrollEntries = payrollEntries.filter((entry: any) => {
+  const filteredPayrollEntries = payrollEntries.filter((entry: PayrollEntry) => {
     const matchesSearch = searchTerm === '' || 
       entry.employeeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       entry.employeeId?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -42,10 +54,10 @@ const PayrollManagement: React.FC = () => {
   });
 
   const payrollStats = {
-    totalPayroll: payrollEntries.reduce((sum: number, e: any) => sum + (e.netSalary || 0), 0),
-    processed: payrollEntries.filter((e: any) => e.status === 'Processed').length,
-    pending: payrollEntries.filter((e: any) => e.status === 'Pending').length,
-    employees: new Set(payrollEntries.map((e: any) => e.employeeId)).size,
+    totalPayroll: payrollEntries.reduce((sum: number, e: PayrollEntry) => sum + (e.netSalary || 0), 0),
+    processed: payrollEntries.filter((e: PayrollEntry) => e.status === 'Processed').length,
+    pending: payrollEntries.filter((e: PayrollEntry) => e.status === 'Pending').length,
+    employees: new Set(payrollEntries.map((e: PayrollEntry) => e.employeeId)).size,
   };
 
   if (loading) {

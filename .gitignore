@@ -67,3 +67,4 @@ backend-proxy/venv/
 *.tar.gz
 *.zip
 *.rar
+terraform/.terraform/

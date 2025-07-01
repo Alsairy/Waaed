@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageCircle, Send, Edit, Trash2, User, Calendar, MoreVertical } from 'lucide-react';
 import { tasksService } from '../../services';
@@ -28,11 +28,7 @@ const TaskComments: React.FC<TaskCommentsProps> = ({ taskId }) => {
   const [editContent, setEditContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    loadComments();
-  }, [taskId]);
-
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -45,7 +41,11 @@ const TaskComments: React.FC<TaskCommentsProps> = ({ taskId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [taskId]);
+
+  useEffect(() => {
+    loadComments();
+  }, [taskId, loadComments]);
 
   const handleSubmitComment = async () => {
     if (!newComment.trim()) return;

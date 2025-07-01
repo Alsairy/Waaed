@@ -1,8 +1,8 @@
 using Xunit;
-using Hudur.Shared.Infrastructure.Services;
+using Waaed.Shared.Infrastructure.Services;
 using Moq;
 
-namespace Hudur.Tests.Unit
+namespace Waaed.Tests.Unit
 {
     public class BasicTests
     {

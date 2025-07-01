@@ -30,20 +30,20 @@ namespace Waaed.Authentication.Api.Services
             _logger = logger;
         }
 
-        public async Task<string> GenerateSecretAsync()
+        public Task<string> GenerateSecretAsync()
         {
             var key = new byte[20];
             using (var rng = RandomNumberGenerator.Create())
             {
                 rng.GetBytes(key);
             }
-            return Base32.ToBase32String(key);
+            return Task.FromResult(Base32.ToBase32String(key));
         }
 
-        public async Task<bool> ValidateCodeAsync(string secret, string code)
+        public Task<bool> ValidateCodeAsync(string secret, string code)
         {
             if (string.IsNullOrEmpty(secret) || string.IsNullOrEmpty(code))
-                return false;
+                return Task.FromResult(false);
 
             try
             {
@@ -57,26 +57,26 @@ namespace Waaed.Authentication.Api.Services
                     var expectedCode = GenerateTotpCode(secretBytes, testTimestep);
                     if (expectedCode == code)
                     {
-                        return true;
+                        return Task.FromResult(true);
                     }
                 }
 
-                return false;
+                return Task.FromResult(false);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error validating 2FA code");
-                return false;
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<string> GenerateQrCodeUriAsync(string email, string secret)
+        public Task<string> GenerateQrCodeUriAsync(string email, string secret)
         {
             var encodedEmail = Uri.EscapeDataString(email);
             var encodedSecret = Uri.EscapeDataString(secret);
             var encodedAppName = Uri.EscapeDataString(ApplicationName);
             
-            return $"otpauth://totp/{encodedAppName}:{encodedEmail}?secret={encodedSecret}&issuer={encodedAppName}";
+            return Task.FromResult($"otpauth://totp/{encodedAppName}:{encodedEmail}?secret={encodedSecret}&issuer={encodedAppName}");
         }
 
         public async Task<bool> EnableTwoFactorAsync(Guid userId, string secret)
@@ -127,6 +127,7 @@ namespace Waaed.Authentication.Api.Services
 
         public async Task<string> GenerateBackupCodesAsync(Guid userId)
         {
+            await Task.CompletedTask;
             var backupCodes = new List<string>();
             using (var rng = RandomNumberGenerator.Create())
             {

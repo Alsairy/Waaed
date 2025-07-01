@@ -29,7 +29,7 @@ const TaskList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
-  const [assigneeFilter, setAssigneeFilter] = useState('');
+  const [assigneeFilter] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
@@ -97,9 +97,6 @@ const TaskList: React.FC = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const formatDateTime = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString() + ' ' + new Date(dateString).toLocaleTimeString();
-  };
 
   const isOverdue = (dueDate: string, status: string): boolean => {
     const due = new Date(dueDate);

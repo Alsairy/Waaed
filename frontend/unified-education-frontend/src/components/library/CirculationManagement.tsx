@@ -1,12 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RotateCcw, Plus, Download, Search, Eye, Edit, MoreVertical, User, Book, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { RotateCcw, Plus, Download, Search, Eye, MoreVertical, User, Book, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { libraryService } from '../../services';
+
+interface BookIssue {
+  id: string;
+  bookTitle: string;
+  bookIsbn?: string;
+  memberName: string;
+  memberId: string;
+  issueDate: string;
+  dueDate: string;
+  returnDate?: string;
+  status: string;
+  fineAmount?: number;
+  renewalCount: number;
+}
+
+interface BookReservation {
+  id: string;
+  bookTitle: string;
+  bookIsbn?: string;
+  memberName: string;
+  memberId?: string;
+  reservationDate: string;
+  status: string;
+  priority: number;
+  expiryDate: string;
+}
 
 const CirculationManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [bookIssues, setBookIssues] = useState<any[]>([]);
-  const [reservations, setReservations] = useState<any[]>([]);
+  const [bookIssues, setBookIssues] = useState<BookIssue[]>([]);
+  const [reservations, setReservations] = useState<BookReservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,7 +63,7 @@ const CirculationManagement: React.FC = () => {
     }
   };
 
-  const filteredIssues = bookIssues.filter((issue: any) => {
+  const filteredIssues = bookIssues.filter((issue: BookIssue) => {
     const matchesSearch = searchTerm === '' || 
       issue.memberName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       issue.bookTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -46,7 +72,7 @@ const CirculationManagement: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const filteredReservations = reservations.filter((reservation: any) => {
+  const filteredReservations = reservations.filter((reservation: BookReservation) => {
     const matchesSearch = searchTerm === '' || 
       reservation.memberName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       reservation.bookTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -57,11 +83,11 @@ const CirculationManagement: React.FC = () => {
 
   const circulationStats = {
     totalIssued: bookIssues.length,
-    activeIssues: bookIssues.filter((i: any) => i.status === 'Issued').length,
-    overdue: bookIssues.filter((i: any) => i.status === 'Overdue').length,
-    returned: bookIssues.filter((i: any) => i.status === 'Returned').length,
+    activeIssues: bookIssues.filter((i: BookIssue) => i.status === 'Issued').length,
+    overdue: bookIssues.filter((i: BookIssue) => i.status === 'Overdue').length,
+    returned: bookIssues.filter((i: BookIssue) => i.status === 'Returned').length,
     reservations: reservations.length,
-    activeReservations: reservations.filter((r: any) => r.status === 'Active').length,
+    activeReservations: reservations.filter((r: BookReservation) => r.status === 'Active').length,
   };
 
   const isOverdue = (dueDate: string) => {

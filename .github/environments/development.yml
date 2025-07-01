@@ -1,0 +1,30 @@
+name: development
+url: https://dev-api.waaed.sa
+protection_rules:
+  required_reviewers: []
+  prevent_self_review: false
+  dismiss_stale_reviews: false
+  require_code_owner_reviews: false
+  required_status_checks:
+    strict: false
+    contexts:
+      - "ci-cd-pipeline"
+  wait_timer: 0
+deployment_branch_policy:
+  protected_branches: false
+  custom_branch_policies: true
+  custom_branches:
+    - main
+    - develop
+    - "feature/*"
+    - "hotfix/*"
+variables:
+  ENVIRONMENT: development
+  API_URL: https://dev-api.waaed.sa
+  DATABASE_URL: ${{ secrets.DEVELOPMENT_DATABASE_URL }}
+  REDIS_URL: ${{ secrets.DEVELOPMENT_REDIS_URL }}
+secrets:
+  - DEVELOPMENT_DATABASE_URL
+  - DEVELOPMENT_REDIS_URL
+  - DEVELOPMENT_JWT_SECRET
+  - DEVELOPMENT_ENCRYPTION_KEY

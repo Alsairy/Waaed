@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Calendar, User, Tag, Eye, MessageCircle, Share2, Heart, Bookmark } from 'lucide-react';
+import { ArrowLeft, Calendar, Tag, Eye, MessageCircle, Share2, Heart, Bookmark } from 'lucide-react';
 import { blogsService } from '../../services';
 import CommentSection from './CommentSection';
 
@@ -41,11 +41,7 @@ const BlogPostView: React.FC<BlogPostViewProps> = ({ postId = '1', onBack }) => 
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadBlogPost();
-  }, [postId]);
-
-  const loadBlogPost = async () => {
+  const loadBlogPost = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -58,7 +54,11 @@ const BlogPostView: React.FC<BlogPostViewProps> = ({ postId = '1', onBack }) => 
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId]);
+
+  useEffect(() => {
+    loadBlogPost();
+  }, [loadBlogPost]);
 
   const handleLike = async () => {
     if (!blogPost) return;

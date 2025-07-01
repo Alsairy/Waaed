@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface AccessibilitySettings {
@@ -46,7 +46,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
     return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
   });
 
-  const updateSetting = <K extends keyof AccessibilitySettings>(
+  const updateSetting = useCallback(<K extends keyof AccessibilitySettings>(
     key: K,
     value: AccessibilitySettings[K]
   ) => {
@@ -55,7 +55,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
       localStorage.setItem('accessibility-settings', JSON.stringify(newSettings));
       return newSettings;
     });
-  };
+  }, []);
 
   const resetSettings = () => {
     setSettings(defaultSettings);
@@ -63,7 +63,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
     announceToScreenReader(t('accessibility.settingsReset'));
   };
 
-  const announceToScreenReader = (message: string) => {
+  const announceToScreenReader = useCallback((message: string) => {
     const ariaLiveRegion = document.getElementById('aria-live-region');
     if (ariaLiveRegion) {
       ariaLiveRegion.textContent = message;
@@ -71,7 +71,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
         ariaLiveRegion.textContent = '';
       }, 1000);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -162,7 +162,7 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
       mediaQueries.reducedMotion.removeEventListener('change', handleReducedMotionChange);
       mediaQueries.highContrast.removeEventListener('change', handleContrastChange);
     };
-  }, [settings.colorScheme]);
+  }, [settings.colorScheme, updateSetting]);
 
   useEffect(() => {
     let ariaLiveRegion = document.getElementById('aria-live-region');

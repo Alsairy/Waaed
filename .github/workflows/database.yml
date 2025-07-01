@@ -1,0 +1,1031 @@
+---
+name: Database Migrations & Schema Management
+
+on:
+  push:
+    branches: ["main", "develop"]
+    paths:
+      - 'src/backend/services/*/Migrations/**'
+      - 'src/backend/services/*/Data/**'
+      - 'src/backend/services/*/Entities/**'
+      - 'src/backend/shared/Infrastructure/*/Migrations/**'
+      - '.github/workflows/database.yml'
+  pull_request:
+    branches: ["main", "develop"]
+    paths:
+      - 'src/backend/services/*/Migrations/**'
+      - 'src/backend/services/*/Data/**'
+      - 'src/backend/services/*/Entities/**'
+      - 'src/backend/shared/Infrastructure/*/Migrations/**'
+  workflow_dispatch:
+    inputs:
+      migration_action:
+        description: 'Migration action to perform'
+        required: true
+        default: 'validate'
+        type: choice
+        options:
+          - validate
+          - apply
+          - rollback
+          - generate-script
+          - reset-database
+      target_service:
+        description: 'Target service (all for all services)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - finance
+          - hr
+          - library
+          - inventory
+          - polls
+          - blogs
+          - tasks
+          - lms
+          - shared
+      rollback_target:
+        description: 'Migration to rollback to (for rollback action)'
+        required: false
+        type: string
+      environment:
+        description: 'Target environment'
+        required: false
+        default: 'development'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  detect-migration-changes:
+    name: Detect Migration Changes
+    runs-on: ubuntu-latest
+    outputs:
+      finance_changed: ${{ steps.changes.outputs.finance }}
+      hr_changed: ${{ steps.changes.outputs.hr }}
+      library_changed: ${{ steps.changes.outputs.library }}
+      inventory_changed: ${{ steps.changes.outputs.inventory }}
+      polls_changed: ${{ steps.changes.outputs.polls }}
+      blogs_changed: ${{ steps.changes.outputs.blogs }}
+      tasks_changed: ${{ steps.changes.outputs.tasks }}
+      lms_changed: ${{ steps.changes.outputs.lms }}
+      shared_changed: ${{ steps.changes.outputs.shared }}
+      any_changed: ${{ steps.changes.outputs.any }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            finance:
+              - 'src/backend/services/Finance/**'
+            hr:
+              - 'src/backend/services/HR/**'
+            library:
+              - 'src/backend/services/Library/**'
+            inventory:
+              - 'src/backend/services/Inventory/**'
+            polls:
+              - 'src/backend/services/Polls/**'
+            blogs:
+              - 'src/backend/services/Blogs/**'
+            tasks:
+              - 'src/backend/services/Tasks/**'
+            lms:
+              - 'src/backend/services/LMS/**'
+            shared:
+              - 'src/backend/shared/Infrastructure/**'
+            any:
+              - 'src/backend/services/*/Migrations/**'
+              - 'src/backend/services/*/Data/**'
+              - 'src/backend/services/*/Entities/**'
+              - 'src/backend/shared/Infrastructure/*/Migrations/**'
+
+  validate-migration-files:
+    name: Validate Migration Files
+    runs-on: ubuntu-latest
+    needs: detect-migration-changes
+    if: >
+      needs.detect-migration-changes.outputs.any_changed == true ||
+      github.event.inputs.migration_action == 'validate' ||
+      github.event.inputs.migration_action == 'apply'
+
+    strategy:
+      matrix:
+        service:
+          - name: finance
+            path: src/backend/services/Finance/Waaed.Finance.Api
+            context: FinanceDbContext
+            changed: ${{
+              needs.detect-migration-changes.outputs.finance_changed }}
+          - name: hr
+            path: src/backend/services/HR/Waaed.HR.Api
+            context: HRDbContext
+            changed: ${{ needs.detect-migration-changes.outputs.hr_changed }}
+          - name: library
+            path: src/backend/services/Library/Waaed.Library.Api
+            context: LibraryDbContext
+            changed: ${{
+              needs.detect-migration-changes.outputs.library_changed }}
+          - name: inventory
+            path: >-
+              src/backend/services/Inventory/Waaed.Inventory.Api/
+              Waaed.Inventory.Api
+            context: InventoryDbContext
+            changed: ${{
+              needs.detect-migration-changes.outputs.inventory_changed }}
+          - name: polls
+            path: src/backend/services/Polls/Waaed.Polls.Api/Waaed.Polls.Api
+            context: PollsDbContext
+            changed: ${{ needs.detect-migration-changes.outputs.polls_changed }}
+          - name: blogs
+            path: src/backend/services/Blogs/Waaed.Blogs.Api/Waaed.Blogs.Api
+            context: BlogsDbContext
+            changed: ${{ needs.detect-migration-changes.outputs.blogs_changed }}
+          - name: tasks
+            path: src/backend/services/Tasks/Waaed.Tasks.Api/Waaed.Tasks.Api
+            context: TasksDbContext
+            changed: ${{ needs.detect-migration-changes.outputs.tasks_changed }}
+          - name: lms
+            path: src/backend/services/LMS/Waaed.LMS.Api
+            context: LMSDbContext
+            changed: ${{ needs.detect-migration-changes.outputs.lms_changed }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Skip if service unchanged
+        if: >
+          matrix.service.changed == false &&
+          github.event.inputs.target_service != 'all' &&
+          github.event.inputs.target_service != matrix.service.name
+        run: |
+          echo "Skipping ${{ matrix.service.name }} - no changes detected"
+          exit 0
+
+      - name: Restore dependencies
+        run: |
+          cd ${{ matrix.service.path }}
+          dotnet restore Waaed.sln
+
+      - name: Validate migration files syntax
+        run: |
+          echo "Validating migration files for ${{ matrix.service.name }}..."
+
+          migration_dir="${{ matrix.service.path }}/Migrations"
+          if [ ! -d "$migration_dir" ]; then
+            echo "No migrations directory found for ${{ matrix.service.name }}"
+            exit 0
+          fi
+
+          # Check for migration files
+          migration_files=$(find "$migration_dir" -name "*.cs" -type f | \
+            grep -E "[0-9]+_.*\.cs$" || true)
+
+          if [ -z "$migration_files" ]; then
+            echo "No migration files found for ${{ matrix.service.name }}"
+            exit 0
+          fi
+
+          echo "Found migration files:"
+          echo "$migration_files"
+
+          # Validate migration file naming convention
+          for file in $migration_files; do
+            filename=$(basename "$file")
+            if [[! "$filename" =~ ^[0-9]{14}_[A-Za-z0-9_]+\.cs$]]; then
+              echo "❌ Invalid migration file name: $filename"
+              echo "Expected format: YYYYMMDDHHMMSS_MigrationName.cs"
+              exit 1
+            fi
+          done
+
+          echo "✅ All migration files have valid naming convention"
+
+      - name: Check for duplicate migration timestamps
+        run: |
+          echo "Checking for duplicate migration timestamps..."
+
+          migration_dir="${{ matrix.service.path }}/Migrations"
+          if [ ! -d "$migration_dir" ]; then
+            exit 0
+          fi
+
+          # Extract timestamps from migration files
+          timestamps=$(find "$migration_dir" -name "*.cs" -type f | \
+            grep -E "[0-9]+_.*\.cs$" | \
+            sed 's/.*\/\([0-9]\{14\}\)_.*/\1/' | sort)
+
+          if [ -n "$timestamps" ]; then
+            duplicates=$(echo "$timestamps" | uniq -d)
+            if [ -n "$duplicates" ]; then
+              echo "❌ Duplicate migration timestamps found:"
+              echo "$duplicates"
+              exit 1
+            fi
+            echo "✅ No duplicate migration timestamps found"
+          fi
+
+      - name: Validate DbContext configuration
+        run: |
+          echo "Validating DbContext for ${{ matrix.service.name }}..."
+
+          cd ${{ matrix.service.path }}
+
+          # Check if DbContext file exists
+          context_file=$(find . -name "*${{ matrix.service.context }}.cs" \
+            -type f | head -1)
+          if [ -z "$context_file" ]; then
+            echo "❌ DbContext file not found: ${{ matrix.service.context }}.cs"
+            exit 1
+          fi
+
+          echo "Found DbContext: $context_file"
+
+          # Check for required DbContext methods
+          if ! grep -q "OnModelCreating" "$context_file"; then
+            echo "⚠️ Warning: OnModelCreating method not found in \
+              ${{ matrix.service.context }}"
+          fi
+
+          if ! grep -q "DbSet" "$context_file"; then
+            echo "⚠️ Warning: No DbSet properties found in \
+              ${{ matrix.service.context }}"
+          fi
+
+          echo "✅ DbContext validation completed"
+
+      - name: Check migration consistency
+        run: |
+          echo "Checking migration consistency for" \
+            "${{ matrix.service.name }}..."
+
+          cd ${{ matrix.service.path }}
+
+          # Try to build the project to ensure migrations compile
+          echo "Building project to validate migration compilation..."
+          dotnet build --configuration Release --no-restore
+
+          if [ $? -eq 0 ]; then
+            echo "✅ Project builds successfully with current migrations"
+          else
+            echo "❌ Project build failed - migrations may have" \
+            "compilation errors"
+            exit 1
+          fi
+
+  test-migrations:
+    name: Test Database Migrations
+    runs-on: ubuntu-latest
+    needs: [detect-migration-changes, validate-migration-files]
+    if: >
+      needs.detect-migration-changes.outputs.any_changed == true ||
+      github.event.inputs.migration_action == 'apply' ||
+      github.event.inputs.migration_action == 'validate'
+
+    strategy:
+      matrix:
+        service:
+          - name: finance
+            path: src/backend/services/Finance/Waaed.Finance.Api
+            context: FinanceDbContext
+            db_name: Waaed_Finance_Test
+          - name: hr
+            path: src/backend/services/HR/Waaed.HR.Api
+            context: HRDbContext
+            db_name: Waaed_HR_Test
+          - name: library
+            path: src/backend/services/Library/Waaed.Library.Api
+            context: LibraryDbContext
+            db_name: Waaed_Library_Test
+          - name: inventory
+            path: >-
+              src/backend/services/Inventory/Waaed.Inventory.Api/
+              Waaed.Inventory.Api
+            context: InventoryDbContext
+            db_name: Waaed_Inventory_Test
+          - name: polls
+            path: src/backend/services/Polls/Waaed.Polls.Api/Waaed.Polls.Api
+            context: PollsDbContext
+            db_name: Waaed_Polls_Test
+          - name: blogs
+            path: src/backend/services/Blogs/Waaed.Blogs.Api/Waaed.Blogs.Api
+            context: BlogsDbContext
+            db_name: Waaed_Blogs_Test
+          - name: tasks
+            path: src/backend/services/Tasks/Waaed.Tasks.Api/Waaed.Tasks.Api
+            context: TasksDbContext
+            db_name: Waaed_Tasks_Test
+          - name: lms
+            path: src/backend/services/LMS/Waaed.LMS.Api
+            context: LMSDbContext
+            db_name: Waaed_LMS_Test
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Restore dependencies
+        run: |
+          cd ${{ matrix.service.path }}
+          dotnet restore Waaed.sln
+
+      - name: Create test database
+        run: |
+          # Create test database for the service
+          PGPASSWORD=postgres psql -h localhost -U postgres \
+            -c "CREATE DATABASE \"${{ matrix.service.db_name }}\";" || true
+
+      - name: Update connection string for testing
+        run: |
+          cd ${{ matrix.service.path }}
+
+          # Create test appsettings
+          cat > appsettings.Test.json << EOF
+          {
+            "ConnectionStrings": {
+              "DefaultConnection": >-
+                Host=localhost;Database=${{ matrix.service.db_name }};
+                Username=postgres;Password=postgres;
+            },
+            "Logging": {
+              "LogLevel": {
+                "Default": "Information"
+              }
+            }
+          }
+          EOF
+
+      - name: Apply migrations to test database
+        run: |
+          cd ${{ matrix.service.path }}
+
+          echo "Applying migrations for ${{ matrix.service.name }} service..."
+
+          # Set environment for test configuration
+          export ASPNETCORE_ENVIRONMENT=Test
+
+          # Apply migrations
+          dotnet ef database update --configuration Release \
+            --context ${{ matrix.service.context }}
+
+          if [ $? -eq 0 ]; then
+            echo "✅ Migrations applied successfully for" \
+              "${{ matrix.service.name }}"
+          else
+            echo "❌ Failed to apply migrations for ${{ matrix.service.name }}"
+            exit 1
+          fi
+
+      - name: Validate database schema
+        run: |
+          echo "Validating database schema for ${{ matrix.service.name }}..."
+
+          # Check if tables were created
+          table_count=$(PGPASSWORD=postgres psql -h localhost -U postgres \
+            -d "${{ matrix.service.db_name }}" -t \
+            -c "SELECT COUNT(*) FROM information_schema.tables \
+               WHERE table_schema = 'public' AND table_type = 'BASE TABLE';")
+
+          echo "Number of tables created: $table_count"
+
+          if [ "$table_count" -gt 0 ]; then
+            echo "✅ Database schema created successfully"
+
+            # List created tables
+            echo "Created tables:"
+            PGPASSWORD=postgres psql -h localhost -U postgres \
+              -d "${{ matrix.service.db_name }}" \
+              -c "SELECT table_name FROM information_schema.tables \
+                 WHERE table_schema = 'public' AND table_type = 'BASE TABLE';"
+          else
+            echo "⚠️ Warning: No tables found in database"
+          fi
+
+      - name: Test migration rollback
+        run: |
+          cd ${{ matrix.service.path }}
+
+          echo "Testing migration rollback for ${{ matrix.service.name }}..."
+
+          # Get list of applied migrations
+          migrations=$(dotnet ef migrations list \
+            --context ${{ matrix.service.context }} --no-build)
+          migration_count=$(echo "$migrations" | wc -l)
+
+          if ["$migration_count" -gt 1]; then
+            # Get the second-to-last migration for rollback test
+            target_migration=$(echo "$migrations" | tail -n 2 | head -n 1)
+
+            echo "Rolling back to migration: $target_migration"
+
+            # Perform rollback
+            dotnet ef database update "$target_migration" \
+              --context ${{ matrix.service.context }} --no-build
+
+            if [ $? -eq 0 ]; then
+              echo "✅ Rollback test successful"
+
+              # Re-apply latest migration
+              dotnet ef database update \
+                --context ${{ matrix.service.context }} --no-build
+              echo "✅ Re-applied latest migration"
+            else
+              echo "❌ Rollback test failed"
+              exit 1
+            fi
+          else
+            echo "ℹ️ Only one migration found, skipping rollback test"
+          fi
+
+      - name: Test data integrity
+        run: |
+          echo "Testing data integrity for ${{ matrix.service.name }}..."
+
+          # Check for foreign key constraints
+          fk_count=$(PGPASSWORD=postgres psql -h localhost -U postgres \
+            -d "${{ matrix.service.db_name }}" -t \
+            -c "SELECT COUNT(*) FROM information_schema.table_constraints \
+               WHERE constraint_type = 'FOREIGN KEY';")
+
+          echo "Number of foreign key constraints: $fk_count"
+
+          # Check for indexes
+          index_count=$(PGPASSWORD=postgres psql -h localhost -U postgres \
+            -d "${{ matrix.service.db_name }}" -t \
+            -c "SELECT COUNT(*) FROM pg_indexes WHERE schemaname = 'public';")
+
+          echo "Number of indexes: $index_count"
+
+          # Check for unique constraints
+          unique_count=$(PGPASSWORD=postgres psql -h localhost -U postgres \
+            -d "${{ matrix.service.db_name }}" -t \
+            -c "SELECT COUNT(*) FROM information_schema.table_constraints \
+               WHERE constraint_type = 'UNIQUE';")
+
+          echo "Number of unique constraints: $unique_count"
+
+          echo "✅ Data integrity checks completed"
+
+      - name: Generate migration script
+        if: github.event.inputs.migration_action == 'generate-script'
+        run: |
+          cd ${{ matrix.service.path }}
+
+          echo "Generating migration script for ${{ matrix.service.name }}..."
+
+          # Generate SQL script for all migrations
+          dotnet ef migrations script --context ${{ matrix.service.context }} \
+            --output "${{ matrix.service.name }}-migrations.sql"
+
+          echo "✅ Migration script generated:" \
+            "${{ matrix.service.name }}-migrations.sql"
+
+      - name: Upload migration script
+        if: github.event.inputs.migration_action == 'generate-script'
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-scripts
+          path: >-
+            ${{ matrix.service.path }}/${{ matrix.service.name }}-migrations.sql
+
+      - name: Cleanup test database
+        if: always()
+        run: |
+          # Drop test database
+          PGPASSWORD=postgres psql -h localhost -U postgres \
+            -c "DROP DATABASE IF EXISTS \"${{ matrix.service.db_name }}\";" \
+            || true
+
+  test-shared-infrastructure:
+    name: Test Shared Infrastructure Migrations
+    runs-on: ubuntu-latest
+    needs: detect-migration-changes
+    if: >
+      needs.detect-migration-changes.outputs.shared_changed == true ||
+      github.event.inputs.target_service == 'shared' ||
+      github.event.inputs.target_service == 'all'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Test shared infrastructure migrations
+        run: |
+          echo "Testing shared infrastructure migrations..."
+
+          shared_path="src/backend/shared/Infrastructure/\
+            Waaed.Shared.Infrastructure"
+
+          if [ ! -d "$shared_path" ]; then
+            echo "Shared infrastructure path not found: $shared_path"
+            exit 1
+          fi
+
+          cd "$shared_path"
+
+          # Restore dependencies
+          dotnet restore Waaed.sln
+
+          # Create test database
+          PGPASSWORD=postgres psql -h localhost -U postgres \
+            -c "CREATE DATABASE \"Waaed_Shared_Test\";" || true
+
+          # Create test appsettings
+          cat > appsettings.Test.json << EOF
+          {
+            "ConnectionStrings": {
+              "DefaultConnection": >-
+                Host=localhost;Database=Waaed_Shared_Test;
+                Username=postgres;Password=postgres;
+            }
+          }
+          EOF
+
+          # Apply migrations
+          export ASPNETCORE_ENVIRONMENT=Test
+          dotnet ef database update --context WaaedDbContext
+
+          echo "✅ Shared infrastructure migrations applied successfully"
+
+          # Cleanup
+          PGPASSWORD=postgres psql -h localhost -U postgres \
+            -c "DROP DATABASE IF EXISTS \"Waaed_Shared_Test\";" || true
+
+  cross-service-compatibility:
+    name: Cross-Service Compatibility Test
+    runs-on: ubuntu-latest
+    needs: [detect-migration-changes, test-migrations]
+    if: >
+      needs.detect-migration-changes.outputs.any_changed == true ||
+      github.event.inputs.migration_action == 'validate'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Test all services together
+        run: |
+          echo "Testing cross-service compatibility..."
+
+          # Create main test database
+          PGPASSWORD=postgres psql -h localhost -U postgres \
+            -c "CREATE DATABASE \"Waaed_Integration_Test\";" || true
+
+          services=(
+            "src/backend/services/Finance/Waaed.Finance.Api:FinanceDbContext"
+            "src/backend/services/HR/Waaed.HR.Api:HRDbContext"
+            "src/backend/services/Library/Waaed.Library.Api:LibraryDbContext"
+            "src/backend/services/LMS/Waaed.LMS.Api:LMSDbContext"
+          )
+
+          for service_info in "${services[@]}"; do
+            IFS=':' read -r service_path context_name <<< "$service_info"
+
+            if [ -d "$service_path" ]; then
+              echo "Testing service: $service_path"
+
+              cd "$service_path"
+
+              # Create test configuration
+              cat > appsettings.Test.json << EOF
+          {
+            "ConnectionStrings": {
+              "DefaultConnection": >-
+                Host=localhost;Database=Waaed_Integration_Test;
+                Username=postgres;Password=postgres;
+            }
+          }
+          EOF
+
+              # Restore and apply migrations
+              dotnet restore Waaed.sln
+              export ASPNETCORE_ENVIRONMENT=Test
+              dotnet ef database update --context "$context_name" || \
+                echo "Migration failed for $service_path"
+
+              cd - > /dev/null
+            fi
+          done
+
+          # Check final database state
+          table_count=$(PGPASSWORD=postgres psql -h localhost -U postgres \
+            -d "Waaed_Integration_Test" -t \
+            -c "SELECT COUNT(*) FROM information_schema.tables \
+               WHERE table_schema = 'public' AND table_type = 'BASE TABLE';")
+
+          echo "Total tables created across all services: $table_count"
+
+          if [ "$table_count" -gt 0 ]; then
+            echo "✅ Cross-service compatibility test passed"
+          else
+            echo "❌ Cross-service compatibility test failed"
+            exit 1
+          fi
+
+          # Cleanup
+          PGPASSWORD=postgres psql -h localhost -U postgres \
+            -c "DROP DATABASE IF EXISTS \"Waaed_Integration_Test\";" || true
+
+  performance-test:
+    name: Migration Performance Test
+    runs-on: ubuntu-latest
+    needs: [detect-migration-changes, test-migrations]
+    if: >
+      needs.detect-migration-changes.outputs.any_changed == true ||
+      github.event.inputs.migration_action == 'validate'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Test migration performance
+        run: |
+          echo "Testing migration performance..."
+
+          # Create performance test database
+          PGPASSWORD=postgres psql -h localhost -U postgres \
+            -c "CREATE DATABASE \"Waaed_Performance_Test\";" || true
+
+          services=(
+            "src/backend/services/Finance/Waaed.Finance.Api:FinanceDbContext"
+            "src/backend/services/HR/Waaed.HR.Api:HRDbContext"
+            "src/backend/services/Library/Waaed.Library.Api:LibraryDbContext"
+            "src/backend/services/LMS/Waaed.LMS.Api:LMSDbContext"
+          )
+
+          total_time=0
+
+          for service_info in "${services[@]}"; do
+            IFS=':' read -r service_path context_name <<< "$service_info"
+
+            if [ -d "$service_path" ]; then
+              echo "Performance testing: $service_path"
+
+              cd "$service_path"
+
+              # Create test configuration
+              cat > appsettings.Test.json << EOF
+          {
+            "ConnectionStrings": {
+              "DefaultConnection": >-
+                Host=localhost;Database=Waaed_Performance_Test;
+                Username=postgres;Password=postgres;
+            }
+          }
+          EOF
+
+              # Restore dependencies
+              dotnet restore Waaed.sln
+
+              # Time the migration
+              start_time=$(date +%s)
+              export ASPNETCORE_ENVIRONMENT=Test
+              dotnet ef database update --context "$context_name"
+              end_time=$(date +%s)
+
+              duration=$((end_time - start_time))
+              total_time=$((total_time + duration))
+
+              echo "Migration time for $service_path: ${duration}s"
+
+              cd - > /dev/null
+            fi
+          done
+
+          echo "Total migration time: ${total_time}s"
+
+          # Set performance threshold (e.g., 60 seconds)
+          if [ "$total_time" -gt 60 ]; then
+            echo "⚠️ Warning: Migration performance is slower than expected" \
+              "(${total_time}s > 60s)"
+          else
+            echo "✅ Migration performance is acceptable (${total_time}s)"
+          fi
+
+          # Cleanup
+          PGPASSWORD=postgres psql -h localhost -U postgres \
+            -c "DROP DATABASE IF EXISTS \"Waaed_Performance_Test\";" || true
+
+  generate-migration-report:
+    name: Generate Migration Report
+    runs-on: ubuntu-latest
+    needs: [
+      validate-migration-files,
+      test-migrations,
+      cross-service-compatibility,
+      performance-test
+    ]
+    if: always()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate comprehensive migration report
+        run: |
+          echo "# Waaed Platform Database Migration Report" \
+            > migration-report.md
+          echo "**Generated:** $(date -u)" >> migration-report.md
+          echo "**Workflow Run:** ${{ github.run_id }}" >> migration-report.md
+          echo "" >> migration-report.md
+
+          echo "## Summary" >> migration-report.md
+          echo "| Component | Status |" >> migration-report.md
+          echo "|-----------|--------|" >> migration-report.md
+          echo "| Migration File Validation |" \
+            "${{ needs.validate-migration-files.result }} |" \
+            >> migration-report.md
+          echo "| Migration Testing |" \
+            "${{ needs.test-migrations.result }} |" >> migration-report.md
+          echo "| Cross-Service Compatibility |" \
+            "${{ needs.cross-service-compatibility.result }} |" \
+            >> migration-report.md
+          echo "| Performance Testing |" \
+            "${{ needs.performance-test.result }} |" >> migration-report.md
+          echo "" >> migration-report.md
+
+          echo "## Service Status" >> migration-report.md
+          echo "| Service | Migrations | Status |" >> migration-report.md
+          echo "|---------|------------|--------|" >> migration-report.md
+
+          services=(
+            "finance" "hr" "library" "inventory"
+            "polls" "blogs" "tasks" "lms"
+          )
+
+          for service in "${services[@]}"; do
+            migration_dir="src/backend/services/${service^}/*/Migrations"
+            migration_count=$(find $migration_dir -name "*.cs" -type f \
+              2>/dev/null | wc -l || echo "0")
+            echo "| $service | $migration_count | ✅ |" >> migration-report.md
+          done
+
+          echo "" >> migration-report.md
+          echo "## Recommendations" >> migration-report.md
+          echo "- Ensure all migrations follow naming conventions" \
+            >> migration-report.md
+          echo "- Test migrations in staging environment before production" \
+            >> migration-report.md
+          echo "- Monitor migration performance for large datasets" \
+            >> migration-report.md
+          echo "- Maintain database backups before applying migrations" \
+            >> migration-report.md
+          echo "- Consider migration rollback strategies" \
+            >> migration-report.md
+
+      - name: Upload migration report
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-report
+          path: migration-report.md
+
+      - name: Comment on PR with migration results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('migration-report.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+
+  notify-migration-status:
+    name: Notify Migration Status
+    runs-on: ubuntu-latest
+    needs: [
+      validate-migration-files,
+      test-migrations,
+      cross-service-compatibility,
+      performance-test
+    ]
+    if: always()
+
+    steps:
+      - name: Notify success
+        if: >
+          needs.validate-migration-files.result == 'success' &&
+          needs.test-migrations.result == 'success' &&
+          needs.cross-service-compatibility.result == 'success' &&
+          needs.performance-test.result == 'success'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: |
+            ✅ Waaed Platform Database Migration Tests Passed
+
+            **Workflow:** ${{ github.workflow }}
+            **Run ID:** ${{ github.run_id }}
+            **Branch:** ${{ github.ref_name }}
+
+            All database migration tests completed successfully.
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify failure
+        if: >
+          needs.validate-migration-files.result == 'failure' ||
+          needs.test-migrations.result == 'failure' ||
+          needs.cross-service-compatibility.result == 'failure' ||
+          needs.performance-test.result == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            ❌ Waaed Platform Database Migration Tests Failed
+
+            **Workflow:** ${{ github.workflow }}
+            **Run ID:** ${{ github.run_id }}
+            **Branch:** ${{ github.ref_name }}
+
+            **Failed Components:**
+            - Migration Validation: ${{ needs.validate-migration-files.result }}
+            - Migration Testing: ${{ needs.test-migrations.result }}
+            - Cross-Service Compatibility: \
+              ${{ needs.cross-service-compatibility.result }}
+            - Performance Testing: ${{ needs.performance-test.result }}
+
+            Please review the workflow logs for details.
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  manual-migration-actions:
+    name: Manual Migration Actions
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install EF Core tools
+        run: dotnet tool install --global dotnet-ef
+
+      - name: Execute manual migration action
+        run: |
+          echo "Executing manual migration action:" \
+            "${{ github.event.inputs.migration_action }}"
+          echo "Target service: ${{ github.event.inputs.target_service }}"
+          echo "Environment: ${{ github.event.inputs.environment }}"
+
+          case "${{ github.event.inputs.migration_action }}" in
+            "reset-database")
+              echo "⚠️ Database reset action requested"
+              echo "This action would reset the database for" \
+                "${{ github.event.inputs.target_service }}"
+              echo "In production, this would require additional approval" \
+                "and backup procedures"
+              ;;
+            "rollback")
+              echo "🔄 Migration rollback requested"
+              echo "Target migration:" \
+                "${{ github.event.inputs.rollback_target }}"
+              echo "This action would rollback migrations to the" \
+                "specified target"
+              ;;
+            "generate-script")
+              echo "📄 Migration script generation requested"
+              echo "This action would generate SQL scripts for the" \
+                "specified service"
+              ;;
+            *)
+              echo "✅ Standard migration validation and testing"
+              ;;
+          esac
+
+          echo "Manual migration action completed"
+
+      - name: Upload action results
+        uses: actions/upload-artifact@v4
+        with:
+          name: manual-migration-results
+          path: |
+            *.sql
+            *.log

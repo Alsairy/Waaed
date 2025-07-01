@@ -47,7 +47,7 @@ const BlogPostEditor: React.FC = () => {
 
   const loadCategories = async () => {
     try {
-      const data = await blogsService.getCategories();
+      const data = await blogsService.getBlogCategories();
       setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error loading categories:', error);
@@ -55,7 +55,7 @@ const BlogPostEditor: React.FC = () => {
     }
   };
 
-  const handleInputChange = (field: keyof BlogPostFormData, value: any) => {
+  const handleInputChange = (field: keyof BlogPostFormData, value: string | boolean | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

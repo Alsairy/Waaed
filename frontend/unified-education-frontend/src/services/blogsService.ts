@@ -1,5 +1,34 @@
 import { apiClient } from './api';
 
+interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  status: string;
+  category: string;
+}
+
+interface BlogComment {
+  id: string;
+  postId: string;
+  content: string;
+  author: string;
+  status: string;
+}
+
+interface BlogCategory {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+}
+
+interface BlogTag {
+  id: string;
+  name: string;
+}
+
 export const blogsService = {
   getBlogPosts: async (params?: { page?: number; pageSize?: number; status?: string; category?: string; author?: string; tag?: string }) => {
     const response = await apiClient.get('/api/blogs/posts', { params });
@@ -11,12 +40,12 @@ export const blogsService = {
     return response.data.data || response.data;
   },
 
-  createBlogPost: async (postData: any) => {
+  createBlogPost: async (postData: Partial<BlogPost>) => {
     const response = await apiClient.post('/api/blogs/posts', postData);
     return response.data.data || response.data;
   },
 
-  updateBlogPost: async (id: string, postData: any) => {
+  updateBlogPost: async (id: string, postData: Partial<BlogPost>) => {
     const response = await apiClient.put(`/api/blogs/posts/${id}`, postData);
     return response.data.data || response.data;
   },
@@ -56,12 +85,12 @@ export const blogsService = {
     return response.data.data || response.data;
   },
 
-  createBlogComment: async (postId: string, commentData: any) => {
+  createBlogComment: async (postId: string, commentData: Partial<BlogComment>) => {
     const response = await apiClient.post(`/api/blogs/posts/${postId}/comments`, commentData);
     return response.data.data || response.data;
   },
 
-  updateBlogComment: async (postId: string, commentId: string, commentData: any) => {
+  updateBlogComment: async (postId: string, commentId: string, commentData: Partial<BlogComment>) => {
     const response = await apiClient.put(`/api/blogs/posts/${postId}/comments/${commentId}`, commentData);
     return response.data.data || response.data;
   },
@@ -91,12 +120,12 @@ export const blogsService = {
     return response.data.data || response.data;
   },
 
-  createBlogCategory: async (categoryData: any) => {
+  createBlogCategory: async (categoryData: Partial<BlogCategory>) => {
     const response = await apiClient.post('/api/blogs/categories', categoryData);
     return response.data.data || response.data;
   },
 
-  updateBlogCategory: async (id: string, categoryData: any) => {
+  updateBlogCategory: async (id: string, categoryData: Partial<BlogCategory>) => {
     const response = await apiClient.put(`/api/blogs/categories/${id}`, categoryData);
     return response.data.data || response.data;
   },
@@ -128,7 +157,7 @@ export const blogsService = {
     return response.data.data || response.data;
   },
 
-  createBlogTag: async (tagData: any) => {
+  createBlogTag: async (tagData: Partial<BlogTag>) => {
     const response = await apiClient.post('/api/blogs/tags', tagData);
     return response.data.data || response.data;
   },

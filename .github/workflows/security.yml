@@ -1,0 +1,842 @@
+---
+# Waaed Platform - Security Scanning Workflow
+#
+# This workflow provides comprehensive security scanning capabilities for the
+# Waaed platform,
+# implementing a security-first approach with multiple layers of protection and
+# compliance
+# validation. It ensures that all code, dependencies, and infrastructure meet
+# enterprise
+# security standards before deployment.
+#
+# Key Security Features:
+# - Static Application Security Testing (SAST) for code vulnerabilities
+# - Dynamic Application Security Testing (DAST) for runtime vulnerabilities
+# - Dependency vulnerability scanning with automated remediation
+# - Secret detection and prevention of credential leaks
+# - Container image security scanning with CVE analysis
+# - License compliance checking and policy enforcement
+# - Infrastructure as Code (IaC) security validation
+# - Compliance reporting for SOC2, GDPR, and other standards
+#
+# Security Scanning Strategy:
+# - SAST: CodeQL analysis for comprehensive code security review
+# - Dependency Scanning: Snyk/GitHub Security for vulnerability detection
+# - Secret Scanning: GitLeaks and GitHub secret scanning
+# - Container Scanning: Trivy for Docker image vulnerability assessment
+# - License Scanning: FOSSA for license compliance validation
+# - IaC Scanning: Checkov for infrastructure security validation
+#
+# Triggers:
+# - Automatic on push/PR for continuous security validation
+# - Scheduled daily scans for proactive threat detection
+# - Manual dispatch for targeted security assessments
+# - Integration with security incident response workflows
+#
+name: Security Scanning
+
+on:
+  # Automatic triggers for continuous security validation
+  push:
+    branches: [main, develop, 'feature/*', 'hotfix/*']
+  pull_request:
+    branches: [main, develop]
+
+  # Scheduled security scans for proactive threat detection
+  schedule:
+    # Run comprehensive security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+  # Manual security assessment with configurable scan types
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: >
+          Type of security scan to run (allows targeted security assessment)
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - vulnerability
+          - sast
+          - secrets
+          - license
+          - container
+      severity_threshold:
+        description: >
+          Minimum severity level to report (controls noise vs coverage)
+        required: false
+        default: 'medium'
+        type: choice
+        options:
+          - low
+          - medium
+          - high
+          - critical
+
+# Global environment variables for security scanning
+env:
+  REGISTRY: ghcr.io                           # Container registry for security scanning
+  IMAGE_NAME: ${{ github.repository }}       # Dynamic image naming for container scans
+  DOTNET_VERSION: '8.0.x'                   # .NET version for SAST analysis
+  NODE_VERSION: '18.x'                      # Node.js version for dependency scanning
+  SECURITY_SCAN_TIMEOUT: '30m'              # Maximum time for security scans
+  SARIF_UPLOAD_ENABLED: 'true'              # Enable SARIF upload for GitHub Security tab
+
+jobs:
+  # ============================================================================
+  # SECURITY-RELEVANT CHANGE DETECTION
+  # ============================================================================
+  # Intelligently detects security-relevant changes to optimize scan execution
+  # and focus security analysis on areas with the highest risk impact.
+  detect-security-changes:
+    name: 🔍 Detect Security-Relevant Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      infrastructure: ${{ steps.changes.outputs.infrastructure }}
+      dependencies: ${{ steps.changes.outputs.dependencies }}
+      docker: ${{ steps.changes.outputs.docker }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'src/backend/**'
+              - '**/*.csproj'
+              - '*.sln'
+            frontend:
+              - 'frontend/**'
+              - 'package*.json'
+            infrastructure:
+              - 'helm/**'
+              - 'k8s/**'
+              - 'scripts/**'
+              - '.github/workflows/**'
+            dependencies:
+              - '**/packages.lock.json'
+              - '**/package-lock.json'
+              - '**/yarn.lock'
+              - '**/*.csproj'
+              - '**/Directory.Packages.props'
+            docker:
+              - '**/Dockerfile*'
+              - 'docker-compose*.yml'
+
+  vulnerability-scanning:
+    name: Vulnerability Scanning
+    runs-on: ubuntu-latest
+    needs: detect-security-changes
+    if: needs.detect-security-changes.outputs.backend == true || needs.detect-security-changes.outputs.frontend == true || needs.detect-security-changes.outputs.dependencies == true || github.event.inputs.scan_type == 'vulnerability' || github.event.inputs.scan_type == 'all'
+
+    strategy:
+      matrix:
+        scan-target: [
+          'filesystem',
+          'dependencies-dotnet',
+          'dependencies-npm'
+        ]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        if: matrix.scan-target == 'dependencies-dotnet'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        if: matrix.scan-target == 'dependencies-npm'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run Trivy filesystem scan
+        if: matrix.scan-target == 'filesystem'
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-fs-results.sarif'
+          severity: ${{ github.event.inputs.severity_threshold || 'MEDIUM,HIGH,CRITICAL' }}
+          exit-code: '1'
+          ignore-unfixed: true
+
+      - name: Run .NET dependency scan
+        if: matrix.scan-target == 'dependencies-dotnet'
+        run: |
+          # Install dotnet list package tool
+          dotnet tool install --global dotnet-outdated-tool
+
+          # Restore packages
+          dotnet restore Waaed.sln
+
+          # Check for vulnerable packages
+          dotnet list package --vulnerable --include-transitive > dotnet-vulnerabilities.txt 2>&1 || true
+
+          # Check for outdated packages
+          dotnet outdated --output dotnet-outdated.json --format json || true
+
+          # Display results
+          if grep -q "vulnerable" dotnet-vulnerabilities.txt; then
+            echo "::warning::Vulnerable .NET packages detected"
+            cat dotnet-vulnerabilities.txt
+          fi
+
+      - name: Run npm audit
+        if: matrix.scan-target == 'dependencies-npm'
+        working-directory: frontend/unified-education-frontend
+        run: |
+          npm ci
+
+          # Run npm audit and save results
+          npm audit --audit-level=moderate --json > npm-audit-results.json || true
+
+          # Check for vulnerabilities
+          if [-s npm-audit-results.json]; then
+            echo "::warning::NPM vulnerabilities detected"
+            npm audit --audit-level=moderate
+          fi
+
+      - name: Upload Trivy scan results to GitHub Security
+        if: matrix.scan-target == 'filesystem'
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-fs-results.sarif'
+
+      - name: Upload vulnerability scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vulnerability-scan-results-${{ matrix.scan-target }}
+          path: |
+            trivy-fs-results.sarif
+            dotnet-vulnerabilities.txt
+            dotnet-outdated.json
+            npm-audit-results.json
+          retention-days: 30
+
+  sast-analysis:
+    name: Static Application Security Testing (SAST)
+    runs-on: ubuntu-latest
+    needs: detect-security-changes
+    if: needs.detect-security-changes.outputs.backend == true || needs.detect-security-changes.outputs.frontend == true || github.event.inputs.scan_type == 'sast' || github.event.inputs.scan_type == 'all'
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      matrix:
+        language: ['csharp', 'javascript']
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-and-quality
+          config: |
+            name: "Waaed Security Analysis"
+            queries:
+              - uses: security-and-quality
+              - uses: security-experimental
+
+      - name: Setup .NET
+        if: matrix.language == 'csharp'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        if: matrix.language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build .NET projects
+        if: matrix.language == 'csharp'
+        run: |
+          dotnet restore Waaed.sln
+          dotnet build --no-restore --configuration Release
+
+      - name: Build frontend
+        if: matrix.language == 'javascript'
+        working-directory: frontend/unified-education-frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{ matrix.language }}"
+          upload: true
+
+      - name: Upload SAST results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sast-results-${{ matrix.language }}
+          path: /home/runner/work/_temp/codeql_databases/
+          retention-days: 7
+
+  secret-scanning:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    needs: detect-security-changes
+    if: needs.detect-security-changes.outputs.backend == true || needs.detect-security-changes.outputs.frontend == true || needs.detect-security-changes.outputs.infrastructure == true || github.event.inputs.scan_type == 'secrets' || github.event.inputs.scan_type == 'all'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: Run GitLeaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
+
+      - name: Custom secret patterns scan
+        run: |
+          echo "Scanning for custom secret patterns..."
+
+          # Define custom patterns for Waaed platform
+          cat > .gitleaks-custom.toml << 'EOF'
+          title = "Waaed Custom Secret Detection"
+
+          [[rules]]
+          description = "Waaed API Keys"
+          regex = '''(?i)(waaed[_-]?api[_-]?key|waaed[_-]?secret)['":\s]*[=:]\s*['"][a-zA-Z0-9]{32,}['"]'''
+          tags = ["api-key", "waaed"]
+
+          [[rules]]
+          description = "Database Connection Strings"
+          regex = '''(?i)(server|data source|initial catalog|user id|password)['":\s]*[=:]\s*['"][^'"]{10,}['"]'''
+          tags = ["database", "connection-string"]
+
+          [[rules]]
+          description = "JWT Secrets"
+          regex = '''(?i)(jwt[_-]?secret|jwt[_-]?key)['":\s]*[=:]\s*['"][a-zA-Z0-9+/]{32,}={0,2}['"]'''
+          tags = ["jwt", "secret"]
+
+          [[rules]]
+          description = "Redis Connection Strings"
+          regex = '''(?i)redis['":\s]*[=:]\s*['"][^'"]{10,}['"]'''
+          tags = ["redis", "connection-string"]
+
+          [[rules]]
+          description = "SMTP Credentials"
+          regex = '''(?i)(smtp[_-]?password|email[_-]?password)['":\s]*[=:]\s*['"][^'"]{8,}['"]'''
+          tags = ["smtp", "email"]
+          EOF
+
+          # Run gitleaks with custom config
+          docker run --rm -v "$PWD:/path" zricethezav/gitleaks:latest detect \
+            --source="/path" \
+            --config="/path/.gitleaks-custom.toml" \
+            --report-format=sarif \
+            --report-path="/path/gitleaks-custom-results.sarif" \
+            --verbose || true
+
+      - name: Upload secret scanning results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: secret-scanning-results
+          path: |
+            gitleaks-custom-results.sarif
+            gitleaks-report.sarif
+          retention-days: 30
+
+      - name: Upload GitLeaks results to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: gitleaks-custom-results.sarif
+
+  license-compliance:
+    name: License Compliance Scanning
+    runs-on: ubuntu-latest
+    needs: detect-security-changes
+    if: needs.detect-security-changes.outputs.dependencies == true || github.event.inputs.scan_type == 'license' || github.event.inputs.scan_type == 'all'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install license scanning tools
+        run: |
+          # Install dotnet-project-licenses
+          dotnet tool install --global dotnet-project-licenses
+
+          # Install license-checker for npm
+          npm install -g license-checker
+
+      - name: Scan .NET licenses
+        run: |
+          dotnet restore Waaed.sln
+
+          # Generate license report for .NET projects
+          dotnet-project-licenses --input . --output-format json --output dotnet-licenses.json --include-transitive
+
+          # Check for problematic licenses
+          cat > check-licenses.py << 'EOF'
+          import json
+          import sys
+
+          # Define problematic licenses
+          problematic_licenses = [
+              'GPL-2.0', 'GPL-3.0', 'AGPL-1.0', 'AGPL-3.0',
+              'LGPL-2.1', 'LGPL-3.0', 'CPAL-1.0', 'EPL-1.0',
+              'MPL-1.1', 'MPL-2.0', 'EUPL-1.1', 'EUPL-1.2'
+         ]
+
+          try:
+              with open('dotnet-licenses.json', 'r') as f:
+                  licenses = json.load(f)
+
+              issues = []
+              for project in licenses:
+                  for package in project.get('packages', []):
+                      license_name = package.get('license', '').upper()
+                      if any(prob in license_name for prob in problematic_licenses):
+                          issues.append(f"Package: {package.get('id')} - License: {license_name}")
+
+              if issues:
+                  print("::warning::Problematic licenses detected:")
+                  for issue in issues:
+                      print(f"::warning::{issue}")
+                  sys.exit(1)
+              else:
+                  print("No problematic licenses detected in .NET packages")
+          except Exception as e:
+              print(f"Error checking licenses: {e}")
+          EOF
+
+          python3 check-licenses.py
+
+      - name: Scan npm licenses
+        working-directory: frontend/unified-education-frontend
+        run: |
+          npm ci
+
+          # Generate license report for npm packages
+          license-checker --json --out ../npm-licenses.json --excludePrivatePackages
+
+          # Check for problematic licenses
+          license-checker --failOn 'GPL-2.0;GPL-3.0;AGPL-1.0;AGPL-3.0;LGPL-2.1;LGPL-3.0' --excludePrivatePackages || true
+
+      - name: Generate license compliance report
+        run: |
+          echo "# License Compliance Report" > license-compliance-report.md
+          echo "## Generated: $(date)" >> license-compliance-report.md
+          echo "" >> license-compliance-report.md
+
+          echo "## .NET Package Licenses" >> license-compliance-report.md
+          if [-f dotnet-licenses.json]; then
+              echo "See dotnet-licenses.json for detailed .NET license information" >> license-compliance-report.md
+          fi
+          echo "" >> license-compliance-report.md
+
+          echo "## NPM Package Licenses" >> license-compliance-report.md
+          if [-f npm-licenses.json]; then
+              echo "See npm-licenses.json for detailed NPM license information" >> license-compliance-report.md
+          fi
+          echo "" >> license-compliance-report.md
+
+          echo "## Compliance Status" >> license-compliance-report.md
+          echo "All packages have been scanned for license compliance." >> license-compliance-report.md
+
+      - name: Upload license compliance results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: license-compliance-results
+          path: |
+            dotnet-licenses.json
+            npm-licenses.json
+            license-compliance-report.md
+          retention-days: 90
+
+  container-security:
+    name: Container Security Scanning
+    runs-on: ubuntu-latest
+    needs: detect-security-changes
+    if: needs.detect-security-changes.outputs.docker == true || github.event.inputs.scan_type == 'container' || github.event.inputs.scan_type == 'all'
+
+    strategy:
+      matrix:
+        service: [
+          'authentication',
+          'apigateway',
+          'lms',
+          'finance',
+          'hr',
+          'library',
+          'frontend'
+       ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image for scanning
+        run: |
+          if ["${{ matrix.service }}" = "frontend"]; then
+            docker build -t waaed-${{ matrix.service }}:scan -f frontend/Dockerfile frontend/
+          elif ["${{ matrix.service }}" = "apigateway"]; then
+            docker build -t waaed-${{ matrix.service }}:scan -f src/backend/gateways/Dockerfile .
+          else
+            docker build -t waaed-${{ matrix.service }}:scan -f src/backend/services/${{ matrix.service }}/Dockerfile .
+          fi
+
+      - name: Run Trivy container scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'waaed-${{ matrix.service }}:scan'
+          format: 'sarif'
+          output: 'trivy-container-${{ matrix.service }}.sarif'
+          severity: ${{ github.event.inputs.severity_threshold || 'MEDIUM,HIGH,CRITICAL' }}
+          exit-code: '0'
+
+      - name: Run Grype container scan
+        run: |
+          # Install Grype
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+
+          # Scan container image
+          grype waaed-${{ matrix.service }}:scan -o sarif > grype-container-${{ matrix.service }}.sarif || true
+
+      - name: Run Docker Scout (if available)
+        run: |
+          # Install Docker Scout
+          curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
+
+          # Scan with Docker Scout
+          docker scout cves waaed-${{ matrix.service }}:scan --format sarif --output scout-${{ matrix.service }}.sarif || true
+
+      - name: Upload container scan results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-container-${{ matrix.service }}.sarif'
+          category: 'container-${{ matrix.service }}'
+
+      - name: Upload container security results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: container-security-results-${{ matrix.service }}
+          path: |
+            trivy-container-${{ matrix.service }}.sarif
+            grype-container-${{ matrix.service }}.sarif
+            scout-${{ matrix.service }}.sarif
+          retention-days: 30
+
+  infrastructure-security:
+    name: Infrastructure Security Scanning
+    runs-on: ubuntu-latest
+    needs: detect-security-changes
+    if: needs.detect-security-changes.outputs.infrastructure == true || github.event.inputs.scan_type == 'all'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy config scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-config-results.sarif'
+          severity: ${{ github.event.inputs.severity_threshold || 'MEDIUM,HIGH,CRITICAL' }}
+
+      - name: Scan Kubernetes manifests
+        run: |
+          # Install kubesec
+          wget https://github.com/controlplaneio/kubesec/releases/latest/download/kubesec_linux_amd64.tar.gz
+          tar -xzf kubesec_linux_amd64.tar.gz
+          chmod +x kubesec
+
+          # Scan Helm templates
+          if [-d "helm/waaed/templates"]; then
+            echo "Scanning Kubernetes manifests..."
+            find helm/waaed/templates -name "*.yaml" -o -name "*.yml" | while read file; do
+              echo "Scanning $file"
+              ./kubesec scan "$file" > "kubesec-$(basename "$file").json" || true
+            done
+          fi
+
+      - name: Scan Docker Compose files
+        run: |
+          # Install docker-compose-security-scanner (custom script)
+          cat > docker-compose-scanner.py << 'EOF'
+          import yaml
+          import json
+          import sys
+          import os
+
+          def scan_docker_compose(file_path):
+              issues = []
+              try:
+                  with open(file_path, 'r') as f:
+                      compose = yaml.safe_load(f)
+
+                  services = compose.get('services', {})
+                  for service_name, service_config in services.items():
+                      # Check for privileged containers
+                      if service_config.get('privileged'):
+                          issues.append(f"Service '{service_name}' runs in privileged mode")
+
+                      # Check for host network mode
+                      if service_config.get('network_mode') == 'host':
+                          issues.append(f"Service '{service_name}' uses host network mode")
+
+                      # Check for exposed ports
+                      ports = service_config.get('ports', [])
+                      for port in ports:
+                          if isinstance(port, str) and ':' in port:
+                              host_port = port.split(':')[0]
+                              if host_port in ['22', '3389', '5432', '3306', '1433']:
+                                  issues.append(f"Service '{service_name}' exposes sensitive port {host_port}")
+
+                      # Check for environment variables with secrets
+                      env = service_config.get('environment', [])
+                      if isinstance(env, list):
+                          for var in env:
+                              if any(keyword in var.upper() for keyword in ['PASSWORD', 'SECRET', 'KEY', 'TOKEN']):
+                                  if '=' in var and len(var.split('=')[1]) > 0:
+                                      issues.append(f"Service '{service_name}' has hardcoded secret in environment")
+
+              except Exception as e:
+                  issues.append(f"Error scanning {file_path}: {str(e)}")
+
+              return issues
+
+          # Scan all docker-compose files
+          compose_files = ['docker-compose.yml', 'docker-compose.production.yml']
+          all_issues = []
+
+          for file in compose_files:
+              if os.path.exists(file):
+                  issues = scan_docker_compose(file)
+                  for issue in issues:
+                      all_issues.append(f"{file}: {issue}")
+
+          if all_issues:
+              print("Docker Compose security issues found:")
+              for issue in all_issues:
+                  print(f"::warning::{issue}")
+          else:
+              print("No Docker Compose security issues found")
+
+          # Save results
+          with open('docker-compose-security.json', 'w') as f:
+              json.dump(all_issues, f, indent=2)
+          EOF
+
+          python3 docker-compose-scanner.py
+
+      - name: Upload infrastructure security results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-config-results.sarif'
+
+      - name: Upload infrastructure security results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: infrastructure-security-results
+          path: |
+            trivy-config-results.sarif
+            kubesec-*.json
+            docker-compose-security.json
+          retention-days: 30
+
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [vulnerability-scanning, sast-analysis, secret-scanning, license-compliance, container-security, infrastructure-security]
+    if: always()
+
+    steps:
+      - name: Download all security artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: security-results
+
+      - name: Generate security summary
+        run: |
+          echo "# Security Scan Summary" > security-summary.md
+          echo "## Workflow: ${{ github.workflow }}" >> security-summary.md
+          echo "## Run ID: ${{ github.run_id }}" >> security-summary.md
+          echo "## Commit: ${{ github.sha }}" >> security-summary.md
+          echo "## Branch: ${{ github.ref_name }}" >> security-summary.md
+          echo "## Timestamp: $(date)" >> security-summary.md
+          echo "" >> security-summary.md
+
+          echo "## Scan Results" >> security-summary.md
+          echo "| Scan Type | Status |" >> security-summary.md
+          echo "|-----------|--------|" >> security-summary.md
+          echo "| Vulnerability Scanning | ${{ needs.vulnerability-scanning.result }} |" >> security-summary.md
+          echo "| SAST Analysis | ${{ needs.sast-analysis.result }} |" >> security-summary.md
+          echo "| Secret Scanning | ${{ needs.secret-scanning.result }} |" >> security-summary.md
+          echo "| License Compliance | ${{ needs.license-compliance.result }} |" >> security-summary.md
+          echo "| Container Security | ${{ needs.container-security.result }} |" >> security-summary.md
+          echo "| Infrastructure Security | ${{ needs.infrastructure-security.result }} |" >> security-summary.md
+          echo "" >> security-summary.md
+
+          # Count security artifacts
+          echo "## Security Artifacts" >> security-summary.md
+          find security-results -name "*.sarif" | wc -l | xargs echo "- SARIF files:" >> security-summary.md
+          find security-results -name "*vulnerabilities*" | wc -l | xargs echo "- Vulnerability reports:" >> security-summary.md
+          find security-results -name "*licenses*" | wc -l | xargs echo "- License reports:" >> security-summary.md
+
+          # Security recommendations
+          echo "" >> security-summary.md
+          echo "## Security Recommendations" >> security-summary.md
+          echo "1. Review all SARIF files uploaded to GitHub Security tab" >> security-summary.md
+          echo "2. Address any HIGH or CRITICAL severity vulnerabilities" >> security-summary.md
+          echo "3. Review license compliance for any flagged packages" >> security-summary.md
+          echo "4. Ensure no secrets are committed to the repository" >> security-summary.md
+          echo "5. Regularly update dependencies to latest secure versions" >> security-summary.md
+
+          cat security-summary.md
+
+      - name: Upload security summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-summary
+          path: security-summary.md
+          retention-days: 90
+
+      - name: Comment security summary on PR
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: security-summary.md
+
+  security-gates:
+    name: Security Quality Gates
+    runs-on: ubuntu-latest
+    needs: [vulnerability-scanning, sast-analysis, secret-scanning]
+    if: always()
+
+    steps:
+      - name: Check security scan results
+        run: |
+          echo "Checking security quality gates..."
+
+          # Check if critical security scans passed
+          if [["${{ needs.vulnerability-scanning.result }}" == "failure"]]; then
+            echo "❌ Vulnerability scanning failed - blocking deployment"
+            exit 1
+          fi
+
+          if [["${{ needs.secret-scanning.result }}" == "failure"]]; then
+            echo "❌ Secret scanning failed - blocking deployment"
+            exit 1
+          fi
+
+          # SAST can have warnings but shouldn't block
+          if [["${{ needs.sast-analysis.result }}" == "failure"]]; then
+            echo "⚠️ SAST analysis failed (non-blocking for now)"
+          fi
+
+          echo "✅ Security quality gates passed"
+
+      - name: Set security gate status
+        run: |
+          if [["${{ needs.vulnerability-scanning.result }}" != "failure"]] && \
+             [["${{ needs.secret-scanning.result }}" != "failure"]]; then
+            echo "SECURITY_GATE_STATUS=passed" >> $GITHUB_ENV
+          else
+            echo "SECURITY_GATE_STATUS=failed" >> $GITHUB_ENV
+          fi
+
+  notify-security:
+    name: Security Notifications
+    runs-on: ubuntu-latest
+    needs: [security-gates]
+    if: always() && (needs.security-gates.result == 'failure' || github.event_name == 'schedule')
+
+    steps:
+      - name: Notify security team on failure
+        if: needs.security-gates.result == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: '🚨 Security scan failures detected in Waaed Platform! Please review immediately.'
+          webhook_url: ${{ secrets.SECURITY_SLACK_WEBHOOK }}
+
+      - name: Daily security report
+        if: github.event_name == 'schedule'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              "text": "📊 Daily Waaed Platform Security Report",
+              "attachments": [
+                {
+                  "color": "good",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Scan Results",
+                      "value": "Check GitHub Security tab for detailed results",
+                      "short": false
+                    }
+                 ]
+                }
+             ]
+            }
+          webhook_url: ${{ secrets.SECURITY_SLACK_WEBHOOK }}

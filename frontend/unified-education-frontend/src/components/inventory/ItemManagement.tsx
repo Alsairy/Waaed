@@ -3,9 +3,24 @@ import { useTranslation } from 'react-i18next';
 import { Package, Plus, Download, Search, Eye, Edit, MoreVertical, Tag, DollarSign, AlertTriangle, CheckCircle } from 'lucide-react';
 import { inventoryService } from '../../services';
 
+interface Item {
+  id: string;
+  name: string;
+  code: string;
+  category: string;
+  description: string;
+  unit: string;
+  unitCost: number;
+  stockQuantity: number;
+  minStockLevel: number;
+  maxStockLevel: number;
+  status: string;
+  imageUrl?: string;
+}
+
 const ItemManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,7 +47,7 @@ const ItemManagement: React.FC = () => {
     }
   };
 
-  const filteredItems = items.filter((item: any) => {
+  const filteredItems = items.filter((item: Item) => {
     const matchesSearch = searchTerm === '' || 
       item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,14 +59,14 @@ const ItemManagement: React.FC = () => {
 
   const itemStats = {
     total: items.length,
-    inStock: items.filter((i: any) => i.stockQuantity > 0).length,
-    lowStock: items.filter((i: any) => i.stockQuantity <= i.minStockLevel).length,
-    outOfStock: items.filter((i: any) => i.stockQuantity === 0).length,
+    inStock: items.filter((i: Item) => i.stockQuantity > 0).length,
+    lowStock: items.filter((i: Item) => i.stockQuantity <= i.minStockLevel).length,
+    outOfStock: items.filter((i: Item) => i.stockQuantity === 0).length,
   };
 
-  const categories = [...new Set(items.map((i: any) => i.category).filter(Boolean))];
+  const categories = [...new Set(items.map((i: Item) => i.category).filter(Boolean))];
 
-  const getStockStatus = (item: any) => {
+  const getStockStatus = (item: Item) => {
     if (item.stockQuantity === 0) return 'out-of-stock';
     if (item.stockQuantity <= item.minStockLevel) return 'low-stock';
     return 'in-stock';

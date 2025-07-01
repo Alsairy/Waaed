@@ -1,4 +1,4 @@
-# 🚀 Hudur - Enterprise Workforce Management Platform
+# 🚀 Waaed - Unified Education Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
@@ -7,9 +7,12 @@
 [![React Native](https://img.shields.io/badge/React%20Native-0.72-blue.svg)](https://reactnative.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-blue.svg)](https://kubernetes.io/)
-[![CI/CD](https://github.com/your-org/hudur/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/your-org/hudur/actions)
+[![CI/CD](https://github.com/Alsairy/Waaed/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/Alsairy/Waaed/actions)
+[![Build Status](https://github.com/Alsairy/Waaed/workflows/Build%20and%20Test/badge.svg)](https://github.com/Alsairy/Waaed/actions)
+[![Security Scan](https://github.com/Alsairy/Waaed/workflows/Security%20Scan/badge.svg)](https://github.com/Alsairy/Waaed/actions)
+[![Code Quality](https://github.com/Alsairy/Waaed/workflows/Code%20Quality/badge.svg)](https://github.com/Alsairy/Waaed/actions)
 
-> **🌟 World-Class Enterprise Platform** - Complete workforce management solution with AI-powered analytics, real-time collaboration, and comprehensive business intelligence.
+> **🌟 World-Class Unified Education Platform** - Complete educational management solution with AI-powered analytics, real-time collaboration, and comprehensive business intelligence for modern educational institutions.
 
 ## 📋 Table of Contents
 
@@ -20,6 +23,7 @@
 - [📱 Mobile Apps](#-mobile-apps)
 - [🔧 Development](#-development)
 - [🚀 Deployment](#-deployment)
+- [⚙️ CI/CD Pipeline](#️-cicd-pipeline)
 - [🔗 Integrations](#-integrations)
 - [📊 Analytics](#-analytics)
 - [🔒 Security](#-security)
@@ -29,10 +33,11 @@
 
 ## 🎯 Overview
 
-Hudur is a **production-ready enterprise workforce management platform** featuring cutting-edge technology, AI-powered analytics, and comprehensive business intelligence. Built with modern microservices architecture and designed for global scale.
+Waaed is a **production-ready unified education platform** featuring cutting-edge technology, AI-powered analytics, and comprehensive business intelligence. Built with modern microservices architecture and designed for global scale.
 
-### 🌟 **Why Hudur?**
+### 🌟 **Why Waaed?**
 
+- **🎓 Comprehensive Education Management**: Complete LMS, Finance, HR, Library, and more
 - **🤖 AI-Powered**: Predictive analytics and anomaly detection
 - **📊 Business Intelligence**: Real-time dashboards and custom reporting
 - **🔄 Workflow Automation**: Visual workflow designer with business rules
@@ -41,6 +46,7 @@ Hudur is a **production-ready enterprise workforce management platform** featuri
 - **📱 Mobile-First**: Native iOS/Android apps with offline support
 - **⚡ High Performance**: Event sourcing, CQRS, advanced caching
 - **🔒 Enterprise Security**: Multi-factor auth, RBAC, audit trails
+- **🚀 Advanced CI/CD**: Automated testing, deployment, and monitoring
 
 ## ✨ Key Features
 
@@ -111,8 +117,8 @@ Hudur is a **production-ready enterprise workforce management platform** featuri
 
 ### **1. Clone Repository**
 ```bash
-git clone https://github.com/your-org/hudur.git
-cd hudur
+git clone https://github.com/Alsairy/Waaed.git
+cd Waaed
 ```
 
 ### **2. Environment Setup**
@@ -144,7 +150,7 @@ docker-compose logs -f
 
 ### **5. Default Login**
 ```
-Email: admin@hudur.sa
+Email: admin@waaed.sa
 Password: Admin123!
 ```
 
@@ -182,7 +188,7 @@ npx react-native run-android
 ### **Backend Development**
 ```bash
 # Navigate to backend service
-cd src/backend/services/Authentication/Hudur.Authentication.Api
+cd src/backend/services/Authentication/Waaed.Authentication.Api
 
 # Restore packages
 dotnet restore
@@ -197,7 +203,7 @@ dotnet test
 ### **Frontend Development**
 ```bash
 # Navigate to frontend
-cd src/frontend/hudur-frontend
+cd src/frontend/waaed-frontend
 
 # Install dependencies
 npm install
@@ -238,7 +244,7 @@ docker-compose -f docker-compose.production.yml up -d
 kubectl apply -f k8s/
 
 # Check deployment
-kubectl get pods -n hudur
+kubectl get pods -n waaed
 
 # Access via port-forward
 kubectl port-forward svc/frontend 3000:3000
@@ -247,13 +253,115 @@ kubectl port-forward svc/frontend 3000:3000
 ### **Helm Deployment**
 ```bash
 # Install with Helm
-helm install hudur ./helm/hudur
+helm install waaed ./helm/waaed
 
 # Upgrade
-helm upgrade hudur ./helm/hudur
+helm upgrade waaed ./helm/waaed
 
 # Status
-helm status hudur
+helm status waaed
+```
+
+## ⚙️ CI/CD Pipeline
+
+### **Advanced CI/CD Features**
+Waaed implements a world-class CI/CD pipeline with cutting-edge automation and monitoring:
+
+- **🔄 Multi-Environment Deployments**: Automated deployments to Development, Staging, and Production
+- **🛡️ Security-First Approach**: Comprehensive security scanning at every stage
+- **⚡ Performance Optimization**: Parallel builds, intelligent caching, and artifact reuse
+- **📊 Comprehensive Monitoring**: Real-time monitoring, alerting, and observability
+- **🔒 Compliance Automation**: Automated compliance checks and reporting
+- **🚨 Disaster Recovery**: Automated backup and restore procedures
+
+### **Workflow Overview**
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Code Push     │───▶│   CI Pipeline   │───▶│   Deployment    │
+│   (GitHub)      │    │   (Testing)     │    │   (Multi-Env)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ Security Scan   │    │ Quality Gates   │    │   Monitoring    │
+│ (SAST/DAST)     │    │ (Coverage/Lint) │    │ (Prometheus)    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+### **Pipeline Stages**
+
+#### **1. Build & Test**
+- **Parallel Builds**: All microservices build simultaneously
+- **Unit Testing**: 80%+ code coverage requirement
+- **Integration Testing**: End-to-end API testing
+- **Performance Testing**: Load and stress testing
+
+#### **2. Security & Quality**
+- **SAST Analysis**: Static application security testing
+- **Dependency Scanning**: Vulnerability assessment
+- **Container Scanning**: Docker image security
+- **Code Quality**: SonarCloud analysis with quality gates
+
+#### **3. Deployment Strategies**
+- **Development**: Rolling deployment on every push to `develop`
+- **Staging**: Blue-green deployment on merge to `main`
+- **Production**: Canary deployment with manual approval
+
+#### **4. Monitoring & Observability**
+- **Health Checks**: Automated service health monitoring
+- **Performance Metrics**: Real-time performance tracking
+- **Log Aggregation**: Centralized logging with ELK stack
+- **Alerting**: Slack/email notifications for issues
+
+### **Environment Configuration**
+
+| Environment | Trigger | Strategy | Approval | Monitoring |
+|-------------|---------|----------|----------|------------|
+| **Development** | Push to `develop` | Rolling | Automatic | Basic |
+| **Staging** | Merge to `main` | Blue-Green | Automatic | Full |
+| **Production** | Manual trigger | Canary | Required | Enhanced |
+
+### **Workflow Files**
+Comprehensive CI/CD workflows located in `.github/workflows/`:
+
+- **[ci-cd-pipeline.yml](.github/workflows/ci-cd-pipeline.yml)** - Main orchestration pipeline
+- **[testing.yml](.github/workflows/testing.yml)** - Comprehensive testing suite
+- **[security.yml](.github/workflows/security.yml)** - Security scanning and compliance
+- **[docker-build.yml](.github/workflows/docker-build.yml)** - Container image building
+- **[deploy-dev.yml](.github/workflows/deploy-dev.yml)** - Development deployment
+- **[deploy-staging.yml](.github/workflows/deploy-staging.yml)** - Staging deployment
+- **[deploy-production.yml](.github/workflows/deploy-production.yml)** - Production deployment
+- **[monitoring.yml](.github/workflows/monitoring.yml)** - Monitoring and alerting
+- **[database.yml](.github/workflows/database.yml)** - Database migrations
+
+### **Secrets Management**
+```bash
+# Generate secure secrets for deployment
+./scripts/generate-secrets.sh
+
+# Secrets are automatically configured for:
+# - Database connections
+# - JWT tokens
+# - External service APIs
+# - Container registry access
+```
+
+### **Monitoring Dashboard**
+Access comprehensive monitoring at:
+- **Grafana**: http://localhost:3001 (Development)
+- **Prometheus**: http://localhost:9090 (Metrics)
+- **Application Logs**: Centralized via ELK stack
+
+### **Deployment Commands**
+```bash
+# Manual production deployment
+gh workflow run deploy-production.yml
+
+# Check deployment status
+gh run list --workflow=ci-cd-pipeline.yml
+
+# View logs
+gh run view <run-id> --log
 ```
 
 ## 🔗 Integrations
@@ -336,9 +444,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### **Getting Help**
 - **📖 Documentation**: Comprehensive guides and API reference
-- **🐛 Issues**: [GitHub Issues](https://github.com/your-org/hudur/issues) for bug reports
-- **💬 Discussions**: [GitHub Discussions](https://github.com/your-org/hudur/discussions) for Q&A
-- **📧 Email**: support@hudur.sa for enterprise support
+- **🐛 Issues**: [GitHub Issues](https://github.com/Alsairy/Waaed/issues) for bug reports
+- **💬 Discussions**: [GitHub Discussions](https://github.com/Alsairy/Waaed/discussions) for Q&A
+- **📧 Email**: support@waaed.sa for enterprise support
 
 ### **Community**
 - **⭐ Star** this repository if you find it useful
@@ -349,7 +457,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🌟 **Ready to Transform Your Workforce Management?**
 
-Hudur combines cutting-edge technology with enterprise-grade reliability to deliver a comprehensive workforce management solution. Whether you're a startup or enterprise, Hudur scales with your needs.
+Waaed combines cutting-edge technology with enterprise-grade reliability to deliver a comprehensive educational management solution. Whether you're a startup or enterprise, Waaed scales with your needs.
 
 **[Get Started Today →](docs/getting-started.md)**
 
@@ -358,9 +466,9 @@ Hudur combines cutting-edge technology with enterprise-grade reliability to deli
 
 <div align="center">
 
-**Built with ❤️ by the Hudur Team**
+**Built with ❤️ by the Waaed Team**
 
-[Website](https://hudur.sa) • [Documentation](docs/) • [API Reference](docs/api/) • [Support](mailto:support@hudur.sa)
+[Website](https://waaed.sa) • [Documentation](docs/) • [API Reference](docs/api/) • [Support](mailto:support@waaed.sa)
 
 </div>
 

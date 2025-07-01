@@ -1,5 +1,41 @@
 import { apiClient } from './api';
 
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  priority: string;
+  assignedTo: string;
+  category: string;
+  dueDate: string;
+}
+
+interface TaskComment {
+  id: string;
+  taskId: string;
+  content: string;
+  author: string;
+  createdAt: string;
+}
+
+interface TaskAssignment {
+  assignedTo: string;
+  assignedBy: string;
+  assignedAt: string;
+}
+
+interface TaskCompletion {
+  completedBy: string;
+  completedAt: string;
+  notes: string;
+}
+
+interface TaskDependency {
+  dependentTaskId: string;
+  dependencyType: string;
+}
+
 export const tasksService = {
   getTasks: async (params?: { page?: number; pageSize?: number; status?: string; priority?: string; assignedTo?: string; category?: string }) => {
     const response = await apiClient.get('/api/tasks', { params });
@@ -11,12 +47,12 @@ export const tasksService = {
     return response.data.data || response.data;
   },
 
-  createTask: async (taskData: any) => {
+  createTask: async (taskData: Partial<Task>) => {
     const response = await apiClient.post('/api/tasks', taskData);
     return response.data.data || response.data;
   },
 
-  updateTask: async (id: string, taskData: any) => {
+  updateTask: async (id: string, taskData: Partial<Task>) => {
     const response = await apiClient.put(`/api/tasks/${id}`, taskData);
     return response.data.data || response.data;
   },
@@ -26,12 +62,12 @@ export const tasksService = {
     return response.data.data || response.data;
   },
 
-  assignTask: async (id: string, assignmentData: any) => {
+  assignTask: async (id: string, assignmentData: Partial<TaskAssignment>) => {
     const response = await apiClient.put(`/api/tasks/${id}/assign`, assignmentData);
     return response.data.data || response.data;
   },
 
-  completeTask: async (id: string, completionData: any) => {
+  completeTask: async (id: string, completionData: Partial<TaskCompletion>) => {
     const response = await apiClient.put(`/api/tasks/${id}/complete`, completionData);
     return response.data.data || response.data;
   },
@@ -51,12 +87,12 @@ export const tasksService = {
     return response.data.data || response.data;
   },
 
-  createTaskComment: async (taskId: string, commentData: any) => {
+  createTaskComment: async (taskId: string, commentData: Partial<TaskComment>) => {
     const response = await apiClient.post(`/api/tasks/${taskId}/comments`, commentData);
     return response.data.data || response.data;
   },
 
-  updateTaskComment: async (taskId: string, commentId: string, commentData: any) => {
+  updateTaskComment: async (taskId: string, commentId: string, commentData: Partial<TaskComment>) => {
     const response = await apiClient.put(`/api/tasks/${taskId}/comments/${commentId}`, commentData);
     return response.data.data || response.data;
   },
@@ -108,7 +144,7 @@ export const tasksService = {
     return response.data.data || response.data;
   },
 
-  createSubTask: async (parentTaskId: string, taskData: any) => {
+  createSubTask: async (parentTaskId: string, taskData: Partial<Task>) => {
     const response = await apiClient.post(`/api/tasks/${parentTaskId}/subtasks`, taskData);
     return response.data.data || response.data;
   },
@@ -118,7 +154,7 @@ export const tasksService = {
     return response.data.data || response.data;
   },
 
-  addTaskDependency: async (taskId: string, dependencyData: any) => {
+  addTaskDependency: async (taskId: string, dependencyData: Partial<TaskDependency>) => {
     const response = await apiClient.post(`/api/tasks/${taskId}/dependencies`, dependencyData);
     return response.data.data || response.data;
   },
@@ -150,7 +186,7 @@ export const tasksService = {
     return response.data.data || response.data;
   },
 
-  createTaskFromTemplate: async (templateId: string, taskData: any) => {
+  createTaskFromTemplate: async (templateId: string, taskData: Partial<Task>) => {
     const response = await apiClient.post(`/api/tasks/templates/${templateId}/create`, taskData);
     return response.data.data || response.data;
   },
@@ -160,12 +196,12 @@ export const tasksService = {
     return response.data.data || response.data;
   },
 
-  createRecurringTask: async (taskData: any) => {
+  createRecurringTask: async (taskData: Partial<Task>) => {
     const response = await apiClient.post('/api/tasks/recurring', taskData);
     return response.data.data || response.data;
   },
 
-  updateRecurringTask: async (id: string, taskData: any) => {
+  updateRecurringTask: async (id: string, taskData: Partial<Task>) => {
     const response = await apiClient.put(`/api/tasks/recurring/${id}`, taskData);
     return response.data.data || response.data;
   },

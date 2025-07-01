@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FileText, Plus, Download, Search, Eye, Edit, MoreVertical, Calendar, DollarSign, TrendingUp, BarChart3, PieChart } from 'lucide-react';
+import { FileText, Plus, Download, Search, Eye, MoreVertical, Calendar, DollarSign, TrendingUp, BarChart3, PieChart } from 'lucide-react';
 import { financeService } from '../../services';
+
+interface FinancialReport {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  generatedDate: string;
+  status: string;
+  period: string;
+}
 
 const FinancialReports: React.FC = () => {
   const { t } = useTranslation();
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<FinancialReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,7 +41,7 @@ const FinancialReports: React.FC = () => {
     }
   };
 
-  const filteredReports = reports.filter((report: any) => {
+  const filteredReports = reports.filter((report: FinancialReport) => {
     const matchesSearch = searchTerm === '' || 
       report.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.description?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -43,14 +53,14 @@ const FinancialReports: React.FC = () => {
 
   const reportStats = {
     total: reports.length,
-    thisMonth: reports.filter((r: any) => 
+    thisMonth: reports.filter((r: FinancialReport) => 
       r.generatedDate && new Date(r.generatedDate).getMonth() === new Date().getMonth()
     ).length,
-    income: reports.filter((r: any) => r.type === 'Income').length,
-    expense: reports.filter((r: any) => r.type === 'Expense').length,
+    income: reports.filter((r: FinancialReport) => r.type === 'Income').length,
+    expense: reports.filter((r: FinancialReport) => r.type === 'Expense').length,
   };
 
-  const reportTypes = [...new Set(reports.map((r: any) => r.type).filter(Boolean))];
+  const reportTypes = [...new Set(reports.map((r: FinancialReport) => r.type).filter(Boolean))];
 
   const generateReport = async (reportType: string) => {
     try {

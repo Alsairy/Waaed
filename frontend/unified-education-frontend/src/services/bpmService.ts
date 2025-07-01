@@ -1,5 +1,12 @@
 import { apiClient } from './api';
 
+interface Workflow {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+}
+
 export const bpmService = {
   getWorkflows: async () => {
     const response = await apiClient.get('/api/bpm/workflows');
@@ -11,12 +18,12 @@ export const bpmService = {
     return response.data.data || response.data;
   },
   
-  createWorkflow: async (workflowData: any) => {
+  createWorkflow: async (workflowData: Partial<Workflow>) => {
     const response = await apiClient.post('/api/bpm/workflows', workflowData);
     return response.data.data || response.data;
   },
   
-  updateWorkflow: async (id: string, workflowData: any) => {
+  updateWorkflow: async (id: string, workflowData: Partial<Workflow>) => {
     const response = await apiClient.put(`/api/bpm/workflows/${id}`, workflowData);
     return response.data.data || response.data;
   },

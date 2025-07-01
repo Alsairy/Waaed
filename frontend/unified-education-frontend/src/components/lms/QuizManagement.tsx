@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { 
@@ -10,9 +10,7 @@ import {
   Edit, 
   MoreVertical, 
   Calendar, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle,
+  CheckCircle,
   Users,
   Award,
   Timer
@@ -29,13 +27,7 @@ const QuizManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
 
-  useEffect(() => {
-    if (courseId) {
-      loadQuizzes();
-    }
-  }, [courseId]);
-
-  const loadQuizzes = async () => {
+  const loadQuizzes = useCallback(async () => {
     if (!courseId) return;
     
     try {
@@ -50,7 +42,13 @@ const QuizManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId]);
+
+  useEffect(() => {
+    if (courseId) {
+      loadQuizzes();
+    }
+  }, [courseId, loadQuizzes]);
 
   const filteredQuizzes = quizzes.filter((quiz: Quiz) => {
     const matchesSearch = searchTerm === '' || 

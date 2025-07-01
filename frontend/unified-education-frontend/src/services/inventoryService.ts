@@ -1,5 +1,71 @@
 import { apiClient } from './api';
 
+interface Store {
+  id: string;
+  name: string;
+  location: string;
+  type: string;
+  status: string;
+}
+
+interface Item {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  storeId: string;
+}
+
+interface Supplier {
+  id: string;
+  name: string;
+  contactPerson: string;
+  email: string;
+  phone: string;
+  address: string;
+}
+
+interface Indent {
+  id: string;
+  department: string;
+  requestedBy: string;
+  status: string;
+  items: string[];
+}
+
+interface PurchaseOrder {
+  id: string;
+  supplierId: string;
+  status: string;
+  totalAmount: number;
+  orderDate: string;
+}
+
+interface GoodsReceipt {
+  id: string;
+  purchaseOrderId: string;
+  receivedDate: string;
+  status: string;
+}
+
+interface Issue {
+  id: string;
+  department: string;
+  issuedBy: string;
+  status: string;
+  items: string[];
+}
+
+interface StockAdjustment {
+  id: string;
+  itemId: string;
+  type: string;
+  quantity: number;
+  reason: string;
+}
+
 export const inventoryService = {
   getStores: async (params?: { page?: number; pageSize?: number; status?: string; type?: string }) => {
     const response = await apiClient.get('/api/inventory/stores', { params });
@@ -11,12 +77,12 @@ export const inventoryService = {
     return response.data.data || response.data;
   },
 
-  createStore: async (storeData: any) => {
+  createStore: async (storeData: Partial<Store>) => {
     const response = await apiClient.post('/api/inventory/stores', storeData);
     return response.data.data || response.data;
   },
 
-  updateStore: async (id: string, storeData: any) => {
+  updateStore: async (id: string, storeData: Partial<Store>) => {
     const response = await apiClient.put(`/api/inventory/stores/${id}`, storeData);
     return response.data.data || response.data;
   },
@@ -36,12 +102,12 @@ export const inventoryService = {
     return response.data.data || response.data;
   },
 
-  createItem: async (itemData: any) => {
+  createItem: async (itemData: Partial<Item>) => {
     const response = await apiClient.post('/api/inventory/items', itemData);
     return response.data.data || response.data;
   },
 
-  updateItem: async (id: string, itemData: any) => {
+  updateItem: async (id: string, itemData: Partial<Item>) => {
     const response = await apiClient.put(`/api/inventory/items/${id}`, itemData);
     return response.data.data || response.data;
   },
@@ -68,12 +134,12 @@ export const inventoryService = {
     return response.data.data || response.data;
   },
 
-  createSupplier: async (supplierData: any) => {
+  createSupplier: async (supplierData: Partial<Supplier>) => {
     const response = await apiClient.post('/api/inventory/suppliers', supplierData);
     return response.data.data || response.data;
   },
 
-  updateSupplier: async (id: string, supplierData: any) => {
+  updateSupplier: async (id: string, supplierData: Partial<Supplier>) => {
     const response = await apiClient.put(`/api/inventory/suppliers/${id}`, supplierData);
     return response.data.data || response.data;
   },
@@ -93,22 +159,22 @@ export const inventoryService = {
     return response.data.data || response.data;
   },
 
-  createIndent: async (indentData: any) => {
+  createIndent: async (indentData: Partial<Indent>) => {
     const response = await apiClient.post('/api/inventory/indents', indentData);
     return response.data.data || response.data;
   },
 
-  updateIndent: async (id: string, indentData: any) => {
+  updateIndent: async (id: string, indentData: Partial<Indent>) => {
     const response = await apiClient.put(`/api/inventory/indents/${id}`, indentData);
     return response.data.data || response.data;
   },
 
-  approveIndent: async (id: string, approvalData: any) => {
+  approveIndent: async (id: string, approvalData: Record<string, unknown>) => {
     const response = await apiClient.put(`/api/inventory/indents/${id}/approve`, approvalData);
     return response.data.data || response.data;
   },
 
-  rejectIndent: async (id: string, rejectionData: any) => {
+  rejectIndent: async (id: string, rejectionData: Record<string, unknown>) => {
     const response = await apiClient.put(`/api/inventory/indents/${id}/reject`, rejectionData);
     return response.data.data || response.data;
   },
@@ -128,17 +194,17 @@ export const inventoryService = {
     return response.data.data || response.data;
   },
 
-  createPurchaseOrder: async (purchaseOrderData: any) => {
+  createPurchaseOrder: async (purchaseOrderData: Partial<PurchaseOrder>) => {
     const response = await apiClient.post('/api/inventory/purchase-orders', purchaseOrderData);
     return response.data.data || response.data;
   },
 
-  updatePurchaseOrder: async (id: string, purchaseOrderData: any) => {
+  updatePurchaseOrder: async (id: string, purchaseOrderData: Partial<PurchaseOrder>) => {
     const response = await apiClient.put(`/api/inventory/purchase-orders/${id}`, purchaseOrderData);
     return response.data.data || response.data;
   },
 
-  approvePurchaseOrder: async (id: string, approvalData: any) => {
+  approvePurchaseOrder: async (id: string, approvalData: Record<string, unknown>) => {
     const response = await apiClient.put(`/api/inventory/purchase-orders/${id}/approve`, approvalData);
     return response.data.data || response.data;
   },
@@ -158,12 +224,12 @@ export const inventoryService = {
     return response.data.data || response.data;
   },
 
-  createGoodsReceipt: async (goodsReceiptData: any) => {
+  createGoodsReceipt: async (goodsReceiptData: Partial<GoodsReceipt>) => {
     const response = await apiClient.post('/api/inventory/goods-receipts', goodsReceiptData);
     return response.data.data || response.data;
   },
 
-  updateGoodsReceipt: async (id: string, goodsReceiptData: any) => {
+  updateGoodsReceipt: async (id: string, goodsReceiptData: Partial<GoodsReceipt>) => {
     const response = await apiClient.put(`/api/inventory/goods-receipts/${id}`, goodsReceiptData);
     return response.data.data || response.data;
   },
@@ -183,12 +249,12 @@ export const inventoryService = {
     return response.data.data || response.data;
   },
 
-  createIssue: async (issueData: any) => {
+  createIssue: async (issueData: Partial<Issue>) => {
     const response = await apiClient.post('/api/inventory/issues', issueData);
     return response.data.data || response.data;
   },
 
-  updateIssue: async (id: string, issueData: any) => {
+  updateIssue: async (id: string, issueData: Partial<Issue>) => {
     const response = await apiClient.put(`/api/inventory/issues/${id}`, issueData);
     return response.data.data || response.data;
   },
@@ -208,12 +274,12 @@ export const inventoryService = {
     return response.data.data || response.data;
   },
 
-  createStockAdjustment: async (adjustmentData: any) => {
+  createStockAdjustment: async (adjustmentData: Partial<StockAdjustment>) => {
     const response = await apiClient.post('/api/inventory/stock-adjustments', adjustmentData);
     return response.data.data || response.data;
   },
 
-  updateStockAdjustment: async (id: string, adjustmentData: any) => {
+  updateStockAdjustment: async (id: string, adjustmentData: Partial<StockAdjustment>) => {
     const response = await apiClient.put(`/api/inventory/stock-adjustments/${id}`, adjustmentData);
     return response.data.data || response.data;
   },

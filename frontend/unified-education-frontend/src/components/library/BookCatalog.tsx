@@ -3,9 +3,28 @@ import { useTranslation } from 'react-i18next';
 import { Book, Plus, Download, Search, Eye, Edit, MoreVertical, BookOpen, User, Calendar, Star, Filter } from 'lucide-react';
 import { libraryService } from '../../services';
 
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  isbn: string;
+  category: string;
+  status: string;
+  publishedYear: number;
+  publicationYear?: number;
+  publisher: string;
+  availableCopies: number;
+  totalCopies: number;
+  location: string;
+  description?: string;
+  coverImage?: string;
+  rating?: number;
+  reviewCount?: number;
+}
+
 const BookCatalog: React.FC = () => {
   const { t } = useTranslation();
-  const [books, setBooks] = useState<any[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,7 +51,7 @@ const BookCatalog: React.FC = () => {
     }
   };
 
-  const filteredBooks = books.filter((book: any) => {
+  const filteredBooks = books.filter((book: Book) => {
     const matchesSearch = searchTerm === '' || 
       book.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       book.author?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,12 +63,12 @@ const BookCatalog: React.FC = () => {
 
   const bookStats = {
     total: books.length,
-    available: books.filter((b: any) => b.status === 'Available').length,
-    borrowed: books.filter((b: any) => b.status === 'Borrowed').length,
-    reserved: books.filter((b: any) => b.status === 'Reserved').length,
+    available: books.filter((b: Book) => b.status === 'Available').length,
+    borrowed: books.filter((b: Book) => b.status === 'Borrowed').length,
+    reserved: books.filter((b: Book) => b.status === 'Reserved').length,
   };
 
-  const categories = [...new Set(books.map((b: any) => b.category).filter(Boolean))];
+  const categories = [...new Set(books.map((b: Book) => b.category).filter(Boolean))];
 
   if (loading) {
     return (

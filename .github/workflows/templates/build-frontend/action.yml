@@ -1,0 +1,178 @@
+name: 'Build Frontend Application'
+description: 'Builds a React/TypeScript frontend application with optimization'
+inputs:
+  app-name:
+    description: 'Name of the frontend application'
+    required: true
+  app-path:
+    description: 'Path to the frontend application directory'
+    required: true
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '18.x'
+  package-manager:
+    description: 'Package manager to use (npm/yarn/pnpm)'
+    required: false
+    default: 'npm'
+  build-command:
+    description: 'Build command to run'
+    required: false
+    default: 'build'
+  enable-tests:
+    description: 'Whether to run tests after build'
+    required: false
+    default: true
+  enable-lint:
+    description: 'Whether to run linting'
+    required: false
+    default: true
+outputs:
+  build-status:
+    description: 'Build status (success/failure)'
+    value: ${{ steps.build.outputs.status }}
+  dist-path:
+    description: 'Path to build output directory'
+    value: ${{ steps.build.outputs.dist-path }}
+  test-results:
+    description: 'Test results summary'
+    value: ${{ steps.test.outputs.results }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: ${{ inputs.package-manager }}
+        cache-dependency-path: ${{ inputs.app-path }}/package-lock.json
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.app-path }}
+      run: |
+        echo "Installing dependencies for ${{ inputs.app-name }}..."
+        case "${{ inputs.package-manager }}" in
+          "npm")
+            npm ci
+            ;;
+          "yarn")
+            yarn install --frozen-lockfile
+            ;;
+          "pnpm")
+            pnpm install --frozen-lockfile
+            ;;
+          *)
+            echo "Unsupported package manager: ${{ inputs.package-manager }}"
+            exit 1
+            ;;
+        esac
+
+    - name: Run linting
+      if: inputs.enable-lint == true
+      shell: bash
+      working-directory: ${{ inputs.app-path }}
+      run: |
+        echo "Running linting for ${{ inputs.app-name }}..."
+        case "${{ inputs.package-manager }}" in
+          "npm")
+            npm run lint
+            ;;
+          "yarn")
+            yarn lint
+            ;;
+          "pnpm")
+            pnpm lint
+            ;;
+        esac
+
+    - name: Run tests
+      id: test
+      if: inputs.enable-tests == true
+      shell: bash
+      working-directory: ${{ inputs.app-path }}
+      run: |
+        echo "Running tests for ${{ inputs.app-name }}..."
+        case "${{ inputs.package-manager }}" in
+          "npm")
+            npm run test -- --coverage --watchAll=false
+            ;;
+          "yarn")
+            yarn test --coverage --watchAll=false
+            ;;
+          "pnpm")
+            pnpm test --coverage --watchAll=false
+            ;;
+        esac
+        echo "results=Tests completed successfully" >> $GITHUB_OUTPUT
+
+    - name: Build application
+      id: build
+      shell: bash
+      working-directory: ${{ inputs.app-path }}
+      run: |
+        echo "Building ${{ inputs.app-name }}..."
+        case "${{ inputs.package-manager }}" in
+          "npm")
+            npm run ${{ inputs.build-command }}
+            ;;
+          "yarn")
+            yarn ${{ inputs.build-command }}
+            ;;
+          "pnpm")
+            pnpm ${{ inputs.build-command }}
+            ;;
+        esac
+        
+        if [ $? -eq 0 ]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+          
+          # Determine dist path
+          if [ -d "dist" ]; then
+            echo "dist-path=${{ inputs.app-path }}/dist" >> $GITHUB_OUTPUT
+          elif [ -d "build" ]; then
+            echo "dist-path=${{ inputs.app-path }}/build" >> $GITHUB_OUTPUT
+          else
+            echo "dist-path=${{ inputs.app-path }}" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "status=failure" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+
+    - name: Analyze bundle size
+      shell: bash
+      working-directory: ${{ inputs.app-path }}
+      run: |
+        echo "Analyzing bundle size for ${{ inputs.app-name }}..."
+        
+        # Check if bundle analyzer is available
+        if [ -f "package.json" ] && grep -q "analyze" package.json; then
+          case "${{ inputs.package-manager }}" in
+            "npm")
+              npm run analyze || echo "Bundle analysis not available"
+              ;;
+            "yarn")
+              yarn analyze || echo "Bundle analysis not available"
+              ;;
+            "pnpm")
+              pnpm analyze || echo "Bundle analysis not available"
+              ;;
+          esac
+        fi
+
+    - name: Generate build summary
+      shell: bash
+      run: |
+        echo "## Build Summary for ${{ inputs.app-name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status:** ${{ steps.build.outputs.status }}" >> \
+          $GITHUB_STEP_SUMMARY
+        echo "- **Package Manager:** ${{ inputs.package-manager }}" >> \
+          $GITHUB_STEP_SUMMARY
+        echo "- **Node Version:** ${{ inputs.node-version }}" >> \
+          $GITHUB_STEP_SUMMARY
+        echo "- **Tests:** ${{ inputs.enable-tests }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Linting:** ${{ inputs.enable-lint }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Dist Path:** ${{ steps.build.outputs.dist-path }}" >> \
+          $GITHUB_STEP_SUMMARY

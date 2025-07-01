@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Save, X, Calendar, Users, Settings, Eye, EyeOff } from 'lucide-react';
+import { Plus, Save, X } from 'lucide-react';
 import { pollsService } from '../../services';
 
 interface PollOption {
@@ -43,7 +43,7 @@ const PollCreation: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const handleInputChange = (field: keyof PollFormData, value: any) => {
+  const handleInputChange = (field: keyof PollFormData, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

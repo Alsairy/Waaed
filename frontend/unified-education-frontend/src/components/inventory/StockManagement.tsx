@@ -1,12 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Package2, Plus, Download, Search, Eye, Edit, MoreVertical, TrendingUp, TrendingDown, AlertTriangle, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { Package2, Plus, Download, Search, Eye, MoreVertical, TrendingUp, TrendingDown, RefreshCw, ArrowUpDown } from 'lucide-react';
 import { inventoryService } from '../../services';
+
+interface StockMovement {
+  id: string;
+  itemId: string;
+  itemName: string;
+  itemCode: string;
+  movementType: string;
+  quantity: number;
+  date: string;
+  reference: string;
+  notes?: string;
+  type: string;
+  storeName?: string;
+  userName?: string;
+}
+
+interface StockAdjustment {
+  id: string;
+  itemName: string;
+  itemCode: string;
+  adjustmentType: string;
+  quantity: number;
+  date: string;
+  reason: string;
+  storeName: string;
+  userName: string;
+}
 
 const StockManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [stockMovements, setStockMovements] = useState<any[]>([]);
-  const [stockAdjustments, setStockAdjustments] = useState<any[]>([]);
+  const [stockMovements, setStockMovements] = useState<StockMovement[]>([]);
+  const [stockAdjustments, setStockAdjustments] = useState<StockAdjustment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -38,7 +65,7 @@ const StockManagement: React.FC = () => {
     }
   };
 
-  const filteredMovements = stockMovements.filter((movement: any) => {
+  const filteredMovements = stockMovements.filter((movement: StockMovement) => {
     const matchesSearch = searchTerm === '' || 
       movement.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       movement.itemCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -48,7 +75,7 @@ const StockManagement: React.FC = () => {
     return matchesSearch && matchesType && matchesStore;
   });
 
-  const filteredAdjustments = stockAdjustments.filter((adjustment: any) => {
+  const filteredAdjustments = stockAdjustments.filter((adjustment: StockAdjustment) => {
     const matchesSearch = searchTerm === '' || 
       adjustment.itemName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       adjustment.itemCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -59,13 +86,13 @@ const StockManagement: React.FC = () => {
 
   const stockStats = {
     totalMovements: stockMovements.length,
-    inbound: stockMovements.filter((m: any) => m.type === 'Inbound').length,
-    outbound: stockMovements.filter((m: any) => m.type === 'Outbound').length,
+    inbound: stockMovements.filter((m: StockMovement) => m.type === 'Inbound').length,
+    outbound: stockMovements.filter((m: StockMovement) => m.type === 'Outbound').length,
     adjustments: stockAdjustments.length,
   };
 
-  const movementTypes = [...new Set(stockMovements.map((m: any) => m.type).filter(Boolean))];
-  const stores = [...new Set([...stockMovements.map((m: any) => m.storeName), ...stockAdjustments.map((a: any) => a.storeName)].filter(Boolean))];
+  const movementTypes = [...new Set(stockMovements.map((m: StockMovement) => m.type).filter(Boolean))];
+  const stores = [...new Set([...stockMovements.map((m: StockMovement) => m.storeName), ...stockAdjustments.map((a: StockAdjustment) => a.storeName)].filter(Boolean))];
 
   const getMovementIcon = (type: string) => {
     switch (type) {

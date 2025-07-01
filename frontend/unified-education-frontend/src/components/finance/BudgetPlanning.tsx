@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PieChart, Plus, Download, Search, Eye, Edit, MoreVertical, Calendar, DollarSign, TrendingUp, TrendingDown, Target } from 'lucide-react';
+import { PieChart, Plus, Download, Search, Eye, Edit, MoreVertical, Calendar, DollarSign, TrendingUp, Target } from 'lucide-react';
 import { financeService } from '../../services';
+
+interface Budget {
+  id: string;
+  name: string;
+  department: string;
+  year: string;
+  allocatedAmount: number;
+  spentAmount: number;
+  status: string;
+}
 
 const BudgetPlanning: React.FC = () => {
   const { t } = useTranslation();
-  const [budgets, setBudgets] = useState<any[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [yearFilter, setYearFilter] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
 
-  useEffect(() => {
-    loadBudgets();
-  }, []);
-
-  const loadBudgets = async () => {
+  const loadBudgets = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -29,9 +35,13 @@ const BudgetPlanning: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const filteredBudgets = budgets.filter((budget: any) => {
+  useEffect(() => {
+    loadBudgets();
+  }, [loadBudgets]);
+
+  const filteredBudgets = budgets.filter((budget: Budget) => {
     const matchesSearch = searchTerm === '' || 
       budget.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       budget.department?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -41,18 +51,18 @@ const BudgetPlanning: React.FC = () => {
   });
 
   const budgetStats = {
-    totalBudget: budgets.reduce((sum: number, b: any) => sum + (b.allocatedAmount || 0), 0),
-    totalSpent: budgets.reduce((sum: number, b: any) => sum + (b.spentAmount || 0), 0),
-    approved: budgets.filter((b: any) => b.status === 'Approved').length,
-    pending: budgets.filter((b: any) => b.status === 'Pending').length,
+    totalBudget: budgets.reduce((sum: number, b: Budget) => sum + (b.allocatedAmount || 0), 0),
+    totalSpent: budgets.reduce((sum: number, b: Budget) => sum + (b.spentAmount || 0), 0),
+    approved: budgets.filter((b: Budget) => b.status === 'Approved').length,
+    pending: budgets.filter((b: Budget) => b.status === 'Pending').length,
   };
 
   const utilizationRate = budgetStats.totalBudget > 0 
     ? (budgetStats.totalSpent / budgetStats.totalBudget) * 100 
     : 0;
 
-  const departments = [...new Set(budgets.map((b: any) => b.department).filter(Boolean))];
-  const years = [...new Set(budgets.map((b: any) => b.year).filter(Boolean))];
+  const departments = [...new Set(budgets.map((b: Budget) => b.department).filter(Boolean))];
+  const years = [...new Set(budgets.map((b: Budget) => b.year).filter(Boolean))];
 
   if (loading) {
     return (

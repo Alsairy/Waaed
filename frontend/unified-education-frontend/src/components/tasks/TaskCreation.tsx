@@ -51,7 +51,7 @@ const TaskCreation: React.FC = () => {
     }
   };
 
-  const handleInputChange = (field: keyof TaskFormData, value: any) => {
+  const handleInputChange = (field: keyof TaskFormData, value: string | string[] | File[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

@@ -5,17 +5,17 @@ type: application
 version: 1.0.0
 appVersion: "1.0.0"
 keywords:
-  - attendance
-  - workforce
-  - biometric
-  - face-recognition
+  - education
+  - lms
+  - finance
   - hr
-home: https://hudur.sa
+  - library
+home: https://waaed.sa
 sources:
-  - https://github.com/hudur/platform
+  - https://github.com/Alsairy/Waaed
 maintainers:
-  - name: Hudur Team
-    email: support@hudur.sa
+  - name: Waaed Team
+    email: support@waaed.sa
 dependencies:
   - name: postgresql
     version: 12.1.9

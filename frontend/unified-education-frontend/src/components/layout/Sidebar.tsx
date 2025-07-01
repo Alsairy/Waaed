@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -33,7 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 
 
-  const menuItems = [
+  const menuItems = useMemo(() => [
     {
       key: 'main',
       label: t('navigation.main'),
@@ -160,11 +160,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         }
       ]
     }
-  ];
+  ], [t]);
 
-  const isActiveLink = (link: string) => {
+  const isActiveLink = useCallback((link: string) => {
     return location.pathname === link;
-  };
+  }, [location.pathname]);
 
   useEffect(() => {
     const currentSection = menuItems.find(section => 
@@ -173,7 +173,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     if (currentSection && !expandedMenus.includes(currentSection.key)) {
       setExpandedMenus(prev => [...prev, currentSection.key]);
     }
-  }, [location.pathname]);
+  }, [location.pathname, menuItems, isActiveLink, expandedMenus]);
 
   return (
     <>

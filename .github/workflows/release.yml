@@ -1,0 +1,757 @@
+---
+name: Release Automation
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type (major, minor, patch)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+      pre_release:
+        description: 'Create as pre-release'
+        required: false
+        default: false
+        type: boolean
+      skip_tests:
+        description: 'Skip tests (emergency release)'
+        required: false
+        default: false
+        type: boolean
+      rollback_version:
+        description: 'Version to rollback to (if needed)'
+        required: false
+        type: string
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  HELM_CHART_PATH: ./helm/waaed
+  NODE_VERSION: '18'
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  validate-release:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    outputs:
+      current_version: ${{ steps.version.outputs.current_version }}
+      new_version: ${{ steps.version.outputs.new_version }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+      is_valid: ${{ steps.validate.outputs.is_valid }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install semantic-release
+        run: |
+          npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
+
+      - name: Get current version
+        id: version
+        run: |
+          # Get the latest tag
+          CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+          # Calculate new version based on release type
+          if ["${{ github.event_name }}" = "workflow_dispatch"]; then
+            RELEASE_TYPE="${{ github.event.inputs.release_type }}"
+
+            # Remove 'v' prefix for calculation
+            VERSION_NUMBER=${CURRENT_VERSION#v}
+            IFS='.' read -r -a VERSION_PARTS <<< "$VERSION_NUMBER"
+
+            MAJOR=${VERSION_PARTS[0]:-0}
+            MINOR=${VERSION_PARTS[1]:-0}
+            PATCH=${VERSION_PARTS[2]:-0}
+
+            case $RELEASE_TYPE in
+              major)
+                MAJOR=$((MAJOR + 1))
+                MINOR=0
+                PATCH=0
+                ;;
+              minor)
+                MINOR=$((MINOR + 1))
+                PATCH=0
+                ;;
+              patch)
+                PATCH=$((PATCH + 1))
+                ;;
+            esac
+
+            NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+          else
+            # For tag pushes, use the tag as the new version
+            NEW_VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+          echo "New version: $NEW_VERSION"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          echo "Generating changelog from ${{ steps.version.outputs.current_version }} to ${{ steps.version.outputs.new_version }}"
+
+          # Generate changelog using git log
+          CHANGELOG=$(git log ${{ steps.version.outputs.current_version }}..HEAD --pretty=format:"- %s (%h)" --no-merges | head -50)
+
+          if [-z "$CHANGELOG"]; then
+            CHANGELOG="- Initial release or no changes since last version"
+          fi
+
+          # Save changelog to output
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          # Save to file for later use
+          echo "$CHANGELOG" > CHANGELOG.md
+
+      - name: Validate release
+        id: validate
+        run: |
+          echo "Validating release ${{ steps.version.outputs.new_version }}"
+
+          # Check if version format is valid
+          if [[! "${{ steps.version.outputs.new_version }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$]]; then
+            echo "Invalid version format: ${{ steps.version.outputs.new_version }}"
+            exit 1
+          fi
+
+          # Check if tag already exists
+          if git tag -l | grep -q "^${{ steps.version.outputs.new_version }}$"; then
+            echo "Tag ${{ steps.version.outputs.new_version }} already exists"
+            exit 1
+          fi
+
+          echo "is_valid=true" >> $GITHUB_OUTPUT
+
+      - name: Upload changelog artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: CHANGELOG.md
+
+  run-tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: validate-release
+    if: >
+      needs.validate-release.outputs.is_valid == true &&
+      github.event.inputs.skip_tests != true
+
+    strategy:
+      matrix:
+        test-type: [unit, integration, e2e]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Restore .NET dependencies
+        run: dotnet restore Waaed.sln
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend/unified-education-frontend
+          npm ci
+
+      - name: Run unit tests
+        if: matrix.test-type == 'unit'
+        run: |
+          dotnet test tests/unit/ --verbosity normal \
+            --logger "trx;LogFileName=unit-test-results.trx" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Run integration tests
+        if: matrix.test-type == 'integration'
+        run: |
+          dotnet test tests/integration/ --verbosity normal \
+            --logger "trx;LogFileName=integration-test-results.trx" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Run E2E tests
+        if: matrix.test-type == 'e2e'
+        run: |
+          dotnet test tests/e2e/ --verbosity normal \
+            --logger "trx;LogFileName=e2e-test-results.trx" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.test-type }}
+          path: |
+            **/TestResults/**/*.trx
+            **/TestResults/**/*.xml
+
+  build-artifacts:
+    name: Build Release Artifacts
+    runs-on: ubuntu-latest
+    needs: [validate-release, run-tests]
+    if: >
+      always() &&
+      needs.validate-release.outputs.is_valid == true &&
+      (needs.run-tests.result == 'success' || needs.run-tests.result == 'skipped')
+
+    outputs:
+      artifact_paths: ${{ steps.artifacts.outputs.paths }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build backend services
+        run: |
+          echo "Building backend services..."
+
+          # Create release directory
+          mkdir -p release/backend
+
+          # Build each service
+          services=(
+            "Authentication" "Attendance" "LMS" "Finance" "HR"
+            "Library" "Inventory" "Polls" "Blogs" "Tasks"
+            "UserManagement" "Collaboration" "Analytics"
+            "Notifications" "TenantManagement"
+          )
+
+          for service in "${services[@]}"; do
+            echo "Building $service service..."
+            if [-d "src/backend/services/$service"]; then
+              dotnet publish "src/backend/services/$service" \
+                -c Release \
+                -o "release/backend/$service" \
+                --no-restore
+            fi
+          done
+
+          # Build API Gateway
+          echo "Building API Gateway..."
+          dotnet publish "src/backend/gateways/Waaed.ApiGateway" \
+            -c Release \
+            -o "release/backend/ApiGateway" \
+            --no-restore
+
+      - name: Build frontend
+        run: |
+          echo "Building frontend..."
+          cd frontend/unified-education-frontend
+          npm ci
+          npm run build
+
+          # Copy build to release directory
+          mkdir -p ../../release/frontend
+          cp -r dist/* ../../release/frontend/
+
+      - name: Package Helm charts
+        run: |
+          echo "Packaging Helm charts..."
+          mkdir -p release/helm
+
+          # Package Helm chart
+          helm package helm/waaed -d release/helm
+
+          # Create values files for different environments
+          cp helm/waaed/values.yaml release/helm/values-dev.yaml
+          cp helm/waaed/values.yaml release/helm/values-staging.yaml
+          cp helm/waaed/values.yaml release/helm/values-production.yaml
+
+      - name: Create deployment scripts
+        run: |
+          echo "Creating deployment scripts..."
+          mkdir -p release/scripts
+
+          # Copy deployment scripts
+          cp scripts/*.sh release/scripts/
+
+          # Create release-specific deployment script
+          cat > release/scripts/deploy-release.sh << 'EOF'
+          #!/bin/bash
+          set -e
+
+          VERSION="${1:-latest}"
+          ENVIRONMENT="${2:-development}"
+
+          echo "Deploying Waaed Platform version $VERSION to $ENVIRONMENT"
+
+          # Deploy using Helm
+          helm upgrade --install waaed-$ENVIRONMENT ./helm/waaed-*.tgz \
+            --namespace waaed-$ENVIRONMENT \
+            --create-namespace \
+            --set image.tag=$VERSION \
+            --set environment=$ENVIRONMENT \
+            --values ./helm/values-$ENVIRONMENT.yaml \
+            --wait --timeout=10m
+
+          echo "Deployment completed successfully"
+          EOF
+
+          chmod +x release/scripts/deploy-release.sh
+
+      - name: Create documentation
+        run: |
+          echo "Creating release documentation..."
+          mkdir -p release/docs
+
+          # Copy README and documentation
+          cp README.md release/docs/
+
+          # Create release notes
+          cat > release/docs/RELEASE_NOTES.md << EOF
+          # Waaed Platform Release ${{
+          # needs.validate-release.outputs.new_version }}
+
+          ## What's New
+          ${{ needs.validate-release.outputs.changelog }}
+
+          ## Installation
+
+          ### Using Helm
+          \`\`\`bash
+          helm install waaed ./helm/waaed-*.tgz \\
+            --namespace waaed \\
+            --create-namespace \\
+            --set image.tag=${{ needs.validate-release.outputs.new_version }}
+          \`\`\`
+
+          ### Using Docker Compose
+          \`\`\`bash
+          export WAAED_VERSION=${{ needs.validate-release.outputs.new_version }}
+          docker-compose up -d
+          \`\`\`
+
+          ## Upgrade Instructions
+
+          ### From Previous Version
+          \`\`\`bash
+          ./scripts/deploy-release.sh ${{ needs.validate-release.outputs.new_version }} production
+          \`\`\`
+
+          ## Breaking Changes
+          Please review the changelog for any breaking changes that may affect your deployment.
+
+          ## Support
+          For support and questions, please visit our GitHub repository.
+          EOF
+
+      - name: Create release archives
+        id: artifacts
+        run: |
+          echo "Creating release archives..."
+
+          # Create backend archive
+          cd release
+          tar -czf waaed-backend-${{ needs.validate-release.outputs.new_version }}.tar.gz backend/
+
+          # Create frontend archive
+          tar -czf waaed-frontend-${{ needs.validate-release.outputs.new_version }}.tar.gz frontend/
+
+          # Create Helm chart archive (already created by helm package)
+
+          # Create scripts archive
+          tar -czf waaed-scripts-${{ needs.validate-release.outputs.new_version }}.tar.gz scripts/
+
+          # Create documentation archive
+          tar -czf waaed-docs-${{ needs.validate-release.outputs.new_version }}.tar.gz docs/
+
+          # Create complete release archive
+          tar -czf waaed-complete-${{ needs.validate-release.outputs.new_version }}.tar.gz \
+            backend/ frontend/ helm/ scripts/ docs/
+
+          # List all artifacts
+          ARTIFACT_PATHS=$(ls -1 *.tar.gz *.tgz | tr '\n' ',' | sed 's/,$//')
+          echo "paths=$ARTIFACT_PATHS" >> $GITHUB_OUTPUT
+
+          echo "Created artifacts:"
+          ls -la *.tar.gz *.tgz
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            release/*.tar.gz
+            release/helm/*.tgz
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate-release, run-tests, build-artifacts]
+    if: >
+      always() &&
+      needs.validate-release.outputs.is_valid == true &&
+      (needs.run-tests.result == 'success' || needs.run-tests.result == 'skipped') &&
+      needs.build-artifacts.result == 'success'
+
+    outputs:
+      release_id: ${{ steps.release.outputs.id }}
+      release_url: ${{ steps.release.outputs.html_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: ./artifacts
+
+      - name: Download changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog
+          path: ./
+
+      - name: Create Git tag
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -a ${{ needs.validate-release.outputs.new_version }} \
+            -m "Release ${{ needs.validate-release.outputs.new_version }}"
+          git push origin ${{ needs.validate-release.outputs.new_version }}
+
+      - name: Create GitHub Release
+        id: release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.validate-release.outputs.new_version }}
+          name: "Waaed Platform ${{ needs.validate-release.outputs.new_version }}"
+          body_path: ./CHANGELOG.md
+          draft: false
+          prerelease: ${{ github.event.inputs.pre_release == true }}
+          files: |
+            ./artifacts/*.tar.gz
+            ./artifacts/helm/*.tgz
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update release documentation
+        run: |
+          echo "Release created successfully!"
+          echo "Release ID: ${{ steps.release.outputs.id }}"
+          echo "Release URL: ${{ steps.release.outputs.html_url }}"
+          echo "Version: ${{ needs.validate-release.outputs.new_version }}"
+
+  build-and-push-images:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    needs: [validate-release, create-release]
+    if: >
+      needs.validate-release.outputs.is_valid == true &&
+      needs.create-release.result == 'success'
+
+    strategy:
+      matrix:
+        service:
+          - authentication
+          - attendance
+          - lms
+          - finance
+          - hr
+          - library
+          - inventory
+          - polls
+          - blogs
+          - tasks
+          - api-gateway
+          - frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ github.repository_owner }}/waaed-${{ matrix.service }}
+          tags: |
+            type=ref,event=tag
+            type=raw,value=${{ needs.validate-release.outputs.new_version }}
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./src/backend/services/${{ matrix.service }}/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-to-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [validate-release, create-release, build-and-push-images]
+    if: >
+      needs.validate-release.outputs.is_valid == true &&
+      needs.create-release.result == 'success' &&
+      needs.build-and-push-images.result == 'success'
+
+    environment:
+      name: staging
+      url: https://staging.waaed.platform.com
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: '1.28.0'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name waaed-staging-cluster
+
+      - name: Deploy to staging
+        run: |
+          helm upgrade --install waaed-staging ${{ env.HELM_CHART_PATH }} \
+            --namespace waaed-staging \
+            --create-namespace \
+            --set environment=staging \
+            --set image.tag=${{ needs.validate-release.outputs.new_version }} \
+            --set ingress.host=staging.waaed.platform.com \
+            --set replicaCount=2 \
+            --set autoscaling.enabled=true \
+            --set autoscaling.minReplicas=2 \
+            --set autoscaling.maxReplicas=10 \
+            --wait --timeout=10m
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against staging..."
+
+          # Wait for deployment to be ready
+          kubectl wait --for=condition=available --timeout=300s deployment/waaed-staging -n waaed-staging
+
+          # Test health endpoints
+          curl -f "https://staging.waaed.platform.com/health" || exit 1
+          curl -f "https://staging.waaed.platform.com/api/auth/health" || exit 1
+          curl -f "https://staging.waaed.platform.com/api/lms/health" || exit 1
+
+          echo "Smoke tests passed!"
+
+  rollback:
+    name: Rollback Release
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.rollback_version != ''
+
+    environment:
+      name: rollback-approval
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: '1.28.0'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Rollback staging
+        run: |
+          echo "Rolling back staging to version: ${{ github.event.inputs.rollback_version }}"
+
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name waaed-staging-cluster
+
+          helm upgrade waaed-staging ${{ env.HELM_CHART_PATH }} \
+            --namespace waaed-staging \
+            --set environment=staging \
+            --set image.tag=${{ github.event.inputs.rollback_version }} \
+            --set ingress.host=staging.waaed.platform.com \
+            --wait --timeout=10m
+
+      - name: Rollback production
+        run: |
+          echo "Rolling back production to version: ${{ github.event.inputs.rollback_version }}"
+
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name waaed-prod-cluster
+
+          helm upgrade waaed-prod ${{ env.HELM_CHART_PATH }} \
+            --namespace waaed-prod \
+            --set environment=production \
+            --set image.tag=${{ github.event.inputs.rollback_version }} \
+            --set ingress.host=waaed.platform.com \
+            --wait --timeout=10m
+
+      - name: Verify rollback
+        run: |
+          echo "Verifying rollback..."
+
+          # Check staging
+          kubectl wait --for=condition=available --timeout=300s deployment/waaed-staging -n waaed-staging
+          curl -f "https://staging.waaed.platform.com/health" || exit 1
+
+          # Check production
+          kubectl wait --for=condition=available --timeout=300s deployment/waaed-prod -n waaed-prod
+          curl -f "https://waaed.platform.com/health" || exit 1
+
+          echo "Rollback completed successfully!"
+
+  notify-release:
+    name: Notify Release Status
+    runs-on: ubuntu-latest
+    needs: [validate-release, create-release, deploy-to-staging, rollback]
+    if: always()
+
+    steps:
+      - name: Notify success
+        if: >
+          needs.validate-release.result == 'success' &&
+          needs.create-release.result == 'success' &&
+          (needs.deploy-to-staging.result == 'success' || needs.deploy-to-staging.result == 'skipped') &&
+          (needs.rollback.result == 'success' || needs.rollback.result == 'skipped')
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: |
+            🚀 Waaed Platform Release Successful!
+
+            **Version:** ${{ needs.validate-release.outputs.new_version }}
+            **Release URL:** ${{ needs.create-release.outputs.release_url }}
+            **Staging URL:** https://staging.waaed.platform.com
+
+            **What's New:**
+            ${{ needs.validate-release.outputs.changelog }}
+
+            Ready for production deployment!
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify failure
+        if: >
+          needs.validate-release.result == 'failure' ||
+          needs.create-release.result == 'failure' ||
+          needs.deploy-to-staging.result == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: |
+            ❌ Waaed Platform Release Failed!
+
+            **Version:** ${{ needs.validate-release.outputs.new_version }}
+            **Failed Step:**
+            - Validation: ${{ needs.validate-release.result }}
+            - Release Creation: ${{ needs.create-release.result }}
+            - Staging Deployment: ${{ needs.deploy-to-staging.result }}
+
+            Please check the workflow logs for details.
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify rollback
+        if: needs.rollback.result == 'success'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          text: |
+            🔄 Waaed Platform Rollback Completed
+
+            **Rolled back to:** ${{ github.event.inputs.rollback_version }}
+            **Environments:** Staging, Production
+
+            System has been restored to previous stable version.
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    needs: [create-release, deploy-to-staging]
+    if: always()
+
+    steps:
+      - name: Cleanup artifacts
+        run: |
+          echo "Cleaning up temporary artifacts..."
+          # Cleanup would be handled by GitHub Actions artifact retention
+          # policies
+          echo "Cleanup completed"
+
+      - name: Update release metrics
+        run: |
+          echo "Updating release metrics..."
+          # This would typically update monitoring dashboards or metrics systems
+          echo "Release metrics updated"

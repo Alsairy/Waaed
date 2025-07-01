@@ -1,4 +1,4 @@
-# Default values for hudur
+# Default values for waaed
 # This is a YAML-formatted file.
 
 # Global configuration
@@ -10,7 +10,7 @@ global:
 # Image configuration
 image:
   registry: docker.io
-  repository: hudur
+  repository: waaed
   tag: "1.0.0"
   pullPolicy: IfNotPresent
 
@@ -20,7 +20,7 @@ services:
     enabled: true
     replicaCount: 2
     image:
-      repository: hudur/api-gateway
+      repository: waaed/api-gateway
     service:
       type: LoadBalancer
       port: 80
@@ -42,7 +42,7 @@ services:
     enabled: true
     replicaCount: 2
     image:
-      repository: hudur/authentication-service
+      repository: waaed/authentication-service
     service:
       type: ClusterIP
       port: 80
@@ -58,7 +58,7 @@ services:
     enabled: true
     replicaCount: 3
     image:
-      repository: hudur/attendance-service
+      repository: waaed/attendance-service
     service:
       type: ClusterIP
       port: 80

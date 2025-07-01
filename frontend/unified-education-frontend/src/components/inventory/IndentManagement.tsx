@@ -1,11 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FileText, Plus, Download, Search, Eye, Edit, MoreVertical, User, Calendar, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { FileText, Plus, Download, Search, Eye, MoreVertical, User, Calendar, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { inventoryService } from '../../services';
+
+interface IndentItem {
+  itemName: string;
+  quantity: number;
+  unit: string;
+}
+
+interface Indent {
+  id: string;
+  indentNumber: string;
+  requestedBy: string;
+  department: string;
+  requestDate: string;
+  requiredDate: string;
+  status: string;
+  priority: string;
+  totalItems: number;
+  approvedBy?: string;
+  approvalDate?: string;
+  title?: string;
+  justification?: string;
+  items?: IndentItem[];
+}
 
 const IndentManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [indents, setIndents] = useState<any[]>([]);
+  const [indents, setIndents] = useState<Indent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,7 +55,7 @@ const IndentManagement: React.FC = () => {
     }
   };
 
-  const filteredIndents = indents.filter((indent: any) => {
+  const filteredIndents = indents.filter((indent: Indent) => {
     const matchesSearch = searchTerm === '' || 
       indent.indentNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       indent.requestedBy?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -48,13 +71,13 @@ const IndentManagement: React.FC = () => {
 
   const indentStats = {
     total: indents.length,
-    pending: indents.filter((i: any) => i.status === 'Pending').length,
-    approved: indents.filter((i: any) => i.status === 'Approved').length,
-    rejected: indents.filter((i: any) => i.status === 'Rejected').length,
-    fulfilled: indents.filter((i: any) => i.status === 'Fulfilled').length,
+    pending: indents.filter((i: Indent) => i.status === 'Pending').length,
+    approved: indents.filter((i: Indent) => i.status === 'Approved').length,
+    rejected: indents.filter((i: Indent) => i.status === 'Rejected').length,
+    fulfilled: indents.filter((i: Indent) => i.status === 'Fulfilled').length,
   };
 
-  const departments = [...new Set(indents.map((i: any) => i.department).filter(Boolean))];
+  const departments = [...new Set(indents.map((i: Indent) => i.department).filter(Boolean))];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -287,7 +310,7 @@ const IndentManagement: React.FC = () => {
                         <div className="items-header">{t('inventory.requestedItems')}</div>
                         <div className="items-list">
                           {indent.items && indent.items.length > 0 ? (
-                            indent.items.slice(0, 3).map((item: any, index: number) => (
+                            indent.items.slice(0, 3).map((item: IndentItem, index: number) => (
                               <div key={index} className="item-row">
                                 <span className="item-name">{item.itemName || `Item ${index + 1}`}</span>
                                 <span className="item-quantity">{item.quantity || 1} {item.unit || 'PCS'}</span>
