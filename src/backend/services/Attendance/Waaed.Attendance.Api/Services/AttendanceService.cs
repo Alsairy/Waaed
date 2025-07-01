@@ -350,10 +350,10 @@ namespace Waaed.Attendance.Api.Services
                 if (!string.IsNullOrEmpty(request.SearchTerm))
                 {
                     query = query.Where(ar => ar.User != null && 
-                                             (ar.User.FirstName != null && ar.User.FirstName.Contains(request.SearchTerm) ||
-                                              ar.User.LastName != null && ar.User.LastName.Contains(request.SearchTerm) ||
-                                              ar.User.Email != null && ar.User.Email.Contains(request.SearchTerm) ||
-                                              ar.User.EmployeeId != null && ar.User.EmployeeId.Contains(request.SearchTerm)));
+                                             (ar.User.FirstName.Contains(request.SearchTerm) ||
+                                              ar.User.LastName.Contains(request.SearchTerm) ||
+                                              ar.User.Email.Contains(request.SearchTerm) ||
+                                              ar.User.EmployeeId.Contains(request.SearchTerm)));
                 }
 
                 var totalCount = await query.CountAsync();
@@ -547,7 +547,7 @@ namespace Waaed.Attendance.Api.Services
             {
                 Id = record.Id,
                 UserId = record.UserId,
-                UserName = user != null ? $"{user.FirstName} {user.LastName}" : "Unknown",
+                UserName = user != null ? $"{user.FirstName ?? ""} {user.LastName ?? ""}".Trim() : "Unknown",
                 Timestamp = record.Timestamp,
                 Type = record.Type.ToString(),
                 Method = record.Method.ToString(),

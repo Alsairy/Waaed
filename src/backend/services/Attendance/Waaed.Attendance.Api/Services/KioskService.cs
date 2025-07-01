@@ -183,14 +183,16 @@ namespace Waaed.Attendance.Api.Services
 
                 var today = DateTime.UtcNow.Date;
                 var todayCheckIns = await _attendanceRepository.Query()
-                    .CountAsync(a => a.KioskId.ToString() == kioskId &&
+                    .Where(a => a.KioskId.ToString() == kioskId &&
                                    a.Timestamp.Date == today && 
-                                   a.Type == AttendanceType.CheckIn);
+                                   a.Type == AttendanceType.CheckIn)
+                    .CountAsync();
 
                 var todayCheckOuts = await _attendanceRepository.Query()
-                    .CountAsync(a => a.KioskId.ToString() == kioskId &&
+                    .Where(a => a.KioskId.ToString() == kioskId &&
                                    a.Timestamp.Date == today && 
-                                   a.Type == AttendanceType.CheckOut);
+                                   a.Type == AttendanceType.CheckOut)
+                    .CountAsync();
 
                 var isOnline = await _cacheService.ExistsAsync($"kiosk_session_{kioskId}");
 
@@ -216,22 +218,23 @@ namespace Waaed.Attendance.Api.Services
         {
             try
             {
-                var activities = await _attendanceRepository.Query()
+                var attendanceRecords = await _attendanceRepository.Query()
                     .Where(a => a.KioskId.ToString() == kioskId)
                     .OrderByDescending(a => a.Timestamp)
                     .Take(limit)
                     .Include(a => a.User)
-                    .Select(a => new KioskActivityDto
-                    {
-                        Id = a.Id.ToString(),
-                        EmployeeId = a.User?.EmployeeId ?? string.Empty,
-                        EmployeeName = a.User != null ? $"{a.User.FirstName ?? ""} {a.User.LastName ?? ""}" : "Unknown",
-                        Method = a.Method,
-                        Timestamp = a.Timestamp,
-                        Action = a.Type.ToString(),
-                        IsSuccessful = true
-                    })
                     .ToListAsync();
+
+                var activities = attendanceRecords.Select(a => new KioskActivityDto
+                {
+                    Id = a.Id.ToString(),
+                    EmployeeId = a.User?.EmployeeId ?? string.Empty,
+                    EmployeeName = a.User != null ? $"{a.User.FirstName ?? ""} {a.User.LastName ?? ""}".Trim() : "Unknown",
+                    Method = a.Method,
+                    Timestamp = a.Timestamp,
+                    Action = a.Type.ToString(),
+                    IsSuccessful = true
+                }).ToList();
 
                 return activities;
             }
