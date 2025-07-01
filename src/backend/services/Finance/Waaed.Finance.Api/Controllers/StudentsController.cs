@@ -35,10 +35,10 @@ public class StudentsController : ControllerBase
 
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(s => s.FirstName.Contains(search) || 
-                                        s.LastName.Contains(search) || 
-                                        s.StudentId.Contains(search) ||
-                                        s.RollNumber!.Contains(search));
+                query = query.Where(s => (s.FirstName != null && s.FirstName.Contains(search)) || 
+                                        (s.LastName != null && s.LastName.Contains(search)) || 
+                                        (s.StudentId != null && s.StudentId.Contains(search)) ||
+                                        (s.RollNumber != null && s.RollNumber.Contains(search)));
             }
 
             if (!string.IsNullOrEmpty(class_))

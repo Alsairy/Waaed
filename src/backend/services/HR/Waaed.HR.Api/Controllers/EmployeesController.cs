@@ -41,10 +41,10 @@ public class EmployeesController : ControllerBase
 
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(e => e.FirstName.Contains(search) || 
-                                        e.LastName.Contains(search) || 
-                                        e.EmployeeId.Contains(search) ||
-                                        e.Email.Contains(search));
+                query = query.Where(e => (e.FirstName != null && e.FirstName.Contains(search)) || 
+                                        (e.LastName != null && e.LastName.Contains(search)) || 
+                                        (e.EmployeeId != null && e.EmployeeId.Contains(search)) ||
+                                        (e.Email != null && e.Email.Contains(search)));
             }
 
             if (departmentId.HasValue)

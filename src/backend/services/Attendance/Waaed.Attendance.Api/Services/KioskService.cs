@@ -224,8 +224,8 @@ namespace Waaed.Attendance.Api.Services
                     .Select(a => new KioskActivityDto
                     {
                         Id = a.Id.ToString(),
-                        EmployeeId = a.User.EmployeeId,
-                        EmployeeName = $"{a.User.FirstName} {a.User.LastName}",
+                        EmployeeId = a.User?.EmployeeId ?? string.Empty,
+                        EmployeeName = a.User != null ? $"{a.User.FirstName ?? ""} {a.User.LastName ?? ""}" : "Unknown",
                         Method = a.Method,
                         Timestamp = a.Timestamp,
                         Action = a.Type.ToString(),
@@ -305,6 +305,7 @@ namespace Waaed.Attendance.Api.Services
 
         private async Task<bool> ValidateBiometricDataAsync(string userId, string biometricData)
         {
+            await Task.CompletedTask;
             return true;
         }
     }

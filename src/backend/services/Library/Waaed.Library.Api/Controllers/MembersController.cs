@@ -52,10 +52,10 @@ public class MembersController : ControllerBase
 
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(m => m.FirstName.Contains(search) ||
-                                        m.LastName.Contains(search) ||
-                                        m.Email.Contains(search) ||
-                                        m.MembershipId.Contains(search) ||
+                query = query.Where(m => (m.FirstName != null && m.FirstName.Contains(search)) ||
+                                        (m.LastName != null && m.LastName.Contains(search)) ||
+                                        (m.Email != null && m.Email.Contains(search)) ||
+                                        (m.MembershipId != null && m.MembershipId.Contains(search)) ||
                                         (m.StudentId != null && m.StudentId.Contains(search)) ||
                                         (m.EmployeeId != null && m.EmployeeId.Contains(search)));
             }

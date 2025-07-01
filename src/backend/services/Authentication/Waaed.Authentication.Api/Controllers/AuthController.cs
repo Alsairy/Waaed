@@ -203,6 +203,7 @@ namespace Waaed.Authentication.Api.Controllers
                 return BadRequest(ApiResponse<bool>.ErrorResult("Token is required"));
             }
 
+            await Task.CompletedTask;
             // This endpoint can be used by other services to validate tokens
             // Implementation would depend on your specific requirements
             return Ok(ApiResponse<bool>.SuccessResult(true, "Token validation endpoint"));

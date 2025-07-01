@@ -58,7 +58,7 @@ namespace Waaed.Authentication.Api.Services
                         .ThenInclude(ur => ur.Role)
                             .ThenInclude(r => r.RolePermissions)
                                 .ThenInclude(rp => rp.Permission)
-                    .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+                    .FirstOrDefaultAsync(u => u.Email != null && u.Email.ToLower() == request.Email.ToLower());
 
                 if (user == null)
                 {
@@ -170,7 +170,7 @@ namespace Waaed.Authentication.Api.Services
 
                 // Check if user already exists
                 var existingUser = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+                    .FirstOrDefaultAsync(u => u.Email != null && u.Email.ToLower() == request.Email.ToLower());
 
                 if (existingUser != null)
                 {
@@ -401,7 +401,7 @@ namespace Waaed.Authentication.Api.Services
             {
                 // Find user by email
                 var user = await _context.Users
-                    .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower());
+                    .FirstOrDefaultAsync(u => u.Email != null && u.Email.ToLower() == request.Email.ToLower());
 
                 if (user == null)
                 {
