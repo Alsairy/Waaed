@@ -463,9 +463,15 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+        continue-on-error: true
 
       - name: Detect infrastructure drift
         run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+            echo "AWS credentials not available in PR environment - skipping drift detection"
+            exit 0
+          fi
+          
           echo "Detecting infrastructure drift for ${{ matrix.environment }}..."
 
           tf_dirs=$(find . -name "*.tf" -exec dirname {} \; | \
@@ -567,6 +573,11 @@ jobs:
 
       - name: Deploy Helm charts
         run: |
+          if [ -z "${{ secrets.KUBECONFIG_DEV }}" ]; then
+            echo "Kubernetes credentials not available in PR environment - skipping Helm deployment"
+            exit 0
+          fi
+          
           echo "Deploying Helm charts to ${{ matrix.environment }}..."
 
           find helm -name "Chart.yaml" -exec dirname {} \; | \
@@ -694,7 +705,8 @@ jobs:
         with:
           status: success
           text: '🚀 Infrastructure successfully deployed for Waaed Platform!'
-          webhook_url: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
 
       - name: Notify on deployment failure
         if: needs.helm-deploy.result == 'failure'
@@ -704,7 +716,8 @@ jobs:
           text: >
             ❌ Infrastructure deployment failed for Waaed Platform.
             Please check the logs.
-          webhook_url: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
 
       - name: Notify on drift detection
         if: needs.drift-detection.result == 'failure'
@@ -714,4 +727,5 @@ jobs:
           text: >
             ⚠️ Infrastructure drift detected in Waaed Platform.
             Manual intervention may be required.
-          webhook_url: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}

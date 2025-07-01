@@ -372,8 +372,9 @@ jobs:
 
       - name: Install Playwright browsers
         run: |
-          dotnet tool install --global Microsoft.Playwright.CLI --version 1.2.3
+          dotnet tool install --global Microsoft.Playwright.CLI --version 1.40.0
           playwright install ${{ matrix.browser }} --with-deps
+        continue-on-error: false
 
       - name: Install frontend dependencies
         working-directory: frontend/unified-education-frontend
