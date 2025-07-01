@@ -7,6 +7,7 @@ import { formatDate, formatTime } from './utils/formatters';
 import { sisService, lmsService, erpService, analyticsService } from './services';
 import { Metric, Course } from './types/api';
 import { AccessibilityProvider } from './components/AccessibilityProvider';
+import LoginPage from './components/auth/LoginPage';
 import { 
   GraduationCap, 
   BookOpen, 
@@ -360,6 +361,7 @@ function Dashboard() {
 
 function App() {
   const { language, isRTL } = useSelector((state: RootState) => state.ui);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
@@ -370,21 +372,34 @@ function App() {
   return (
     <AccessibilityProvider>
       <Router>
-        <Layout>
-          <main id="main-content" tabIndex={-1}>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/sis" element={<StudentManagement />} />
-              <Route path="/lms" element={<CourseManagement />} />
-              <Route path="/erp" element={<EmployeeManagement />} />
-              <Route path="/exams" element={<ExamManagement />} />
-              <Route path="/analytics" element={<AnalyticsManagement />} />
-              <Route path="/admin" element={<AdminManagement />} />
-              <Route path="/ai" element={<AIManagement />} />
-              <Route path="/bpm" element={<WorkflowManagement />} />
-            </Routes>
-          </main>
-        </Layout>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<LoginPage />} />
+          
+          {/* Protected routes */}
+          <Route path="/*" element={
+            isAuthenticated ? (
+              <Layout>
+                <main id="main-content" tabIndex={-1}>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/sis" element={<StudentManagement />} />
+                    <Route path="/lms" element={<CourseManagement />} />
+                    <Route path="/erp" element={<EmployeeManagement />} />
+                    <Route path="/exams" element={<ExamManagement />} />
+                    <Route path="/analytics" element={<AnalyticsManagement />} />
+                    <Route path="/admin" element={<AdminManagement />} />
+                    <Route path="/ai" element={<AIManagement />} />
+                    <Route path="/bpm" element={<WorkflowManagement />} />
+                  </Routes>
+                </main>
+              </Layout>
+            ) : (
+              <LoginPage />
+            )
+          } />
+        </Routes>
       </Router>
     </AccessibilityProvider>
   );
