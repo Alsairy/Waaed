@@ -11,7 +11,7 @@ interface HeaderProps {
   userName?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ onMenuToggle, userRole = 'student', userName = 'User' }) => {
+const Header: React.FC<HeaderProps> = ({ onMenuToggle, isSidebarOpen, userRole = 'student', userName = 'User' }) => {
   const { t, i18n } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
