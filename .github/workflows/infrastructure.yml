@@ -529,7 +529,8 @@ jobs:
           status: warning
           text: >
             ⚠️ Infrastructure drift detected in ${{ matrix.environment }} env!
-          webhook_url: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
 
   helm-deploy:
     name: Deploy Helm Charts
