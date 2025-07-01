@@ -1,13 +1,16 @@
-// Theme Variables - Adapted from Education Management Theme
+// Theme Variables - TETCO Brand Colors for Waaed Platform
 
 // Sass Variables for Theme Components
-// Colors
-$primary: #2563eb;
-$secondary: #64748b;
-$success: #10b981;
-$warning: #f59e0b;
-$danger: #ef4444;
-$info: #3b82f6;
+// TETCO Brand Colors
+$primary: #005F96;
+$secondary: #36BA91;
+$success: #36BA91;
+$warning: #F8C440;
+$danger: #F85C4A;
+$info: #005F96;
+$accent: #4CFCB4;
+$dark-teal: #0C3C44;
+$light-gray: #D1D1D1;
 
 // Grays
 $white: #ffffff;
@@ -36,8 +39,9 @@ $text-muted: $gray-500;
 $input-border: $gray-300;
 $border-color: $gray-200;
 
-// Typography
-$font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+// Typography - Effra Font Family
+$font-family-sans: 'Effra', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-family-arabic: 'Effra Arabic', 'Effra', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 $font-size-12: 0.75rem;
 $font-size-14: 0.875rem;
 $font-size-16: 1rem;
@@ -74,6 +78,9 @@ $content-max-width: 1200px;
   --warning-color: #{$warning};
   --error-color: #{$danger};
   --info-color: #{$info};
+  --accent-color: #{$accent};
+  --dark-teal-color: #{$dark-teal};
+  --light-gray-color: #{$light-gray};
   
   // Background Colors
   --bg-primary: #{$white};
@@ -118,6 +125,7 @@ $content-max-width: 1200px;
   
   // Typography
   --font-family-sans: #{$font-family-sans};
+  --font-family-arabic: #{$font-family-arabic};
   --font-size-xs: #{$font-size-12};
   --font-size-sm: #{$font-size-14};
   --font-size-base: #{$font-size-16};

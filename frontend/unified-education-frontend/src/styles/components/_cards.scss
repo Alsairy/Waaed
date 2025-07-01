@@ -1,9 +1,13 @@
-// Modern Card Components - World-Class Design System
+// Modern Card Components - TETCO Brand Design System
 .card {
   @include card;
   position: relative;
   overflow: hidden;
-  transition: all var(--transition-smooth);
+  transition: all var(--duration-300);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   
   &::before {
     content: '';
@@ -11,20 +15,20 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--waaed-primary-blue), var(--waaed-primary-green), transparent);
     opacity: 0;
-    transition: opacity var(--transition-smooth);
+    transition: opacity var(--duration-300);
   }
   
   &.card-hover {
-    transition: all var(--transition-smooth);
+    transition: all var(--duration-300);
     cursor: pointer;
     
     &:hover {
       box-shadow: var(--shadow-xl);
       transform: translateY(-4px) scale(1.02);
-      border-color: color-mix(in srgb, var(--primary-color) 20%, var(--border-color));
+      border-color: var(--waaed-primary-blue);
       
       &::before {
         opacity: 1;
@@ -55,46 +59,73 @@
   }
   
   &.card-primary {
-    border-left: 4px solid var(--primary-color);
+    border-left: 4px solid var(--waaed-primary-blue);
     background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--primary-color) 2%, transparent),
-      color-mix(in srgb, var(--primary-color) 1%, transparent)
+      rgba(0, 95, 150, 0.05),
+      rgba(0, 95, 150, 0.02)
     );
   }
   
   &.card-success {
-    border-left: 4px solid var(--success-color);
+    border-left: 4px solid var(--waaed-primary-green);
     background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--success-color) 2%, transparent),
-      color-mix(in srgb, var(--success-color) 1%, transparent)
+      rgba(54, 186, 145, 0.05),
+      rgba(54, 186, 145, 0.02)
     );
   }
   
   &.card-warning {
     border-left: 4px solid var(--warning-color);
     background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--warning-color) 2%, transparent),
-      color-mix(in srgb, var(--warning-color) 1%, transparent)
+      rgba(248, 196, 64, 0.05),
+      rgba(248, 196, 64, 0.02)
     );
   }
   
   &.card-error {
     border-left: 4px solid var(--error-color);
     background: linear-gradient(135deg, 
-      color-mix(in srgb, var(--error-color) 2%, transparent),
-      color-mix(in srgb, var(--error-color) 1%, transparent)
+      rgba(248, 92, 74, 0.05),
+      rgba(248, 92, 74, 0.02)
+    );
+  }
+  
+  &.card-accent {
+    border-left: 4px solid var(--waaed-light-green);
+    background: linear-gradient(135deg, 
+      rgba(76, 252, 180, 0.05),
+      rgba(76, 252, 180, 0.02)
     );
   }
   
   &.card-glass {
-    background: color-mix(in srgb, var(--bg-primary) 80%, transparent);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(12px);
-    border: 1px solid color-mix(in srgb, var(--border-color) 50%, transparent);
+    border: 1px solid rgba(209, 209, 209, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 95, 150, 0.1);
   }
   
   &.card-elevated {
     box-shadow: var(--shadow-lg);
     border: none;
+    background: linear-gradient(135deg, 
+      var(--bg-primary), 
+      rgba(0, 95, 150, 0.02)
+    );
+  }
+  
+  &.card-gradient {
+    background: linear-gradient(135deg, 
+      var(--waaed-primary-blue), 
+      var(--waaed-primary-green)
+    );
+    color: white;
+    border: none;
+    
+    .card-title,
+    .card-subtitle {
+      color: white;
+    }
   }
 }
 
@@ -233,44 +264,55 @@
   &.stat-card-primary {
     .stat-icon {
       background: linear-gradient(135deg, 
-        color-mix(in srgb, var(--primary-color) 15%, transparent),
-        color-mix(in srgb, var(--primary-color) 8%, transparent)
+        rgba(0, 95, 150, 0.15),
+        rgba(0, 95, 150, 0.08)
       );
-      color: var(--primary-color);
-      box-shadow: 0 4px 12px color-mix(in srgb, var(--primary-color) 20%, transparent);
+      color: var(--waaed-primary-blue);
+      box-shadow: 0 4px 12px rgba(0, 95, 150, 0.25);
     }
   }
   
   &.stat-card-success {
     .stat-icon {
       background: linear-gradient(135deg, 
-        color-mix(in srgb, var(--success-color) 15%, transparent),
-        color-mix(in srgb, var(--success-color) 8%, transparent)
+        rgba(54, 186, 145, 0.15),
+        rgba(54, 186, 145, 0.08)
       );
-      color: var(--success-color);
-      box-shadow: 0 4px 12px color-mix(in srgb, var(--success-color) 20%, transparent);
+      color: var(--waaed-primary-green);
+      box-shadow: 0 4px 12px rgba(54, 186, 145, 0.25);
     }
   }
   
   &.stat-card-warning {
     .stat-icon {
       background: linear-gradient(135deg, 
-        color-mix(in srgb, var(--warning-color) 15%, transparent),
-        color-mix(in srgb, var(--warning-color) 8%, transparent)
+        rgba(248, 196, 64, 0.15),
+        rgba(248, 196, 64, 0.08)
       );
       color: var(--warning-color);
-      box-shadow: 0 4px 12px color-mix(in srgb, var(--warning-color) 20%, transparent);
+      box-shadow: 0 4px 12px rgba(248, 196, 64, 0.25);
     }
   }
   
   &.stat-card-info {
     .stat-icon {
       background: linear-gradient(135deg, 
-        color-mix(in srgb, var(--info-color) 15%, transparent),
-        color-mix(in srgb, var(--info-color) 8%, transparent)
+        rgba(0, 95, 150, 0.15),
+        rgba(0, 95, 150, 0.08)
       );
-      color: var(--info-color);
-      box-shadow: 0 4px 12px color-mix(in srgb, var(--info-color) 20%, transparent);
+      color: var(--waaed-primary-blue);
+      box-shadow: 0 4px 12px rgba(0, 95, 150, 0.25);
+    }
+  }
+  
+  &.stat-card-accent {
+    .stat-icon {
+      background: linear-gradient(135deg, 
+        rgba(76, 252, 180, 0.15),
+        rgba(76, 252, 180, 0.08)
+      );
+      color: var(--waaed-light-green);
+      box-shadow: 0 4px 12px rgba(76, 252, 180, 0.25);
     }
   }
   
@@ -279,8 +321,8 @@
     font-weight: var(--font-weight-bold);
     color: var(--text-primary);
     margin-bottom: var(--spacing-xs);
-    transition: all var(--transition-smooth);
-    background: linear-gradient(135deg, var(--text-primary), color-mix(in srgb, var(--text-primary) 70%, var(--primary-color)));
+    transition: all var(--duration-300);
+    background: linear-gradient(135deg, var(--waaed-dark-teal), var(--waaed-primary-blue));
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -304,18 +346,18 @@
     gap: var(--spacing-xs);
     
     &.positive {
-      color: var(--success-color);
-      background: color-mix(in srgb, var(--success-color) 10%, transparent);
+      color: var(--waaed-primary-green);
+      background: rgba(54, 186, 145, 0.1);
     }
     
     &.negative {
       color: var(--error-color);
-      background: color-mix(in srgb, var(--error-color) 10%, transparent);
+      background: rgba(248, 92, 74, 0.1);
     }
     
     &.neutral {
       color: var(--text-muted);
-      background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+      background: rgba(209, 209, 209, 0.1);
     }
   }
 }
@@ -392,11 +434,12 @@
     height: 80px;
     border-radius: 50%;
     margin: 0 auto var(--spacing-md);
-    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--waaed-primary-blue), var(--waaed-primary-green));
     @include flex-center;
     color: white;
     font-size: var(--font-size-2xl);
     font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0, 95, 150, 0.3);
   }
   
   .profile-name {
@@ -469,12 +512,12 @@
     font-weight: var(--font-weight-medium);
     
     &.positive {
-      background: color-mix(in srgb, var(--success-color) 10%, transparent);
-      color: var(--success-color);
+      background: rgba(54, 186, 145, 0.1);
+      color: var(--waaed-primary-green);
     }
     
     &.negative {
-      background: color-mix(in srgb, var(--error-color) 10%, transparent);
+      background: rgba(248, 92, 74, 0.1);
       color: var(--error-color);
     }
   }
@@ -536,7 +579,7 @@
       .module-stat-value {
         font-size: var(--font-size-sm);
         font-weight: var(--font-weight-medium);
-        color: var(--primary-color);
+        color: var(--waaed-primary-blue);
       }
       
       .module-skeleton {
@@ -557,8 +600,8 @@
       @include flex-between;
       font-size: var(--font-size-sm);
       font-weight: var(--font-weight-medium);
-      color: var(--primary-color);
-      transition: all var(--transition-smooth);
+      color: var(--waaed-primary-blue);
+      transition: all var(--duration-300);
     }
   }
   
@@ -569,7 +612,7 @@
     }
     
     .module-action {
-      color: var(--primary-color);
+      color: var(--waaed-primary-green);
       transform: translateX(4px);
     }
   }
@@ -590,18 +633,18 @@
       border-radius: 50%;
       
       &.status-active {
-        background: var(--success-color);
-        box-shadow: 0 0 8px color-mix(in srgb, var(--success-color) 50%, transparent);
+        background: var(--waaed-primary-green);
+        box-shadow: 0 0 8px rgba(54, 186, 145, 0.5);
       }
       
       &.status-warning {
         background: var(--warning-color);
-        box-shadow: 0 0 8px color-mix(in srgb, var(--warning-color) 50%, transparent);
+        box-shadow: 0 0 8px rgba(248, 196, 64, 0.5);
       }
       
       &.status-error {
         background: var(--error-color);
-        box-shadow: 0 0 8px color-mix(in srgb, var(--error-color) 50%, transparent);
+        box-shadow: 0 0 8px rgba(248, 92, 74, 0.5);
       }
     }
   }
@@ -613,18 +656,18 @@
     @include flex-center;
     
     &.status-icon-info {
-      background: linear-gradient(135deg, var(--info-color), color-mix(in srgb, var(--info-color) 80%, var(--primary-color)));
-      color: var(--white);
+      background: linear-gradient(135deg, var(--waaed-primary-blue), var(--waaed-dark-teal));
+      color: white;
     }
     
     &.status-icon-success {
-      background: linear-gradient(135deg, var(--success-color), color-mix(in srgb, var(--success-color) 80%, #10b981));
-      color: var(--white);
+      background: linear-gradient(135deg, var(--waaed-primary-green), var(--waaed-light-green));
+      color: white;
     }
     
     &.status-icon-warning {
-      background: linear-gradient(135deg, var(--warning-color), color-mix(in srgb, var(--warning-color) 80%, #f59e0b));
-      color: var(--white);
+      background: linear-gradient(135deg, var(--warning-color), #f59e0b);
+      color: white;
     }
   }
   
@@ -643,7 +686,7 @@
       margin-bottom: var(--spacing-xs);
       
       &.status-operational {
-        color: var(--success-color);
+        color: var(--waaed-primary-green);
       }
     }
     
