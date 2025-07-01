@@ -26,12 +26,21 @@ const LoginPage: React.FC = () => {
         return;
       }
       
+      let role = 'student';
+      if (email.includes('admin')) {
+        role = 'admin';
+      } else if (email.includes('teacher')) {
+        role = 'teacher';
+      } else if (email.includes('parent')) {
+        role = 'parent';
+      }
+      
       const mockUser = {
         id: '1',
         firstName: 'Test',
         lastName: 'User',
         email: email,
-        role: 'student'
+        role: role
       };
       
       const mockToken = 'mock-jwt-token';
