@@ -68,3 +68,5 @@ backend-proxy/venv/
 *.zip
 *.rar
 terraform/.terraform/
+test-results/
+tests/e2e/TestResults/
