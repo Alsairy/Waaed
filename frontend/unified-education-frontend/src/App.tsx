@@ -36,7 +36,6 @@ import { StudentManagement } from './components/sis/StudentManagement';
 import CourseManagement from './components/lms/CourseManagement';
 import EmployeeManagement from './components/erp/EmployeeManagement';
 import ExamManagement from './components/exams/ExamManagement';
-import AnalyticsManagement from './components/analytics/AnalyticsManagement';
 import AdminManagement from './components/admin/AdminManagement';
 import AIManagement from './components/ai/AIManagement';
 import WorkflowManagement from './components/bpm/WorkflowManagement';
@@ -813,7 +812,7 @@ function App() {
                     <Route path="/lms" element={<CourseManagement />} />
                     <Route path="/erp" element={<EmployeeManagement />} />
                     <Route path="/exams" element={<ExamManagement />} />
-                    <Route path="/analytics" element={<AnalyticsManagement />} />
+                    <Route path="/analytics" element={<AnalyticsPage />} />
                     <Route path="/admin" element={<AdminManagement />} />
                     <Route path="/ai" element={<AIManagement />} />
                     <Route path="/bpm" element={<WorkflowManagement />} />
@@ -825,7 +824,6 @@ function App() {
                     <Route path="/blogs" element={<BlogPostList />} />
                     <Route path="/tasks" element={<TaskList />} />
                     <Route path="/attendance" element={<AttendancePage />} />
-                    <Route path="/analytics" element={<AnalyticsPage />} />
                     <Route path="/users" element={<UsersPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/settings" element={<SettingsPage />} />
