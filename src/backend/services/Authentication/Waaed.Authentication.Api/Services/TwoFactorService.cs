@@ -127,6 +127,7 @@ namespace Waaed.Authentication.Api.Services
 
         public async Task<string> GenerateBackupCodesAsync(Guid userId)
         {
+            await Task.CompletedTask;
             var backupCodes = new List<string>();
             using (var rng = RandomNumberGenerator.Create())
             {

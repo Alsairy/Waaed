@@ -183,13 +183,13 @@ namespace Waaed.Attendance.Api.Services
 
                 var today = DateTime.UtcNow.Date;
                 var todayCheckIns = await _attendanceRepository.Query()
-                    .Where(a => a.KioskId.ToString() == kioskId &&
+                    .Where(a => a.KioskId != null && a.KioskId.ToString() == kioskId &&
                                    a.Timestamp.Date == today && 
                                    a.Type == AttendanceType.CheckIn)
                     .CountAsync();
 
                 var todayCheckOuts = await _attendanceRepository.Query()
-                    .Where(a => a.KioskId.ToString() == kioskId &&
+                    .Where(a => a.KioskId != null && a.KioskId.ToString() == kioskId &&
                                    a.Timestamp.Date == today && 
                                    a.Type == AttendanceType.CheckOut)
                     .CountAsync();
@@ -219,7 +219,7 @@ namespace Waaed.Attendance.Api.Services
             try
             {
                 var attendanceRecords = await _attendanceRepository.Query()
-                    .Where(a => a.KioskId.ToString() == kioskId)
+                    .Where(a => a.KioskId != null && a.KioskId.ToString() == kioskId)
                     .OrderByDescending(a => a.Timestamp)
                     .Take(limit)
                     .Include(a => a.User)

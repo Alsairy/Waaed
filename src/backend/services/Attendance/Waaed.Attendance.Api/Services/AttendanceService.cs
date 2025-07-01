@@ -317,7 +317,7 @@ namespace Waaed.Attendance.Api.Services
             {
                 var beacon = await _context.Beacons
                     .Include(b => b.Geofence)
-                        .ThenInclude(g => g.UserGeofences)
+                        .ThenInclude(g => g!.UserGeofences)
                     .FirstOrDefaultAsync(b => b.BeaconId == beaconId && b.IsActive);
 
                 if (beacon == null)
@@ -326,7 +326,7 @@ namespace Waaed.Attendance.Api.Services
                 }
 
                 // Check if user has access to this beacon's geofence
-                var hasAccess = beacon.Geofence?.UserGeofences?.Any(ug => ug.UserId == userId) ?? false;
+                var hasAccess = beacon?.Geofence?.UserGeofences?.Any(ug => ug.UserId == userId) ?? false;
                 return ApiResponse<bool>.SuccessResult(hasAccess);
             }
             catch (Exception ex)
@@ -350,10 +350,10 @@ namespace Waaed.Attendance.Api.Services
                 if (!string.IsNullOrEmpty(request.SearchTerm))
                 {
                     query = query.Where(ar => ar.User != null && 
-                                             (ar.User.FirstName.Contains(request.SearchTerm) ||
-                                              ar.User.LastName.Contains(request.SearchTerm) ||
-                                              ar.User.Email.Contains(request.SearchTerm) ||
-                                              ar.User.EmployeeId.Contains(request.SearchTerm)));
+                                             ((ar.User.FirstName != null && ar.User.FirstName.Contains(request.SearchTerm)) ||
+                                              (ar.User.LastName != null && ar.User.LastName.Contains(request.SearchTerm)) ||
+                                              (ar.User.Email != null && ar.User.Email.Contains(request.SearchTerm)) ||
+                                              (ar.User.EmployeeId != null && ar.User.EmployeeId.Contains(request.SearchTerm))));
                 }
 
                 var totalCount = await query.CountAsync();
