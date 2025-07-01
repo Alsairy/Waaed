@@ -162,7 +162,62 @@ const resources = {
       'theme.success': 'Success',
       'theme.warning': 'Warning',
       'theme.error': 'Error',
-      'theme.info': 'Information'
+      'theme.info': 'Information',
+      'navigation.home': 'Home',
+      'navigation.students': 'Students',
+      'navigation.courses': 'Courses',
+      'navigation.assignments': 'Assignments',
+      'navigation.grades': 'Grades',
+      'navigation.attendance': 'Attendance',
+      'navigation.reports': 'Reports',
+      'navigation.finance': 'Finance',
+      'navigation.hr': 'Human Resources',
+      'navigation.library': 'Library',
+      'navigation.inventory': 'Inventory',
+      'navigation.polls': 'Polls',
+      'navigation.blogs': 'Blogs',
+      'navigation.tasks': 'Tasks',
+      'navigation.calendar': 'Calendar',
+      'navigation.messages': 'Messages',
+      'navigation.users': 'Users',
+      'navigation.roles': 'Roles',
+      'navigation.permissions': 'Permissions',
+      'navigation.configuration': 'Configuration',
+      'navigation.backup': 'Backup',
+      'navigation.logs': 'Logs',
+      'navigation.monitoring': 'Monitoring',
+      'roles.admin': 'Administrator',
+      'roles.teacher': 'Teacher',
+      'roles.student': 'Student',
+      'roles.parent': 'Parent',
+      'roles.staff': 'Staff',
+      'roles.manager': 'Manager',
+      'roles.principal': 'Principal',
+      'roles.librarian': 'Librarian',
+      'roles.accountant': 'Accountant',
+      'roles.hr': 'HR Manager',
+      'notifications.newEnrollment': 'New Student Enrollment',
+      'notifications.enrollmentMessage': 'A new student has been enrolled in the system',
+      'notifications.assignmentDue': 'Assignment Due',
+      'notifications.assignmentMessage': 'You have an assignment due soon',
+      'notifications.systemUpdate': 'System Update',
+      'notifications.maintenanceMessage': 'System maintenance is scheduled',
+      'notifications.markAllRead': 'Mark All as Read',
+      'time.minutesAgo': '{{count}} minute ago',
+      'time.minutesAgo_plural': '{{count}} minutes ago',
+      'time.hoursAgo': '{{count}} hour ago',
+      'time.hoursAgo_plural': '{{count}} hours ago',
+      'time.daysAgo': '{{count}} day ago',
+      'time.daysAgo_plural': '{{count}} days ago',
+      'common.search': 'Search',
+      'common.changeLanguage': 'Change Language',
+      'common.menu': 'Menu',
+      'auth.logout': 'Sign Out',
+      'dashboard.quickActions': 'Quick Actions',
+      'dashboard.recentActivity': 'Recent Activity',
+      'dashboard.upcomingEvents': 'Upcoming Events',
+      'dashboard.statistics': 'Statistics',
+      'dashboard.announcements': 'Announcements'
     }
   },
   ar: {
@@ -325,7 +380,62 @@ const resources = {
       'theme.success': 'نجح',
       'theme.warning': 'تحذير',
       'theme.error': 'خطأ',
-      'theme.info': 'معلومات'
+      'theme.info': 'معلومات',
+      'navigation.home': 'الرئيسية',
+      'navigation.students': 'الطلاب',
+      'navigation.courses': 'المقررات',
+      'navigation.assignments': 'الواجبات',
+      'navigation.grades': 'الدرجات',
+      'navigation.attendance': 'الحضور',
+      'navigation.reports': 'التقارير',
+      'navigation.finance': 'المالية',
+      'navigation.hr': 'الموارد البشرية',
+      'navigation.library': 'المكتبة',
+      'navigation.inventory': 'المخزون',
+      'navigation.polls': 'الاستطلاعات',
+      'navigation.blogs': 'المدونات',
+      'navigation.tasks': 'المهام',
+      'navigation.calendar': 'التقويم',
+      'navigation.messages': 'الرسائل',
+      'navigation.users': 'المستخدمون',
+      'navigation.roles': 'الأدوار',
+      'navigation.permissions': 'الصلاحيات',
+      'navigation.configuration': 'الإعدادات',
+      'navigation.backup': 'النسخ الاحتياطي',
+      'navigation.logs': 'السجلات',
+      'navigation.monitoring': 'المراقبة',
+      'roles.admin': 'مدير النظام',
+      'roles.teacher': 'معلم',
+      'roles.student': 'طالب',
+      'roles.parent': 'ولي أمر',
+      'roles.staff': 'موظف',
+      'roles.manager': 'مدير',
+      'roles.principal': 'مدير المدرسة',
+      'roles.librarian': 'أمين المكتبة',
+      'roles.accountant': 'محاسب',
+      'roles.hr': 'مدير الموارد البشرية',
+      'notifications.newEnrollment': 'تسجيل طالب جديد',
+      'notifications.enrollmentMessage': 'تم تسجيل طالب جديد في النظام',
+      'notifications.assignmentDue': 'موعد تسليم واجب',
+      'notifications.assignmentMessage': 'لديك واجب يجب تسليمه قريباً',
+      'notifications.systemUpdate': 'تحديث النظام',
+      'notifications.maintenanceMessage': 'تم جدولة صيانة النظام',
+      'notifications.markAllRead': 'تحديد الكل كمقروء',
+      'time.minutesAgo': 'منذ {{count}} دقيقة',
+      'time.minutesAgo_plural': 'منذ {{count}} دقائق',
+      'time.hoursAgo': 'منذ {{count}} ساعة',
+      'time.hoursAgo_plural': 'منذ {{count}} ساعات',
+      'time.daysAgo': 'منذ {{count}} يوم',
+      'time.daysAgo_plural': 'منذ {{count}} أيام',
+      'common.search': 'بحث',
+      'common.changeLanguage': 'تغيير اللغة',
+      'common.menu': 'القائمة',
+      'auth.logout': 'تسجيل الخروج',
+      'dashboard.quickActions': 'إجراءات سريعة',
+      'dashboard.recentActivity': 'النشاط الأخير',
+      'dashboard.upcomingEvents': 'الأحداث القادمة',
+      'dashboard.statistics': 'الإحصائيات',
+      'dashboard.announcements': 'الإعلانات'
     }
   }
 };
@@ -334,11 +444,48 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en',
+    lng: localStorage.getItem('language') || 'en',
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false
+    },
+    react: {
+      useSuspense: false
+    },
+    detection: {
+      order: ['localStorage', 'navigator', 'htmlTag'],
+      caches: ['localStorage']
     }
   });
+
+const updateDocumentDirection = (language: string) => {
+  const isRTL = language === 'ar';
+  document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+  document.documentElement.lang = language;
+  
+  document.documentElement.style.setProperty('--text-align-start', isRTL ? 'right' : 'left');
+  document.documentElement.style.setProperty('--text-align-end', isRTL ? 'left' : 'right');
+  document.documentElement.style.setProperty('--margin-start', isRTL ? 'margin-right' : 'margin-left');
+  document.documentElement.style.setProperty('--margin-end', isRTL ? 'margin-left' : 'margin-right');
+  document.documentElement.style.setProperty('--padding-start', isRTL ? 'padding-right' : 'padding-left');
+  document.documentElement.style.setProperty('--padding-end', isRTL ? 'padding-left' : 'padding-right');
+  
+  if (isRTL) {
+    document.documentElement.style.setProperty('--font-family-primary', "'Effra Arabic', 'Noto Sans Arabic', 'Cairo', 'Tajawal', sans-serif");
+  } else {
+    document.documentElement.style.setProperty('--font-family-primary', "'Effra', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif");
+  }
+};
+
+updateDocumentDirection(i18n.language);
+
+i18n.on('languageChanged', (language: string) => {
+  localStorage.setItem('language', language);
+  updateDocumentDirection(language);
+});
+
+export const isRTL = () => i18n.language === 'ar';
+
+export const getTextDirection = () => isRTL() ? 'rtl' : 'ltr';
 
 export default i18n;

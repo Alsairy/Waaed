@@ -1,4 +1,4 @@
-// Base styles - Adapted from Education Management Theme
+// Base styles - TETCO Brand Responsive Design System
 * {
   box-sizing: border-box;
 }
@@ -6,6 +6,19 @@
 html {
   font-size: 16px;
   scroll-behavior: smooth;
+  
+  // Mobile First Responsive Font Scaling
+  @media (max-width: 767px) {
+    font-size: 14px;
+  }
+  
+  @media (min-width: 1024px) {
+    font-size: 16px;
+  }
+  
+  @media (min-width: 1280px) {
+    font-size: 18px;
+  }
 }
 
 body {
@@ -18,6 +31,14 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  // Touch optimization for mobile devices
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 // Reset margins and paddings
@@ -88,6 +109,398 @@ select:focus {
   }
 }
 
+// Responsive Container System - Mobile First Approach
+.waaed-container {
+  width: 100%;
+  padding: 0 var(--spacing-md, 1rem);
+  margin: 0 auto;
+  
+  // Tablet
+  @media (min-width: 768px) {
+    max-width: 768px;
+    padding: 0 var(--spacing-lg, 1.5rem);
+  }
+  
+  // Desktop
+  @media (min-width: 1024px) {
+    max-width: 1024px;
+    padding: 0 var(--spacing-xl, 2rem);
+  }
+  
+  // Large Desktop
+  @media (min-width: 1280px) {
+    max-width: 1280px;
+    padding: 0 var(--spacing-2xl, 2.5rem);
+  }
+  
+  // Extra Large Desktop
+  @media (min-width: 1536px) {
+    max-width: 1536px;
+  }
+}
+
+// Responsive Grid System
+.waaed-grid {
+  display: grid;
+  gap: var(--spacing-md, 1rem);
+  
+  // Mobile First - Single Column
+  grid-template-columns: 1fr;
+  
+  // Tablet - Two Columns
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg, 1.5rem);
+  }
+  
+  // Desktop - Three Columns
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-xl, 2rem);
+  }
+  
+  // Large Desktop - Four Columns
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+// Responsive Flexbox Utilities
+.waaed-flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md, 1rem);
+  
+  @media (min-width: 768px) {
+    gap: var(--spacing-lg, 1.5rem);
+  }
+  
+  @media (min-width: 1024px) {
+    gap: var(--spacing-xl, 2rem);
+  }
+}
+
+.waaed-flex-col {
+  flex-direction: column;
+  
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+}
+
+// Touch-Optimized Interactive Elements
+button, 
+.btn, 
+[role="button"],
+input[type="submit"],
+input[type="button"] {
+  min-height: 44px; // iOS recommended touch target size
+  min-width: 44px;
+  padding: var(--spacing-sm, 0.75rem) var(--spacing-md, 1rem);
+  
+  // Enhanced touch feedback
+  transition: all 0.2s ease-in-out;
+  
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  // Touch device optimizations
+  @media (hover: none) {
+    &:active {
+      transform: scale(0.98);
+      transition: transform 0.1s ease-in-out;
+    }
+  }
+}
+
+// Form Elements Touch Optimization
+input, 
+textarea, 
+select {
+  min-height: 44px;
+  padding: var(--spacing-sm, 0.75rem);
+  font-size: 16px; // Prevents zoom on iOS
+  
+  @media (min-width: 768px) {
+    font-size: var(--font-size-base, 1rem);
+  }
+}
+
+// Responsive Typography Scale
+.waaed-text {
+  &-xs {
+    font-size: 0.75rem;
+    @media (min-width: 768px) { font-size: 0.875rem; }
+  }
+  
+  &-sm {
+    font-size: 0.875rem;
+    @media (min-width: 768px) { font-size: 1rem; }
+  }
+  
+  &-base {
+    font-size: 1rem;
+    @media (min-width: 768px) { font-size: 1.125rem; }
+  }
+  
+  &-lg {
+    font-size: 1.125rem;
+    @media (min-width: 768px) { font-size: 1.25rem; }
+  }
+  
+  &-xl {
+    font-size: 1.25rem;
+    @media (min-width: 768px) { font-size: 1.5rem; }
+  }
+  
+  &-2xl {
+    font-size: 1.5rem;
+    @media (min-width: 768px) { font-size: 1.875rem; }
+  }
+  
+  &-3xl {
+    font-size: 1.875rem;
+    @media (min-width: 768px) { font-size: 2.25rem; }
+  }
+}
+
+// Responsive Spacing Utilities
+.waaed-space {
+  &-y-sm > * + * { margin-top: var(--spacing-sm, 0.75rem); }
+  &-y-md > * + * { margin-top: var(--spacing-md, 1rem); }
+  &-y-lg > * + * { margin-top: var(--spacing-lg, 1.5rem); }
+  &-y-xl > * + * { margin-top: var(--spacing-xl, 2rem); }
+  
+  @media (min-width: 768px) {
+    &-y-sm > * + * { margin-top: var(--spacing-md, 1rem); }
+    &-y-md > * + * { margin-top: var(--spacing-lg, 1.5rem); }
+    &-y-lg > * + * { margin-top: var(--spacing-xl, 2rem); }
+    &-y-xl > * + * { margin-top: var(--spacing-2xl, 2.5rem); }
+  }
+}
+
+// Mobile Navigation Optimizations
+.waaed-nav-mobile {
+  @media (max-width: 767px) {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
+    padding: var(--spacing-sm, 0.75rem);
+    
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 44px;
+      min-width: 44px;
+      padding: var(--spacing-xs, 0.5rem);
+      text-decoration: none;
+      color: var(--text-muted);
+      transition: color 0.2s ease-in-out;
+      
+      &.active,
+      &:active {
+        color: var(--waaed-primary-blue);
+      }
+      
+      .icon {
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+      }
+      
+      .label {
+        font-size: 0.75rem;
+        text-align: center;
+      }
+    }
+  }
+  
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+// Responsive Visibility Utilities
+.waaed-hidden {
+  &-mobile {
+    @media (max-width: 767px) {
+      display: none !important;
+    }
+  }
+  
+  &-tablet {
+    @media (min-width: 768px) and (max-width: 1023px) {
+      display: none !important;
+    }
+  }
+  
+  &-desktop {
+    @media (min-width: 1024px) {
+      display: none !important;
+    }
+  }
+}
+
+.waaed-show {
+  &-mobile {
+    display: none !important;
+    @media (max-width: 767px) {
+      display: block !important;
+    }
+  }
+  
+  &-tablet {
+    display: none !important;
+    @media (min-width: 768px) and (max-width: 1023px) {
+      display: block !important;
+    }
+  }
+  
+  &-desktop {
+    display: none !important;
+    @media (min-width: 1024px) {
+      display: block !important;
+    }
+  }
+}
+
+// RTL Support Styles
+[dir="rtl"] {
+  .waaed-container,
+  .waaed-grid,
+  .waaed-flex {
+    direction: rtl;
+  }
+  
+  // Text alignment for RTL
+  .text-start { text-align: right; }
+  .text-end { text-align: left; }
+  
+  // Margin and padding adjustments for RTL
+  .ms-auto { margin-right: auto; margin-left: unset; }
+  .me-auto { margin-left: auto; margin-right: unset; }
+  .ps-2 { padding-right: 0.5rem; padding-left: unset; }
+  .pe-2 { padding-left: 0.5rem; padding-right: unset; }
+  
+  // Border radius adjustments for RTL
+  .rounded-start { border-top-right-radius: var(--border-radius); border-bottom-right-radius: var(--border-radius); border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .rounded-end { border-top-left-radius: var(--border-radius); border-bottom-left-radius: var(--border-radius); border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  
+  // Transform adjustments for RTL
+  .transform-rtl {
+    transform: scaleX(-1);
+  }
+  
+  // Navigation adjustments for RTL
+  .sidebar {
+    right: 0;
+    left: auto;
+    
+    .nav-item {
+      text-align: right;
+      
+      .icon {
+        margin-left: 0.75rem;
+        margin-right: 0;
+      }
+    }
+  }
+  
+  // Dropdown adjustments for RTL
+  .dropdown-menu {
+    right: 0;
+    left: auto;
+    text-align: right;
+  }
+  
+  // Form adjustments for RTL
+  .form-control,
+  .form-select,
+  input,
+  textarea {
+    text-align: right;
+    direction: rtl;
+  }
+  
+  // Table adjustments for RTL
+  .table {
+    direction: rtl;
+    
+    th, td {
+      text-align: right;
+    }
+    
+    .table-actions {
+      text-align: left;
+    }
+  }
+  
+  // Card adjustments for RTL
+  .card {
+    .card-header,
+    .card-body,
+    .card-footer {
+      text-align: right;
+    }
+  }
+  
+  // Button group adjustments for RTL
+  .btn-group {
+    direction: rtl;
+    
+    .btn:first-child {
+      border-top-right-radius: var(--border-radius);
+      border-bottom-right-radius: var(--border-radius);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    
+    .btn:last-child {
+      border-top-left-radius: var(--border-radius);
+      border-bottom-left-radius: var(--border-radius);
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
+}
+
+// Arabic font optimization
+[lang="ar"] {
+  font-family: 'Noto Sans Arabic', 'Cairo', 'Tajawal', sans-serif;
+  font-feature-settings: "liga" 1, "kern" 1;
+  text-rendering: optimizeLegibility;
+  
+  // Improve Arabic text readability
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  
+  // Arabic numerals
+  font-variant-numeric: lining-nums;
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  
+  // Better spacing for Arabic text
+  p, .text-content {
+    line-height: 1.7;
+    word-spacing: 0.1em;
+  }
+}
+
 // Print styles
 @media print {
   * {
@@ -99,6 +512,14 @@ select:focus {
   
   a, a:visited {
     text-decoration: underline;
+  }
+  
+  .waaed-hidden-print {
+    display: none !important;
+  }
+  
+  [dir="rtl"] {
+    direction: rtl;
   }
   
   @page {
