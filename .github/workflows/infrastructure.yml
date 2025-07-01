@@ -107,10 +107,7 @@ jobs:
     name: Validate Helm Charts
     runs-on: ubuntu-latest
     needs: detect-infrastructure-changes
-    if: >
-      needs.detect-infrastructure-changes.outputs.helm == true ||
-      needs.detect-infrastructure-changes.outputs.infrastructure == true ||
-      github.event_name == 'pull_request'
+    if: always()
 
     steps:
       - uses: actions/checkout@v4
@@ -203,10 +200,7 @@ jobs:
     name: Validate Terraform
     runs-on: ubuntu-latest
     needs: detect-infrastructure-changes
-    if: >
-      needs.detect-infrastructure-changes.outputs.terraform == true ||
-      needs.detect-infrastructure-changes.outputs.infrastructure == true ||
-      github.event_name == 'pull_request'
+    if: always()
 
     strategy:
       matrix:
@@ -300,10 +294,7 @@ jobs:
     name: Infrastructure Cost Estimation
     runs-on: ubuntu-latest
     needs: [detect-infrastructure-changes, validate-terraform]
-    if: >
-      needs.detect-infrastructure-changes.outputs.terraform == true ||
-      github.event.inputs.action == 'cost-estimate' ||
-      github.event_name == 'pull_request'
+    if: always()
 
     strategy:
       matrix:
@@ -389,10 +380,7 @@ jobs:
     name: Terraform Plan
     runs-on: ubuntu-latest
     needs: [detect-infrastructure-changes, validate-terraform]
-    if: >
-      needs.detect-infrastructure-changes.outputs.terraform == true ||
-      github.event.inputs.action == 'plan' ||
-      github.event_name == 'pull_request'
+    if: always()
 
     strategy:
       matrix:
@@ -455,10 +443,7 @@ jobs:
     name: Infrastructure Drift Detection
     runs-on: ubuntu-latest
     needs: detect-infrastructure-changes
-    if: >
-      github.event_name == 'schedule' ||
-      github.event.inputs.action == 'drift-check' ||
-      github.event_name == 'pull_request'
+    if: always()
 
     strategy:
       matrix:
@@ -544,13 +529,7 @@ jobs:
     name: Deploy Helm Charts
     runs-on: ubuntu-latest
     needs: [detect-infrastructure-changes, validate-helm-charts]
-    if: >
-      (needs.detect-infrastructure-changes.outputs.helm == true ||
-       github.event.inputs.action == 'apply' ||
-       github.event_name == 'pull_request') &&
-      (github.ref == 'refs/heads/main' ||
-       github.event.inputs.force_apply == true ||
-       github.event_name == 'pull_request')
+    if: always()
 
     strategy:
       matrix:
@@ -706,10 +685,7 @@ jobs:
     name: Notify Infrastructure Status
     runs-on: ubuntu-latest
     needs: [helm-deploy, drift-detection]
-    if: >
-      always() &&
-      (github.ref == 'refs/heads/main' ||
-       needs.drift-detection.result == 'failure')
+    if: always()
 
     steps:
       - name: Notify on successful deployment
