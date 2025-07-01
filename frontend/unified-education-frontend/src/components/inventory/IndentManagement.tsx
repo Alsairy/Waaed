@@ -128,7 +128,7 @@ const IndentManagement: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('inventory.indentManagement')}</h1>
+        <h1 className="page-title" id="main-heading">{t('inventory.indentManagement')}</h1>
         <p className="page-subtitle">{t('inventory.manageStaffRequisitions')}</p>
         <div className="page-actions">
           <button className="btn btn-primary">
@@ -144,7 +144,7 @@ const IndentManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('inventory.indentOverview')}</h2>
+          <h2 className="section-title" id="overview-heading">{t('inventory.indentOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">

@@ -93,7 +93,7 @@ const EmployeeManagement: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('hr.employeeManagement')}</h1>
+        <h1 className="page-title" id="main-heading">{t('hr.employeeManagement')}</h1>
         <p className="page-subtitle">{t('hr.manageEmployeeInformation')}</p>
         <div className="page-actions">
           <button className="btn btn-primary">
@@ -109,7 +109,7 @@ const EmployeeManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('hr.employeeOverview')}</h2>
+          <h2 className="section-title" aria-labelledby="employee-overview-section">{t('hr.employeeOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
@@ -153,7 +153,7 @@ const EmployeeManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('hr.employeeList')}</h2>
+          <h2 className="section-title" aria-labelledby="employee-list-section">{t('hr.employeeList')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">

@@ -99,8 +99,8 @@ const BookCatalog: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('library.bookCatalog')}</h1>
-        <p className="page-subtitle">{t('library.manageLibraryCollection')}</p>
+        <h1 className="page-title" id="main-heading">{t('library.bookCatalog')}</h1>
+        <p className="page-subtitle" aria-describedby="main-heading">{t('library.manageLibraryCollection')}</p>
         <div className="page-actions">
           <button className="btn btn-primary">
             <Plus size={18} className="btn-icon" />
@@ -115,7 +115,7 @@ const BookCatalog: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('library.catalogOverview')}</h2>
+          <h2 className="section-title" id="catalog-overview">{t('library.catalogOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
@@ -159,7 +159,7 @@ const BookCatalog: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('library.bookCollection')}</h2>
+          <h2 className="section-title" id="book-collection">{t('library.bookCollection')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">

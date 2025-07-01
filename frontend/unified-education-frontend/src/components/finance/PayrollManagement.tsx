@@ -78,7 +78,11 @@ const PayrollManagement: React.FC = () => {
           <Users className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadPayrollEntries}>
+          <button 
+            className="error-action" 
+            onClick={loadPayrollEntries}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -89,15 +93,21 @@ const PayrollManagement: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('finance.payrollManagement')}</h1>
-        <p className="page-subtitle">{t('finance.manageEmployeePayroll')}</p>
+        <h1 className="page-title" id="main-heading">{t('finance.payrollManagement')}</h1>
+        <p className="page-subtitle" aria-describedby="main-heading">{t('finance.manageEmployeePayroll')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('finance.processPayroll')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('finance.processPayroll')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('finance.exportPayroll')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('finance.exportPayroll')}
           </button>
         </div>
@@ -105,9 +115,9 @@ const PayrollManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('finance.payrollOverview')}</h2>
+          <h2 className="section-title" id="payroll-overview-heading">{t('finance.payrollOverview')}</h2>
         </div>
-        <div className="card-grid grid-4">
+        <div className="card-grid grid-4" role="region" aria-labelledby="payroll-overview-heading">
           <div className="stat-card stat-card-primary">
             <div className="stat-icon">
               <DollarSign size={24} />
@@ -149,30 +159,36 @@ const PayrollManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('finance.payrollEntries')}</h2>
+          <h2 className="section-title" id="payroll-entries-heading">{t('finance.payrollEntries')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">
                 <Search size={18} className="search-icon" />
                 <input
+                  id="payroll-search"
                   type="text"
                   className="search-input"
                   placeholder={t('finance.searchEmployees')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('finance.searchEmployees')}
                 />
               </div>
             </div>
             <input
+              id="month-filter"
               type="month"
               className="filter-select"
               value={monthFilter}
               onChange={(e) => setMonthFilter(e.target.value)}
+              aria-label={t('finance.filterByMonth')}
             />
             <select
+              id="status-filter"
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('finance.filterByStatus')}
             >
               <option value="">{t('finance.allStatuses')}</option>
               <option value="Processed">{t('finance.processed')}</option>
@@ -185,7 +201,7 @@ const PayrollManagement: React.FC = () => {
         <div className="section-content">
           {filteredPayrollEntries.length > 0 ? (
             <div className="table-container">
-              <table className="data-table">
+              <table className="data-table" role="table" aria-labelledby="payroll-entries-heading">
                 <thead>
                   <tr>
                     <th>{t('finance.employee')}</th>
@@ -233,14 +249,27 @@ const PayrollManagement: React.FC = () => {
                       </td>
                       <td>
                         <div className="action-buttons">
-                          <button className="btn btn-sm btn-primary">
-                            <Eye size={14} />
+                          <button 
+                            className="btn btn-sm btn-primary"
+                            aria-label={t('common.view')}
+                            title={t('common.view')}
+                          >
+                            <Eye size={14} aria-hidden="true" />
                           </button>
-                          <button className="btn btn-sm btn-secondary">
-                            <Edit size={14} />
+                          <button 
+                            className="btn btn-sm btn-secondary"
+                            aria-label={t('common.edit')}
+                            title={t('common.edit')}
+                          >
+                            <Edit size={14} aria-hidden="true" />
                           </button>
-                          <button className="btn-icon" title={t('common.more')}>
-                            <MoreVertical size={16} />
+                          <button 
+                            className="btn-icon" 
+                            title={t('common.more')}
+                            aria-label={t('common.more')}
+                            aria-haspopup="true"
+                          >
+                            <MoreVertical size={16} aria-hidden="true" />
                           </button>
                         </div>
                       </td>

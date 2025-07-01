@@ -91,8 +91,10 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, userRole = 'student', use
           className="menu-toggle"
           onClick={onMenuToggle}
           aria-label={t('common.toggleMenu')}
+          aria-expanded={isSidebarOpen}
+          aria-controls="main-navigation"
         >
-          <Menu size={20} className="menu-icon" />
+          <Menu size={20} className="menu-icon" aria-hidden="true" />
         </button>
 
         {!isMobile && (
@@ -115,12 +117,15 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, userRole = 'student', use
             <div className="search-input-wrapper">
               <Search size={18} className="search-icon" />
               <input
+                id="global-search"
                 type="text"
                 className="search-input"
                 placeholder={t('common.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 dir={isRTL ? 'rtl' : 'ltr'}
+                aria-label={t('common.search')}
+                role="searchbox"
               />
             </div>
           </form>
@@ -133,8 +138,9 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, userRole = 'student', use
           <button
             className="action-button search-button"
             aria-label={t('common.search')}
+            type="button"
           >
-            <Search size={18} />
+            <Search size={18} aria-hidden="true" />
           </button>
         )}
 
@@ -144,20 +150,29 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, userRole = 'student', use
             className="action-button notifications-button"
             onClick={() => setShowNotifications(!showNotifications)}
             aria-label={t('common.notifications')}
+            aria-expanded={showNotifications}
+            aria-haspopup="true"
+            type="button"
           >
-            <Bell size={18} />
+            <Bell size={18} aria-hidden="true" />
             {unreadCount > 0 && (
-              <span className="action-badge">{unreadCount}</span>
+              <span className="action-badge" aria-label={t('notifications.unreadCount', { count: unreadCount })}>{unreadCount}</span>
             )}
           </button>
 
           {showNotifications && (
-            <div className={`dropdown-menu notifications-menu ${isRTL ? 'rtl' : 'ltr'}`}>
+            <div 
+              className={`dropdown-menu notifications-menu ${isRTL ? 'rtl' : 'ltr'}`}
+              role="menu"
+              aria-labelledby="notifications-button"
+            >
               <div className="dropdown-header">
-                <h6>{t('common.notifications')}</h6>
+                <h3 id="notifications-title">{t('common.notifications')}</h3>
                 <button 
                   className="mark-all-read"
                   onClick={() => console.log('Mark all as read')}
+                  aria-label={t('notifications.markAllRead')}
+                  type="button"
                 >
                   {t('notifications.markAllRead')}
                 </button>
@@ -184,7 +199,11 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, userRole = 'student', use
                 ))}
               </div>
               <div className="dropdown-footer">
-                <button className="btn-link">
+                <button 
+                  className="btn-link"
+                  aria-label={t('common.viewAllNotifications')}
+                  type="button"
+                >
                   {t('common.viewAllNotifications')}
                 </button>
               </div>

@@ -120,7 +120,11 @@ const PollResults: React.FC = () => {
           <BarChart3 className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadPollResults}>
+          <button 
+            className="error-action" 
+            onClick={loadPollResults}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -134,8 +138,11 @@ const PollResults: React.FC = () => {
         <h1 className="page-title">{t('polls.pollResults')}</h1>
         <p className="page-subtitle">{t('polls.viewAndAnalyzePollResults')}</p>
         <div className="page-actions">
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('polls.exportAllResults')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('polls.exportAllResults')}
           </button>
         </div>
@@ -198,6 +205,8 @@ const PollResults: React.FC = () => {
                   placeholder={t('polls.searchPolls')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('polls.searchPolls')}
+                  id="poll-search"
                 />
               </div>
             </div>
@@ -205,6 +214,7 @@ const PollResults: React.FC = () => {
               className="filter-select"
               value={audienceFilter}
               onChange={(e) => setAudienceFilter(e.target.value)}
+              aria-label={t('polls.filterByAudience')}
             >
               <option value="">{t('polls.allAudiences')}</option>
               {audiences.map((audience) => (
@@ -215,6 +225,7 @@ const PollResults: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('polls.filterByStatus')}
             >
               <option value="">{t('polls.allStatuses')}</option>
               <option value="active">{t('polls.active')}</option>
@@ -225,14 +236,18 @@ const PollResults: React.FC = () => {
               <button 
                 className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
                 onClick={() => setViewMode('grid')}
+                aria-label={t('polls.gridView')}
+                aria-pressed={viewMode === 'grid'}
               >
-                <BarChart3 size={16} />
+                <BarChart3 size={16} aria-hidden="true" />
               </button>
               <button 
                 className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                 onClick={() => setViewMode('list')}
+                aria-label={t('polls.listView')}
+                aria-pressed={viewMode === 'list'}
               >
-                <Filter size={16} />
+                <Filter size={16} aria-hidden="true" />
               </button>
             </div>
           </div>

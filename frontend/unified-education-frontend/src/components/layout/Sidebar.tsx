@@ -309,6 +309,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, userRole = 'student'
             className={`nav-link expandable ${isActive ? 'active' : ''}`}
             onClick={() => toggleMenu(item.key)}
             dir={isRTL ? 'rtl' : 'ltr'}
+            aria-expanded={isExpanded}
+            aria-label={`${item.label} ${hasChildren ? t('common.submenu') : ''}`}
           >
             <span className="nav-icon">{item.icon}</span>
             <span className="nav-text">{item.label}</span>
@@ -370,8 +372,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, userRole = 'student'
               <span className="logo-subtitle">TETCO Platform</span>
             </div>
             {isMobile && (
-              <button className="close-btn" onClick={onClose}>
-                <X size={24} />
+              <button 
+                className="close-btn" 
+                onClick={onClose}
+                aria-label={t('common.closeSidebar')}
+              >
+                <X size={24} aria-hidden="true" />
               </button>
             )}
           </div>
@@ -384,6 +390,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, userRole = 'student'
                 type="text" 
                 placeholder={t('common.search')}
                 className="search-input"
+                aria-label={t('common.searchSidebar')}
+                id="sidebar-search"
               />
             </div>
           </div>
@@ -411,11 +419,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, userRole = 'student'
               <div className="user-role">{t(`roles.${userRole}`)}</div>
             </div>
             <div className="user-actions">
-              <button className="action-btn" title={t('common.notifications')}>
-                <Bell size={16} />
+              <button 
+                className="action-btn" 
+                title={t('common.notifications')}
+                aria-label={t('common.notifications')}
+              >
+                <Bell size={16} aria-hidden="true" />
               </button>
-              <button className="action-btn" title={t('auth.logout')}>
-                <LogOut size={16} />
+              <button 
+                className="action-btn" 
+                title={t('auth.logout')}
+                aria-label={t('auth.logout')}
+              >
+                <LogOut size={16} aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -437,8 +453,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, userRole = 'student'
             <CheckSquare size={20} />
             <span>{t('navigation.tasks')}</span>
           </Link>
-          <button className="nav-item" onClick={onClose}>
-            <Menu size={20} />
+          <button 
+            className="nav-item" 
+            onClick={onClose}
+            aria-label={t('common.toggleMenu')}
+          >
+            <Menu size={20} aria-hidden="true" />
             <span>{t('common.menu')}</span>
           </button>
         </div>

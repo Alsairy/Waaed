@@ -174,7 +174,7 @@ const PollCreation: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('polls.createPoll')}</h1>
+        <h1 className="page-title" id="main-heading">{t('polls.createPoll')}</h1>
         <p className="page-subtitle">{t('polls.createNewPollForVoting')}</p>
       </div>
 
@@ -199,44 +199,60 @@ const PollCreation: React.FC = () => {
       <form onSubmit={handleSubmit} className="poll-creation-form">
         <div className="form-section">
           <div className="section-header">
-            <h2 className="section-title">{t('polls.pollDetails')}</h2>
+            <h2 className="section-title" id="poll-details-section">{t('polls.pollDetails')}</h2>
           </div>
           <div className="form-grid">
             <div className="form-group full-width">
-              <label className="form-label required">{t('polls.pollQuestion')}</label>
+              <label htmlFor="poll-question" className="form-label required">{t('polls.pollQuestion')}</label>
               <input
+                id="poll-question"
                 type="text"
                 className="form-input"
                 placeholder={t('polls.enterPollQuestion')}
                 value={formData.question}
                 onChange={(e) => handleInputChange('question', e.target.value)}
                 required
+                aria-required="true"
+                aria-describedby="poll-question-help"
               />
+              <div id="poll-question-help" className="sr-only">
+                {t('polls.pollQuestionHelp')}
+              </div>
             </div>
             <div className="form-group full-width">
-              <label className="form-label">{t('polls.description')}</label>
+              <label htmlFor="poll-description" className="form-label">{t('polls.description')}</label>
               <textarea
+                id="poll-description"
                 className="form-textarea"
                 placeholder={t('polls.enterPollDescription')}
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={3}
+                aria-describedby="poll-description-help"
               />
+              <div id="poll-description-help" className="sr-only">
+                {t('polls.pollDescriptionHelp')}
+              </div>
             </div>
           </div>
         </div>
 
         <div className="form-section">
           <div className="section-header">
-            <h2 className="section-title">{t('polls.answerOptions')}</h2>
+            <h2 className="section-title" id="answer-options-section">{t('polls.answerOptions')}</h2>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={addOption}
               disabled={formData.options.length >= 10}
+              aria-label={t('polls.addOption')}
+              aria-describedby="add-option-help"
             >
-              <Plus size={16} />
+              <Plus size={16} aria-hidden="true" />
               {t('polls.addOption')}
+              <div id="add-option-help" className="sr-only">
+                {t('polls.addOptionHelp')}
+              </div>
             </button>
           </div>
           <div className="options-list">
@@ -267,7 +283,7 @@ const PollCreation: React.FC = () => {
 
         <div className="form-section">
           <div className="section-header">
-            <h2 className="section-title">{t('polls.pollSettings')}</h2>
+            <h2 className="section-title" id="poll-settings-section">{t('polls.pollSettings')}</h2>
           </div>
           <div className="form-grid">
             <div className="form-group">
@@ -306,7 +322,7 @@ const PollCreation: React.FC = () => {
 
         <div className="form-section">
           <div className="section-header">
-            <h2 className="section-title">{t('polls.resultSettings')}</h2>
+            <h2 className="section-title" id="result-settings-section">{t('polls.resultSettings')}</h2>
           </div>
           <div className="form-options">
             <div className="form-option">

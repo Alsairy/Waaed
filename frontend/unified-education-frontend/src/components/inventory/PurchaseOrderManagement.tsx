@@ -103,7 +103,11 @@ const PurchaseOrderManagement: React.FC = () => {
           <ShoppingCart className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadPurchaseOrders}>
+          <button 
+            className="error-action" 
+            onClick={loadPurchaseOrders}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -114,15 +118,21 @@ const PurchaseOrderManagement: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('inventory.purchaseOrderManagement')}</h1>
-        <p className="page-subtitle">{t('inventory.managePurchaseOrdersAndProcurement')}</p>
+        <h1 className="page-title" id="main-heading">{t('inventory.purchaseOrderManagement')}</h1>
+        <p className="page-subtitle" aria-describedby="main-heading">{t('inventory.managePurchaseOrdersAndProcurement')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('inventory.createPurchaseOrder')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('inventory.createPurchaseOrder')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('inventory.exportPurchaseOrders')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('inventory.exportPurchaseOrders')}
           </button>
         </div>
@@ -130,7 +140,7 @@ const PurchaseOrderManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('inventory.purchaseOrderOverview')}</h2>
+          <h2 className="section-title" id="overview-section">{t('inventory.purchaseOrderOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
@@ -174,7 +184,7 @@ const PurchaseOrderManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('inventory.purchaseOrderList')}</h2>
+          <h2 className="section-title" id="list-section">{t('inventory.purchaseOrderList')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">
@@ -185,6 +195,8 @@ const PurchaseOrderManagement: React.FC = () => {
                   placeholder={t('inventory.searchPurchaseOrders')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('inventory.searchPurchaseOrders')}
+                  id="purchase-order-search"
                 />
               </div>
             </div>
@@ -192,6 +204,8 @@ const PurchaseOrderManagement: React.FC = () => {
               className="filter-select"
               value={supplierFilter}
               onChange={(e) => setSupplierFilter(e.target.value)}
+              aria-label={t('inventory.filterBySupplier')}
+              id="supplier-filter"
             >
               <option value="">{t('inventory.allSuppliers')}</option>
               {suppliers.map((supplier) => (
@@ -202,6 +216,8 @@ const PurchaseOrderManagement: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('inventory.filterByStatus')}
+              id="status-filter"
             >
               <option value="">{t('inventory.allStatuses')}</option>
               <option value="Pending">{t('inventory.pending')}</option>

@@ -63,7 +63,11 @@ const CourseManagement: React.FC = () => {
           <BookOpen className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadCourses}>
+          <button 
+            className="error-action" 
+            onClick={loadCourses}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -77,12 +81,18 @@ const CourseManagement: React.FC = () => {
         <h1 className="page-title">{t('lms.courseManagement')}</h1>
         <p className="page-subtitle">{t('lms.manageCourseContent')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('lms.createCourse')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('lms.createCourse')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('common.export')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('common.export')}
           </button>
         </div>
@@ -145,6 +155,8 @@ const CourseManagement: React.FC = () => {
                   placeholder={t('lms.searchCourses')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('lms.searchCourses')}
+                  id="course-search"
                 />
               </div>
             </div>
@@ -152,6 +164,8 @@ const CourseManagement: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('lms.filterByStatus')}
+              id="status-filter"
             >
               <option value="">{t('lms.allStatuses')}</option>
               <option value="Published">{t('lms.published')}</option>
@@ -198,16 +212,27 @@ const CourseManagement: React.FC = () => {
                   </div>
                   <div className="card-footer">
                     <div className="action-buttons">
-                      <button className="btn btn-sm btn-primary">
-                        <Eye size={14} />
+                      <button 
+                        className="btn btn-sm btn-primary"
+                        aria-label={t('common.viewCourse', { title: course.title })}
+                      >
+                        <Eye size={14} aria-hidden="true" />
                         {t('common.view')}
                       </button>
-                      <button className="btn btn-sm btn-secondary">
-                        <Edit size={14} />
+                      <button 
+                        className="btn btn-sm btn-secondary"
+                        aria-label={t('common.editCourse', { title: course.title })}
+                      >
+                        <Edit size={14} aria-hidden="true" />
                         {t('common.edit')}
                       </button>
-                      <button className="btn-icon" title={t('common.more')}>
-                        <MoreVertical size={16} />
+                      <button 
+                        className="btn-icon" 
+                        title={t('common.more')}
+                        aria-label={t('common.moreActions', { title: course.title })}
+                        aria-haspopup="true"
+                      >
+                        <MoreVertical size={16} aria-hidden="true" />
                       </button>
                     </div>
                   </div>
@@ -226,8 +251,11 @@ const CourseManagement: React.FC = () => {
                   : t('lms.noCoursesYet')
                 }
               </div>
-              <button className="btn btn-primary empty-action">
-                <Plus size={18} />
+              <button 
+                className="btn btn-primary empty-action"
+                aria-label={t('lms.createFirstCourse')}
+              >
+                <Plus size={18} aria-hidden="true" />
                 {t('lms.createFirstCourse')}
               </button>
             </div>

@@ -156,7 +156,7 @@ const PollVoting: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('polls.voting')}</h1>
+        <h1 className="page-title" id="main-heading">{t('polls.voting')}</h1>
         <p className="page-subtitle">{t('polls.participateInActivePolls')}</p>
       </div>
 

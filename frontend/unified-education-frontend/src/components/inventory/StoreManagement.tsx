@@ -83,7 +83,11 @@ const StoreManagement: React.FC = () => {
           <StoreIcon className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadStores}>
+          <button 
+            className="error-action" 
+            onClick={loadStores}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -97,12 +101,18 @@ const StoreManagement: React.FC = () => {
         <h1 className="page-title">{t('inventory.storeManagement')}</h1>
         <p className="page-subtitle">{t('inventory.manageStoresAndLocations')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('inventory.addStore')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('inventory.addStore')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('inventory.exportStores')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('inventory.exportStores')}
           </button>
         </div>
@@ -165,6 +175,8 @@ const StoreManagement: React.FC = () => {
                   placeholder={t('inventory.searchStores')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('inventory.searchStores')}
+                  id="store-search"
                 />
               </div>
             </div>
@@ -172,6 +184,8 @@ const StoreManagement: React.FC = () => {
               className="filter-select"
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
+              aria-label={t('inventory.filterByType')}
+              id="type-filter"
             >
               <option value="">{t('inventory.allTypes')}</option>
               {storeTypes.map((type) => (
@@ -182,6 +196,8 @@ const StoreManagement: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('inventory.filterByStatus')}
+              id="status-filter"
             >
               <option value="">{t('inventory.allStatuses')}</option>
               <option value="Active">{t('inventory.active')}</option>

@@ -176,7 +176,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ taskId = '1', onBack }) => {
           <CheckSquare className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error || t('tasks.taskNotFound')}</div>
-          <button className="error-action" onClick={loadTask}>
+          <button 
+            className="error-action" 
+            onClick={loadTask}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -194,14 +198,18 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ taskId = '1', onBack }) => {
       <div className="task-details">
         <div className="task-header">
           {onBack && (
-            <button className="btn btn-secondary back-btn" onClick={onBack}>
-              <ArrowLeft size={18} />
+            <button 
+              className="btn btn-secondary back-btn" 
+              onClick={onBack}
+              aria-label={t('common.back')}
+            >
+              <ArrowLeft size={18} aria-hidden="true" />
               {t('common.back')}
             </button>
           )}
           
           <div className="task-title-section">
-            <h1 className="task-title">{task.title}</h1>
+            <h1 className="task-title" id="task-title">{task.title}</h1>
             
             <div className="task-meta">
               <div className="meta-badges">
@@ -276,20 +284,25 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ taskId = '1', onBack }) => {
 
         <div className="task-content">
           <div className="task-description">
-            <h3 className="content-title">{t('tasks.description')}</h3>
+            <h2 className="content-title">{t('tasks.description')}</h2>
             <div className="description-content">
               {task.description}
             </div>
           </div>
 
           <div className="task-assignees">
-            <h3 className="content-title">{t('tasks.assignees')}</h3>
+            <h2 className="content-title">{t('tasks.assignees')}</h2>
             <div className="assignees-list">
               {task.assignees && task.assignees.length > 0 ? (
                 task.assignees.map((assignee) => (
                   <div key={assignee.id} className="assignee-card">
                     {assignee.avatar ? (
-                      <img src={assignee.avatar} alt={assignee.name} className="assignee-avatar" />
+                      <img 
+                        src={assignee.avatar} 
+                        alt={t('tasks.assigneeAvatar', { name: assignee.name })} 
+                        className="assignee-avatar"
+                        loading="lazy"
+                      />
                     ) : (
                       <div className="assignee-avatar-placeholder">
                         <User size={20} />
@@ -312,10 +325,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ taskId = '1', onBack }) => {
 
           {task.attachments && task.attachments.length > 0 && (
             <div className="task-attachments">
-              <h3 className="content-title">
-                <Paperclip size={18} />
+              <h2 className="content-title">
+                <Paperclip size={18} aria-hidden="true" />
                 {t('tasks.attachments')} ({task.attachments.length})
-              </h3>
+              </h2>
               <div className="attachments-list">
                 {task.attachments.map((attachment) => (
                   <div key={attachment.id} className="attachment-item">
@@ -330,8 +343,9 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ taskId = '1', onBack }) => {
                     <button
                       className="btn btn-sm btn-secondary"
                       onClick={() => handleDownloadAttachment(attachment.id, attachment.fileName)}
+                      aria-label={t('tasks.downloadAttachment', { fileName: attachment.fileName })}
                     >
-                      <Download size={14} />
+                      <Download size={14} aria-hidden="true" />
                       {t('common.download')}
                     </button>
                   </div>
@@ -343,25 +357,32 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({ taskId = '1', onBack }) => {
 
         <div className="task-status-update">
           <div className="status-update-header">
-            <h3 className="content-title">{t('tasks.updateStatus')}</h3>
+            <h2 className="content-title">{t('tasks.updateStatus')}</h2>
           </div>
           <div className="status-update-form">
             <div className="form-group">
-              <label className="form-label">{t('tasks.newStatus')}</label>
+              <label className="form-label" htmlFor="task-status-select">{t('tasks.newStatus')}</label>
               <select
                 className="form-select"
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
+                aria-describedby="status-help"
+                id="task-status-select"
               >
                 <option value="not_started">{t('tasks.notStarted')}</option>
                 <option value="in_progress">{t('tasks.inProgress')}</option>
                 <option value="completed">{t('tasks.completed')}</option>
               </select>
+              <div id="status-help" className="sr-only">
+                {t('tasks.statusUpdateHelp')}
+              </div>
             </div>
             <button
               className="btn btn-primary"
               onClick={handleStatusUpdate}
               disabled={updating || newStatus === task.status}
+              aria-label={t('tasks.updateTaskStatus')}
+              aria-describedby="status-help"
             >
               {updating ? (
                 <>

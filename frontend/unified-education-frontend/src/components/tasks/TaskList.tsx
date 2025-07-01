@@ -129,7 +129,11 @@ const TaskList: React.FC = () => {
           <CheckSquare className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadTasks}>
+          <button 
+            className="error-action" 
+            onClick={loadTasks}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -143,8 +147,11 @@ const TaskList: React.FC = () => {
         <h1 className="page-title">{t('tasks.taskManagement')}</h1>
         <p className="page-subtitle">{t('tasks.manageAndTrackTasks')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('tasks.newTask')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('tasks.newTask')}
           </button>
         </div>
@@ -216,6 +223,8 @@ const TaskList: React.FC = () => {
                   placeholder={t('tasks.searchTasks')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('tasks.searchTasks')}
+                  id="task-search"
                 />
               </div>
             </div>
@@ -223,6 +232,7 @@ const TaskList: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('tasks.filterByStatus')}
             >
               <option value="">{t('tasks.allStatuses')}</option>
               <option value="not_started">{t('tasks.notStarted')}</option>
@@ -233,6 +243,7 @@ const TaskList: React.FC = () => {
               className="filter-select"
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
+              aria-label={t('tasks.filterByPriority')}
             >
               <option value="">{t('tasks.allPriorities')}</option>
               <option value="high">{t('tasks.highPriority')}</option>
@@ -243,14 +254,18 @@ const TaskList: React.FC = () => {
               <button 
                 className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
                 onClick={() => setViewMode('grid')}
+                aria-label={t('tasks.gridView')}
+                aria-pressed={viewMode === 'grid'}
               >
-                <Filter size={16} />
+                <Filter size={16} aria-hidden="true" />
               </button>
               <button 
                 className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                 onClick={() => setViewMode('list')}
+                aria-label={t('tasks.listView')}
+                aria-pressed={viewMode === 'list'}
               >
-                <CheckSquare size={16} />
+                <CheckSquare size={16} aria-hidden="true" />
               </button>
             </div>
           </div>

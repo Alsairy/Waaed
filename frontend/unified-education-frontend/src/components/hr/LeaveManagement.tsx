@@ -79,7 +79,11 @@ const LeaveManagement: React.FC = () => {
           <Calendar className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadLeaveRequests}>
+          <button 
+            className="error-action" 
+            onClick={loadLeaveRequests}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -90,15 +94,21 @@ const LeaveManagement: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('hr.leaveManagement')}</h1>
-        <p className="page-subtitle">{t('hr.manageEmployeeLeaveRequests')}</p>
+        <h1 className="page-title" id="main-heading">{t('hr.leaveManagement')}</h1>
+        <p className="page-subtitle" aria-describedby="main-heading">{t('hr.manageEmployeeLeaveRequests')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('hr.newLeaveRequest')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('hr.newLeaveRequest')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('hr.exportLeaveData')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('hr.exportLeaveData')}
           </button>
         </div>
@@ -106,7 +116,7 @@ const LeaveManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('hr.leaveOverview')}</h2>
+          <h2 className="section-title" id="leave-overview-heading">{t('hr.leaveOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
@@ -150,7 +160,7 @@ const LeaveManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('hr.leaveRequests')}</h2>
+          <h2 className="section-title" id="leave-requests-heading">{t('hr.leaveRequests')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">
@@ -161,6 +171,8 @@ const LeaveManagement: React.FC = () => {
                   placeholder={t('hr.searchLeaveRequests')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('hr.searchLeaveRequests')}
+                  id="leave-search"
                 />
               </div>
             </div>
@@ -168,6 +180,8 @@ const LeaveManagement: React.FC = () => {
               className="filter-select"
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
+              aria-label={t('hr.filterByLeaveType')}
+              id="type-filter"
             >
               <option value="">{t('hr.allLeaveTypes')}</option>
               {leaveTypes.map((type) => (
@@ -178,6 +192,8 @@ const LeaveManagement: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('hr.filterByStatus')}
+              id="status-filter"
             >
               <option value="">{t('hr.allStatuses')}</option>
               <option value="Pending">{t('hr.pending')}</option>

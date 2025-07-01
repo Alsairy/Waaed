@@ -80,7 +80,11 @@ const PayrollManagement: React.FC = () => {
           <DollarSign className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadPayrollData}>
+          <button 
+            className="error-action" 
+            onClick={loadPayrollData}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -91,15 +95,21 @@ const PayrollManagement: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('hr.payrollManagement')}</h1>
-        <p className="page-subtitle">{t('hr.manageEmployeeSalariesAndBenefits')}</p>
+        <h1 className="page-title" id="main-heading">{t('hr.payrollManagement')}</h1>
+        <p className="page-subtitle" aria-describedby="main-heading">{t('hr.manageEmployeeSalariesAndBenefits')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('hr.processPayroll')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('hr.processPayroll')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('hr.exportPayrollData')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('hr.exportPayrollData')}
           </button>
         </div>
@@ -107,7 +117,7 @@ const PayrollManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('hr.payrollOverview')}</h2>
+          <h2 className="section-title" id="payroll-overview-heading">{t('hr.payrollOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
@@ -151,24 +161,28 @@ const PayrollManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('hr.employeePayroll')}</h2>
+          <h2 className="section-title" id="employee-payroll-heading">{t('hr.employeePayroll')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">
                 <Search size={18} className="search-icon" />
                 <input
+                  id="payroll-search"
                   type="text"
                   className="search-input"
                   placeholder={t('hr.searchEmployees')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('hr.searchEmployees')}
                 />
               </div>
             </div>
             <select
+              id="department-filter"
               className="filter-select"
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
+              aria-label={t('hr.filterByDepartment')}
             >
               <option value="">{t('hr.allDepartments')}</option>
               {departments.map((department) => (
@@ -176,9 +190,11 @@ const PayrollManagement: React.FC = () => {
               ))}
             </select>
             <select
+              id="status-filter"
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('hr.filterByStatus')}
             >
               <option value="">{t('hr.allStatuses')}</option>
               <option value="Processed">{t('hr.processed')}</option>

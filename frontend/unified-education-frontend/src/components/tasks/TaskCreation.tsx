@@ -196,7 +196,7 @@ const TaskCreation: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('tasks.createTask')}</h1>
+        <h1 className="page-title" id="main-heading">{t('tasks.createTask')}</h1>
         <p className="page-subtitle">{t('tasks.createNewTaskDescription')}</p>
       </div>
 
@@ -222,45 +222,60 @@ const TaskCreation: React.FC = () => {
         <form className="form">
           <div className="form-section">
             <div className="section-header">
-              <h3 className="section-title">{t('tasks.taskDetails')}</h3>
+              <h2 className="section-title">{t('tasks.taskDetails')}</h2>
             </div>
             
             <div className="form-group full-width">
-              <label className="form-label required">{t('tasks.title')}</label>
+              <label htmlFor="task-title" className="form-label required">{t('tasks.title')}</label>
               <input
+                id="task-title"
                 type="text"
                 className="form-input"
                 placeholder={t('tasks.enterTaskTitle')}
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
                 required
+                aria-describedby="task-title-help"
               />
+              <div id="task-title-help" className="sr-only">
+                {t('tasks.titleHelp')}
+              </div>
             </div>
 
             <div className="form-group full-width">
-              <label className="form-label required">{t('tasks.description')}</label>
+              <label htmlFor="task-description" className="form-label required">{t('tasks.description')}</label>
               <textarea
+                id="task-description"
                 className="form-textarea"
                 placeholder={t('tasks.enterTaskDescription')}
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={6}
                 required
+                aria-describedby="task-description-help"
               />
+              <div id="task-description-help" className="sr-only">
+                {t('tasks.descriptionHelp')}
+              </div>
             </div>
 
             <div className="form-grid">
               <div className="form-group">
-                <label className="form-label required">{t('tasks.dueDate')}</label>
+                <label htmlFor="task-due-date" className="form-label required">{t('tasks.dueDate')}</label>
                 <div className="input-with-icon">
-                  <Calendar size={18} className="input-icon" />
+                  <Calendar size={18} className="input-icon" aria-hidden="true" />
                   <input
+                    id="task-due-date"
                     type="datetime-local"
                     className="form-input"
                     value={formData.dueDate}
                     onChange={(e) => handleInputChange('dueDate', e.target.value)}
                     required
+                    aria-describedby="due-date-help"
                   />
+                  <div id="due-date-help" className="sr-only">
+                    {t('tasks.dueDateHelp')}
+                  </div>
                 </div>
               </div>
 
@@ -303,7 +318,7 @@ const TaskCreation: React.FC = () => {
 
           <div className="form-section">
             <div className="section-header">
-              <h3 className="section-title">{t('tasks.assignees')}</h3>
+              <h2 className="section-title">{t('tasks.assignees')}</h2>
               <div className="section-subtitle">{t('tasks.selectAssignees')}</div>
             </div>
             
@@ -363,7 +378,7 @@ const TaskCreation: React.FC = () => {
 
           <div className="form-section">
             <div className="section-header">
-              <h3 className="section-title">{t('tasks.attachments')}</h3>
+              <h2 className="section-title">{t('tasks.attachments')}</h2>
               <div className="section-subtitle">{t('tasks.attachFilesToTask')}</div>
             </div>
             

@@ -87,7 +87,11 @@ const PerformanceReviews: React.FC = () => {
           <Star className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadPerformanceReviews}>
+          <button 
+            className="error-action" 
+            onClick={loadPerformanceReviews}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -101,12 +105,18 @@ const PerformanceReviews: React.FC = () => {
         <h1 className="page-title">{t('hr.performanceReviews')}</h1>
         <p className="page-subtitle">{t('hr.manageEmployeePerformanceEvaluations')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('hr.createReview')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('hr.createReview')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('hr.exportReviews')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('hr.exportReviews')}
           </button>
         </div>
@@ -169,6 +179,8 @@ const PerformanceReviews: React.FC = () => {
                   placeholder={t('hr.searchReviews')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('hr.searchReviews')}
+                  id="review-search"
                 />
               </div>
             </div>
@@ -176,6 +188,7 @@ const PerformanceReviews: React.FC = () => {
               className="filter-select"
               value={periodFilter}
               onChange={(e) => setPeriodFilter(e.target.value)}
+              aria-label={t('hr.filterByPeriod')}
             >
               <option value="">{t('hr.allPeriods')}</option>
               {periods.map((period) => (
@@ -186,6 +199,7 @@ const PerformanceReviews: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('hr.filterByStatus')}
             >
               <option value="">{t('hr.allStatuses')}</option>
               <option value="Pending">{t('hr.pending')}</option>
@@ -272,16 +286,27 @@ const PerformanceReviews: React.FC = () => {
                   </div>
                   <div className="card-footer">
                     <div className="action-buttons">
-                      <button className="btn btn-sm btn-primary">
-                        <Eye size={14} />
+                      <button 
+                        className="btn btn-sm btn-primary"
+                        aria-label={t('common.viewReview', { employee: review.employeeName })}
+                      >
+                        <Eye size={14} aria-hidden="true" />
                         {t('common.view')}
                       </button>
-                      <button className="btn btn-sm btn-secondary">
-                        <Edit size={14} />
+                      <button 
+                        className="btn btn-sm btn-secondary"
+                        aria-label={t('common.editReview', { employee: review.employeeName })}
+                      >
+                        <Edit size={14} aria-hidden="true" />
                         {t('common.edit')}
                       </button>
-                      <button className="btn-icon" title={t('common.more')}>
-                        <MoreVertical size={16} />
+                      <button 
+                        className="btn-icon" 
+                        title={t('common.more')}
+                        aria-label={t('common.moreActions', { employee: review.employeeName })}
+                        aria-haspopup="true"
+                      >
+                        <MoreVertical size={16} aria-hidden="true" />
                       </button>
                     </div>
                   </div>

@@ -82,7 +82,11 @@ const BudgetPlanning: React.FC = () => {
           <PieChart className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadBudgets}>
+          <button 
+            className="error-action" 
+            onClick={loadBudgets}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -93,15 +97,21 @@ const BudgetPlanning: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('finance.budgetPlanning')}</h1>
-        <p className="page-subtitle">{t('finance.planAndManageBudgets')}</p>
+        <h1 className="page-title" id="main-heading">{t('finance.budgetPlanning')}</h1>
+        <p className="page-subtitle" aria-describedby="main-heading">{t('finance.planAndManageBudgets')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('finance.createBudget')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('finance.createBudget')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('finance.exportBudgets')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('finance.exportBudgets')}
           </button>
         </div>
@@ -109,7 +119,7 @@ const BudgetPlanning: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('finance.budgetOverview')}</h2>
+          <h2 className="section-title" id="budget-overview-heading">{t('finance.budgetOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
@@ -153,7 +163,7 @@ const BudgetPlanning: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('finance.budgetList')}</h2>
+          <h2 className="section-title" id="budget-list-heading">{t('finance.budgetList')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">
@@ -164,6 +174,8 @@ const BudgetPlanning: React.FC = () => {
                   placeholder={t('finance.searchBudgets')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('finance.searchBudgets')}
+                  id="budget-search"
                 />
               </div>
             </div>
@@ -171,6 +183,8 @@ const BudgetPlanning: React.FC = () => {
               className="filter-select"
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
+              aria-label={t('finance.filterByDepartment')}
+              id="department-filter"
             >
               <option value="">{t('finance.allDepartments')}</option>
               {departments.map((department) => (
@@ -181,6 +195,8 @@ const BudgetPlanning: React.FC = () => {
               className="filter-select"
               value={yearFilter}
               onChange={(e) => setYearFilter(e.target.value)}
+              aria-label={t('finance.filterByYear')}
+              id="year-filter"
             >
               <option value="">{t('finance.allYears')}</option>
               {years.map((year) => (

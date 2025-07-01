@@ -112,7 +112,11 @@ const CirculationManagement: React.FC = () => {
           <RotateCcw className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadCirculationData}>
+          <button 
+            className="error-action" 
+            onClick={loadCirculationData}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -126,12 +130,18 @@ const CirculationManagement: React.FC = () => {
         <h1 className="page-title">{t('library.circulationManagement')}</h1>
         <p className="page-subtitle">{t('library.manageBorrowingAndReturns')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('library.issueBook')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('library.issueBook')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('library.exportCirculation')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('library.exportCirculation')}
           </button>
         </div>
@@ -187,12 +197,20 @@ const CirculationManagement: React.FC = () => {
             <button 
               className={`tab-button ${activeTab === 'issues' ? 'active' : ''}`}
               onClick={() => setActiveTab('issues')}
+              role="tab"
+              aria-selected={activeTab === 'issues'}
+              aria-controls="issues-panel"
+              id="issues-tab"
             >
               {t('library.bookIssues')}
             </button>
             <button 
               className={`tab-button ${activeTab === 'reservations' ? 'active' : ''}`}
               onClick={() => setActiveTab('reservations')}
+              role="tab"
+              aria-selected={activeTab === 'reservations'}
+              aria-controls="reservations-panel"
+              id="reservations-tab"
             >
               {t('library.reservations')}
             </button>
@@ -207,6 +225,8 @@ const CirculationManagement: React.FC = () => {
                   placeholder={activeTab === 'issues' ? t('library.searchIssues') : t('library.searchReservations')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={activeTab === 'issues' ? t('library.searchIssues') : t('library.searchReservations')}
+                  id="circulation-search"
                 />
               </div>
             </div>
@@ -214,6 +234,8 @@ const CirculationManagement: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('library.filterByStatus')}
+              id="status-filter"
             >
               <option value="">{t('library.allStatuses')}</option>
               {activeTab === 'issues' ? (

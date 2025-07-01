@@ -59,7 +59,11 @@ export const StudentManagement: React.FC = () => {
           <Users className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadStudents}>
+          <button 
+            className="error-action" 
+            onClick={loadStudents}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -70,15 +74,21 @@ export const StudentManagement: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('sis.studentManagement')}</h1>
-        <p className="page-subtitle">{t('sis.manageStudentRecords')}</p>
+        <h1 className="page-title" id="main-heading">{t('sis.studentManagement')}</h1>
+        <p className="page-subtitle" aria-describedby="main-heading">{t('sis.manageStudentRecords')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <UserPlus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('sis.addStudent')}
+          >
+            <UserPlus size={18} className="btn-icon" aria-hidden="true" />
             {t('sis.addStudent')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('common.export')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('common.export')}
           </button>
         </div>
@@ -86,7 +96,7 @@ export const StudentManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('sis.studentList')}</h2>
+          <h2 className="section-title" id="student-list-heading">{t('sis.studentList')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">
@@ -97,6 +107,8 @@ export const StudentManagement: React.FC = () => {
                   placeholder={t('sis.searchStudents')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('sis.searchStudents')}
+                  id="student-search"
                 />
               </div>
             </div>
@@ -104,6 +116,8 @@ export const StudentManagement: React.FC = () => {
               className="filter-select"
               value={selectedGrade}
               onChange={(e) => setSelectedGrade(e.target.value)}
+              aria-label={t('sis.filterByGrade')}
+              id="grade-filter"
             >
               <option value="">{t('sis.allGrades')}</option>
               {grades.map(grade => (
@@ -157,14 +171,26 @@ export const StudentManagement: React.FC = () => {
                       </td>
                       <td>
                         <div className="action-buttons">
-                          <button className="btn-icon btn-icon-view" title={t('common.view')}>
-                            <Eye size={16} />
+                          <button 
+                            className="btn-icon btn-icon-view" 
+                            title={t('common.view')}
+                            aria-label={t('common.viewStudent', { name: `${student.firstName} ${student.lastName}` })}
+                          >
+                            <Eye size={16} aria-hidden="true" />
                           </button>
-                          <button className="btn-icon btn-icon-edit" title={t('common.edit')}>
-                            <Edit size={16} />
+                          <button 
+                            className="btn-icon btn-icon-edit" 
+                            title={t('common.edit')}
+                            aria-label={t('common.editStudent', { name: `${student.firstName} ${student.lastName}` })}
+                          >
+                            <Edit size={16} aria-hidden="true" />
                           </button>
-                          <button className="btn-icon btn-icon-delete" title={t('common.delete')}>
-                            <Trash2 size={16} />
+                          <button 
+                            className="btn-icon btn-icon-delete" 
+                            title={t('common.delete')}
+                            aria-label={t('common.deleteStudent', { name: `${student.firstName} ${student.lastName}` })}
+                          >
+                            <Trash2 size={16} aria-hidden="true" />
                           </button>
                         </div>
                       </td>
@@ -196,7 +222,7 @@ export const StudentManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('sis.quickStats')}</h2>
+          <h2 className="section-title" id="quick-stats-heading">{t('sis.quickStats')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">

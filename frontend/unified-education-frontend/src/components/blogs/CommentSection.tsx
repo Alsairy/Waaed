@@ -174,7 +174,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       <div className="comment-header">
         <div className="comment-author">
           {comment.authorAvatar ? (
-            <img src={comment.authorAvatar} alt={comment.authorName} className="author-avatar" />
+            <img src={comment.authorAvatar} alt={`${comment.authorName}'s profile picture`} className="author-avatar" />
           ) : (
             <div className="author-avatar-placeholder">
               <User size={20} />
@@ -192,8 +192,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
           </div>
         </div>
         <div className="comment-actions">
-          <button className="btn-icon" title={t('common.more')}>
-            <MoreVertical size={16} />
+          <button 
+            className="btn-icon" 
+            title={t('common.more')}
+            aria-label={t('common.more')}
+            aria-haspopup="true"
+          >
+            <MoreVertical size={16} aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -207,12 +212,15 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
               onChange={(e) => setEditContent(e.target.value)}
               rows={3}
               placeholder={t('blogs.editComment')}
+              aria-label={t('blogs.editComment')}
+              id={`edit-comment-${comment.id}`}
             />
             <div className="edit-actions">
               <button
                 className="btn btn-sm btn-secondary"
                 onClick={cancelEditing}
                 disabled={submitting}
+                aria-label={t('common.cancel')}
               >
                 {t('common.cancel')}
               </button>
@@ -220,6 +228,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                 className="btn btn-sm btn-primary"
                 onClick={() => handleEditComment(comment.id)}
                 disabled={submitting || !editContent.trim()}
+                aria-label={t('blogs.updateComment')}
               >
                 {submitting ? (
                   <>
@@ -245,8 +254,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
           <button
             className={`interaction-btn ${comment.isLiked ? 'active' : ''}`}
             onClick={() => handleLikeComment(comment.id)}
+            aria-label={comment.isLiked ? t('blogs.unlikeComment') : t('blogs.likeComment')}
+            aria-pressed={comment.isLiked}
           >
-            <Heart size={14} fill={comment.isLiked ? 'currentColor' : 'none'} />
+            <Heart size={14} fill={comment.isLiked ? 'currentColor' : 'none'} aria-hidden="true" />
             <span>{comment.likesCount}</span>
           </button>
           
@@ -254,8 +265,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
             <button
               className="interaction-btn"
               onClick={() => startReplying(comment.id)}
+              aria-label={t('blogs.replyToComment', { author: comment.authorName })}
             >
-              <Reply size={14} />
+              <Reply size={14} aria-hidden="true" />
               {t('blogs.reply')}
             </button>
           )}
@@ -263,8 +275,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
           <button
             className="interaction-btn"
             onClick={() => startEditing(comment)}
+            aria-label={t('blogs.editComment')}
           >
-            <Edit size={14} />
+            <Edit size={14} aria-hidden="true" />
             {t('common.edit')}
           </button>
           
@@ -328,7 +341,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     return (
       <div className="comments-section">
         <div className="section-header">
-          <h3 className="section-title">{t('blogs.comments')}</h3>
+          <h2 className="section-title">{t('blogs.comments')}</h2>
         </div>
         <div className="loading-state">
           <div className="loading-spinner"></div>
@@ -341,10 +354,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   return (
     <div className="comments-section">
       <div className="section-header">
-        <h3 className="section-title">
-          <MessageCircle size={20} />
+        <h2 className="section-title">
+          <MessageCircle size={20} aria-hidden="true" />
           {t('blogs.comments')} ({comments.length})
-        </h3>
+        </h2>
       </div>
 
       {error && (
@@ -358,7 +371,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
 
       <div className="new-comment-form">
         <div className="form-header">
-          <h4 className="form-title">{t('blogs.addComment')}</h4>
+          <h3 className="form-title">{t('blogs.addComment')}</h3>
         </div>
         <textarea
           className="form-textarea"

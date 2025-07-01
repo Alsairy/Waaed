@@ -132,7 +132,11 @@ const StockManagement: React.FC = () => {
           <Package2 className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadStockData}>
+          <button 
+            className="error-action" 
+            onClick={loadStockData}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -146,16 +150,25 @@ const StockManagement: React.FC = () => {
         <h1 className="page-title">{t('inventory.stockManagement')}</h1>
         <p className="page-subtitle">{t('inventory.manageStockMovementsAndAdjustments')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('inventory.recordMovement')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('inventory.recordMovement')}
           </button>
-          <button className="btn btn-secondary">
-            <RefreshCw size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('inventory.stockAdjustment')}
+          >
+            <RefreshCw size={18} className="btn-icon" aria-hidden="true" />
             {t('inventory.stockAdjustment')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('inventory.exportStock')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('inventory.exportStock')}
           </button>
         </div>
@@ -211,12 +224,20 @@ const StockManagement: React.FC = () => {
             <button 
               className={`tab-button ${activeTab === 'movements' ? 'active' : ''}`}
               onClick={() => setActiveTab('movements')}
+              role="tab"
+              aria-selected={activeTab === 'movements'}
+              aria-controls="movements-panel"
+              id="movements-tab"
             >
               {t('inventory.stockMovements')}
             </button>
             <button 
               className={`tab-button ${activeTab === 'adjustments' ? 'active' : ''}`}
               onClick={() => setActiveTab('adjustments')}
+              role="tab"
+              aria-selected={activeTab === 'adjustments'}
+              aria-controls="adjustments-panel"
+              id="adjustments-tab"
             >
               {t('inventory.stockAdjustments')}
             </button>
@@ -231,6 +252,8 @@ const StockManagement: React.FC = () => {
                   placeholder={activeTab === 'movements' ? t('inventory.searchMovements') : t('inventory.searchAdjustments')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={activeTab === 'movements' ? t('inventory.searchMovements') : t('inventory.searchAdjustments')}
+                  id="stock-search"
                 />
               </div>
             </div>
@@ -238,6 +261,8 @@ const StockManagement: React.FC = () => {
               className="filter-select"
               value={storeFilter}
               onChange={(e) => setStoreFilter(e.target.value)}
+              aria-label={t('inventory.filterByStore')}
+              id="store-filter"
             >
               <option value="">{t('inventory.allStores')}</option>
               {stores.map((store) => (

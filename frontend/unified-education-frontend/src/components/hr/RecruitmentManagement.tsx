@@ -95,7 +95,11 @@ const RecruitmentManagement: React.FC = () => {
           <Briefcase className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadRecruitmentData}>
+          <button 
+            className="error-action" 
+            onClick={loadRecruitmentData}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -109,12 +113,18 @@ const RecruitmentManagement: React.FC = () => {
         <h1 className="page-title">{t('hr.recruitmentManagement')}</h1>
         <p className="page-subtitle">{t('hr.manageJobPostingsAndApplications')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('hr.createJobPosting')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('hr.createJobPosting')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('hr.exportRecruitmentData')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('hr.exportRecruitmentData')}
           </button>
         </div>
@@ -170,12 +180,20 @@ const RecruitmentManagement: React.FC = () => {
             <button 
               className={`tab-button ${activeTab === 'postings' ? 'active' : ''}`}
               onClick={() => setActiveTab('postings')}
+              role="tab"
+              aria-selected={activeTab === 'postings'}
+              aria-controls="postings-panel"
+              id="postings-tab"
             >
               {t('hr.jobPostings')}
             </button>
             <button 
               className={`tab-button ${activeTab === 'applications' ? 'active' : ''}`}
               onClick={() => setActiveTab('applications')}
+              role="tab"
+              aria-selected={activeTab === 'applications'}
+              aria-controls="applications-panel"
+              id="applications-tab"
             >
               {t('hr.applications')}
             </button>
@@ -190,6 +208,8 @@ const RecruitmentManagement: React.FC = () => {
                   placeholder={activeTab === 'postings' ? t('hr.searchJobPostings') : t('hr.searchApplications')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={activeTab === 'postings' ? t('hr.searchJobPostings') : t('hr.searchApplications')}
+                  id="recruitment-search"
                 />
               </div>
             </div>
@@ -197,6 +217,8 @@ const RecruitmentManagement: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('hr.filterByStatus')}
+              id="status-filter"
             >
               <option value="">{t('hr.allStatuses')}</option>
               {activeTab === 'postings' ? (

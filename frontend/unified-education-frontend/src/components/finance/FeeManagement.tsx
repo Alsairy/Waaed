@@ -100,7 +100,11 @@ const FeeManagement: React.FC = () => {
           <DollarSign className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadFeeData}>
+          <button 
+            className="error-action" 
+            onClick={loadFeeData}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -111,15 +115,21 @@ const FeeManagement: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('finance.feeManagement')}</h1>
-        <p className="page-subtitle">{t('finance.manageFeeStructuresAndCollections')}</p>
+        <h1 className="page-title" id="main-heading">{t('finance.feeManagement')}</h1>
+        <p className="page-subtitle" aria-describedby="main-heading">{t('finance.manageFeeStructuresAndCollections')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={activeTab === 'structures' ? t('finance.createFeeStructure') : t('finance.collectFee')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {activeTab === 'structures' ? t('finance.createFeeStructure') : t('finance.collectFee')}
           </button>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('common.export')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('common.export')}
           </button>
         </div>
@@ -127,7 +137,7 @@ const FeeManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('finance.feeOverview')}</h2>
+          <h2 className="section-title" id="fee-overview-heading">{t('finance.feeOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
@@ -175,12 +185,20 @@ const FeeManagement: React.FC = () => {
             <button 
               className={`tab-button ${activeTab === 'structures' ? 'active' : ''}`}
               onClick={() => setActiveTab('structures')}
+              role="tab"
+              aria-selected={activeTab === 'structures'}
+              aria-controls="structures-panel"
+              id="structures-tab"
             >
               {t('finance.feeStructures')}
             </button>
             <button 
               className={`tab-button ${activeTab === 'collections' ? 'active' : ''}`}
               onClick={() => setActiveTab('collections')}
+              role="tab"
+              aria-selected={activeTab === 'collections'}
+              aria-controls="collections-panel"
+              id="collections-tab"
             >
               {t('finance.feeCollections')}
             </button>
@@ -195,6 +213,8 @@ const FeeManagement: React.FC = () => {
                   placeholder={activeTab === 'structures' ? t('finance.searchFeeStructures') : t('finance.searchFeeCollections')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={activeTab === 'structures' ? t('finance.searchFeeStructures') : t('finance.searchFeeCollections')}
+                  id="fee-search-input"
                 />
               </div>
             </div>
@@ -202,6 +222,8 @@ const FeeManagement: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('finance.filterByStatus')}
+              id="status-filter-select"
             >
               <option value="">{t('finance.allStatuses')}</option>
               {activeTab === 'structures' ? (

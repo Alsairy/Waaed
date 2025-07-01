@@ -125,7 +125,11 @@ const BlogPostList: React.FC = () => {
           <FileText className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadBlogPosts}>
+          <button 
+            className="error-action" 
+            onClick={loadBlogPosts}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -139,8 +143,11 @@ const BlogPostList: React.FC = () => {
         <h1 className="page-title">{t('blogs.blogPosts')}</h1>
         <p className="page-subtitle">{t('blogs.manageAndViewBlogPosts')}</p>
         <div className="page-actions">
-          <button className="btn btn-primary">
-            <Plus size={18} className="btn-icon" />
+          <button 
+            className="btn btn-primary"
+            aria-label={t('blogs.newPost')}
+          >
+            <Plus size={18} className="btn-icon" aria-hidden="true" />
             {t('blogs.newPost')}
           </button>
         </div>
@@ -203,6 +210,8 @@ const BlogPostList: React.FC = () => {
                   placeholder={t('blogs.searchPosts')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('blogs.searchPosts')}
+                  id="blog-search"
                 />
               </div>
             </div>
@@ -210,6 +219,8 @@ const BlogPostList: React.FC = () => {
               className="filter-select"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
+              aria-label={t('blogs.filterByCategory')}
+              id="category-filter"
             >
               <option value="">{t('blogs.allCategories')}</option>
               {categories.map((category) => (
@@ -222,6 +233,8 @@ const BlogPostList: React.FC = () => {
               className="filter-select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('blogs.filterByStatus')}
+              id="status-filter"
             >
               <option value="">{t('blogs.allStatuses')}</option>
               <option value="published">{t('blogs.published')}</option>
@@ -231,14 +244,18 @@ const BlogPostList: React.FC = () => {
               <button 
                 className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
                 onClick={() => setViewMode('grid')}
+                aria-label={t('blogs.gridView')}
+                aria-pressed={viewMode === 'grid'}
               >
-                <Filter size={16} />
+                <Filter size={16} aria-hidden="true" />
               </button>
               <button 
                 className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
                 onClick={() => setViewMode('list')}
+                aria-label={t('blogs.listView')}
+                aria-pressed={viewMode === 'list'}
               >
-                <FileText size={16} />
+                <FileText size={16} aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -256,7 +273,7 @@ const BlogPostList: React.FC = () => {
                       <div className="card-header">
                         {post.featuredImage && (
                           <div className="post-image">
-                            <img src={post.featuredImage} alt={post.title} />
+                            <img src={post.featuredImage} alt={`Featured image for blog post: ${post.title}`} />
                           </div>
                         )}
                         <div className="post-header">

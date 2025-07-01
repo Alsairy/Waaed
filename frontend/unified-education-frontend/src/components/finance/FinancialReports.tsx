@@ -94,7 +94,11 @@ const FinancialReports: React.FC = () => {
           <FileText className="error-icon" size={48} />
           <div className="error-title">{t('common.errorLoadingData')}</div>
           <div className="error-description">{error}</div>
-          <button className="error-action" onClick={loadReports}>
+          <button 
+            className="error-action" 
+            onClick={loadReports}
+            aria-label={t('common.tryAgain')}
+          >
             {t('common.tryAgain')}
           </button>
         </div>
@@ -105,43 +109,59 @@ const FinancialReports: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('finance.financialReports')}</h1>
+        <h1 className="page-title" id="main-heading">{t('finance.financialReports')}</h1>
         <p className="page-subtitle">{t('finance.generateAndViewFinancialReports')}</p>
         <div className="page-actions">
           <div className="dropdown">
-            <button className="btn btn-primary dropdown-toggle">
-              <Plus size={18} className="btn-icon" />
+            <button 
+              className="btn btn-primary dropdown-toggle"
+              aria-label={t('finance.generateReport')}
+              aria-expanded="false"
+              aria-haspopup="true"
+            >
+              <Plus size={18} className="btn-icon" aria-hidden="true" />
               {t('finance.generateReport')}
             </button>
-            <div className="dropdown-menu">
+            <div className="dropdown-menu" role="menu">
               <button 
                 className="dropdown-item"
                 onClick={() => generateReport('Income')}
+                role="menuitem"
+                aria-label={t('finance.incomeReport')}
               >
                 {t('finance.incomeReport')}
               </button>
               <button 
                 className="dropdown-item"
                 onClick={() => generateReport('Expense')}
+                role="menuitem"
+                aria-label={t('finance.expenseReport')}
               >
                 {t('finance.expenseReport')}
               </button>
               <button 
                 className="dropdown-item"
                 onClick={() => generateReport('Balance')}
+                role="menuitem"
+                aria-label={t('finance.balanceSheet')}
               >
                 {t('finance.balanceSheet')}
               </button>
               <button 
                 className="dropdown-item"
                 onClick={() => generateReport('ProfitLoss')}
+                role="menuitem"
+                aria-label={t('finance.profitLossStatement')}
               >
                 {t('finance.profitLossStatement')}
               </button>
             </div>
           </div>
-          <button className="btn btn-secondary">
-            <Download size={18} className="btn-icon" />
+          <button 
+            className="btn btn-secondary"
+            aria-label={t('finance.exportAll')}
+          >
+            <Download size={18} className="btn-icon" aria-hidden="true" />
             {t('finance.exportAll')}
           </button>
         </div>
@@ -149,7 +169,7 @@ const FinancialReports: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('finance.reportOverview')}</h2>
+          <h2 className="section-title" id="report-overview-heading">{t('finance.reportOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
@@ -193,7 +213,7 @@ const FinancialReports: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('finance.reportList')}</h2>
+          <h2 className="section-title" id="report-list-heading">{t('finance.reportList')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">
@@ -204,6 +224,8 @@ const FinancialReports: React.FC = () => {
                   placeholder={t('finance.searchReports')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  aria-label={t('finance.searchReports')}
+                  id="reports-search"
                 />
               </div>
             </div>
@@ -322,7 +344,7 @@ const FinancialReports: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('finance.quickReports')}</h2>
+          <h2 className="section-title" id="quick-reports-heading">{t('finance.quickReports')}</h2>
         </div>
         <div className="quick-reports-grid">
           <div className="quick-report-card" onClick={() => generateReport('Income')}>

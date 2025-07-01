@@ -110,8 +110,8 @@ const ItemManagement: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('inventory.itemManagement')}</h1>
-        <p className="page-subtitle">{t('inventory.manageItemMasterData')}</p>
+        <h1 className="page-title" id="main-heading">{t('inventory.itemManagement')}</h1>
+        <p className="page-subtitle" aria-describedby="main-heading">{t('inventory.manageItemMasterData')}</p>
         <div className="page-actions">
           <button className="btn btn-primary">
             <Plus size={18} className="btn-icon" />
@@ -126,7 +126,7 @@ const ItemManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('inventory.itemOverview')}</h2>
+          <h2 className="section-title" id="overview-section">{t('inventory.itemOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
@@ -170,7 +170,7 @@ const ItemManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('inventory.itemCatalog')}</h2>
+          <h2 className="section-title" id="catalog-section">{t('inventory.itemCatalog')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">
@@ -234,7 +234,7 @@ const ItemManagement: React.FC = () => {
                       <div className="card-header">
                         <div className="item-image">
                           {item.imageUrl ? (
-                            <img src={item.imageUrl} alt={item.name} className="item-img" />
+                            <img src={item.imageUrl} alt={`${t('inventory.itemImage')} - ${item.name}`} className="item-img" />
                           ) : (
                             <div className="item-placeholder">
                               <Package size={32} />

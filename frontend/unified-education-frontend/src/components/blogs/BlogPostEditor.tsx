@@ -209,14 +209,16 @@ const BlogPostEditor: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('blogs.createBlogPost')}</h1>
+        <h1 className="page-title" id="main-heading">{t('blogs.createBlogPost')}</h1>
         <p className="page-subtitle">{t('blogs.writeAndPublishBlogPost')}</p>
         <div className="page-actions">
           <button 
             className={`btn ${previewMode ? 'btn-secondary' : 'btn-outline'}`}
             onClick={() => setPreviewMode(!previewMode)}
+            aria-label={previewMode ? t('blogs.switchToEditMode') : t('blogs.switchToPreviewMode')}
+            aria-pressed={previewMode}
           >
-            <Eye size={18} className="btn-icon" />
+            <Eye size={18} className="btn-icon" aria-hidden="true" />
             {previewMode ? t('blogs.editMode') : t('blogs.preview')}
           </button>
         </div>
@@ -245,33 +247,39 @@ const BlogPostEditor: React.FC = () => {
           <form className="editor-form">
             <div className="form-section">
               <div className="form-group full-width">
-                <label className="form-label required">{t('blogs.title')}</label>
+                <label htmlFor="blog-title" className="form-label required">{t('blogs.title')}</label>
                 <input
+                  id="blog-title"
                   type="text"
                   className="form-input title-input"
                   placeholder={t('blogs.enterBlogTitle')}
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
                   required
+                  aria-describedby="title-help"
                 />
+                <div id="title-help" className="sr-only">{t('blogs.titleHelp')}</div>
               </div>
 
               <div className="form-group full-width">
-                <label className="form-label">{t('blogs.excerpt')}</label>
+                <label htmlFor="blog-excerpt" className="form-label">{t('blogs.excerpt')}</label>
                 <textarea
+                  id="blog-excerpt"
                   className="form-textarea"
                   placeholder={t('blogs.enterBlogExcerpt')}
                   value={formData.excerpt}
                   onChange={(e) => handleInputChange('excerpt', e.target.value)}
                   rows={3}
+                  aria-describedby="excerpt-help"
                 />
+                <div id="excerpt-help" className="form-help">{t('blogs.excerptHelp')}</div>
                 <div className="form-help">{t('blogs.excerptHelp')}</div>
               </div>
             </div>
 
             <div className="form-section">
               <div className="section-header">
-                <h3 className="section-title">{t('blogs.content')}</h3>
+                <h2 className="section-title">{t('blogs.content')}</h2>
                 <div className="formatting-toolbar">
                   <button type="button" className="format-btn" onClick={() => insertFormatting('bold')} title={t('blogs.bold')}>
                     <Bold size={16} />
@@ -306,7 +314,7 @@ const BlogPostEditor: React.FC = () => {
 
             <div className="form-section">
               <div className="section-header">
-                <h3 className="section-title">{t('blogs.settings')}</h3>
+                <h2 className="section-title">{t('blogs.settings')}</h2>
               </div>
               <div className="form-grid">
                 <div className="form-group">
@@ -453,7 +461,7 @@ const BlogPostEditor: React.FC = () => {
         ) : (
           <div className="blog-preview">
             <div className="preview-header">
-              <h1 className="preview-title">{formData.title || t('blogs.untitled')}</h1>
+              <h2 className="preview-title">{formData.title || t('blogs.untitled')}</h2>
               {formData.excerpt && (
                 <div className="preview-excerpt">{formData.excerpt}</div>
               )}
@@ -472,7 +480,10 @@ const BlogPostEditor: React.FC = () => {
             </div>
             {formData.featuredImage && (
               <div className="preview-image">
-                <img src={formData.featuredImage} alt={formData.title} />
+                <img 
+                  src={formData.featuredImage} 
+                  alt={formData.title ? `Featured image for blog post: ${formData.title}` : 'Featured image for blog post'} 
+                />
               </div>
             )}
             <div className="preview-content">

@@ -64,8 +64,8 @@ const AdminManagement: React.FC = () => {
   return (
     <div className="content-area">
       <div className="page-header">
-        <h1 className="page-title">{t('admin.adminManagement')}</h1>
-        <p className="page-subtitle">{t('admin.manageTenants')}</p>
+        <h1 className="page-title" id="main-heading">{t('admin.adminManagement')}</h1>
+        <p className="page-subtitle" aria-describedby="main-heading">{t('admin.manageTenants')}</p>
         <div className="page-actions">
           <button className="btn btn-primary">
             <Plus size={18} className="btn-icon" />
@@ -80,7 +80,7 @@ const AdminManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('admin.adminOverview')}</h2>
+          <h2 className="section-title" id="overview-section">{t('admin.adminOverview')}</h2>
         </div>
         <div className="card-grid grid-4">
           <div className="stat-card stat-card-primary">
@@ -124,7 +124,7 @@ const AdminManagement: React.FC = () => {
 
       <div className="content-section">
         <div className="section-header">
-          <h2 className="section-title">{t('admin.tenantList')}</h2>
+          <h2 className="section-title" id="tenant-list-section">{t('admin.tenantList')}</h2>
           <div className="section-actions">
             <div className="search-box">
               <div className="search-input-wrapper">
