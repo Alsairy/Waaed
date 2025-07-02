@@ -58,7 +58,7 @@ jobs:
     - name: Wait for services to be ready
       run: |
         echo "Waiting for SQL Server to be ready..."
-        timeout 900s bash -c 'until /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... ($(date))"; sleep 10; done' || {
+        timeout 1200s bash -c 'until /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... ($(date))"; sleep 15; done' || {
           echo "SQL Server failed to start within timeout, checking container status..."
           docker ps -a
           echo "Continuing with tests anyway..."
@@ -199,7 +199,7 @@ jobs:
         
         # Wait for services to be ready with extended timeout
         echo "Waiting for services to be ready..."
-        timeout 600s bash -c 'until /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... ($(date))"; sleep 15; done' || {
+        timeout 900s bash -c 'until /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... ($(date))"; sleep 20; done' || {
           echo "SQL Server failed to start, checking logs..."
           docker logs sqlserver || true
           echo "Continuing with tests anyway..."
@@ -258,7 +258,7 @@ jobs:
         docker run -d --name redis-perf -p 6379:6379 redis:7-alpine
         # Wait for SQL Server to be ready with extended timeout and better error handling
         echo "Waiting for SQL Server..."
-        timeout 1800s bash -c 'until docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... ($(date))"; sleep 45; done' || {
+        timeout 2400s bash -c 'until docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... ($(date))"; sleep 60; done' || {
           echo "SQL Server failed to start within timeout, checking container status..."
           docker ps -a
           docker logs sqlserver-perf || true

@@ -7,14 +7,21 @@ services:
       SA_PASSWORD: "${SQL_SERVER_PASSWORD:-TestPassword123}"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"
+      MSSQL_MEMORY_LIMIT_MB: 2048
     ports:
       - "1433:1433"
     healthcheck:
       test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${SQL_SERVER_PASSWORD:-TestPassword123}' -C -Q 'SELECT 1'"]
-      interval: 30s
-      timeout: 20s
-      retries: 15
-      start_period: 180s
+      interval: 45s
+      timeout: 30s
+      retries: 20
+      start_period: 300s
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+        reservations:
+          memory: 2G
 
   redis:
     image: redis:7-alpine
@@ -37,17 +44,24 @@ services:
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=WaaedTest;User Id=sa;Password=${SQL_SERVER_PASSWORD:-TestPassword123};TrustServerCertificate=true;
       - ENABLE_RABBITMQ_HEALTH_CHECK=false
       - ENABLE_REDIS_HEALTH_CHECK=false
+      - ASPNETCORE_URLS=http://+:8080
     depends_on:
       sqlserver:
         condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 20s
-      retries: 10
-      start_period: 180s
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 45s
+      timeout: 30s
+      retries: 15
+      start_period: 300s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
 
 networks:
   default:
