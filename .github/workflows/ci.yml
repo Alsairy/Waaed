@@ -1,5 +1,6 @@
 name: CI Pipeline
 
+# Updated CI configuration with comprehensive fixes for service startup, health checks, and test environment optimization
 on:
   push:
     branches: [ main, develop ]
