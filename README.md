@@ -1,4 +1,4 @@
-# 🚀 Hudur - Enterprise Workforce Management Platform
+# 🚀 Waaed - Comprehensive Educational Management Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
@@ -9,7 +9,7 @@
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-blue.svg)](https://kubernetes.io/)
 [![CI/CD](https://github.com/your-org/hudur/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/your-org/hudur/actions)
 
-> **🌟 World-Class Enterprise Platform** - Complete workforce management solution with AI-powered analytics, real-time collaboration, and comprehensive business intelligence.
+> **🌟 World-Class Educational Platform** - Complete educational management solution with AI-powered analytics, real-time collaboration, and comprehensive business intelligence for modern educational institutions.
 
 ## 📋 Table of Contents
 
@@ -29,9 +29,9 @@
 
 ## 🎯 Overview
 
-Hudur is a **production-ready enterprise workforce management platform** featuring cutting-edge technology, AI-powered analytics, and comprehensive business intelligence. Built with modern microservices architecture and designed for global scale.
+Waaed is a **production-ready comprehensive educational management platform** featuring cutting-edge technology, AI-powered analytics, and comprehensive business intelligence. Built with modern microservices architecture and designed for global scale.
 
-### 🌟 **Why Hudur?**
+### 🌟 **Why Waaed?**
 
 - **🤖 AI-Powered**: Predictive analytics and anomaly detection
 - **📊 Business Intelligence**: Real-time dashboards and custom reporting
@@ -45,11 +45,11 @@ Hudur is a **production-ready enterprise workforce management platform** featuri
 ## ✨ Key Features
 
 ### 🎯 **Core Functionality**
-- **Multi-Modal Attendance**: GPS, Face Recognition, BLE Beacons, Manual
-- **Leave Management**: Comprehensive leave tracking and approval workflows
-- **Time Tracking**: Precise time logging with geofencing
-- **Shift Management**: Flexible scheduling and shift assignments
-- **Reporting**: Advanced analytics and custom report generation
+- **Learning Management System**: Complete LMS with courses, assignments, and assessments
+- **Student Information System**: Comprehensive student data management
+- **Finance Management**: Fee collection, budgeting, and financial reporting
+- **Human Resources**: Employee management, payroll, and performance tracking
+- **Library Management**: Book cataloging, circulation, and digital resources
 
 ### 🤖 **AI & Analytics**
 - **Predictive Analytics**: Attendance forecasting and trend analysis
@@ -111,8 +111,8 @@ Hudur is a **production-ready enterprise workforce management platform** featuri
 
 ### **1. Clone Repository**
 ```bash
-git clone https://github.com/your-org/hudur.git
-cd hudur
+git clone https://github.com/Alsairy/Waaed.git
+cd Waaed
 ```
 
 ### **2. Environment Setup**
@@ -144,7 +144,7 @@ docker-compose logs -f
 
 ### **5. Default Login**
 ```
-Email: admin@hudur.sa
+Email: admin@waaed.sa
 Password: Admin123!
 ```
 
@@ -182,7 +182,7 @@ npx react-native run-android
 ### **Backend Development**
 ```bash
 # Navigate to backend service
-cd src/backend/services/Authentication/Hudur.Authentication.Api
+cd src/backend/services/Authentication/Waaed.Authentication.Api
 
 # Restore packages
 dotnet restore
@@ -197,7 +197,7 @@ dotnet test
 ### **Frontend Development**
 ```bash
 # Navigate to frontend
-cd src/frontend/hudur-frontend
+cd src/frontend/unified-education-frontend
 
 # Install dependencies
 npm install
@@ -238,7 +238,7 @@ docker-compose -f docker-compose.production.yml up -d
 kubectl apply -f k8s/
 
 # Check deployment
-kubectl get pods -n hudur
+kubectl get pods -n waaed
 
 # Access via port-forward
 kubectl port-forward svc/frontend 3000:3000
@@ -247,13 +247,13 @@ kubectl port-forward svc/frontend 3000:3000
 ### **Helm Deployment**
 ```bash
 # Install with Helm
-helm install hudur ./helm/hudur
+helm install waaed ./helm/waaed
 
 # Upgrade
-helm upgrade hudur ./helm/hudur
+helm upgrade waaed ./helm/waaed
 
 # Status
-helm status hudur
+helm status waaed
 ```
 
 ## 🔗 Integrations
@@ -336,9 +336,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### **Getting Help**
 - **📖 Documentation**: Comprehensive guides and API reference
-- **🐛 Issues**: [GitHub Issues](https://github.com/your-org/hudur/issues) for bug reports
-- **💬 Discussions**: [GitHub Discussions](https://github.com/your-org/hudur/discussions) for Q&A
-- **📧 Email**: support@hudur.sa for enterprise support
+- **🐛 Issues**: [GitHub Issues](https://github.com/Alsairy/Waaed/issues) for bug reports
+- **💬 Discussions**: [GitHub Discussions](https://github.com/Alsairy/Waaed/discussions) for Q&A
+- **📧 Email**: support@waaed.sa for enterprise support
 
 ### **Community**
 - **⭐ Star** this repository if you find it useful
@@ -347,9 +347,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🌟 **Ready to Transform Your Workforce Management?**
+## 🌟 **Ready to Transform Your Educational Management?**
 
-Hudur combines cutting-edge technology with enterprise-grade reliability to deliver a comprehensive workforce management solution. Whether you're a startup or enterprise, Hudur scales with your needs.
+Waaed combines cutting-edge technology with enterprise-grade reliability to deliver a comprehensive educational management solution. Whether you're a small school or large university, Waaed scales with your needs.
 
 **[Get Started Today →](docs/getting-started.md)**
 
@@ -358,9 +358,9 @@ Hudur combines cutting-edge technology with enterprise-grade reliability to deli
 
 <div align="center">
 
-**Built with ❤️ by the Hudur Team**
+**Built with ❤️ by the Waaed Team**
 
-[Website](https://hudur.sa) • [Documentation](docs/) • [API Reference](docs/api/) • [Support](mailto:support@hudur.sa)
+[Website](https://waaed.sa) • [Documentation](docs/) • [API Reference](docs/api/) • [Support](mailto:support@waaed.sa)
 
 </div>
 
