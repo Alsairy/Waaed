@@ -1,5 +1,4 @@
 using NBomber.CSharp;
-using NBomber.Http.CSharp;
 using Xunit;
 
 namespace Waaed.Tests.Performance;
@@ -13,10 +12,8 @@ public class BasicPerformanceTests
         {
             try
             {
-                var response = await HttpClientArgs.New()
-                    .WithHttpClient(new HttpClient())
-                    .SendAsync(HttpMethod.Get, "http://localhost:5000/health");
-
+                using var httpClient = new HttpClient();
+                var response = await httpClient.GetAsync("http://localhost:5000/health");
                 return response.IsSuccessStatusCode ? Response.Ok() : Response.Fail();
             }
             catch
@@ -25,7 +22,7 @@ public class BasicPerformanceTests
             }
         })
         .WithLoadSimulations(
-            Simulation.InjectPerSec(rate: 5, during: TimeSpan.FromSeconds(10))
+            Simulation.Inject(rate: 5, interval: TimeSpan.FromSeconds(1), during: TimeSpan.FromSeconds(10))
         );
 
         var stats = NBomberRunner
@@ -45,7 +42,7 @@ public class BasicPerformanceTests
             return Response.Ok();
         })
         .WithLoadSimulations(
-            Simulation.InjectPerSec(rate: 10, during: TimeSpan.FromSeconds(5))
+            Simulation.Inject(rate: 10, interval: TimeSpan.FromSeconds(1), during: TimeSpan.FromSeconds(5))
         );
 
         var stats = NBomberRunner
