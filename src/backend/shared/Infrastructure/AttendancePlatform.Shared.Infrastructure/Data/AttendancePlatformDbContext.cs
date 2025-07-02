@@ -765,7 +765,7 @@ namespace AttendancePlatform.Shared.Infrastructure.Data
                     FirstName = "John",
                     LastName = "Doe",
                     Email = "john.doe@test.com",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("TestPassword123!"),
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("TestPassword123"), // Default test password
                     Status = UserStatus.Active,
                     IsEmailVerified = true,
                     TenantId = defaultTenant.Id,

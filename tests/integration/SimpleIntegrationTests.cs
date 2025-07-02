@@ -104,7 +104,7 @@ namespace AttendancePlatform.Tests.Integration
         [Fact]
         public void PasswordHashing_WorksCorrectly()
         {
-            var password = "TestPassword123!";
+            var password = "TestPassword123"; // Test password for unit testing
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
             
             Assert.NotNull(hashedPassword);
