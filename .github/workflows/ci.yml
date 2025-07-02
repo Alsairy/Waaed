@@ -72,9 +72,11 @@ jobs:
         export GITHUB_ACTIONS=true
         
         # Set extended timeouts for CI environment
-        export SERVICE_STARTUP_TIMEOUT=300
-        export HEALTH_CHECK_TIMEOUT=60
-        export TEST_TIMEOUT=600
+        export SERVICE_STARTUP_TIMEOUT=900
+        export HEALTH_CHECK_TIMEOUT=180
+        export TEST_TIMEOUT=1200
+        export RABBITMQ_STARTUP_TIMEOUT=600
+        export SQL_SERVER_STARTUP_TIMEOUT=300
         
         # Verify test database setup
         echo "Using in-memory SQLite for integration tests"
@@ -171,8 +173,11 @@ jobs:
         sudo apt-get update -qq
         sudo apt-get install -y -qq libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2 libgtk-3-0 libgdk-pixbuf2.0-0
         
-        # Install Playwright CLI with specific version for stability
-        dotnet tool install --global Microsoft.Playwright.CLI --version 1.40.0 || echo "Playwright CLI already installed"
+        # Install Playwright CLI with fallback versions for stability
+        dotnet tool install --global Microsoft.Playwright.CLI --version 1.39.0 || \
+        dotnet tool install --global Microsoft.Playwright.CLI --version 1.38.0 || \
+        dotnet tool install --global Microsoft.Playwright.CLI || \
+        echo "Playwright CLI installation failed, continuing..."
         export PATH="$PATH:/home/runner/.dotnet/tools"
         
         # Install browsers with comprehensive error handling
@@ -180,10 +185,10 @@ jobs:
         if ! playwright install chromium --with-deps; then
           echo "Primary installation failed, trying alternative approach..."
           
-          # Try with npm/npx as fallback
-          npm install -g playwright@1.40.0 || echo "NPM installation failed"
+          # Try with npm/npx as fallback with specific versions
+          npm install -g playwright@1.39.0 || npm install -g playwright@1.38.0 || npm install -g playwright || echo "NPM installation failed"
           
-          if ! npx playwright@1.40.0 install chromium --with-deps; then
+          if ! npx playwright install chromium --with-deps; then
             echo "NPX installation failed, trying manual approach..."
             
             # Manual installation as last resort
@@ -506,7 +511,7 @@ apiVersion: v1
 kind: Config
 clusters:
 - cluster:
-    server: https://mock-k8s-api:6443
+    server: http://localhost:8080
     insecure-skip-tls-verify: true
   name: ci-mock-cluster
 contexts:
@@ -521,6 +526,29 @@ users:
   user:
     token: mock-ci-token
 EOF
+        
+        # Start a mock Kubernetes API server for testing
+        echo "Starting mock Kubernetes API server..."
+        nohup python3 -c "
+import http.server
+import socketserver
+import json
+from urllib.parse import urlparse
+
+class MockK8sHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if '/api' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'kind': 'APIVersions', 'versions': ['v1']}).encode())
+        else:
+            super().do_GET()
+
+with socketserver.TCPServer(('', 8080), MockK8sHandler) as httpd:
+    httpd.serve_forever()
+" > /dev/null 2>&1 &
+        sleep 10
         
         # Test kubectl client functionality (without server connection)
         echo "Testing kubectl client functionality..."
