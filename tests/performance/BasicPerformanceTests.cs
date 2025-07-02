@@ -79,13 +79,13 @@ public class BasicPerformanceTests
                     else
                     {
                         Console.WriteLine($"Health check failed with status: {response.StatusCode}");
-                        return Response.Fail($"HTTP {response.StatusCode}");
+                        return Response.Fail();
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Health check request failed: {ex.Message}");
-                    return Response.Fail(ex.Message);
+                    return Response.Fail();
                 }
             })
             .WithLoadSimulations(
