@@ -230,8 +230,13 @@ jobs:
       run: |
         echo "Starting CI-optimized E2E test environment..."
         
-        # Create minimal docker-compose for E2E tests in CI
-        cat > docker-compose.e2e.ci.yml << 'EOF'
+        # Use the existing docker-compose.e2e.yml file if it exists, otherwise create one
+        if [ -f "docker-compose.e2e.yml" ]; then
+          echo "Using existing docker-compose.e2e.yml file..."
+          docker compose -f docker-compose.e2e.yml up -d
+        else
+          echo "Creating minimal docker-compose for E2E tests in CI..."
+          cat > docker-compose.e2e.yml << 'EOF'
         version: '3.8'
         services:
           api-gateway:
@@ -252,9 +257,10 @@ jobs:
               retries: 5
               start_period: 30s
         EOF
-        
-        echo "Starting lightweight E2E test services..."
-        docker compose -f docker-compose.e2e.ci.yml up -d
+          
+          echo "Starting lightweight E2E test services..."
+          docker compose -f docker-compose.e2e.yml up -d
+        fi
         
         # Wait for API Gateway to be ready (much faster without SQL Server)
         echo "Waiting for API Gateway to be ready..."
@@ -309,12 +315,18 @@ jobs:
     - name: Stop test environment
       if: always()
       run: |
+        echo "Stopping E2E test environment..."
         if [ -f "docker-compose.e2e.yml" ]; then
-          docker-compose -f docker-compose.e2e.yml down -v
-        else
-          docker stop sqlserver-e2e || true
-          docker rm sqlserver-e2e || true
+          docker compose -f docker-compose.e2e.yml down -v || true
         fi
+        
+        # Clean up any remaining containers
+        docker stop $(docker ps -aq --filter "name=api-gateway") || true
+        docker rm $(docker ps -aq --filter "name=api-gateway") || true
+        docker stop $(docker ps -aq --filter "name=sqlserver") || true
+        docker rm $(docker ps -aq --filter "name=sqlserver") || true
+        docker stop $(docker ps -aq --filter "name=redis") || true
+        docker rm $(docker ps -aq --filter "name=redis") || true
     
     - name: Upload E2E test results
       uses: actions/upload-artifact@v4
@@ -344,23 +356,31 @@ jobs:
         export USE_INMEMORY_SERVICES=true
         export ConnectionStrings__DefaultConnection="Data Source=:memory:"
         export ConnectionStrings__Redis="localhost:6379"
+        export PERFORMANCE_TEST_TIMEOUT=300
+        export CI=true
+        export GITHUB_ACTIONS=true
         
         # Start only essential services for performance testing
         echo "Starting lightweight Redis for caching tests..."
-        docker run -d --name redis-perf -p 6379:6379 redis:7-alpine redis-server --maxmemory 128mb
+        docker run -d --name redis-perf -p 6379:6379 redis:7-alpine redis-server --maxmemory 128mb --timeout 0
         
-        # Wait for Redis to be ready (much faster than SQL Server)
+        # Wait for Redis to be ready with extended timeout
         echo "Waiting for Redis to be ready..."
-        for i in {1..10}; do
+        for i in {1..20}; do
           if docker exec redis-perf redis-cli ping > /dev/null 2>&1; then
             echo "Redis is ready for performance tests after $i attempts"
             break
           fi
-          echo "Redis not ready, attempt $i/10..."
-          sleep 2
+          echo "Redis not ready, attempt $i/20..."
+          sleep 3
         done
         
-        echo "Performance test environment ready with in-memory database and Redis cache"
+        # Verify Redis is actually working
+        if docker exec redis-perf redis-cli ping > /dev/null 2>&1; then
+          echo "✅ Performance test environment ready with in-memory database and Redis cache"
+        else
+          echo "⚠️ Redis not responding, continuing with in-memory only tests"
+        fi
     
     - name: Run performance tests
       run: |
@@ -651,6 +671,10 @@ except Exception as e:
         echo "Status: PASSED (CI Environment)" >> TestResults/Helm/validation-summary.txt
         
         echo "✅ Post-deployment tests completed successfully in CI environment"
+        
+        # Clean up mock server process
+        pkill -f "python3 -c" || true
+        
         exit 0
 
   notify-infrastructure:
