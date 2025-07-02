@@ -23,6 +23,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <Target Name="InstallPlaywrightBrowsers" BeforeTargets="Build" Condition="'$(CI)' == 'true'">
+    <Exec Command="pwsh bin/Debug/net8.0/playwright.ps1 install --with-deps" ContinueOnError="false" />
+  </Target>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\backend\shared\Domain\AttendancePlatform.Shared.Domain\AttendancePlatform.Shared.Domain.csproj" />
     <ProjectReference Include="..\..\src\backend\shared\Infrastructure\AttendancePlatform.Shared.Infrastructure\AttendancePlatform.Shared.Infrastructure.csproj" />

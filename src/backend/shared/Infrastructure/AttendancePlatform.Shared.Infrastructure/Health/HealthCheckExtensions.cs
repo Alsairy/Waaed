@@ -11,15 +11,43 @@ public static class HealthCheckExtensions
 {
     public static IServiceCollection AddHudurHealthChecks(this IServiceCollection services, string connectionString)
     {
-        services.AddHealthChecks()
-            .AddSqlServer(connectionString, name: "database", tags: new[] { "db", "sql" })
-            .AddRedis(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ?? "localhost:6379", 
-                name: "redis", tags: new[] { "cache", "redis" })
-            .AddRabbitMQ(Environment.GetEnvironmentVariable("RABBITMQ_CONNECTION_STRING") ?? "amqp://localhost:5672", 
-                name: "rabbitmq", tags: new[] { "messaging", "rabbitmq" })
-            .AddCheck<CustomHealthCheck>("custom", tags: new[] { "custom" })
-            .AddCheck<BiometricServiceHealthCheck>("biometric", tags: new[] { "biometric" })
-            .AddCheck<WorkflowEngineHealthCheck>("workflow", tags: new[] { "workflow" });
+        var healthChecksBuilder = services.AddHealthChecks();
+
+        healthChecksBuilder.AddSqlServer(connectionString, name: "database", tags: new[] { "db", "sql" });
+
+        var redisConnectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ?? "localhost:6379";
+        var enableRedisHealthCheck = Environment.GetEnvironmentVariable("ENABLE_REDIS_HEALTH_CHECK") != "false";
+        if (enableRedisHealthCheck)
+        {
+            try
+            {
+                healthChecksBuilder.AddRedis(redisConnectionString, name: "redis", tags: new[] { "cache", "redis" });
+            }
+            catch
+            {
+                healthChecksBuilder.AddCheck("redis", () => HealthCheckResult.Degraded("Redis health check unavailable"), tags: new[] { "cache", "redis" });
+            }
+        }
+
+        var rabbitMqConnectionString = Environment.GetEnvironmentVariable("RABBITMQ_CONNECTION_STRING") ?? 
+                                      Environment.GetEnvironmentVariable("RabbitMQ__ConnectionString") ?? 
+                                      "amqp://localhost:5672";
+        var enableRabbitMqHealthCheck = Environment.GetEnvironmentVariable("ENABLE_RABBITMQ_HEALTH_CHECK") != "false";
+        if (enableRabbitMqHealthCheck)
+        {
+            try
+            {
+                healthChecksBuilder.AddRabbitMQ(rabbitMqConnectionString, name: "rabbitmq", tags: new[] { "messaging", "rabbitmq" });
+            }
+            catch
+            {
+                healthChecksBuilder.AddCheck("rabbitmq", () => HealthCheckResult.Degraded("RabbitMQ health check unavailable"), tags: new[] { "messaging", "rabbitmq" });
+            }
+        }
+
+        healthChecksBuilder.AddCheck<CustomHealthCheck>("custom", tags: new[] { "custom" });
+        healthChecksBuilder.AddCheck<BiometricServiceHealthCheck>("biometric", tags: new[] { "biometric" });
+        healthChecksBuilder.AddCheck<WorkflowEngineHealthCheck>("workflow", tags: new[] { "workflow" });
 
         return services;
     }
