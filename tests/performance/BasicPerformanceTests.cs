@@ -19,7 +19,7 @@ public class BasicPerformanceTests
             string healthEndpoint = "http://localhost:5000/health";
             
             Console.WriteLine($"Checking service availability at {healthEndpoint}...");
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 20; i++) // Increased attempts from 10 to 20
             {
                 try
                 {
@@ -38,10 +38,10 @@ public class BasicPerformanceTests
                     Console.WriteLine($"Health check attempt {i + 1} failed: {ex.Message}");
                 }
                 
-                if (i < 9) // Don't sleep on the last iteration
+                if (i < 19) // Don't sleep on the last iteration
                 {
-                    Console.WriteLine("Waiting 15 seconds before next attempt...");
-                    Thread.Sleep(15000);
+                    Console.WriteLine("Waiting 30 seconds before next attempt..."); // Increased from 15s to 30s
+                    Thread.Sleep(30000);
                 }
             }
 

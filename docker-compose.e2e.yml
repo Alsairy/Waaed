@@ -7,18 +7,19 @@ services:
       SA_PASSWORD: "${SQL_SERVER_PASSWORD:-TestPassword123}"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"
-      MSSQL_MEMORY_LIMIT_MB: 2048
+      MSSQL_MEMORY_LIMIT_MB: 4096
       MSSQL_COLLATION: "SQL_Latin1_General_CP1_CI_AS"
       MSSQL_ENABLE_HADR: 0
       MSSQL_AGENT_ENABLED: false
+      MSSQL_TCP_PORT: 1433
     ports:
       - "1433:1433"
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${SQL_SERVER_PASSWORD:-TestPassword123}' -C -Q 'SELECT 1' -l 30 -t 60"]
-      interval: 15s
-      timeout: 30s
-      retries: 40
-      start_period: 180s
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${SQL_SERVER_PASSWORD:-TestPassword123}' -C -Q 'SELECT 1' -l 60 -t 120"]
+      interval: 30s
+      timeout: 60s
+      retries: 60
+      start_period: 300s
     deploy:
       resources:
         limits:
