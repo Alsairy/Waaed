@@ -12,6 +12,7 @@ public static class HealthCheckExtensions
     public static IServiceCollection AddHudurHealthChecks(this IServiceCollection services, string connectionString)
     {
         var healthChecksBuilder = services.AddHealthChecks();
+        var isCI = Environment.GetEnvironmentVariable("CI") == "true" || Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
 
         healthChecksBuilder.AddSqlServer(connectionString, name: "database", tags: new[] { "db", "sql" });
 
