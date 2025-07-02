@@ -58,8 +58,16 @@ jobs:
     - name: Wait for services to be ready
       run: |
         echo "Waiting for SQL Server to be ready..."
-        timeout 120s bash -c 'until docker exec $(docker ps -q --filter ancestor=mcr.microsoft.com/mssql/server:2022-latest) /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -Q "SELECT 1" > /dev/null 2>&1; do sleep 5; done'
+        timeout 300s bash -c 'until docker exec $(docker ps -q --filter ancestor=mcr.microsoft.com/mssql/server:2022-latest) /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; do sleep 10; done'
         echo "SQL Server is ready"
+        
+        echo "Waiting for Redis to be ready..."
+        timeout 120s bash -c 'until docker exec $(docker ps -q --filter ancestor=redis:7-alpine) redis-cli ping > /dev/null 2>&1; do sleep 5; done'
+        echo "Redis is ready"
+        
+        echo "Waiting for RabbitMQ to be ready..."
+        timeout 180s bash -c 'until docker exec $(docker ps -q --filter ancestor=rabbitmq:3-management-alpine) rabbitmq-diagnostics -q ping > /dev/null 2>&1; do sleep 10; done'
+        echo "RabbitMQ is ready"
     
     - name: Restore dependencies
       run: dotnet restore
@@ -135,7 +143,7 @@ jobs:
     - name: Install Playwright browsers
       run: |
         dotnet tool install --global Microsoft.Playwright.CLI --version 1.39.0
-        playwright install --with-deps
+        playwright install chromium --with-deps
     
     - name: Install frontend dependencies
       run: |
@@ -152,7 +160,7 @@ jobs:
         echo "Starting E2E test environment with docker-compose..."
         docker-compose -f docker-compose.e2e.yml up -d
         echo "Waiting for services to be ready..."
-        timeout 300s bash -c 'until curl -f http://localhost:5000/health > /dev/null 2>&1; do sleep 10; done'
+        timeout 600s bash -c 'until curl -f http://localhost:5000/health > /dev/null 2>&1; do sleep 15; done'
         echo "Services are ready"
       env:
         E2E_BASE_URL: http://localhost:3000
@@ -192,7 +200,11 @@ jobs:
     - name: Setup test environment
       run: |
         echo "Setting up performance test environment..."
-        # Add any specific performance test setup here
+        # Start minimal services for performance testing
+        docker run -d --name test-redis -p 6379:6379 redis:7-alpine
+        docker run -d --name test-sql -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=TestPassword123!" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+        # Wait for services
+        sleep 30
     
     - name: Run performance tests
       run: dotnet test tests/performance/Waaed.Tests.Performance.csproj --configuration Release --logger trx --results-directory TestResults/Performance
@@ -253,5 +265,8 @@ jobs:
     - name: Run post-deployment tests
       run: |
         echo "Running post-deployment validation tests..."
-        # Add basic validation tests here
+        # Validate Helm chart syntax
+        helm lint ./helm/hudur
+        # Test template rendering
+        helm template test-release ./helm/hudur --values ./helm/hudur/values.yaml > /dev/null
         echo "Post-deployment tests completed successfully"
