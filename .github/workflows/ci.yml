@@ -58,21 +58,21 @@ jobs:
     - name: Wait for services to be ready
       run: |
         echo "Waiting for SQL Server to be ready..."
-        # Enhanced service readiness check with better error handling
-        for i in {1..80}; do
+        # Enhanced service readiness check with better error handling and extended timeout
+        for i in {1..120}; do
           if /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; then
             echo "SQL Server is ready after $i attempts"
             break
           fi
-          echo "SQL Server not ready, attempt $i/80... ($(date))"
-          if [ $i -eq 80 ]; then
-            echo "SQL Server failed to start within timeout, checking container status..."
+          echo "SQL Server not ready, attempt $i/120... ($(date))"
+          if [ $i -eq 120 ]; then
+            echo "SQL Server failed to start within extended timeout, checking container status..."
             docker ps -a
             echo "Continuing with tests anyway..."
           fi
-          sleep 15
+          sleep 20
         done
-        echo "SQL Server is ready"
+        echo "SQL Server readiness check completed"
     
     - name: Restore dependencies
       run: dotnet restore
@@ -184,45 +184,31 @@ jobs:
       run: |
         echo "Starting E2E test environment with docker-compose..."
         
-        # Check if docker-compose.e2e.yml exists, if not create a minimal one
+        # Use the existing docker-compose.e2e.yml file that should be in the repository
         if [ ! -f "docker-compose.e2e.yml" ]; then
-          echo "Creating minimal docker-compose.e2e.yml for CI..."
-          cat > docker-compose.e2e.yml << 'EOF'
-        version: '3.8'
-        services:
-          sqlserver:
-            image: mcr.microsoft.com/mssql/server:2022-latest
-            environment:
-              SA_PASSWORD: "${{ secrets.SQL_SERVER_PASSWORD }}"
-              ACCEPT_EULA: "Y"
-            ports:
-              - "1433:1433"
-            healthcheck:
-              test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${{ secrets.SQL_SERVER_PASSWORD }}' -C -Q 'SELECT 1'"]
-              interval: 15s
-              timeout: 30s
-              retries: 10
-              start_period: 60s
-        EOF
+          echo "ERROR: docker-compose.e2e.yml not found in repository"
+          echo "This file should exist in the repository for E2E tests"
+          exit 1
         fi
         
+        echo "Using existing docker-compose.e2e.yml configuration"
         docker compose -f docker-compose.e2e.yml up -d
         
         # Wait for services to be ready with extended timeout
-        echo "Waiting for services to be ready..."
+        echo "Waiting for E2E test services to be ready..."
         # Enhanced E2E service readiness check with better error handling
-        for i in {1..45}; do
+        for i in {1..60}; do
           if /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; then
             echo "SQL Server is ready for E2E tests after $i attempts"
             break
           fi
-          echo "SQL Server not ready for E2E, attempt $i/45... ($(date))"
-          if [ $i -eq 45 ]; then
+          echo "SQL Server not ready for E2E, attempt $i/60... ($(date))"
+          if [ $i -eq 60 ]; then
             echo "SQL Server failed to start for E2E tests, checking logs..."
             docker logs sqlserver || true
             echo "Continuing with E2E tests anyway..."
           fi
-          sleep 20
+          sleep 25
         done
       env:
         E2E_BASE_URL: http://localhost:3000
@@ -273,18 +259,34 @@ jobs:
     - name: Setup test environment
       run: |
         echo "Setting up performance test environment..."
-        # Start minimal services for performance testing
-        docker run -d --name sqlserver-perf -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=${{ secrets.SQL_SERVER_PASSWORD }}" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+        # Start minimal services for performance testing with better configuration
+        docker run -d --name sqlserver-perf \
+          -e "ACCEPT_EULA=Y" \
+          -e "SA_PASSWORD=${{ secrets.SQL_SERVER_PASSWORD }}" \
+          -e "MSSQL_PID=Express" \
+          -e "MSSQL_MEMORY_LIMIT_MB=2048" \
+          -p 1433:1433 \
+          mcr.microsoft.com/mssql/server:2022-latest
+        
         docker run -d --name redis-perf -p 6379:6379 redis:7-alpine
-        # Wait for SQL Server to be ready with extended timeout and better error handling
-        echo "Waiting for SQL Server..."
-        timeout 3600s bash -c 'until docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... ($(date))"; sleep 30; done' || {
-          echo "SQL Server failed to start within timeout, checking container status..."
-          docker ps -a
-          docker logs sqlserver-perf --tail 50 || true
-          echo "Continuing with tests anyway..."
-        }
-        echo "SQL Server is ready"
+        
+        # Wait for SQL Server to be ready with iterative checks instead of timeout command
+        echo "Waiting for SQL Server to be ready for performance tests..."
+        for i in {1..40}; do
+          if docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; then
+            echo "SQL Server is ready for performance tests after $i attempts"
+            break
+          fi
+          echo "SQL Server not ready for performance tests, attempt $i/40... ($(date))"
+          if [ $i -eq 40 ]; then
+            echo "SQL Server failed to start within timeout, checking container status..."
+            docker ps -a
+            docker logs sqlserver-perf --tail 50 || true
+            echo "Continuing with performance tests anyway..."
+          fi
+          sleep 30
+        done
+        echo "Performance test environment setup completed"
     
     - name: Run performance tests
       run: |
@@ -461,7 +463,8 @@ EOF
           fi
           
           # Always continue successfully regardless of Slack configuration
-          echo "Slack configuration check completed"
+          echo "Slack configuration check completed successfully"
+          exit 0
       
       - name: Notify Slack
         if: steps.check-slack.outputs.slack_configured == 'true'
@@ -475,7 +478,9 @@ EOF
       - name: Log Notification Status
         run: |
           if [ "${{ steps.check-slack.outputs.slack_configured }}" == "true" ]; then
-            echo "Infrastructure notification sent to Slack"
+            echo "Infrastructure notification sent to Slack successfully"
           else
-            echo "Infrastructure notification skipped - Slack not configured"
+            echo "Infrastructure notification skipped - Slack not configured (this is acceptable)"
           fi
+          echo "Notification job completed successfully"
+          exit 0
