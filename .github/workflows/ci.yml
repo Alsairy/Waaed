@@ -141,7 +141,7 @@ jobs:
         dotnet tool install --global Microsoft.Playwright.CLI || echo "Playwright CLI already installed"
         export PATH="$PATH:/home/runner/.dotnet/tools"
         
-        # Try multiple installation methods
+        # Try multiple installation methods with better error handling
         if ! playwright install chromium --with-deps; then
           echo "Primary Playwright installation failed, trying npx..."
           if ! npx playwright install chromium --with-deps; then
@@ -151,7 +151,8 @@ jobs:
               # Install system dependencies manually
               sudo apt-get update
               sudo apt-get install -y libnss3 libatk-bridge2.0-0 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2
-              npx playwright install chromium || echo "Manual installation also failed, tests may not work properly"
+              # Try installing without deps as fallback
+              npx playwright install chromium || echo "Manual installation also failed, continuing with tests anyway"
             fi
           fi
         fi
@@ -257,7 +258,7 @@ jobs:
         docker run -d --name redis-perf -p 6379:6379 redis:7-alpine
         # Wait for SQL Server to be ready with extended timeout and better error handling
         echo "Waiting for SQL Server..."
-        timeout 900s bash -c 'until docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... ($(date))"; sleep 20; done' || {
+        timeout 1200s bash -c 'until docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${{ secrets.SQL_SERVER_PASSWORD }}" -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... ($(date))"; sleep 30; done' || {
           echo "SQL Server failed to start within timeout, checking container status..."
           docker ps -a
           docker logs sqlserver-perf || true
@@ -349,6 +350,7 @@ users:
   user:
     token: test-token" > ~/.kube/config
         echo "Kubernetes config created for CI testing (mock environment)"
+        echo "Note: This is a mock configuration for CI validation only"
     
     - name: Deploy Helm charts
       run: |
@@ -403,7 +405,6 @@ users:
           if [ -z "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
             echo "slack_configured=false" >> $GITHUB_OUTPUT
             echo "⚠️ Slack webhook URL not configured, skipping notification"
-            exit 0
           else
             echo "slack_configured=true" >> $GITHUB_OUTPUT
             echo "✅ Slack webhook URL configured"
