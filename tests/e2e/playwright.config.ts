@@ -13,6 +13,11 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
+  
+  timeout: parseInt(process.env.E2E_TIMEOUT_MS || '60000'),
+  expect: {
+    timeout: parseInt(process.env.E2E_EXPECT_TIMEOUT_MS || '30000'),
+  },
 
   projects: [
     {

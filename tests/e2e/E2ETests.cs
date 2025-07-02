@@ -9,6 +9,7 @@ namespace AttendancePlatform.Tests.E2E
         public IPlaywright Playwright { get; private set; } = null!;
         public IBrowser Browser { get; private set; } = null!;
         public string BaseUrl { get; private set; } = Environment.GetEnvironmentVariable("E2E_BASE_URL") ?? "http://localhost:3000";
+        public int TimeoutMs { get; private set; } = int.Parse(Environment.GetEnvironmentVariable("E2E_TIMEOUT_MS") ?? "60000");
 
         public async Task InitializeAsync()
         {

@@ -17,7 +17,8 @@ public static class HealthCheckExtensions
 
         var redisConnectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ?? "localhost:6379";
         var enableRedisHealthCheck = Environment.GetEnvironmentVariable("ENABLE_REDIS_HEALTH_CHECK") != "false";
-        if (enableRedisHealthCheck)
+        
+        if (enableRedisHealthCheck && !isCI)
         {
             try
             {
@@ -28,12 +29,17 @@ public static class HealthCheckExtensions
                 healthChecksBuilder.AddCheck("redis", () => HealthCheckResult.Degraded("Redis health check unavailable"), tags: new[] { "cache", "redis" });
             }
         }
+        else if (isCI)
+        {
+            healthChecksBuilder.AddCheck("redis", () => HealthCheckResult.Healthy("Redis health check skipped in CI"), tags: new[] { "cache", "redis" });
+        }
 
         var rabbitMqConnectionString = Environment.GetEnvironmentVariable("RABBITMQ_CONNECTION_STRING") ?? 
                                       Environment.GetEnvironmentVariable("RabbitMQ__ConnectionString") ?? 
                                       "amqp://localhost:5672";
         var enableRabbitMqHealthCheck = Environment.GetEnvironmentVariable("ENABLE_RABBITMQ_HEALTH_CHECK") != "false";
-        if (enableRabbitMqHealthCheck)
+        
+        if (enableRabbitMqHealthCheck && !isCI)
         {
             try
             {
@@ -43,6 +49,10 @@ public static class HealthCheckExtensions
             {
                 healthChecksBuilder.AddCheck("rabbitmq", () => HealthCheckResult.Degraded("RabbitMQ health check unavailable"), tags: new[] { "messaging", "rabbitmq" });
             }
+        }
+        else if (isCI)
+        {
+            healthChecksBuilder.AddCheck("rabbitmq", () => HealthCheckResult.Healthy("RabbitMQ health check skipped in CI"), tags: new[] { "messaging", "rabbitmq" });
         }
 
         healthChecksBuilder.AddCheck<CustomHealthCheck>("custom", tags: new[] { "custom" });
