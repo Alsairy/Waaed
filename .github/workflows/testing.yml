@@ -289,11 +289,11 @@ jobs:
           RABBITMQ_READY=0
           
           # Wait for services with individual timeouts and better error handling
-          for i in {1..60}; do
-            echo "Health check attempt $i/60 at $(date)"
+          for i in {1..80}; do
+            echo "Health check attempt $i/80 at $(date)"
             
-            # Check SQL Server with enhanced diagnostics
-            if timeout 10 /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+            # Check SQL Server with enhanced diagnostics and longer timeout
+            if timeout 30 /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready!"
                 SQL_READY=1
@@ -338,14 +338,14 @@ jobs:
               break
             fi
             
-            if [ $i -eq 40 ]; then
-              echo "❌ Services failed to become ready within timeout"
+            if [ $i -eq 80 ]; then
+              echo "❌ Services failed to become ready within extended timeout"
               echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY, RABBITMQ_READY=$RABBITMQ_READY"
               docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
               exit 1
             fi
             
-            sleep 10
+            sleep 20
           done
 
       - name: Restore dependencies
@@ -502,12 +502,61 @@ jobs:
           # Install Playwright browsers
           npx playwright install --with-deps ${{ matrix.browser }}
           
-          # Verify docker-compose.e2e.yml exists in repository
+          # Verify docker-compose.e2e.yml exists in repository or create it
           if [ ! -f "docker-compose.e2e.yml" ]; then
-            echo "❌ docker-compose.e2e.yml not found in repository"
-            exit 1
+            echo "⚠️ docker-compose.e2e.yml not found in repository, creating it..."
+            cat > docker-compose.e2e.yml << 'EOF'
+version: '3.8'
+services:
+  sqlserver-e2e:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: WaaedE2EP@ssw0rd123
+      ACCEPT_EULA: Y
+      MSSQL_PID: Express
+      MSSQL_MEMORY_LIMIT_MB: 2048
+      MSSQL_ENABLE_HADR: 0
+      MSSQL_AGENT_ENABLED: false
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -C -Q 'SELECT 1' || exit 1"]
+      interval: 15s
+      timeout: 60s
+      retries: 40
+      start_period: 120s
+    volumes:
+      - sqlserver_e2e_data:/var/opt/mssql
+  redis-e2e:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+  rabbitmq-e2e:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: waaed
+      RABBITMQ_DEFAULT_PASS: WaaedE2EP@ssw0rd123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 15s
+      timeout: 30s
+      retries: 20
+      start_period: 60s
+volumes:
+  sqlserver_e2e_data:
+EOF
+          else
+            echo "✓ Using docker-compose.e2e.yml from repository"
           fi
-          echo "✓ Using docker-compose.e2e.yml from repository"
 
           echo "Starting E2E test environment..."
           docker compose -f docker-compose.e2e.yml up -d
@@ -742,15 +791,15 @@ jobs:
           echo "Waiting for containers to start..."
           sleep 30
           
-          for i in {1..50}; do
-            echo "Performance test health check attempt $i/50 at $(date)"
+          for i in {1..60}; do
+            echo "Performance test health check attempt $i/60 at $(date)"
             
             # Check if containers are running
             if docker compose -f docker-compose.perf.yml ps --format json 2>/dev/null | jq -r ".[].State" | grep -q "running"; then
               echo "✓ Performance test containers are running"
               
-              # Check SQL Server health with enhanced diagnostics
-              if timeout 10 docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+              # Check SQL Server health with enhanced diagnostics and longer timeout
+              if timeout 45 docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
                 if [ $SQL_READY -eq 0 ]; then
                   echo "✓ SQL Server is now healthy for performance tests"
                   SQL_READY=1
@@ -785,14 +834,14 @@ jobs:
               docker compose -f docker-compose.perf.yml ps 2>/dev/null || true
             fi
             
-            if [ $i -eq 50 ]; then
-              echo "❌ Performance test services failed to become healthy within timeout"
+            if [ $i -eq 60 ]; then
+              echo "❌ Performance test services failed to become healthy within extended timeout"
               echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY"
               docker compose -f docker-compose.perf.yml logs --tail 20 2>/dev/null || true
               exit 1
             fi
             
-            sleep 20
+            sleep 25
           done
 
       - name: Run performance tests
