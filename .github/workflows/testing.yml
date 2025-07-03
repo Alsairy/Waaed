@@ -126,7 +126,7 @@ jobs:
       matrix:
         test-project: [
           'tests/unit/Waaed.Tests.Unit.csproj'
-       ]
+        ]
     steps:
       - uses: actions/checkout@v4
 
