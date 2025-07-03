@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api'
 
 interface Enrollment {
   id: string
@@ -169,8 +169,9 @@ class EnrollmentService {
       const url = `/sis/enrollments${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: Enrollment[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch enrollments')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch enrollments')
     }
   }
 
@@ -178,8 +179,9 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: Enrollment}> = await this.api.get(`/sis/enrollments/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch enrollment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch enrollment')
     }
   }
 
@@ -187,24 +189,27 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: Enrollment}> = await this.api.post('/sis/enrollments', enrollmentData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create enrollment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create enrollment')
     }
   }
 
   async updateEnrollment(id: string, enrollmentData: Partial<EnrollmentDto>): Promise<void> {
     try {
       await this.api.put(`/sis/enrollments/${id}`, enrollmentData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update enrollment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update enrollment')
     }
   }
 
   async dropEnrollment(id: string, reason?: string): Promise<void> {
     try {
       await this.api.put(`/sis/enrollments/${id}/drop`, { reason })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to drop enrollment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to drop enrollment')
     }
   }
 
@@ -217,8 +222,9 @@ class EnrollmentService {
       const url = `/sis/students/${studentId}/enrollments${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: Enrollment[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch student enrollments')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch student enrollments')
     }
   }
 
@@ -226,8 +232,9 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: Enrollment[]}> = await this.api.get(`/sis/courses/${courseId}/enrollments`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch course enrollments')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch course enrollments')
     }
   }
 
@@ -241,8 +248,9 @@ class EnrollmentService {
       const url = `/sis/enrollment-requests${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: EnrollmentRequest[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch enrollment requests')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch enrollment requests')
     }
   }
 
@@ -250,24 +258,27 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: EnrollmentRequest}> = await this.api.post('/sis/enrollment-requests', requestData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create enrollment request')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create enrollment request')
     }
   }
 
   async approveEnrollmentRequest(requestId: string): Promise<void> {
     try {
       await this.api.put(`/sis/enrollment-requests/${requestId}/approve`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to approve enrollment request')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to approve enrollment request')
     }
   }
 
   async rejectEnrollmentRequest(requestId: string, reason: string): Promise<void> {
     try {
       await this.api.put(`/sis/enrollment-requests/${requestId}/reject`, { reason })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to reject enrollment request')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to reject enrollment request')
     }
   }
 
@@ -275,8 +286,9 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: Waitlist[]}> = await this.api.get(`/sis/courses/${courseId}/waitlist`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch waitlist')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch waitlist')
     }
   }
 
@@ -284,16 +296,18 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: Waitlist}> = await this.api.post('/sis/waitlist', waitlistData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to add to waitlist')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to add to waitlist')
     }
   }
 
   async removeFromWaitlist(waitlistId: string): Promise<void> {
     try {
       await this.api.delete(`/sis/waitlist/${waitlistId}`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to remove from waitlist')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to remove from waitlist')
     }
   }
 
@@ -301,8 +315,9 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: EnrollmentPeriod[]}> = await this.api.get('/sis/enrollment-periods')
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch enrollment periods')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch enrollment periods')
     }
   }
 
@@ -310,11 +325,12 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: EnrollmentPeriod}> = await this.api.get('/sis/enrollment-periods/active')
       return response.data.data
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { status?: number; data?: { message?: string } } }
+      if (errorObj.response?.status === 404) {
         return null
       }
-      throw new Error(error.response?.data?.message || 'Failed to fetch active enrollment period')
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch active enrollment period')
     }
   }
 
@@ -322,16 +338,18 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: EnrollmentPeriod}> = await this.api.post('/sis/enrollment-periods', periodData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create enrollment period')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create enrollment period')
     }
   }
 
   async updateEnrollmentPeriod(id: string, periodData: Partial<EnrollmentPeriodDto>): Promise<void> {
     try {
       await this.api.put(`/sis/enrollment-periods/${id}`, periodData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update enrollment period')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update enrollment period')
     }
   }
 
@@ -341,8 +359,9 @@ class EnrollmentService {
         `/sis/students/${studentId}/enrollment-summary?semester=${semester}&year=${year}`
       )
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch enrollment summary')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch enrollment summary')
     }
   }
 
@@ -350,8 +369,9 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: CourseCapacity}> = await this.api.get(`/sis/courses/${courseId}/capacity`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch course capacity')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch course capacity')
     }
   }
 
@@ -359,8 +379,9 @@ class EnrollmentService {
     try {
       const response: AxiosResponse<{data: Enrollment[]}> = await this.api.post('/sis/enrollments/bulk', { enrollments })
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to bulk enroll students')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to bulk enroll students')
     }
   }
 
@@ -372,8 +393,9 @@ class EnrollmentService {
     try {
       const response = await this.api.post('/sis/enrollments/validate', { studentId, courseId })
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to validate enrollment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to validate enrollment')
     }
   }
 
@@ -388,8 +410,9 @@ class EnrollmentService {
     try {
       const response = await this.api.get(`/sis/enrollments/statistics?semester=${semester}&year=${year}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch enrollment statistics')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch enrollment statistics')
     }
   }
 }
