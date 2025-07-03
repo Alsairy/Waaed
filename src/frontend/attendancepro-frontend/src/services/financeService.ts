@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api'
 
 interface Fee {
   id: string
@@ -119,7 +119,7 @@ interface FinancialReport {
   title: string
   type: string
   period: string
-  data: any
+  data: Record<string, unknown>
   generatedAt: string
   generatedBy: string
 }
@@ -161,8 +161,9 @@ class FinanceService {
       const url = studentId ? `/finance/fees?studentId=${studentId}` : '/finance/fees'
       const response: AxiosResponse<{data: Fee[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch fees')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch fees')
     }
   }
 
@@ -170,8 +171,9 @@ class FinanceService {
     try {
       const response: AxiosResponse<{data: Fee}> = await this.api.get(`/finance/fees/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch fee')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch fee')
     }
   }
 
@@ -179,24 +181,27 @@ class FinanceService {
     try {
       const response: AxiosResponse<{data: Fee}> = await this.api.post('/finance/fees', feeData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create fee')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create fee')
     }
   }
 
   async updateFee(id: string, feeData: Partial<FeeDto>): Promise<void> {
     try {
       await this.api.put(`/finance/fees/${id}`, feeData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update fee')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update fee')
     }
   }
 
   async deleteFee(id: string): Promise<void> {
     try {
       await this.api.delete(`/finance/fees/${id}`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete fee')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete fee')
     }
   }
 
@@ -204,8 +209,9 @@ class FinanceService {
     try {
       const response: AxiosResponse<{data: FeeCategory[]}> = await this.api.get('/finance/feecategories')
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch fee categories')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch fee categories')
     }
   }
 
@@ -213,8 +219,9 @@ class FinanceService {
     try {
       const response: AxiosResponse<{data: FeeCategory}> = await this.api.post('/finance/feecategories', categoryData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create fee category')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create fee category')
     }
   }
 
@@ -227,8 +234,9 @@ class FinanceService {
       const url = `/finance/feepayments${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: Payment[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch payments')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch payments')
     }
   }
 
@@ -236,8 +244,9 @@ class FinanceService {
     try {
       const response: AxiosResponse<{data: Payment}> = await this.api.post('/finance/feepayments', paymentData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create payment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create payment')
     }
   }
 
@@ -245,8 +254,9 @@ class FinanceService {
     try {
       const response: AxiosResponse<{data: Budget[]}> = await this.api.get('/finance/budget')
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch budgets')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch budgets')
     }
   }
 
@@ -254,8 +264,9 @@ class FinanceService {
     try {
       const response: AxiosResponse<{data: Budget}> = await this.api.get(`/finance/budget/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch budget')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch budget')
     }
   }
 
@@ -263,16 +274,18 @@ class FinanceService {
     try {
       const response: AxiosResponse<{data: Budget}> = await this.api.post('/finance/budget', budgetData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create budget')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create budget')
     }
   }
 
   async updateBudget(id: string, budgetData: Partial<BudgetDto>): Promise<void> {
     try {
       await this.api.put(`/finance/budget/${id}`, budgetData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update budget')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update budget')
     }
   }
 
@@ -281,8 +294,9 @@ class FinanceService {
       const url = budgetId ? `/finance/expenses?budgetId=${budgetId}` : '/finance/expenses'
       const response: AxiosResponse<{data: Expense[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch expenses')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch expenses')
     }
   }
 
@@ -290,8 +304,9 @@ class FinanceService {
     try {
       const response: AxiosResponse<{data: Expense}> = await this.api.post('/finance/expenses', expenseData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create expense')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create expense')
     }
   }
 
@@ -304,12 +319,13 @@ class FinanceService {
       const url = `/finance/reports${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: FinancialReport[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch financial reports')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch financial reports')
     }
   }
 
-  async generateFinancialReport(type: string, period: string, parameters?: any): Promise<FinancialReport> {
+  async generateFinancialReport(type: string, period: string, parameters?: Record<string, unknown>): Promise<FinancialReport> {
     try {
       const response: AxiosResponse<{data: FinancialReport}> = await this.api.post('/finance/reports', {
         type,
@@ -317,8 +333,9 @@ class FinanceService {
         parameters
       })
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to generate financial report')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to generate financial report')
     }
   }
 
@@ -331,8 +348,9 @@ class FinanceService {
     try {
       const response = await this.api.get(`/finance/students/${studentId}/balance`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch student balance')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch student balance')
     }
   }
 
@@ -340,8 +358,9 @@ class FinanceService {
     try {
       const response = await this.api.get('/finance/payment-methods')
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch payment methods')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch payment methods')
     }
   }
 }
