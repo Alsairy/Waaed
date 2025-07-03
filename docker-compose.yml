@@ -7,7 +7,7 @@ services:
     container_name: attendance-sqlserver
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=AttendanceP@ssw0rd123
+      - SA_PASSWORD=${SA_PASSWORD:-WaaedTestP@ssw0rd123}
       - MSSQL_PID=Developer
     ports:
       - "1433:1433"
@@ -33,7 +33,7 @@ services:
     container_name: attendance-rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=${ADMIN_PASSWORD}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-waaedtest123}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -50,9 +50,9 @@ services:
     container_name: attendance-api-gateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=${SA_PASSWORD:-WaaedTestP@ssw0rd123};TrustServerCertificate=true
       - Redis__ConnectionString=redis:6379
-      - RabbitMQ__ConnectionString=amqp://admin:${ADMIN_PASSWORD}@rabbitmq:5672
+      - RabbitMQ__ConnectionString=amqp://admin:${RABBITMQ_DEFAULT_PASS:-waaedtest123}@rabbitmq:5672
     ports:
       - "5000:8080"
     depends_on:
@@ -70,7 +70,7 @@ services:
     container_name: attendance-auth-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=${SA_PASSWORD:-WaaedTestP@ssw0rd123};TrustServerCertificate=true
       - Redis__ConnectionString=redis:6379
       - JWT__SecretKey=${JWT_SECRET_KEY}
       - Security__EncryptionKey=${ENCRYPTION_KEY}
@@ -91,7 +91,7 @@ services:
     container_name: attendance-tenant-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=${SA_PASSWORD:-WaaedTestP@ssw0rd123};TrustServerCertificate=true
       - Redis__ConnectionString=redis:6379
     ports:
       - "5002:8080"
@@ -109,7 +109,7 @@ services:
     container_name: attendance-user-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=${SA_PASSWORD:-WaaedTestP@ssw0rd123};TrustServerCertificate=true
       - Redis__ConnectionString=redis:6379
     ports:
       - "5003:8080"
@@ -127,12 +127,34 @@ services:
     container_name: attendance-attendance-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=AttendanceP@ssw0rd123;TrustServerCertificate=true
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=${SA_PASSWORD:-WaaedTestP@ssw0rd123};TrustServerCertificate=true
       - Redis__ConnectionString=redis:6379
       - Security__EncryptionKey=${ENCRYPTION_KEY}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
     ports:
       - "5004:8080"
+    depends_on:
+      - sqlserver
+      - redis
+    networks:
+      - attendance-network
+
+  # Academic Calendar Service
+  academic-calendar-service:
+    build:
+      context: .
+      dockerfile: src/backend/services/AcademicCalendar/Dockerfile
+    container_name: attendance-academic-calendar-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Hudur;User Id=sa;Password=${SA_PASSWORD:-WaaedTestP@ssw0rd123};TrustServerCertificate=true
+      - Redis__ConnectionString=redis:6379
+      - JWT__SecretKey=${JWT_SECRET_KEY}
+      - Jwt__Issuer=WaaedAuthServer
+      - Jwt__Audience=WaaedClients
+      - Jwt__Key=${JWT_SECRET_KEY}
+    ports:
+      - "5010:8080"
     depends_on:
       - sqlserver
       - redis
