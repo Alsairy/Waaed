@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api'
 
 interface Assignment {
   id: string
@@ -156,8 +156,9 @@ class AssignmentsService {
       const url = `/lms/assignments${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: Assignment[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch assignments')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch assignments')
     }
   }
 
@@ -165,8 +166,9 @@ class AssignmentsService {
     try {
       const response: AxiosResponse<{data: Assignment}> = await this.api.get(`/lms/assignments/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch assignment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch assignment')
     }
   }
 
@@ -174,24 +176,27 @@ class AssignmentsService {
     try {
       const response: AxiosResponse<{data: Assignment}> = await this.api.post('/lms/assignments', assignmentData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create assignment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create assignment')
     }
   }
 
   async updateAssignment(id: string, assignmentData: Partial<AssignmentDto>): Promise<void> {
     try {
       await this.api.put(`/lms/assignments/${id}`, assignmentData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update assignment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update assignment')
     }
   }
 
   async deleteAssignment(id: string): Promise<void> {
     try {
       await this.api.delete(`/lms/assignments/${id}`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete assignment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete assignment')
     }
   }
 
@@ -202,8 +207,9 @@ class AssignmentsService {
         : `/lms/assignments/${assignmentId}/submissions`
       const response: AxiosResponse<{data: Submission[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch submissions')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch submissions')
     }
   }
 
@@ -211,8 +217,9 @@ class AssignmentsService {
     try {
       const response: AxiosResponse<{data: Submission}> = await this.api.get(`/lms/submissions/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch submission')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch submission')
     }
   }
 
@@ -220,16 +227,18 @@ class AssignmentsService {
     try {
       const response: AxiosResponse<{data: Submission}> = await this.api.post('/lms/submissions', submissionData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create submission')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create submission')
     }
   }
 
   async updateSubmission(id: string, submissionData: Partial<SubmissionDto>): Promise<void> {
     try {
       await this.api.put(`/lms/submissions/${id}`, submissionData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update submission')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update submission')
     }
   }
 
@@ -239,8 +248,9 @@ class AssignmentsService {
         grade: gradeData.grade,
         feedback: gradeData.feedback
       })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to grade submission')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to grade submission')
     }
   }
 
@@ -251,8 +261,9 @@ class AssignmentsService {
         : `/lms/submissions?studentId=${studentId}`
       const response: AxiosResponse<{data: Submission[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch student submissions')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch student submissions')
     }
   }
 
@@ -264,8 +275,9 @@ class AssignmentsService {
       
       const response: AxiosResponse<{data: Assignment[]}> = await this.api.get(`/lms/assignments/upcoming?${params.toString()}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch upcoming assignments')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch upcoming assignments')
     }
   }
 
@@ -273,8 +285,9 @@ class AssignmentsService {
     try {
       const response: AxiosResponse<{data: Assignment[]}> = await this.api.get(`/lms/assignments/overdue?studentId=${studentId}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch overdue assignments')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch overdue assignments')
     }
   }
 
@@ -289,8 +302,9 @@ class AssignmentsService {
     try {
       const response = await this.api.get(`/lms/assignments/${assignmentId}/statistics`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch assignment statistics')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch assignment statistics')
     }
   }
 
@@ -300,8 +314,9 @@ class AssignmentsService {
         newCourseId
       })
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to duplicate assignment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to duplicate assignment')
     }
   }
 
@@ -320,8 +335,9 @@ class AssignmentsService {
         }
       )
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to upload assignment file')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to upload assignment file')
     }
   }
 
@@ -340,8 +356,9 @@ class AssignmentsService {
         }
       )
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to upload submission file')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to upload submission file')
     }
   }
 }
