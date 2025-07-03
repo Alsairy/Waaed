@@ -289,44 +289,44 @@ jobs:
           RABBITMQ_READY=0
           
           # Wait for services with individual timeouts and better error handling
-          for i in {1..80}; do
-            echo "Health check attempt $i/80 at $(date)"
+          for i in {1..120}; do
+            echo "Health check attempt $i/120 at $(date)"
             
             # Check SQL Server with enhanced diagnostics and longer timeout
-            if timeout 30 /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+            if timeout 60 /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready!"
                 SQL_READY=1
               fi
             else
-              if [ $((i % 5)) -eq 0 ]; then
+              if [ $((i % 3)) -eq 0 ]; then
                 echo "✗ SQL Server not ready (attempt $i) - checking container status..."
                 docker ps --filter "name=sqlserver" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
-                docker logs $(docker ps -q --filter "name=sqlserver") --tail 5 2>/dev/null || true
+                docker logs $(docker ps -q --filter "name=sqlserver") --tail 3 2>/dev/null || true
               fi
             fi
             
             # Check Redis with enhanced diagnostics
-            if timeout 5 redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; then
+            if timeout 10 redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; then
               if [ $REDIS_READY -eq 0 ]; then
                 echo "✓ Redis is now ready!"
                 REDIS_READY=1
               fi
             else
-              if [ $((i % 5)) -eq 0 ]; then
+              if [ $((i % 3)) -eq 0 ]; then
                 echo "✗ Redis not ready (attempt $i) - checking container status..."
                 docker ps --filter "name=redis" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
               fi
             fi
             
             # Check RabbitMQ with enhanced diagnostics
-            if timeout 10 curl -f http://localhost:15672 > /dev/null 2>&1; then
+            if timeout 20 curl -f http://localhost:15672 > /dev/null 2>&1; then
               if [ $RABBITMQ_READY -eq 0 ]; then
                 echo "✓ RabbitMQ is now ready!"
                 RABBITMQ_READY=1
               fi
             else
-              if [ $((i % 5)) -eq 0 ]; then
+              if [ $((i % 3)) -eq 0 ]; then
                 echo "✗ RabbitMQ not ready (attempt $i) - checking container status..."
                 docker ps --filter "name=rabbitmq" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
               fi
@@ -338,14 +338,14 @@ jobs:
               break
             fi
             
-            if [ $i -eq 80 ]; then
+            if [ $i -eq 120 ]; then
               echo "❌ Services failed to become ready within extended timeout"
               echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY, RABBITMQ_READY=$RABBITMQ_READY"
               docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
               exit 1
             fi
             
-            sleep 20
+            sleep 15
           done
 
       - name: Restore dependencies
@@ -461,20 +461,11 @@ jobs:
             libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation \
             libappindicator1 libnss3 lsb-release xdg-utils wget
           
-          echo "Installing Playwright using .NET tool with latest version..."
-          dotnet tool install --global Microsoft.Playwright.CLI --version 1.40.0 || \
-          dotnet tool install --global Microsoft.Playwright.CLI --version 1.39.0 || \
-          dotnet tool install --global Microsoft.Playwright.CLI
+          echo "Installing Node.js Playwright package..."
+          npm install -g playwright@latest
           
-          # Ensure PATH includes dotnet tools
-          export PATH="$PATH:/home/runner/.dotnet/tools:$HOME/.dotnet/tools"
-          echo "PATH=$PATH:/home/runner/.dotnet/tools:$HOME/.dotnet/tools" >> $GITHUB_ENV
-          
-          echo "Installing browser dependencies with verbose output..."
-          playwright install-deps ${{ matrix.browser }} --verbose || true
-          
-          echo "Installing Playwright browser: ${{ matrix.browser }} with verbose output..."
-          playwright install ${{ matrix.browser }} --verbose
+          echo "Installing Playwright browser: ${{ matrix.browser }} with dependencies..."
+          npx playwright install --with-deps ${{ matrix.browser }}
           
           echo "Verifying Playwright installation..."
           playwright --version
@@ -791,8 +782,8 @@ EOF
           echo "Waiting for containers to start..."
           sleep 30
           
-          for i in {1..60}; do
-            echo "Performance test health check attempt $i/60 at $(date)"
+          for i in {1..90}; do
+            echo "Performance test health check attempt $i/90 at $(date)"
             
             # Check if containers are running
             if docker compose -f docker-compose.perf.yml ps --format json 2>/dev/null | jq -r ".[].State" | grep -q "running"; then
@@ -834,7 +825,7 @@ EOF
               docker compose -f docker-compose.perf.yml ps 2>/dev/null || true
             fi
             
-            if [ $i -eq 60 ]; then
+            if [ $i -eq 90 ]; then
               echo "❌ Performance test services failed to become healthy within extended timeout"
               echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY"
               docker compose -f docker-compose.perf.yml logs --tail 20 2>/dev/null || true
