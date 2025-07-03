@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api'
 
 interface Book {
   id: string
@@ -183,8 +183,9 @@ class LibraryService {
       const url = `/library/books${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: Book[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch books')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch books')
     }
   }
 
@@ -192,8 +193,9 @@ class LibraryService {
     try {
       const response: AxiosResponse<{data: Book}> = await this.api.get(`/library/books/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch book')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch book')
     }
   }
 
@@ -201,24 +203,27 @@ class LibraryService {
     try {
       const response: AxiosResponse<{data: Book}> = await this.api.post('/library/books', bookData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create book')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create book')
     }
   }
 
   async updateBook(id: string, bookData: Partial<BookDto>): Promise<void> {
     try {
       await this.api.put(`/library/books/${id}`, bookData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update book')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update book')
     }
   }
 
   async deleteBook(id: string): Promise<void> {
     try {
       await this.api.delete(`/library/books/${id}`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete book')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete book')
     }
   }
 
@@ -226,8 +231,9 @@ class LibraryService {
     try {
       const response: AxiosResponse<{data: Book[]}> = await this.api.get(`/library/books/search?q=${encodeURIComponent(query)}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to search books')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to search books')
     }
   }
 
@@ -235,8 +241,9 @@ class LibraryService {
     try {
       const response: AxiosResponse<{data: Member[]}> = await this.api.get('/library/members')
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch members')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch members')
     }
   }
 
@@ -244,8 +251,9 @@ class LibraryService {
     try {
       const response: AxiosResponse<{data: Member}> = await this.api.get(`/library/members/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch member')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch member')
     }
   }
 
@@ -253,16 +261,18 @@ class LibraryService {
     try {
       const response: AxiosResponse<{data: Member}> = await this.api.post('/library/members', memberData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create member')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create member')
     }
   }
 
   async updateMember(id: string, memberData: Partial<MemberDto>): Promise<void> {
     try {
       await this.api.put(`/library/members/${id}`, memberData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update member')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update member')
     }
   }
 
@@ -275,8 +285,9 @@ class LibraryService {
       const url = `/library/bookissues${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: BookIssue[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch book issues')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch book issues')
     }
   }
 
@@ -284,24 +295,27 @@ class LibraryService {
     try {
       const response: AxiosResponse<{data: BookIssue}> = await this.api.post('/library/bookissues', issueData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to issue book')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to issue book')
     }
   }
 
   async returnBook(issueId: string, notes?: string): Promise<void> {
     try {
       await this.api.put(`/library/bookissues/${issueId}/return`, { notes })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to return book')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to return book')
     }
   }
 
   async renewBook(issueId: string, newDueDate: string): Promise<void> {
     try {
       await this.api.put(`/library/bookissues/${issueId}/renew`, { newDueDate })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to renew book')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to renew book')
     }
   }
 
@@ -314,8 +328,9 @@ class LibraryService {
       const url = `/library/bookreservations${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: BookReservation[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch book reservations')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch book reservations')
     }
   }
 
@@ -323,16 +338,18 @@ class LibraryService {
     try {
       const response: AxiosResponse<{data: BookReservation}> = await this.api.post('/library/bookreservations', reservationData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create reservation')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create reservation')
     }
   }
 
   async cancelReservation(id: string): Promise<void> {
     try {
       await this.api.delete(`/library/bookreservations/${id}`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to cancel reservation')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to cancel reservation')
     }
   }
 
@@ -341,8 +358,9 @@ class LibraryService {
       const url = memberId ? `/library/fines?memberId=${memberId}` : '/library/fines'
       const response: AxiosResponse<{data: Fine[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch fines')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch fines')
     }
   }
 
@@ -350,24 +368,27 @@ class LibraryService {
     try {
       const response: AxiosResponse<{data: Fine}> = await this.api.post('/library/fines', fineData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create fine')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create fine')
     }
   }
 
   async payFine(fineId: string): Promise<void> {
     try {
       await this.api.put(`/library/fines/${fineId}/pay`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to pay fine')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to pay fine')
     }
   }
 
   async waiveFine(fineId: string, reason: string): Promise<void> {
     try {
       await this.api.put(`/library/fines/${fineId}/waive`, { reason })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to waive fine')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to waive fine')
     }
   }
 
@@ -380,12 +401,13 @@ class LibraryService {
       const url = `/library/reports${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: LibraryReport[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch library reports')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch library reports')
     }
   }
 
-  async generateLibraryReport(type: string, period: string, parameters?: any): Promise<LibraryReport> {
+  async generateLibraryReport(type: string, period: string, parameters?: Record<string, unknown>): Promise<LibraryReport> {
     try {
       const response: AxiosResponse<{data: LibraryReport}> = await this.api.post('/library/reports', {
         type,
@@ -393,8 +415,9 @@ class LibraryService {
         parameters
       })
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to generate library report')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to generate library report')
     }
   }
 
@@ -410,8 +433,9 @@ class LibraryService {
     try {
       const response = await this.api.get('/library/circulation/stats')
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch circulation stats')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch circulation stats')
     }
   }
 }
