@@ -221,7 +221,7 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -Q 'SELECT 1' || exit 1"
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q 'SELECT 1' || exit 1"
           --health-interval=10s
           --health-timeout=30s
           --health-retries=30
@@ -293,7 +293,7 @@ jobs:
             echo "Health check attempt $i/40 at $(date)"
             
             # Check SQL Server with enhanced diagnostics
-            if /opt/mssql-tools/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -Q "SELECT 1" > /dev/null 2>&1; then
+            if /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready!"
                 SQL_READY=1
@@ -749,7 +749,7 @@ jobs:
               echo "✓ Performance test containers are running"
               
               # Check SQL Server health with enhanced diagnostics
-              if docker exec sqlserver-perf /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -Q "SELECT 1" > /dev/null 2>&1; then
+              if docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
                 if [ $SQL_READY -eq 0 ]; then
                   echo "✓ SQL Server is now healthy for performance tests"
                   SQL_READY=1
