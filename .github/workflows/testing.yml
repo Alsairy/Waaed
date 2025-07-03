@@ -289,11 +289,11 @@ jobs:
           RABBITMQ_READY=0
           
           # Wait for services with individual timeouts and better error handling
-          for i in {1..120}; do
-            echo "Health check attempt $i/120 at $(date)"
+          for i in {1..180}; do
+            echo "Health check attempt $i/180 at $(date)"
             
-            # Check SQL Server with enhanced diagnostics and longer timeout
-            if timeout 60 /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+            # Check SQL Server with enhanced diagnostics and much longer timeout
+            if timeout 120 /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready!"
                 SQL_READY=1
@@ -338,14 +338,18 @@ jobs:
               break
             fi
             
-            if [ $i -eq 150 ]; then
+            if [ $i -eq 180 ]; then
               echo "❌ Services failed to become ready within extended timeout"
               echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY, RABBITMQ_READY=$RABBITMQ_READY"
               docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
+              echo "=== Final Service Logs ==="
+              docker logs $(docker ps -q --filter "name=sqlserver") --tail 20 2>/dev/null || true
+              docker logs $(docker ps -q --filter "name=redis") --tail 10 2>/dev/null || true
+              docker logs $(docker ps -q --filter "name=rabbitmq") --tail 15 2>/dev/null || true
               exit 1
             fi
             
-            sleep 15
+            sleep 12
           done
 
       - name: Restore dependencies
@@ -493,9 +497,11 @@ jobs:
           # Install Playwright browsers with fallback
           npx playwright install --with-deps ${{ matrix.browser }} || npx playwright install ${{ matrix.browser }}
           
-          # Always create docker-compose.e2e.yml to ensure it exists
-          echo "Creating docker-compose.e2e.yml for E2E tests..."
-          cat > docker-compose.e2e.yml << 'EOF'
+          # Use existing docker-compose.e2e.yml file with improved configurations
+          echo "Using existing docker-compose.e2e.yml for E2E tests..."
+          if [ ! -f "docker-compose.e2e.yml" ]; then
+            echo "docker-compose.e2e.yml not found, creating it..."
+            cat > docker-compose.e2e.yml << 'EOF'
 version: '3.8'
 services:
   sqlserver-e2e:
@@ -514,7 +520,7 @@ services:
       interval: 15s
       timeout: 60s
       retries: 40
-      start_period: 120s
+      start_period: 180s
     volumes:
       - sqlserver_e2e_data:/var/opt/mssql
   redis-e2e:
@@ -536,14 +542,15 @@ services:
       - "5672:5672"
       - "15672:15672"
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 15s
-      timeout: 30s
-      retries: 20
-      start_period: 60s
+      timeout: 60s
+      retries: 25
+      start_period: 120s
 volumes:
   sqlserver_e2e_data:
 EOF
+          fi
           
           echo "✓ docker-compose.e2e.yml created successfully"
           echo "Verifying file exists:"
