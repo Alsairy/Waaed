@@ -282,56 +282,71 @@ jobs:
           sudo apt-get install -y redis-tools curl
           
           echo "Waiting for services with enhanced health checks..."
-          timeout 900 bash -c '
-            RETRY_COUNT=0
-            MAX_RETRIES=60
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              echo "Health check attempt $((RETRY_COUNT + 1))/$MAX_RETRIES at $(date)"
-              
-              # Check SQL Server with enhanced diagnostics
-              if /opt/mssql-tools/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -Q "SELECT 1" > /dev/null 2>&1; then
-                echo "✓ SQL Server is ready"
+          
+          # Initialize service status
+          SQL_READY=0
+          REDIS_READY=0
+          RABBITMQ_READY=0
+          
+          # Wait for services with individual timeouts and better error handling
+          for i in {1..40}; do
+            echo "Health check attempt $i/40 at $(date)"
+            
+            # Check SQL Server with enhanced diagnostics
+            if /opt/mssql-tools/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -Q "SELECT 1" > /dev/null 2>&1; then
+              if [ $SQL_READY -eq 0 ]; then
+                echo "✓ SQL Server is now ready!"
                 SQL_READY=1
-              else
-                echo "✗ SQL Server not ready - checking container status..."
+              fi
+            else
+              if [ $((i % 5)) -eq 0 ]; then
+                echo "✗ SQL Server not ready (attempt $i) - checking container status..."
                 docker ps --filter "name=sqlserver" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
-                docker logs $(docker ps -q --filter "name=sqlserver") --tail 10 2>/dev/null || true
-                SQL_READY=0
+                docker logs $(docker ps -q --filter "name=sqlserver") --tail 5 2>/dev/null || true
               fi
-              
-              # Check Redis with enhanced diagnostics
-              if redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; then
-                echo "✓ Redis is ready"
+            fi
+            
+            # Check Redis with enhanced diagnostics
+            if redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; then
+              if [ $REDIS_READY -eq 0 ]; then
+                echo "✓ Redis is now ready!"
                 REDIS_READY=1
-              else
-                echo "✗ Redis not ready - checking container status..."
+              fi
+            else
+              if [ $((i % 5)) -eq 0 ]; then
+                echo "✗ Redis not ready (attempt $i) - checking container status..."
                 docker ps --filter "name=redis" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
-                docker logs $(docker ps -q --filter "name=redis") --tail 5 2>/dev/null || true
-                REDIS_READY=0
               fi
-              
-              # Check RabbitMQ with enhanced diagnostics
-              if curl -f http://localhost:15672 > /dev/null 2>&1; then
-                echo "✓ RabbitMQ is ready"
+            fi
+            
+            # Check RabbitMQ with enhanced diagnostics
+            if curl -f http://localhost:15672 > /dev/null 2>&1; then
+              if [ $RABBITMQ_READY -eq 0 ]; then
+                echo "✓ RabbitMQ is now ready!"
                 RABBITMQ_READY=1
-              else
-                echo "✗ RabbitMQ not ready - checking container status..."
+              fi
+            else
+              if [ $((i % 5)) -eq 0 ]; then
+                echo "✗ RabbitMQ not ready (attempt $i) - checking container status..."
                 docker ps --filter "name=rabbitmq" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
-                docker logs $(docker ps -q --filter "name=rabbitmq") --tail 5 2>/dev/null || true
-                RABBITMQ_READY=0
               fi
-              
-              # All services ready?
-              if [ $SQL_READY -eq 1 ] && [ $REDIS_READY -eq 1 ] && [ $RABBITMQ_READY -eq 1 ]; then
-                echo "🎉 All services are ready!"
-                break
-              fi
-              
-              RETRY_COUNT=$((RETRY_COUNT + 1))
-              
-              sleep 15
-            done
-          '
+            fi
+            
+            # All services ready?
+            if [ $SQL_READY -eq 1 ] && [ $REDIS_READY -eq 1 ] && [ $RABBITMQ_READY -eq 1 ]; then
+              echo "🎉 All services are ready!"
+              break
+            fi
+            
+            if [ $i -eq 40 ]; then
+              echo "❌ Services failed to become ready within timeout"
+              echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY, RABBITMQ_READY=$RABBITMQ_READY"
+              docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
+              exit 1
+            fi
+            
+            sleep 15
+          done
 
       - name: Restore dependencies
         run: dotnet restore Waaed.sln
@@ -498,61 +513,86 @@ jobs:
 
           # Wait for services with comprehensive health checks and enhanced diagnostics
           echo "Waiting for E2E test services to be healthy..."
-          timeout 900 bash -c '
-            RETRY_COUNT=0
-            MAX_RETRIES=45
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              echo "E2E health check attempt $((RETRY_COUNT + 1))/$MAX_RETRIES at $(date)"
-              
-              # Check if containers are running first
-              if ! docker compose -f docker-compose.e2e.yml ps --format json | jq -r ".[].State" | grep -q "running"; then
-                echo "✗ E2E containers not running yet - checking status..."
-                docker compose -f docker-compose.e2e.yml ps 2>/dev/null || true
-                RETRY_COUNT=$((RETRY_COUNT + 1))
-                sleep 20
-                continue
+          
+          # Initialize service status
+          SQL_READY=0
+          REDIS_READY=0
+          RABBITMQ_READY=0
+          
+          # Wait for containers to start first
+          echo "Waiting for E2E containers to start..."
+          sleep 30
+          
+          for i in {1..25}; do
+            echo "E2E health check attempt $i/25 at $(date)"
+            
+            # Check if containers are running first
+            if ! docker compose -f docker-compose.e2e.yml ps --format json 2>/dev/null | jq -r ".[].State" | grep -q "running"; then
+              echo "✗ E2E containers not running yet (attempt $i)"
+              docker compose -f docker-compose.e2e.yml ps 2>/dev/null || true
+              if [ $i -eq 25 ]; then
+                echo "❌ E2E containers failed to start within timeout"
+                exit 1
               fi
-              
-              echo "✓ E2E containers are running, checking service health..."
-              
-              # Check SQL Server with enhanced diagnostics
-              if docker compose -f docker-compose.e2e.yml exec -T sqlserver-e2e /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -Q "SELECT 1" > /dev/null 2>&1; then
-                echo "✓ SQL Server is ready for E2E tests"
-                SQL_READY=1
-              else
-                echo "✗ SQL Server not ready - checking E2E container logs..."
-                docker compose -f docker-compose.e2e.yml logs sqlserver-e2e --tail 10 2>/dev/null || true
-                SQL_READY=0
-              fi
-              
-              # Check Redis with enhanced diagnostics
-              if docker compose -f docker-compose.e2e.yml exec -T redis-e2e redis-cli ping > /dev/null 2>&1; then
-                echo "✓ Redis is ready for E2E tests"
-                REDIS_READY=1
-              else
-                echo "✗ Redis not ready - checking E2E container logs..."
-                docker compose -f docker-compose.e2e.yml logs redis-e2e --tail 5 2>/dev/null || true
-                REDIS_READY=0
-              fi
-              
-              # Check RabbitMQ with enhanced diagnostics
-              if docker compose -f docker-compose.e2e.yml exec -T rabbitmq-e2e rabbitmq-diagnostics ping > /dev/null 2>&1; then
-                echo "✓ RabbitMQ is ready for E2E tests"
-                RABBITMQ_READY=1
-              else
-                echo "✗ RabbitMQ not ready"
-                RABBITMQ_READY=0
-              fi
-              
-              # All services ready?
-              if [ $SQL_READY -eq 1 ] && [ $REDIS_READY -eq 1 ] && [ $RABBITMQ_READY -eq 1 ]; then
-                echo "🎉 All services are ready!"
-                break
-              fi
-              
               sleep 20
-            done
-          '
+              continue
+            fi
+            
+            echo "✓ E2E containers are running, checking service health..."
+            
+            # Check SQL Server with enhanced diagnostics
+            if docker compose -f docker-compose.e2e.yml exec -T sqlserver-e2e /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+              if [ $SQL_READY -eq 0 ]; then
+                echo "✓ SQL Server is now ready for E2E tests"
+                SQL_READY=1
+              fi
+            else
+              if [ $((i % 3)) -eq 0 ]; then
+                echo "✗ SQL Server not ready (attempt $i) - checking logs..."
+                docker compose -f docker-compose.e2e.yml logs sqlserver-e2e --tail 5 2>/dev/null || true
+              fi
+            fi
+            
+            # Check Redis with enhanced diagnostics
+            if docker compose -f docker-compose.e2e.yml exec -T redis-e2e redis-cli ping > /dev/null 2>&1; then
+              if [ $REDIS_READY -eq 0 ]; then
+                echo "✓ Redis is now ready for E2E tests"
+                REDIS_READY=1
+              fi
+            else
+              if [ $((i % 3)) -eq 0 ]; then
+                echo "✗ Redis not ready (attempt $i) - checking logs..."
+                docker compose -f docker-compose.e2e.yml logs redis-e2e --tail 3 2>/dev/null || true
+              fi
+            fi
+            
+            # Check RabbitMQ with enhanced diagnostics
+            if docker compose -f docker-compose.e2e.yml exec -T rabbitmq-e2e rabbitmq-diagnostics ping > /dev/null 2>&1; then
+              if [ $RABBITMQ_READY -eq 0 ]; then
+                echo "✓ RabbitMQ is now ready for E2E tests"
+                RABBITMQ_READY=1
+              fi
+            else
+              if [ $((i % 3)) -eq 0 ]; then
+                echo "✗ RabbitMQ not ready (attempt $i)"
+              fi
+            fi
+            
+            # All services ready?
+            if [ $SQL_READY -eq 1 ] && [ $REDIS_READY -eq 1 ] && [ $RABBITMQ_READY -eq 1 ]; then
+              echo "🎉 All E2E services are ready!"
+              break
+            fi
+            
+            if [ $i -eq 25 ]; then
+              echo "❌ E2E services failed to become ready within timeout"
+              echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY, RABBITMQ_READY=$RABBITMQ_READY"
+              docker compose -f docker-compose.e2e.yml logs --tail 20 2>/dev/null || true
+              exit 1
+            fi
+            
+            sleep 20
+          done
 
       - name: Run E2E tests
         env:
@@ -692,58 +732,67 @@ jobs:
           
           # Wait for services with comprehensive error handling and extended timeout
           echo "Waiting for performance test services to be healthy..."
-          timeout 900 bash -c '
-            RETRY_COUNT=0
-            MAX_RETRIES=45
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              echo "Performance test health check attempt $((RETRY_COUNT + 1))/$MAX_RETRIES at $(date)"
+          
+          # Initialize service status
+          SQL_READY=0
+          REDIS_READY=0
+          
+          # Wait for containers to start first
+          echo "Waiting for containers to start..."
+          sleep 30
+          
+          for i in {1..30}; do
+            echo "Performance test health check attempt $i/30 at $(date)"
+            
+            # Check if containers are running
+            if docker compose -f docker-compose.perf.yml ps --format json 2>/dev/null | jq -r ".[].State" | grep -q "running"; then
+              echo "✓ Performance test containers are running"
               
-              # Check if containers are running with detailed status
-              CONTAINER_STATUS=$(docker compose -f docker-compose.perf.yml ps --format json 2>/dev/null || echo "[]")
-              if echo "$CONTAINER_STATUS" | jq -r ".[].State" | grep -q "running"; then
-                echo "✓ Performance test containers are running"
-                
-                # Check SQL Server health with enhanced diagnostics
-                if /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
-                  echo "✓ SQL Server is healthy for performance tests"
+              # Check SQL Server health with enhanced diagnostics
+              if /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+                if [ $SQL_READY -eq 0 ]; then
+                  echo "✓ SQL Server is now healthy for performance tests"
                   SQL_READY=1
-                else
-                  echo "✗ SQL Server not ready - checking performance container logs..."
-                  docker compose -f docker-compose.perf.yml logs sqlserver-perf --tail 10 2>/dev/null || true
-                  SQL_READY=0
-                fi
-                
-                # Check Redis health with enhanced diagnostics
-                if redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; then
-                  echo "✓ Redis is healthy for performance tests"
-                  REDIS_READY=1
-                else
-                  echo "✗ Redis not ready - checking performance container logs..."
-                  docker compose -f docker-compose.perf.yml logs redis-perf --tail 5 2>/dev/null || true
-                  REDIS_READY=0
-                fi
-                
-                # All services ready?
-                if [ $SQL_READY -eq 1 ] && [ $REDIS_READY -eq 1 ]; then
-                  echo "🎉 All performance test services are healthy!"
-                  break
                 fi
               else
-                echo "✗ Performance test containers not running yet - checking status..."
-                docker compose -f docker-compose.perf.yml ps 2>/dev/null || true
+                if [ $((i % 3)) -eq 0 ]; then
+                  echo "✗ SQL Server not ready (attempt $i) - checking logs..."
+                  docker compose -f docker-compose.perf.yml logs sqlserver-perf --tail 5 2>/dev/null || true
+                fi
               fi
               
-              RETRY_COUNT=$((RETRY_COUNT + 1))
-              echo "Waiting for performance test services... (attempt $RETRY_COUNT/$MAX_RETRIES)"
-              sleep 20
-            done
+              # Check Redis health with enhanced diagnostics
+              if redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; then
+                if [ $REDIS_READY -eq 0 ]; then
+                  echo "✓ Redis is now healthy for performance tests"
+                  REDIS_READY=1
+                fi
+              else
+                if [ $((i % 3)) -eq 0 ]; then
+                  echo "✗ Redis not ready (attempt $i) - checking logs..."
+                  docker compose -f docker-compose.perf.yml logs redis-perf --tail 3 2>/dev/null || true
+                fi
+              fi
+              
+              # All services ready?
+              if [ $SQL_READY -eq 1 ] && [ $REDIS_READY -eq 1 ]; then
+                echo "🎉 All performance test services are healthy!"
+                break
+              fi
+            else
+              echo "✗ Performance test containers not running yet (attempt $i)"
+              docker compose -f docker-compose.perf.yml ps 2>/dev/null || true
+            fi
             
-            if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+            if [ $i -eq 30 ]; then
               echo "❌ Performance test services failed to become healthy within timeout"
+              echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY"
               docker compose -f docker-compose.perf.yml logs --tail 20 2>/dev/null || true
               exit 1
             fi
-          '
+            
+            sleep 20
+          done
 
       - name: Run performance tests
         env:
