@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api'
 
 interface AcademicEvent {
   id: string
@@ -223,8 +223,9 @@ class AcademicCalendarService {
       const url = `/sis/academic-events${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: AcademicEvent[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch academic events')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch academic events')
     }
   }
 
@@ -232,8 +233,9 @@ class AcademicCalendarService {
     try {
       const response: AxiosResponse<{data: AcademicEvent}> = await this.api.get(`/sis/academic-events/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch academic event')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch academic event')
     }
   }
 
@@ -241,24 +243,27 @@ class AcademicCalendarService {
     try {
       const response: AxiosResponse<{data: AcademicEvent}> = await this.api.post('/sis/academic-events', eventData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create academic event')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create academic event')
     }
   }
 
   async updateAcademicEvent(id: string, eventData: Partial<AcademicEventDto>): Promise<void> {
     try {
       await this.api.put(`/sis/academic-events/${id}`, eventData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update academic event')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update academic event')
     }
   }
 
   async deleteAcademicEvent(id: string): Promise<void> {
     try {
       await this.api.delete(`/sis/academic-events/${id}`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete academic event')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete academic event')
     }
   }
 
@@ -267,8 +272,9 @@ class AcademicCalendarService {
       const url = year ? `/sis/academic-terms?year=${year}` : '/sis/academic-terms'
       const response: AxiosResponse<{data: AcademicTerm[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch academic terms')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch academic terms')
     }
   }
 
@@ -276,8 +282,9 @@ class AcademicCalendarService {
     try {
       const response: AxiosResponse<{data: AcademicTerm}> = await this.api.get(`/sis/academic-terms/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch academic term')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch academic term')
     }
   }
 
@@ -285,11 +292,12 @@ class AcademicCalendarService {
     try {
       const response: AxiosResponse<{data: AcademicTerm}> = await this.api.get('/sis/academic-terms/current')
       return response.data.data
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { status?: number; data?: { message?: string } } }
+      if (errorObj.response?.status === 404) {
         return null
       }
-      throw new Error(error.response?.data?.message || 'Failed to fetch current academic term')
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch current academic term')
     }
   }
 
@@ -297,16 +305,18 @@ class AcademicCalendarService {
     try {
       const response: AxiosResponse<{data: AcademicTerm}> = await this.api.post('/sis/academic-terms', termData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create academic term')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create academic term')
     }
   }
 
   async updateAcademicTerm(id: string, termData: Partial<AcademicTermDto>): Promise<void> {
     try {
       await this.api.put(`/sis/academic-terms/${id}`, termData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update academic term')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update academic term')
     }
   }
 
@@ -319,8 +329,9 @@ class AcademicCalendarService {
       const url = `/sis/holidays${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: Holiday[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch holidays')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch holidays')
     }
   }
 
@@ -328,16 +339,18 @@ class AcademicCalendarService {
     try {
       const response: AxiosResponse<{data: Holiday}> = await this.api.post('/sis/holidays', holidayData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create holiday')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create holiday')
     }
   }
 
   async updateHoliday(id: string, holidayData: Partial<HolidayDto>): Promise<void> {
     try {
       await this.api.put(`/sis/holidays/${id}`, holidayData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update holiday')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update holiday')
     }
   }
 
@@ -352,8 +365,9 @@ class AcademicCalendarService {
       const url = `/sis/exam-schedules${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: ExamSchedule[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch exam schedules')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch exam schedules')
     }
   }
 
@@ -361,16 +375,18 @@ class AcademicCalendarService {
     try {
       const response: AxiosResponse<{data: ExamSchedule}> = await this.api.post('/sis/exam-schedules', examData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create exam schedule')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create exam schedule')
     }
   }
 
   async updateExamSchedule(id: string, examData: Partial<ExamScheduleDto>): Promise<void> {
     try {
       await this.api.put(`/sis/exam-schedules/${id}`, examData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update exam schedule')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update exam schedule')
     }
   }
 
@@ -385,8 +401,9 @@ class AcademicCalendarService {
       const url = `/sis/class-schedules${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: ClassSchedule[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch class schedules')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch class schedules')
     }
   }
 
@@ -394,16 +411,18 @@ class AcademicCalendarService {
     try {
       const response: AxiosResponse<{data: ClassSchedule}> = await this.api.post('/sis/class-schedules', scheduleData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create class schedule')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create class schedule')
     }
   }
 
   async updateClassSchedule(id: string, scheduleData: Partial<ClassScheduleDto>): Promise<void> {
     try {
       await this.api.put(`/sis/class-schedules/${id}`, scheduleData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update class schedule')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update class schedule')
     }
   }
 
@@ -413,8 +432,9 @@ class AcademicCalendarService {
         `/sis/students/${studentId}/schedule?semester=${semester}&year=${year}`
       )
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch student schedule')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch student schedule')
     }
   }
 
@@ -424,8 +444,9 @@ class AcademicCalendarService {
         `/sis/instructors/${instructorId}/schedule?semester=${semester}&year=${year}`
       )
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch instructor schedule')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch instructor schedule')
     }
   }
 
@@ -439,8 +460,9 @@ class AcademicCalendarService {
       
       const response: AxiosResponse<{data: CalendarView}> = await this.api.get(`/sis/calendar?${params.toString()}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch calendar view')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch calendar view')
     }
   }
 
@@ -453,8 +475,9 @@ class AcademicCalendarService {
       
       const response: AxiosResponse<{data: AcademicEvent[]}> = await this.api.get(`/sis/calendar/upcoming?${params.toString()}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch upcoming events')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch upcoming events')
     }
   }
 
@@ -462,8 +485,9 @@ class AcademicCalendarService {
     try {
       const response: AxiosResponse<{data: string[]}> = await this.api.get('/sis/academic-events/types')
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch event types')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch event types')
     }
   }
 
@@ -477,8 +501,9 @@ class AcademicCalendarService {
         format
       })
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to import calendar')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to import calendar')
     }
   }
 
@@ -492,8 +517,9 @@ class AcademicCalendarService {
       
       const response = await this.api.get(`/sis/calendar/export?${params.toString()}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to export calendar')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to export calendar')
     }
   }
 }
