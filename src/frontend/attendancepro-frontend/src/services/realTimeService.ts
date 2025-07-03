@@ -1,10 +1,10 @@
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000'
+const API_BASE_URL = (import.meta as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL || 'http://localhost:5000'
 
 export interface RealTimeEvent {
   type: 'attendance' | 'notification' | 'analytics' | 'leave' | 'system'
-  data: any
+  data: AttendanceUpdate | NotificationUpdate | AnalyticsUpdate | LeaveStatusUpdate | SystemAlert
   timestamp: string
   userId?: string
   tenantId?: string
@@ -32,8 +32,27 @@ export interface NotificationUpdate {
 
 export interface AnalyticsUpdate {
   type: 'overview' | 'attendance-rate' | 'productivity' | 'department'
-  data: any
+  data: Record<string, number | string>
   timestamp: string
+}
+
+export interface LeaveStatusUpdate {
+  requestId: string
+  status: 'approved' | 'rejected' | 'pending'
+  employeeName: string
+  message?: string
+}
+
+export interface SystemAlert {
+  id: string
+  type: 'info' | 'warning' | 'error' | 'critical'
+  message: string
+  timestamp: string
+}
+
+export interface ConnectionStatus {
+  status: 'connected' | 'disconnected' | 'reconnecting' | 'error'
+  error?: Error | string
 }
 
 class RealTimeService {
@@ -107,7 +126,7 @@ class RealTimeService {
       } as RealTimeEvent)
     })
 
-    this.connection.on('LeaveStatusUpdate', (data: any) => {
+    this.connection.on('LeaveStatusUpdate', (data: LeaveStatusUpdate) => {
       this.emitEvent('leave-status-update', data)
       this.emitEvent('real-time-event', {
         type: 'leave',
@@ -116,7 +135,7 @@ class RealTimeService {
       } as RealTimeEvent)
     })
 
-    this.connection.on('SystemAlert', (data: any) => {
+    this.connection.on('SystemAlert', (data: SystemAlert) => {
       this.emitEvent('system-alert', data)
       this.emitEvent('real-time-event', {
         type: 'system',
