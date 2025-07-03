@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api'
 
 interface Grade {
   id: string
@@ -187,8 +187,9 @@ class GradesService {
       const url = `/lms/grades${params.toString() ? '?' + params.toString() : ''}`
       const response: AxiosResponse<{data: Grade[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch grades')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch grades')
     }
   }
 
@@ -196,8 +197,9 @@ class GradesService {
     try {
       const response: AxiosResponse<{data: Grade}> = await this.api.get(`/lms/grades/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch grade')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch grade')
     }
   }
 
@@ -205,24 +207,27 @@ class GradesService {
     try {
       const response: AxiosResponse<{data: Grade}> = await this.api.post('/lms/grades', gradeData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create grade')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create grade')
     }
   }
 
   async updateGrade(id: string, gradeData: Partial<GradeDto>): Promise<void> {
     try {
       await this.api.put(`/lms/grades/${id}`, gradeData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update grade')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update grade')
     }
   }
 
   async deleteGrade(id: string): Promise<void> {
     try {
       await this.api.delete(`/lms/grades/${id}`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete grade')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete grade')
     }
   }
 
@@ -230,8 +235,9 @@ class GradesService {
     try {
       const response: AxiosResponse<{data: GradeBook}> = await this.api.get(`/lms/courses/${courseId}/gradebook`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch grade book')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch grade book')
     }
   }
 
@@ -242,8 +248,9 @@ class GradesService {
         : `/lms/grades?studentId=${studentId}`
       const response: AxiosResponse<{data: Grade[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch student grades')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch student grades')
     }
   }
 
@@ -251,8 +258,9 @@ class GradesService {
     try {
       const response: AxiosResponse<{data: Grade[]}> = await this.api.get(`/lms/grades?courseId=${courseId}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch course grades')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch course grades')
     }
   }
 
@@ -260,8 +268,9 @@ class GradesService {
     try {
       const response: AxiosResponse<{data: GradeCategory[]}> = await this.api.get(`/lms/courses/${courseId}/grade-categories`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch grade categories')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch grade categories')
     }
   }
 
@@ -269,16 +278,18 @@ class GradesService {
     try {
       const response: AxiosResponse<{data: GradeCategory}> = await this.api.post('/lms/grade-categories', categoryData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create grade category')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create grade category')
     }
   }
 
   async updateGradeCategory(id: string, categoryData: Partial<GradeCategoryDto>): Promise<void> {
     try {
       await this.api.put(`/lms/grade-categories/${id}`, categoryData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update grade category')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update grade category')
     }
   }
 
@@ -286,8 +297,9 @@ class GradesService {
     try {
       const response: AxiosResponse<{data: CourseGrade}> = await this.api.get(`/lms/courses/${courseId}/students/${studentId}/grade`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch course grade')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch course grade')
     }
   }
 
@@ -295,8 +307,9 @@ class GradesService {
     try {
       const response: AxiosResponse<{data: CourseGrade}> = await this.api.post(`/lms/courses/${courseId}/students/${studentId}/calculate-grade`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to calculate course grade')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to calculate course grade')
     }
   }
 
@@ -304,8 +317,9 @@ class GradesService {
     try {
       const response: AxiosResponse<{data: Transcript}> = await this.api.get(`/lms/students/${studentId}/transcript`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch transcript')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch transcript')
     }
   }
 
@@ -314,8 +328,9 @@ class GradesService {
       const params = includeInProgress ? '?includeInProgress=true' : ''
       const response: AxiosResponse<{data: Transcript}> = await this.api.post(`/lms/students/${studentId}/transcript/generate${params}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to generate transcript')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to generate transcript')
     }
   }
 
@@ -325,8 +340,9 @@ class GradesService {
         `/lms/students/${studentId}/courses/${courseId}/grade-report?type=${reportType}&period=${period}`
       )
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch grade report')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch grade report')
     }
   }
 
@@ -334,40 +350,45 @@ class GradesService {
     try {
       const response: AxiosResponse<{data: GradingScale[]}> = await this.api.get(`/lms/courses/${courseId}/grading-scale`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch grading scale')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch grading scale')
     }
   }
 
   async updateGradingScale(courseId: string, gradingScale: GradingScale[]): Promise<void> {
     try {
       await this.api.put(`/lms/courses/${courseId}/grading-scale`, { gradingScale })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update grading scale')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update grading scale')
     }
   }
 
   async bulkUpdateGrades(grades: Partial<GradeDto>[]): Promise<void> {
     try {
       await this.api.put('/lms/grades/bulk', { grades })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to bulk update grades')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to bulk update grades')
     }
   }
 
   async excuseGrade(gradeId: string, reason?: string): Promise<void> {
     try {
       await this.api.put(`/lms/grades/${gradeId}/excuse`, { reason })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to excuse grade')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to excuse grade')
     }
   }
 
   async dropGrade(gradeId: string, reason?: string): Promise<void> {
     try {
       await this.api.put(`/lms/grades/${gradeId}/drop`, { reason })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to drop grade')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to drop grade')
     }
   }
 
@@ -382,8 +403,9 @@ class GradesService {
     try {
       const response = await this.api.get(`/lms/courses/${courseId}/grade-statistics`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch grade statistics')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch grade statistics')
     }
   }
 }
