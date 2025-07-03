@@ -542,7 +542,7 @@ jobs:
             echo "✓ E2E containers are running, checking service health..."
             
             # Check SQL Server with enhanced diagnostics
-            if docker compose -f docker-compose.e2e.yml exec -T sqlserver-e2e /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+            if docker compose -f docker-compose.e2e.yml exec -T sqlserver-e2e /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready for E2E tests"
                 SQL_READY=1
