@@ -46,10 +46,18 @@ import FinancialReportsPage from './pages/finance/FinancialReportsPage'
 import CatalogPage from './pages/library/CatalogPage'
 import CheckoutPage from './pages/library/CheckoutPage'
 import ReservationsPage from './pages/library/ReservationsPage'
+import QuizzesPage from './pages/lms/QuizzesPage'
+import QuizDetailPage from './pages/lms/QuizDetailPage'
+import TakeQuizPage from './pages/lms/TakeQuizPage'
+import DiscussionsPage from './pages/lms/DiscussionsPage'
+import DiscussionDetailPage from './pages/lms/DiscussionDetailPage'
+import ChatPage from './pages/communication/ChatPage'
+import AcademicCalendarPage from './pages/calendar/AcademicCalendarPage'
+import EventManagementPage from './pages/calendar/EventManagementPage'
+import AdvancedAnalyticsPage from './pages/analytics/AdvancedAnalyticsPage'
 import './App.css'
 
 const PERSONA = import.meta.env.VITE_USER_PERSONA || 'admin'
-const EDUCATIONAL_PERSONAS = ['student', 'teacher', 'parent', 'admin']
 
 const getPersonaRoutes = () => {
   const getDashboardComponent = () => {
@@ -80,6 +88,7 @@ const getPersonaRoutes = () => {
 
   const adminRoutes = [
     { path: 'analytics', element: <AnalyticsPage />, roles: ['admin', 'manager'] },
+    { path: 'advanced-analytics', element: <AdvancedAnalyticsPage />, roles: ['admin', 'manager'] },
     { path: 'users', element: <UsersPage />, roles: ['admin'] },
     { path: 'reports', element: <ReportsPage />, roles: ['admin', 'manager'] },
     { path: 'webhooks', element: <WebhooksManagementPage />, roles: ['admin'] },
@@ -102,6 +111,16 @@ const getPersonaRoutes = () => {
     { path: 'gradebook', element: <GradeBookPage />, roles: ['admin', 'teacher'] },
     { path: 'progress-reports', element: <ProgressReportsPage />, roles: ['admin', 'teacher', 'parent'] },
     
+    { path: 'quizzes', element: <QuizzesPage />, roles: ['admin', 'teacher', 'student'] },
+    { path: 'quizzes/:id', element: <QuizDetailPage />, roles: ['admin', 'teacher', 'student'] },
+    { path: 'quizzes/:id/take', element: <TakeQuizPage />, roles: ['student'] },
+    { path: 'discussions', element: <DiscussionsPage />, roles: ['admin', 'teacher', 'student'] },
+    { path: 'discussions/:id', element: <DiscussionDetailPage />, roles: ['admin', 'teacher', 'student'] },
+    
+    { path: 'chat', element: <ChatPage />, roles: ['admin', 'teacher', 'student', 'parent'] },
+    { path: 'calendar', element: <AcademicCalendarPage />, roles: ['admin', 'teacher', 'student', 'parent'] },
+    { path: 'calendar/events', element: <EventManagementPage />, roles: ['admin', 'teacher'] },
+    
     { path: 'fees', element: <FeesPage />, roles: ['admin', 'parent'] },
     { path: 'payments', element: <PaymentsPage />, roles: ['admin', 'parent'] },
     { path: 'financial-reports', element: <FinancialReportsPage />, roles: ['admin'] },
@@ -117,6 +136,7 @@ const getPersonaRoutes = () => {
     case 'manager':
       return [...baseRoutes, 
         { path: 'analytics', element: <AnalyticsPage />, roles: ['admin', 'manager'] },
+        { path: 'advanced-analytics', element: <AdvancedAnalyticsPage />, roles: ['admin', 'manager'] },
         { path: 'reports', element: <ReportsPage />, roles: ['admin', 'manager'] },
         { path: 'workflow/monitoring', element: <WorkflowMonitoringPage />, roles: ['admin', 'manager'] },
         { path: 'scheduling', element: <ShiftSchedulingPage />, roles: ['admin', 'manager'] }
@@ -127,6 +147,13 @@ const getPersonaRoutes = () => {
         { path: 'courses', element: <CoursesPage />, roles: ['admin', 'teacher', 'student'] },
         { path: 'courses/:id', element: <CourseDetailPage />, roles: ['admin', 'teacher', 'student'] },
         { path: 'assignments', element: <AssignmentsPage />, roles: ['admin', 'teacher', 'student'] },
+        { path: 'quizzes', element: <QuizzesPage />, roles: ['admin', 'teacher', 'student'] },
+        { path: 'quizzes/:id', element: <QuizDetailPage />, roles: ['admin', 'teacher', 'student'] },
+        { path: 'quizzes/:id/take', element: <TakeQuizPage />, roles: ['student'] },
+        { path: 'discussions', element: <DiscussionsPage />, roles: ['admin', 'teacher', 'student'] },
+        { path: 'discussions/:id', element: <DiscussionDetailPage />, roles: ['admin', 'teacher', 'student'] },
+        { path: 'chat', element: <ChatPage />, roles: ['admin', 'teacher', 'student', 'parent'] },
+        { path: 'calendar', element: <AcademicCalendarPage />, roles: ['admin', 'teacher', 'student', 'parent'] },
         { path: 'library/catalog', element: <CatalogPage />, roles: ['admin', 'teacher', 'student'] },
         { path: 'library/reservations', element: <ReservationsPage />, roles: ['admin', 'teacher', 'student'] }
       ]
@@ -140,6 +167,13 @@ const getPersonaRoutes = () => {
         { path: 'assignments', element: <AssignmentsPage />, roles: ['admin', 'teacher', 'student'] },
         { path: 'gradebook', element: <GradeBookPage />, roles: ['admin', 'teacher'] },
         { path: 'progress-reports', element: <ProgressReportsPage />, roles: ['admin', 'teacher', 'parent'] },
+        { path: 'quizzes', element: <QuizzesPage />, roles: ['admin', 'teacher', 'student'] },
+        { path: 'quizzes/:id', element: <QuizDetailPage />, roles: ['admin', 'teacher', 'student'] },
+        { path: 'discussions', element: <DiscussionsPage />, roles: ['admin', 'teacher', 'student'] },
+        { path: 'discussions/:id', element: <DiscussionDetailPage />, roles: ['admin', 'teacher', 'student'] },
+        { path: 'chat', element: <ChatPage />, roles: ['admin', 'teacher', 'student', 'parent'] },
+        { path: 'calendar', element: <AcademicCalendarPage />, roles: ['admin', 'teacher', 'student', 'parent'] },
+        { path: 'calendar/events', element: <EventManagementPage />, roles: ['admin', 'teacher'] },
         { path: 'library/catalog', element: <CatalogPage />, roles: ['admin', 'teacher', 'student'] },
         { path: 'library/checkout', element: <CheckoutPage />, roles: ['admin', 'teacher'] },
         { path: 'library/reservations', element: <ReservationsPage />, roles: ['admin', 'teacher', 'student'] }
@@ -148,6 +182,8 @@ const getPersonaRoutes = () => {
       return [...baseRoutes,
         { path: 'students/:id', element: <StudentProfilePage />, roles: ['admin', 'teacher', 'student', 'parent'] },
         { path: 'progress-reports', element: <ProgressReportsPage />, roles: ['admin', 'teacher', 'parent'] },
+        { path: 'chat', element: <ChatPage />, roles: ['admin', 'teacher', 'student', 'parent'] },
+        { path: 'calendar', element: <AcademicCalendarPage />, roles: ['admin', 'teacher', 'student', 'parent'] },
         { path: 'fees', element: <FeesPage />, roles: ['admin', 'parent'] },
         { path: 'payments', element: <PaymentsPage />, roles: ['admin', 'parent'] }
       ]

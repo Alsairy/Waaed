@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { Alert, AlertDescription } from '../../components/ui/alert'
 import { toast } from 'sonner'
+import { handleApiError } from '../../utils/error-handler'
 
 interface Shift {
   id: string
@@ -81,8 +82,11 @@ const ShiftSchedulingPage: React.FC = () => {
         loadSwapRequests()
       ])
     } catch (error) {
-      console.error('Error loading schedule data:', error)
-      toast.error('Failed to load schedule data')
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Load Schedule Data',
+        fallbackMessage: 'Could not load schedule data. Please try again.'
+      });
     } finally {
       setIsLoading(false)
     }
@@ -96,7 +100,11 @@ const ShiftSchedulingPage: React.FC = () => {
         setShifts(data)
       }
     } catch (error) {
-      console.error('Error loading shifts:', error)
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Load Shifts',
+        fallbackMessage: 'Could not load shifts data. Please try again.'
+      });
     }
   }
 
@@ -110,7 +118,11 @@ const ShiftSchedulingPage: React.FC = () => {
         setAssignments(data)
       }
     } catch (error) {
-      console.error('Error loading assignments:', error)
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Load Assignments',
+        fallbackMessage: 'Could not load shift assignments. Please try again.'
+      });
     }
   }
 
@@ -122,7 +134,11 @@ const ShiftSchedulingPage: React.FC = () => {
         setConflicts(data)
       }
     } catch (error) {
-      console.error('Error loading conflicts:', error)
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Load Conflicts',
+        fallbackMessage: 'Could not load shift conflicts. Please try again.'
+      });
     }
   }
 
@@ -134,7 +150,11 @@ const ShiftSchedulingPage: React.FC = () => {
         setSwapRequests(data)
       }
     } catch (error) {
-      console.error('Error loading swap requests:', error)
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Load Swap Requests',
+        fallbackMessage: 'Could not load swap requests. Please try again.'
+      });
     }
   }
 
@@ -157,8 +177,11 @@ const ShiftSchedulingPage: React.FC = () => {
         toast.error('Failed to create shift')
       }
     } catch (error) {
-      console.error('Error creating shift:', error)
-      toast.error('Error creating shift')
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Create Shift',
+        fallbackMessage: 'Could not create shift. Please try again.'
+      });
     }
   }
 
@@ -184,8 +207,11 @@ const ShiftSchedulingPage: React.FC = () => {
         toast.error('Failed to assign shift')
       }
     } catch (error) {
-      console.error('Error assigning shift:', error)
-      toast.error('Error assigning shift')
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Assign Shift',
+        fallbackMessage: 'Could not assign shift. Please try again.'
+      });
     }
   }
 
@@ -209,8 +235,11 @@ const ShiftSchedulingPage: React.FC = () => {
         toast.error('Failed to process swap request')
       }
     } catch (error) {
-      console.error('Error processing swap request:', error)
-      toast.error('Error processing swap request')
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Process Swap Request',
+        fallbackMessage: 'Could not process swap request. Please try again.'
+      });
     }
   }
 
@@ -233,8 +262,11 @@ const ShiftSchedulingPage: React.FC = () => {
         toast.error('Failed to resolve conflict')
       }
     } catch (error) {
-      console.error('Error resolving conflict:', error)
-      toast.error('Error resolving conflict')
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Resolve Conflict',
+        fallbackMessage: 'Could not resolve conflict. Please try again.'
+      });
     }
   }
 

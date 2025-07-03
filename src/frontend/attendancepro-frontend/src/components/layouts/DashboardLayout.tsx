@@ -33,7 +33,12 @@ import {
   BookMarked,
   Calculator,
   CreditCard,
-  TrendingUp
+  TrendingUp,
+  MessageSquare,
+  MessageCircle,
+  CalendarDays,
+  HelpCircle,
+  Brain
 } from 'lucide-react'
 
 import { Button } from '../ui/button'
@@ -62,6 +67,7 @@ const getPersonaNavigation = () => {
 
   const managerNavigation = [
     { name: 'Analytics', href: '/analytics', icon: BarChart3, roles: ['admin', 'manager'] },
+    { name: 'Advanced Analytics', href: '/advanced-analytics', icon: Brain, roles: ['admin', 'manager'] },
     { name: 'Reports', href: '/reports', icon: FileText, roles: ['admin', 'manager'] },
     { name: 'Workflow Monitor', href: '/workflow/monitoring', icon: Activity, roles: ['admin', 'manager'] },
     { name: 'Scheduling', href: '/scheduling', icon: Clock, roles: ['admin', 'manager'] },
@@ -69,6 +75,7 @@ const getPersonaNavigation = () => {
 
   const adminNavigation = [
     { name: 'Analytics', href: '/analytics', icon: BarChart3, roles: ['admin', 'manager'] },
+    { name: 'Advanced Analytics', href: '/advanced-analytics', icon: Brain, roles: ['admin', 'manager'] },
     { name: 'Users', href: '/users', icon: Users, roles: ['admin'] },
     { name: 'Reports', href: '/reports', icon: FileText, roles: ['admin', 'manager'] },
     { name: 'Webhooks', href: '/webhooks', icon: Webhook, roles: ['admin'] },
@@ -88,8 +95,14 @@ const getPersonaNavigation = () => {
     // LMS Navigation
     { name: 'Courses', href: '/courses', icon: BookOpen, roles: ['admin', 'teacher', 'student'] },
     { name: 'Assignments', href: '/assignments', icon: ClipboardList, roles: ['admin', 'teacher', 'student'] },
+    { name: 'Quizzes', href: '/quizzes', icon: HelpCircle, roles: ['admin', 'teacher', 'student'] },
+    { name: 'Discussions', href: '/discussions', icon: MessageSquare, roles: ['admin', 'teacher', 'student'] },
     { name: 'Grade Book', href: '/gradebook', icon: BarChart2, roles: ['admin', 'teacher'] },
     { name: 'Progress Reports', href: '/progress-reports', icon: TrendingUp, roles: ['admin', 'teacher', 'parent'] },
+    
+    { name: 'Chat', href: '/chat', icon: MessageCircle, roles: ['admin', 'teacher', 'student', 'parent'] },
+    { name: 'Calendar', href: '/calendar', icon: CalendarDays, roles: ['admin', 'teacher', 'student', 'parent'] },
+    { name: 'Event Management', href: '/calendar/events', icon: Calendar, roles: ['admin', 'teacher'] },
     
     // Finance Navigation
     { name: 'Fees', href: '/fees', icon: DollarSign, roles: ['admin', 'parent'] },
@@ -105,6 +118,10 @@ const getPersonaNavigation = () => {
   const studentNavigation = [
     { name: 'My Courses', href: '/courses', icon: BookOpen, roles: ['student'] },
     { name: 'Assignments', href: '/assignments', icon: ClipboardList, roles: ['student'] },
+    { name: 'Quizzes', href: '/quizzes', icon: HelpCircle, roles: ['student'] },
+    { name: 'Discussions', href: '/discussions', icon: MessageSquare, roles: ['student'] },
+    { name: 'Chat', href: '/chat', icon: MessageCircle, roles: ['student'] },
+    { name: 'Calendar', href: '/calendar', icon: CalendarDays, roles: ['student'] },
     { name: 'Library', href: '/library/catalog', icon: Library, roles: ['student'] },
     { name: 'Reservations', href: '/library/reservations', icon: BookOpen, roles: ['student'] }
   ]
@@ -113,14 +130,21 @@ const getPersonaNavigation = () => {
     { name: 'Students', href: '/students', icon: UserCheck, roles: ['teacher'] },
     { name: 'Courses', href: '/courses', icon: BookOpen, roles: ['teacher'] },
     { name: 'Assignments', href: '/assignments', icon: ClipboardList, roles: ['teacher'] },
+    { name: 'Quizzes', href: '/quizzes', icon: HelpCircle, roles: ['teacher'] },
+    { name: 'Discussions', href: '/discussions', icon: MessageSquare, roles: ['teacher'] },
     { name: 'Grade Book', href: '/gradebook', icon: BarChart2, roles: ['teacher'] },
     { name: 'Progress Reports', href: '/progress-reports', icon: TrendingUp, roles: ['teacher'] },
+    { name: 'Chat', href: '/chat', icon: MessageCircle, roles: ['teacher'] },
+    { name: 'Calendar', href: '/calendar', icon: CalendarDays, roles: ['teacher'] },
+    { name: 'Event Management', href: '/calendar/events', icon: Calendar, roles: ['teacher'] },
     { name: 'Library', href: '/library/catalog', icon: Library, roles: ['teacher'] },
     { name: 'Book Checkout', href: '/library/checkout', icon: BookMarked, roles: ['teacher'] }
   ]
 
   const parentNavigation = [
     { name: 'Progress Reports', href: '/progress-reports', icon: TrendingUp, roles: ['parent'] },
+    { name: 'Chat', href: '/chat', icon: MessageCircle, roles: ['parent'] },
+    { name: 'Calendar', href: '/calendar', icon: CalendarDays, roles: ['parent'] },
     { name: 'Fees', href: '/fees', icon: DollarSign, roles: ['parent'] },
     { name: 'Payments', href: '/payments', icon: CreditCard, roles: ['parent'] }
   ]

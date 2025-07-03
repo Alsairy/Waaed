@@ -8,8 +8,6 @@ import { Progress } from '../../components/ui/progress'
 import { 
   ArrowLeft,
   User, 
-  GraduationCap, 
-  Calendar,
   Phone,
   Mail,
   MapPin,
@@ -17,17 +15,12 @@ import {
   BookOpen,
   Award,
   Clock,
-  FileText,
   Edit,
   Download,
   AlertCircle,
   CheckCircle,
-  TrendingUp,
   BarChart3
 } from 'lucide-react'
-import { sisService } from '../../services/sisService'
-import { gradesService } from '../../services/gradesService'
-import { assignmentsService } from '../../services/assignmentsService'
 import { toast } from 'sonner'
 
 interface StudentProfile {
@@ -95,11 +88,11 @@ const StudentProfilePage: React.FC = () => {
 
   useEffect(() => {
     if (studentId) {
-      loadStudentData(studentId)
+      loadStudentData()
     }
   }, [studentId])
 
-  const loadStudentData = async (id: string) => {
+  const loadStudentData = async () => {
     try {
       setIsLoading(true)
       

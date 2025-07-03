@@ -5,28 +5,21 @@ import { Badge } from '../../components/ui/badge'
 import { Input } from '../../components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { 
-  Users, 
   Search, 
   Plus, 
   Filter, 
   Download, 
   Upload,
-  BookOpen,
-  Calendar,
   Clock,
   CheckCircle,
   XCircle,
   AlertCircle,
   UserPlus,
-  UserMinus,
   FileText,
   BarChart3,
   TrendingUp,
   Settings
 } from 'lucide-react'
-import { enrollmentService } from '../../services/enrollmentService'
-import { coursesService } from '../../services/coursesService'
-import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
 
 interface EnrollmentRequest {
@@ -88,7 +81,7 @@ const EnrollmentPage: React.FC = () => {
     totalStudents: 0,
     enrolledStudents: 0
   })
-  const [isLoading, setIsLoading] = useState(true)
+  const [, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('requests')
   const [filters, setFilters] = useState({
     status: '',
@@ -272,7 +265,7 @@ const EnrollmentPage: React.FC = () => {
         request.id === requestId 
           ? { 
               ...request, 
-              status: action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'waitlisted',
+              status: (action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'waitlisted') as 'pending' | 'approved' | 'rejected' | 'waitlisted',
               approvedBy: action === 'approve' ? 'Current User' : undefined,
               approvedDate: action === 'approve' ? new Date().toISOString() : undefined
             }

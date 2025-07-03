@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Input } from '../../components/ui/input'
@@ -14,17 +14,14 @@ import {
   Edit,
   Trash2,
   GraduationCap,
-  Calendar,
-  Phone,
-  Mail,
-  MapPin,
-  ChevronRight,
   UserPlus,
   FileText,
-  MoreHorizontal
+  MoreHorizontal,
+  Mail
 } from 'lucide-react'
 import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
+import { LoadingState } from '../../components/ui/error-display'
 
 interface Student {
   id: string
@@ -54,6 +51,7 @@ const StudentsPage: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([])
   const [filteredStudents, setFilteredStudents] = useState<Student[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [filters, setFilters] = useState<StudentFilters>({
     grade: '',
     status: '',
@@ -74,11 +72,34 @@ const StudentsPage: React.FC = () => {
   const loadStudents = async () => {
     try {
       setIsLoading(true)
+      setError(null)
       const studentsData = await sisService.getStudents()
-      setStudents(studentsData)
-    } catch (error) {
-      console.error('Error loading students:', error)
-      toast.error('Failed to load students')
+      const mappedStudents = studentsData.map(student => ({
+        id: student.id,
+        studentId: student.studentId,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        email: student.email,
+        phone: student.phoneNumber,
+        dateOfBirth: student.dateOfBirth,
+        grade: student.grade || '',
+        enrollmentStatus: (student.status === 'active' || student.status === 'inactive' || 
+                          student.status === 'graduated' || student.status === 'transferred') 
+                          ? student.status as 'active' | 'inactive' | 'graduated' | 'transferred'
+                          : 'active' as const,
+        enrollmentDate: student.enrollmentDate,
+        gpa: undefined,
+        address: student.address,
+        parentName: student.guardianName,
+        parentPhone: student.guardianPhone,
+        profilePicture: student.profilePictureUrl
+      }))
+      setStudents(mappedStudents)
+    } catch (err) {
+      console.error('Error loading students:', err)
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load students'
+      setError(errorMessage)
+      toast.error(errorMessage)
       
       const mockStudents: Student[] = [
         {
@@ -262,6 +283,10 @@ const StudentsPage: React.FC = () => {
         break
     }
     setSelectedStudents([])
+  }
+
+  const retry = () => {
+    loadStudents()
   }
 
   return (
