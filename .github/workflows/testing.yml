@@ -292,8 +292,8 @@ jobs:
           for i in {1..120}; do
             echo "Health check attempt $i/120 at $(date)"
             
-            # Check SQL Server with enhanced diagnostics and docker connectivity
-            if timeout 60 docker exec sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; then
+            # Check SQL Server with enhanced diagnostics and docker compose connectivity
+            if timeout 60 docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready!"
                 SQL_READY=1
@@ -856,8 +856,8 @@ EOF
             if docker compose -f docker-compose.perf.yml ps --format json 2>/dev/null | jq -r ".[].State" | grep -q "running"; then
               echo "✓ Performance test containers are running"
               
-              # Check SQL Server health with much more aggressive timeout and multiple connection attempts
-              if timeout 300s bash -c 'until docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; do sleep 8; done'; then
+              # Check SQL Server health with container networking approach
+              if timeout 180s bash -c 'until docker compose -f docker-compose.perf.yml exec -T sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; do echo "Waiting for SQL Server..."; sleep 5; done'; then
                 if [ $SQL_READY -eq 0 ]; then
                   echo "✓ SQL Server is now healthy for performance tests"
                   SQL_READY=1
@@ -866,9 +866,9 @@ EOF
                 if [ $((i % 3)) -eq 0 ]; then
                   echo "✗ SQL Server not ready (attempt $i) - checking detailed status..."
                   echo "=== SQL Server Process Status ==="
-                  docker exec sqlserver-perf ps aux | grep sql || true
+                  docker compose -f docker-compose.perf.yml exec -T sqlserver-perf ps aux | grep sql || true
                   echo "=== SQL Server Error Log ==="
-                  docker exec sqlserver-perf cat /var/opt/mssql/log/errorlog 2>/dev/null | tail -10 || true
+                  docker compose -f docker-compose.perf.yml exec -T sqlserver-perf cat /var/opt/mssql/log/errorlog 2>/dev/null | tail -10 || true
                   echo "=== SQL Server Recent Logs ==="
                   docker compose -f docker-compose.perf.yml logs sqlserver-perf --tail 8 2>/dev/null || true
                 fi
