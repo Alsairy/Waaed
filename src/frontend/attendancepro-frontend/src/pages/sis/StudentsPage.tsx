@@ -168,6 +168,7 @@ const StudentsPage: React.FC = () => {
   }
 
   const applyFilters = () => {
+    if (!students) return
     let filtered = students
 
     if (filters.grade) {
@@ -264,7 +265,15 @@ const StudentsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <LoadingState
+      isLoading={isLoading}
+      error={error}
+      onRetry={retry}
+      loadingText="Loading students..."
+      errorTitle="Failed to Load Students"
+      errorMessage="Unable to load student data. Please check your connection and try again."
+    >
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -571,7 +580,8 @@ const StudentsPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </LoadingState>
   )
 }
 

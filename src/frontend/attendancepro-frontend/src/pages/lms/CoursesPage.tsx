@@ -21,9 +21,6 @@ import {
   PlayCircle,
   Settings
 } from 'lucide-react'
-import { coursesService } from '../../services/coursesService'
-import { lmsService } from '../../services/lmsService'
-import { toast } from 'sonner'
 
 interface Course {
   id: string
@@ -65,7 +62,6 @@ interface CourseStats {
 }
 
 const CoursesPage: React.FC = () => {
-  const [courses, setCourses] = useState<Course[]>([])
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([])
   const [courseStats, setCourseStats] = useState<CourseStats>({
     totalCourses: 0,
@@ -217,7 +213,6 @@ const CoursesPage: React.FC = () => {
         }
       ]
 
-      setCourses(mockCourses)
 
       const stats: CourseStats = {
         totalCourses: mockCourses.length,
