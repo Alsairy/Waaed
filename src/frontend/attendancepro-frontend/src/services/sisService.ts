@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api'
 
 interface Student {
   id: string
@@ -97,8 +97,9 @@ class SISService {
     try {
       const response: AxiosResponse<{data: Student[]}> = await this.api.get('/sis/students')
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch students')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch students')
     }
   }
 
@@ -106,8 +107,9 @@ class SISService {
     try {
       const response: AxiosResponse<{data: Student}> = await this.api.get(`/sis/students/${id}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch student')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch student')
     }
   }
 
@@ -115,24 +117,27 @@ class SISService {
     try {
       const response: AxiosResponse<{data: Student}> = await this.api.post('/sis/students', studentData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create student')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create student')
     }
   }
 
   async updateStudent(id: string, studentData: StudentDto): Promise<void> {
     try {
       await this.api.put(`/sis/students/${id}`, studentData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update student')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update student')
     }
   }
 
   async deleteStudent(id: string): Promise<void> {
     try {
       await this.api.delete(`/sis/students/${id}`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete student')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete student')
     }
   }
 
@@ -141,8 +146,9 @@ class SISService {
       const url = studentId ? `/sis/enrollments?studentId=${studentId}` : '/sis/enrollments'
       const response: AxiosResponse<{data: Enrollment[]}> = await this.api.get(url)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch enrollments')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch enrollments')
     }
   }
 
@@ -150,24 +156,27 @@ class SISService {
     try {
       const response: AxiosResponse<{data: Enrollment}> = await this.api.post('/sis/enrollments', enrollmentData)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create enrollment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create enrollment')
     }
   }
 
   async updateEnrollment(id: string, enrollmentData: Partial<EnrollmentDto>): Promise<void> {
     try {
       await this.api.put(`/sis/enrollments/${id}`, enrollmentData)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update enrollment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update enrollment')
     }
   }
 
   async deleteEnrollment(id: string): Promise<void> {
     try {
       await this.api.delete(`/sis/enrollments/${id}`)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete enrollment')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete enrollment')
     }
   }
 
@@ -175,8 +184,9 @@ class SISService {
     try {
       const response: AxiosResponse<{data: Student[]}> = await this.api.get(`/sis/students?grade=${grade}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch students by grade')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch students by grade')
     }
   }
 
@@ -184,8 +194,9 @@ class SISService {
     try {
       const response: AxiosResponse<{data: Student[]}> = await this.api.get(`/sis/students?section=${section}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch students by section')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch students by section')
     }
   }
 
@@ -193,8 +204,9 @@ class SISService {
     try {
       const response: AxiosResponse<{data: Student[]}> = await this.api.get(`/sis/students/search?q=${encodeURIComponent(query)}`)
       return response.data.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to search students')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to search students')
     }
   }
 }
