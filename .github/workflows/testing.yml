@@ -462,10 +462,10 @@ jobs:
             libappindicator1 libnss3 lsb-release xdg-utils wget
           
           echo "Installing Node.js Playwright package..."
-          npm install -g playwright@latest
+          npm install -g playwright@1.39.0
           
           echo "Installing Playwright browser: ${{ matrix.browser }} with dependencies..."
-          npx playwright install --with-deps ${{ matrix.browser }}
+          npx playwright install --with-deps ${{ matrix.browser }} || npx playwright install ${{ matrix.browser }}
           
           echo "Verifying Playwright installation..."
           playwright --version
@@ -490,8 +490,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libnss3-dev libatk-bridge2.0-dev libdrm-dev libxkbcommon-dev libgtk-3-dev libgbm-dev libasound2-dev
           
-          # Install Playwright browsers
-          npx playwright install --with-deps ${{ matrix.browser }}
+          # Install Playwright browsers with fallback
+          npx playwright install --with-deps ${{ matrix.browser }} || npx playwright install ${{ matrix.browser }}
           
           # Always create docker-compose.e2e.yml to ensure it exists
           echo "Creating docker-compose.e2e.yml for E2E tests..."
