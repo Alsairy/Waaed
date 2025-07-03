@@ -221,10 +221,10 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q 'SELECT 1' || exit 1"
-          --health-interval=10s
-          --health-timeout=60s
-          --health-retries=60
+          --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -Q 'SELECT 1' || exit 1"
+          --health-interval=30s
+          --health-timeout=120s
+          --health-retries=20
           --memory=4g
           --cpus=2
 
@@ -274,21 +274,21 @@ jobs:
           curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
           sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2019.list)"
           sudo apt-get update
-          sudo apt-get install -y mssql-tools18 unixodbc-dev
+          sudo apt-get install -y mssql-tools unixodbc-dev
           
-          echo "Waiting for SQL Server..."
-          timeout 600 bash -c 'until /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server..."; sleep 5; done'
+          echo "Waiting for SQL Server with extended timeout..."
+          timeout 900 bash -c 'until /opt/mssql-tools/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... $(date)"; sleep 10; done'
           echo "SQL Server is ready!"
 
           echo "Installing Redis CLI..."
           sudo apt-get install -y redis-tools
           
           echo "Waiting for Redis..."
-          timeout 60 bash -c 'until redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; do echo "Waiting for Redis..."; sleep 3; done'
+          timeout 120 bash -c 'until redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; do echo "Waiting for Redis..."; sleep 5; done'
           echo "Redis is ready!"
 
           echo "Waiting for RabbitMQ..."
-          timeout 120 bash -c 'until curl -f http://localhost:15672 > /dev/null 2>&1; do echo "Waiting for RabbitMQ..."; sleep 5; done'
+          timeout 180 bash -c 'until curl -f http://localhost:15672 > /dev/null 2>&1; do echo "Waiting for RabbitMQ..."; sleep 10; done'
           echo "RabbitMQ is ready!"
 
       - name: Restore dependencies
@@ -381,18 +381,18 @@ jobs:
 
       - name: Install Playwright browsers
         run: |
-          echo "Installing Playwright CLI..."
-          dotnet tool install --global Microsoft.Playwright.CLI --version 1.39.0 || dotnet tool update --global Microsoft.Playwright.CLI --version 1.39.0
-          
-          echo "Installing system dependencies..."
+          echo "Installing system dependencies first..."
           sudo apt-get update
-          sudo apt-get install -y libnss3-dev libatk-bridge2.0-dev libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2
+          sudo apt-get install -y libnss3-dev libatk-bridge2.0-dev libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libxss1 libasound2 libgtk-3-0 libgdk-pixbuf2.0-0
+          
+          echo "Installing Playwright via npm..."
+          npm install -g playwright@1.39.0
           
           echo "Installing Playwright browsers..."
-          playwright install ${{ matrix.browser }} --with-deps
+          npx playwright install ${{ matrix.browser }} --with-deps
           
           echo "Verifying Playwright installation..."
-          playwright --version
+          npx playwright --version
         continue-on-error: false
 
       - name: Install frontend dependencies
@@ -563,7 +563,7 @@ jobs:
 
           # Wait for services
           echo "Waiting for SQL Server to be ready..."
-          timeout 600 bash -c 'until /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server..."; sleep 5; done'
+          timeout 900 bash -c 'until /opt/mssql-tools/bin/sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -Q "SELECT 1" > /dev/null 2>&1; do echo "Waiting for SQL Server... $(date)"; sleep 10; done'
           
           echo "Waiting for Redis to be ready..."
           timeout 120 bash -c 'until redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; do echo "Waiting for Redis..."; sleep 3; done'
