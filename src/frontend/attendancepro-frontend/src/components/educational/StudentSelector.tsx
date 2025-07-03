@@ -14,9 +14,7 @@ import {
 import { 
   Search, 
   Users, 
-  Filter, 
   UserCheck, 
-  GraduationCap,
   BookOpen,
   X
 } from 'lucide-react'

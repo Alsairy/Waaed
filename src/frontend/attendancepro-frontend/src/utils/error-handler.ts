@@ -1,17 +1,38 @@
 import { toast } from 'sonner'
 
+interface AxiosError {
+  response?: {
+    status: number
+    data?: {
+      message?: string
+      error?: string
+      code?: string
+    }
+  }
+  request?: unknown
+  message?: string
+}
+
+interface FetchError {
+  message?: string
+  status?: number
+  code?: string
+}
+
+type ErrorInput = Error | AxiosError | FetchError | { message?: string; code?: string; status?: number } | string | unknown
+
 export interface ApiError extends Error {
   status?: number
   code?: string
-  details?: any
+  details?: unknown
 }
 
 export class WaaedError extends Error implements ApiError {
   status?: number
   code?: string
-  details?: any
+  details?: unknown
 
-  constructor(message: string, status?: number, code?: string, details?: any) {
+  constructor(message: string, status?: number, code?: string, details?: unknown) {
     super(message)
     this.name = 'WaaedError'
     this.status = status
@@ -20,41 +41,57 @@ export class WaaedError extends Error implements ApiError {
   }
 }
 
-export const createApiError = (error: any): WaaedError => {
+export const createApiError = (error: ErrorInput): WaaedError => {
   if (error instanceof WaaedError) {
     return error
   }
 
-  if (error?.response) {
-    const { status, data } = error.response
+  if (typeof error === 'string') {
+    return new WaaedError(error, undefined, 'STRING_ERROR')
+  }
+
+  const errorObj = error as AxiosError | FetchError | { message?: string; code?: string; status?: number }
+
+  if ('response' in errorObj && errorObj.response) {
+    const { status, data } = errorObj.response
     const message = data?.message || data?.error || 'An API error occurred'
     return new WaaedError(message, status, data?.code, data)
   }
 
-  if (error?.request) {
+  if ('request' in errorObj && errorObj.request) {
     return new WaaedError('Network error - please check your connection', 0, 'NETWORK_ERROR')
   }
 
-  return new WaaedError(error?.message || 'An unexpected error occurred', undefined, 'UNKNOWN_ERROR')
+  const message = errorObj?.message || 'An unexpected error occurred'
+  const status = 'status' in errorObj ? errorObj.status : undefined
+  const code = 'code' in errorObj ? errorObj.code || 'UNKNOWN_ERROR' : 'UNKNOWN_ERROR'
+  
+  return new WaaedError(message, status, code)
 }
 
-export const getErrorMessage = (error: any): string => {
+export const getErrorMessage = (error: ErrorInput): string => {
   if (error instanceof WaaedError) {
     return error.message
   }
 
-  if (error?.response?.data?.message) {
-    return error.response.data.message
+  if (typeof error === 'string') {
+    return error
   }
 
-  if (error?.message) {
-    return error.message
+  const errorObj = error as AxiosError | FetchError | { message?: string }
+
+  if ('response' in errorObj && errorObj.response?.data?.message) {
+    return errorObj.response.data.message
+  }
+
+  if (errorObj?.message) {
+    return errorObj.message
   }
 
   return 'An unexpected error occurred'
 }
 
-export const getErrorTitle = (error: any): string => {
+export const getErrorTitle = (error: ErrorInput): string => {
   if (error instanceof WaaedError) {
     switch (error.status) {
       case 400:
@@ -75,7 +112,7 @@ export const getErrorTitle = (error: any): string => {
   return 'Error'
 }
 
-export const handleApiError = (error: any, options: {
+export const handleApiError = (error: ErrorInput, options: {
   showToast?: boolean
   toastTitle?: string
   fallbackMessage?: string
@@ -95,7 +132,7 @@ export const handleApiError = (error: any, options: {
   return apiError
 }
 
-export const withErrorHandling = <T extends any[], R>(
+export const withErrorHandling = <T extends readonly unknown[], R>(
   fn: (...args: T) => Promise<R>,
   options: {
     showToast?: boolean
@@ -120,7 +157,7 @@ export const retryWithBackoff = async <T>(
   maxRetries: number = 3,
   baseDelay: number = 1000
 ): Promise<T> => {
-  let lastError: any
+  let lastError: ErrorInput
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
@@ -140,18 +177,21 @@ export const retryWithBackoff = async <T>(
   throw createApiError(lastError)
 }
 
-export const isNetworkError = (error: any): boolean => {
-  return error?.code === 'NETWORK_ERROR' || 
-         error?.message?.includes('Network Error') ||
-         error?.message?.includes('fetch')
+export const isNetworkError = (error: ErrorInput): boolean => {
+  const errorObj = error as { code?: string; message?: string }
+  return (errorObj?.code === 'NETWORK_ERROR') || 
+         (errorObj?.message?.includes('Network Error') ?? false) ||
+         (errorObj?.message?.includes('fetch') ?? false)
 }
 
-export const isAuthError = (error: any): boolean => {
-  return error?.status === 401 || error?.code === 'UNAUTHORIZED'
+export const isAuthError = (error: ErrorInput): boolean => {
+  const errorObj = error as { status?: number; code?: string }
+  return (errorObj?.status === 401) || (errorObj?.code === 'UNAUTHORIZED')
 }
 
-export const isValidationError = (error: any): boolean => {
-  return error?.status === 400 || error?.code === 'VALIDATION_ERROR'
+export const isValidationError = (error: ErrorInput): boolean => {
+  const errorObj = error as { status?: number; code?: string }
+  return (errorObj?.status === 400) || (errorObj?.code === 'VALIDATION_ERROR')
 }
 
 export default {

@@ -95,11 +95,11 @@ export const useTranslation = () => {
     direction,
     translate: (key: string, fallback?: string): string => {
       const keys = key.split('.')
-      let result: any = t
+      let result: unknown = t
       
       for (const k of keys) {
         if (result && typeof result === 'object' && k in result) {
-          result = result[k]
+          result = (result as Record<string, unknown>)[k]
         } else {
           return fallback || key
         }

@@ -6,16 +6,16 @@ interface UseAsyncState<T> {
   error: Error | null
 }
 
-interface UseAsyncOptions {
+interface UseAsyncOptions<T> {
   immediate?: boolean
-  onSuccess?: (data: any) => void
+  onSuccess?: (data: T) => void
   onError?: (error: Error) => void
 }
 
 export function useAsync<T>(
   asyncFunction: () => Promise<T>,
-  dependencies: any[] = [],
-  options: UseAsyncOptions = {}
+  dependencies: readonly unknown[] = [],
+  options: UseAsyncOptions<T> = {}
 ) {
   const { immediate = true, onSuccess, onError } = options
   
@@ -58,9 +58,9 @@ export function useAsync<T>(
   }
 }
 
-export function useAsyncCallback<T extends any[], R>(
+export function useAsyncCallback<T extends readonly unknown[], R>(
   asyncFunction: (...args: T) => Promise<R>,
-  dependencies: any[] = []
+  dependencies: readonly unknown[] = []
 ) {
   const [state, setState] = useState<UseAsyncState<R>>({
     data: null,

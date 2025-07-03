@@ -252,11 +252,11 @@ export const waaedComponents = {
 
 export const getWaaedColor = (colorPath: string): string => {
   const keys = colorPath.split('.')
-  let result: any = waaedColors
+  let result: unknown = waaedColors
   
   for (const key of keys) {
     if (result && typeof result === 'object' && key in result) {
-      result = result[key]
+      result = (result as Record<string, unknown>)[key]
     } else {
       return waaedColors.primary // fallback
     }
