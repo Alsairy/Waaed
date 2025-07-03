@@ -292,8 +292,8 @@ jobs:
           for i in {1..120}; do
             echo "Health check attempt $i/120 at $(date)"
             
-            # Check SQL Server with enhanced diagnostics and docker compose connectivity
-            if timeout 60 docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; then
+            # Check SQL Server with improved connection approach and diagnostics
+            if timeout 90s docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" -t 30 > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready!"
                 SQL_READY=1
@@ -590,8 +590,8 @@ EOF
             
             echo "✓ E2E containers are running, checking service health..."
             
-            # Check SQL Server with much more aggressive timeout and diagnostics
-            if timeout 180s bash -c 'until docker compose -f docker-compose.e2e.yml exec -T sqlserver-e2e /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; do sleep 5; done'; then
+            # Check SQL Server with improved connection approach and diagnostics
+            if timeout 240s bash -c 'until docker compose -f docker-compose.e2e.yml exec -T sqlserver-e2e /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedE2EP@ssw0rd123 -C -Q "SELECT 1" -t 30 > /dev/null 2>&1; do echo "Waiting for E2E SQL Server... ($(date))"; sleep 8; done'; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready for E2E tests"
                 SQL_READY=1
@@ -856,8 +856,8 @@ EOF
             if docker compose -f docker-compose.perf.yml ps --format json 2>/dev/null | jq -r ".[].State" | grep -q "running"; then
               echo "✓ Performance test containers are running"
               
-              # Check SQL Server health with container networking approach
-              if timeout 180s bash -c 'until docker compose -f docker-compose.perf.yml exec -T sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; do echo "Waiting for SQL Server..."; sleep 5; done'; then
+              # Check SQL Server health with improved connection approach and diagnostics
+              if timeout 240s bash -c 'until docker compose -f docker-compose.perf.yml exec -T sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" -t 30 > /dev/null 2>&1; do echo "Waiting for SQL Server... ($(date))"; sleep 8; done'; then
                 if [ $SQL_READY -eq 0 ]; then
                   echo "✓ SQL Server is now healthy for performance tests"
                   SQL_READY=1
