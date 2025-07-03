@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 export interface AnalyticsOverview {
   totalEmployees: number;
@@ -53,7 +53,7 @@ export interface PredictiveInsight {
   recommendedActions: string[];
   affectedUsers?: string[];
   predictedDate?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AbsenteeismRisk {
@@ -98,7 +98,7 @@ export interface AnomalyDetection {
   detectedAt: string;
   resolved: boolean;
   resolvedAt?: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 export interface AnalyticsFilter {
@@ -144,8 +144,9 @@ class AnalyticsService {
   });
 
   constructor() {
-    const setupInterceptors = (apiInstance: any) => {
-      apiInstance.interceptors.request.use((config: any) => {
+    const setupInterceptors = (apiInstance: unknown) => {
+      const axiosInstance = apiInstance as { interceptors: { request: { use: (fn: (config: { headers: { Authorization?: string } }) => { headers: { Authorization?: string } }) => void }; response: { use: (success: (response: unknown) => unknown, error: (error: unknown) => Promise<never>) => void } } };
+      axiosInstance.interceptors.request.use((config: { headers: { Authorization?: string } }) => {
         const token = localStorage.getItem('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -153,14 +154,15 @@ class AnalyticsService {
         return config;
       });
 
-      apiInstance.interceptors.response.use(
-        (response: any) => response,
-        (error: any) => {
-          if (error.response?.status === 401) {
+      axiosInstance.interceptors.response.use(
+        (response: unknown) => response,
+        (error: unknown) => {
+          const axiosError = error as { response?: { status?: number } };
+          if (axiosError.response?.status === 401) {
             localStorage.removeItem('token');
             window.location.href = '/login';
           }
-          return Promise.reject(error);
+          return Promise.reject(axiosError);
         }
       );
     };
@@ -183,8 +185,9 @@ class AnalyticsService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch analytics overview');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch analytics overview');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch analytics overview');
     }
   }
 
@@ -202,8 +205,9 @@ class AnalyticsService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch attendance trends');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch attendance trends');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch attendance trends');
     }
   }
 
@@ -222,8 +226,9 @@ class AnalyticsService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch productivity metrics');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch productivity metrics');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch productivity metrics');
     }
   }
 
@@ -241,8 +246,9 @@ class AnalyticsService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch department analytics');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch department analytics');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch department analytics');
     }
   }
 
@@ -257,8 +263,9 @@ class AnalyticsService {
 
       const response = await this.predictiveApi.get(`/predict-attendance?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to predict attendance');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to predict attendance');
     }
   }
 
@@ -269,8 +276,9 @@ class AnalyticsService {
 
       const response: AxiosResponse<AbsenteeismRisk[]> = await this.predictiveApi.get(`/absenteeism-risk?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch absenteeism risk');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch absenteeism risk');
     }
   }
 
@@ -281,8 +289,9 @@ class AnalyticsService {
 
       const response: AxiosResponse<TurnoverRisk[]> = await this.predictiveApi.get(`/turnover-risk?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch turnover risk');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch turnover risk');
     }
   }
 
@@ -291,8 +300,9 @@ class AnalyticsService {
       const params = new URLSearchParams({ startDate, endDate });
       const response: AxiosResponse<WorkforceCapacity[]> = await this.predictiveApi.get(`/workforce-capacity?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch workforce capacity forecast');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch workforce capacity forecast');
     }
   }
 
@@ -304,8 +314,9 @@ class AnalyticsService {
 
       const response: AxiosResponse<AnomalyDetection[]> = await this.predictiveApi.get(`/anomalies?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch anomalies');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch anomalies');
     }
   }
 
@@ -317,8 +328,9 @@ class AnalyticsService {
 
       const response: AxiosResponse<PredictiveInsight[]> = await this.predictiveApi.get(`/insights?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch predictive insights');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch predictive insights');
     }
   }
 
@@ -326,8 +338,9 @@ class AnalyticsService {
     try {
       await this.predictiveApi.put(`/anomalies/${anomalyId}/resolve`, { resolution });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to resolve anomaly');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to resolve anomaly');
     }
   }
 
@@ -360,8 +373,9 @@ class AnalyticsService {
           },
         ],
       };
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to generate attendance chart data');
+    } catch (error: unknown) {
+      const axiosError = error as { message?: string };
+      throw new Error(axiosError.message || 'Failed to generate attendance chart data');
     }
   }
 
@@ -387,8 +401,9 @@ class AnalyticsService {
           },
         ],
       };
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to generate productivity chart data');
+    } catch (error: unknown) {
+      const axiosError = error as { message?: string };
+      throw new Error(axiosError.message || 'Failed to generate productivity chart data');
     }
   }
 
@@ -413,8 +428,9 @@ class AnalyticsService {
           },
         ],
       };
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to generate department chart data');
+    } catch (error: unknown) {
+      const axiosError = error as { message?: string };
+      throw new Error(axiosError.message || 'Failed to generate department chart data');
     }
   }
 
@@ -430,8 +446,9 @@ class AnalyticsService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch recent activity');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch recent activity');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch recent activity');
     }
   }
 
@@ -439,7 +456,7 @@ class AnalyticsService {
     try {
       await this.api.get('/health');
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -465,8 +482,9 @@ class AnalyticsService {
       });
 
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to export report');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to export report');
     }
   }
 }

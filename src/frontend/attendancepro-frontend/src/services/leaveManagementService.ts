@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 export interface LeaveType {
   id: string;
@@ -189,8 +189,9 @@ class LeaveManagementService {
       } else {
         throw new Error(response.data.message || 'Failed to create leave request');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create leave request');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to create leave request');
     }
   }
 
@@ -203,8 +204,9 @@ class LeaveManagementService {
       } else {
         throw new Error(response.data.message || 'Failed to create permission request');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create permission request');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to create permission request');
     }
   }
 
@@ -232,8 +234,9 @@ class LeaveManagementService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch leave requests');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch leave requests');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch leave requests');
     }
   }
 
@@ -256,8 +259,9 @@ class LeaveManagementService {
 
       const response: AxiosResponse<PermissionRequest[]> = await this.api.get(`/permission-requests?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch permission requests');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch permission requests');
     }
   }
 
@@ -268,8 +272,9 @@ class LeaveManagementService {
         approverNotes: approval.approverNotes,
       });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to approve leave request');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to approve leave request');
     }
   }
 
@@ -280,8 +285,9 @@ class LeaveManagementService {
         approverNotes: rejection.approverNotes,
       });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to reject leave request');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to reject leave request');
     }
   }
 
@@ -292,8 +298,9 @@ class LeaveManagementService {
         approverNotes: approval.approverNotes,
       });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to approve permission request');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to approve permission request');
     }
   }
 
@@ -304,8 +311,9 @@ class LeaveManagementService {
         approverNotes: rejection.approverNotes,
       });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to reject permission request');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to reject permission request');
     }
   }
 
@@ -313,8 +321,9 @@ class LeaveManagementService {
     try {
       await this.api.put(`/leave-requests/${requestId}/cancel`, { reason });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to cancel leave request');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to cancel leave request');
     }
   }
 
@@ -322,8 +331,9 @@ class LeaveManagementService {
     try {
       await this.api.put(`/permission-requests/${requestId}/cancel`, { reason });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to cancel permission request');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to cancel permission request');
     }
   }
 
@@ -337,8 +347,9 @@ class LeaveManagementService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch leave balance');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch leave balance');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch leave balance');
     }
   }
 
@@ -351,8 +362,9 @@ class LeaveManagementService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch leave types');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch leave types');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch leave types');
     }
   }
 
@@ -367,8 +379,9 @@ class LeaveManagementService {
 
       const response: AxiosResponse<LeaveCalendarEvent[]> = await this.api.get(`/calendar?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch leave calendar');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch leave calendar');
     }
   }
 
@@ -387,8 +400,9 @@ class LeaveManagementService {
 
       const response: AxiosResponse<LeaveReport> = await this.api.get(`/report?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to generate leave report');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to generate leave report');
     }
   }
 
@@ -404,8 +418,9 @@ class LeaveManagementService {
 
       const response = await this.api.get(`/pending-approvals?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch pending approvals');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch pending approvals');
     }
   }
 
@@ -413,8 +428,9 @@ class LeaveManagementService {
     try {
       const response: AxiosResponse<LeavePolicy[]> = await this.api.get('/policies');
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch leave policies');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch leave policies');
     }
   }
 
@@ -422,7 +438,7 @@ class LeaveManagementService {
     try {
       await this.api.get('/health');
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -434,8 +450,9 @@ class LeaveManagementService {
         comments,
       });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to bulk approve requests');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to bulk approve requests');
     }
   }
 
@@ -443,8 +460,9 @@ class LeaveManagementService {
     try {
       const response: AxiosResponse<LeaveRequest> = await this.api.get(`/leave-requests/${requestId}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch leave request');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch leave request');
     }
   }
 
@@ -452,8 +470,9 @@ class LeaveManagementService {
     try {
       const response: AxiosResponse<PermissionRequest> = await this.api.get(`/permission-requests/${requestId}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch permission request');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      throw new Error(axiosError.response?.data?.message || 'Failed to fetch permission request');
     }
   }
 }
