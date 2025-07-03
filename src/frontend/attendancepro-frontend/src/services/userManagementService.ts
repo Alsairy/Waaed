@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api';
 
 export interface User {
   id: string;
@@ -158,8 +158,9 @@ class UserManagementService {
       
       const response: AxiosResponse<{ data: UserListResponse }> = await this.api.get(`/users?${params}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch users');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch users');
     }
   }
 
@@ -167,8 +168,9 @@ class UserManagementService {
     try {
       const response: AxiosResponse<{ data: User }> = await this.api.get(`/users/${userId}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch user');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch user');
     }
   }
 
@@ -176,8 +178,9 @@ class UserManagementService {
     try {
       const response: AxiosResponse<{ data: User }> = await this.api.post('/users', userData);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create user');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create user');
     }
   }
 
@@ -185,8 +188,9 @@ class UserManagementService {
     try {
       const response: AxiosResponse<{ data: User }> = await this.api.put(`/users/${userId}`, userData);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update user');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update user');
     }
   }
 
@@ -194,8 +198,9 @@ class UserManagementService {
     try {
       await this.api.delete(`/users/${userId}`);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete user');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete user');
     }
   }
 
@@ -203,8 +208,9 @@ class UserManagementService {
     try {
       await this.api.post('/users/bulk', operation);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to perform bulk operation');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to perform bulk operation');
     }
   }
 
@@ -213,8 +219,9 @@ class UserManagementService {
       const params = rootUserId ? `?rootUserId=${rootUserId}` : '';
       const response: AxiosResponse<{ data: UserHierarchy[] }> = await this.api.get(`/users/hierarchy${params}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch user hierarchy');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch user hierarchy');
     }
   }
 
@@ -229,8 +236,9 @@ class UserManagementService {
         },
       });
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to import users');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to import users');
     }
   }
 
@@ -249,8 +257,9 @@ class UserManagementService {
         responseType: 'blob',
       });
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to export users');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to export users');
     }
   }
 
@@ -258,8 +267,9 @@ class UserManagementService {
     try {
       const response: AxiosResponse<{ data: Department[] }> = await this.api.get('/departments');
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch departments');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch departments');
     }
   }
 
@@ -267,8 +277,9 @@ class UserManagementService {
     try {
       const response: AxiosResponse<{ data: Role[] }> = await this.api.get('/roles');
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch roles');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch roles');
     }
   }
 
@@ -276,8 +287,9 @@ class UserManagementService {
     try {
       await this.api.post(`/users/${userId}/reset-password`, { sendEmail });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to reset user password');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to reset user password');
     }
   }
 
@@ -285,8 +297,9 @@ class UserManagementService {
     try {
       const response: AxiosResponse<{ data: User }> = await this.api.patch(`/users/${userId}/status`, { status });
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update user status');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update user status');
     }
   }
 
@@ -302,8 +315,9 @@ class UserManagementService {
     try {
       const response = await this.api.get('/users/stats');
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch user statistics');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch user statistics');
     }
   }
 
