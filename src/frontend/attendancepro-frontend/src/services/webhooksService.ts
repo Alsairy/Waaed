@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api';
 
 export interface WebhookSubscription {
   id: string;
@@ -110,8 +110,9 @@ class WebhooksService {
     try {
       const response: AxiosResponse<WebhookSubscription> = await this.api.post('/subscriptions', request);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create webhook subscription');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create webhook subscription');
     }
   }
 
@@ -119,8 +120,9 @@ class WebhooksService {
     try {
       const response: AxiosResponse<WebhookSubscription[]> = await this.api.get('/subscriptions');
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch webhook subscriptions');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch webhook subscriptions');
     }
   }
 
@@ -128,32 +130,36 @@ class WebhooksService {
     try {
       const response: AxiosResponse<WebhookSubscription> = await this.api.get(`/subscriptions/${id}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch webhook subscription');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch webhook subscription');
     }
   }
 
   async updateSubscription(id: string, request: UpdateWebhookSubscriptionRequest): Promise<void> {
     try {
       await this.api.put(`/subscriptions/${id}`, request);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update webhook subscription');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update webhook subscription');
     }
   }
 
   async deleteSubscription(id: string): Promise<void> {
     try {
       await this.api.delete(`/subscriptions/${id}`);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete webhook subscription');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete webhook subscription');
     }
   }
 
   async triggerWebhook(request: TriggerWebhookRequest): Promise<void> {
     try {
       await this.api.post('/trigger', request);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to trigger webhook');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to trigger webhook');
     }
   }
 
@@ -165,16 +171,18 @@ class WebhooksService {
       });
       const response: AxiosResponse<WebhookDelivery[]> = await this.api.get(`/subscriptions/${subscriptionId}/deliveries?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch delivery history');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch delivery history');
     }
   }
 
   async retryDelivery(deliveryId: string): Promise<void> {
     try {
       await this.api.post(`/deliveries/${deliveryId}/retry`);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to retry delivery');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to retry delivery');
     }
   }
 
@@ -182,8 +190,9 @@ class WebhooksService {
     try {
       const response: AxiosResponse<WebhookStats> = await this.api.get('/stats');
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch webhook statistics');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch webhook statistics');
     }
   }
 
@@ -191,8 +200,9 @@ class WebhooksService {
     try {
       const response: AxiosResponse<WebhookEventType[]> = await this.api.get('/event-types');
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch event types');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch event types');
     }
   }
 

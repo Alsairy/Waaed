@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api';
 
 export interface ComplianceReport {
   id: string;
@@ -171,8 +171,9 @@ class ComplianceService {
     try {
       const response: AxiosResponse<{ data: ComplianceReport }> = await this.api.post('/reports/generate', request);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to generate compliance report');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to generate compliance report');
     }
   }
 
@@ -180,8 +181,9 @@ class ComplianceService {
     try {
       const response: AxiosResponse<{ data: RegionalRequirement[] }> = await this.api.get(`/requirements/${countryCode}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch regional requirements');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch regional requirements');
     }
   }
 
@@ -189,8 +191,9 @@ class ComplianceService {
     try {
       const response: AxiosResponse<{ data: boolean }> = await this.api.post(`/validate/${tenantId}`, request);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to validate compliance');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to validate compliance');
     }
   }
 
@@ -199,8 +202,9 @@ class ComplianceService {
       const params = new URLSearchParams({ region });
       const response: AxiosResponse<{ data: ComplianceStatus }> = await this.api.get(`/status/${tenantId}?${params}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch compliance status');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch compliance status');
     }
   }
 
@@ -218,8 +222,9 @@ class ComplianceService {
       });
       const response: AxiosResponse<{ data: ComplianceViolation[] }> = await this.api.get(`/violations/${tenantId}?${params}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch compliance violations');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch compliance violations');
     }
   }
 
@@ -227,8 +232,9 @@ class ComplianceService {
     try {
       const response: AxiosResponse<{ data: boolean }> = await this.api.put(`/settings/${tenantId}`, settings);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update regional settings');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update regional settings');
     }
   }
 
@@ -236,8 +242,9 @@ class ComplianceService {
     try {
       const response: AxiosResponse<{ data: LocalizedString[] }> = await this.api.get(`/localization/${language}/${module}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch localized strings');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch localized strings');
     }
   }
 
@@ -246,8 +253,9 @@ class ComplianceService {
       const params = new URLSearchParams({ region });
       const response: AxiosResponse<{ data: ComplianceDashboard }> = await this.api.get(`/dashboard/${tenantId}?${params}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch compliance dashboard');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch compliance dashboard');
     }
   }
 
@@ -257,8 +265,9 @@ class ComplianceService {
         responseType: 'blob',
       });
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to export compliance report');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to export compliance report');
     }
   }
 
@@ -266,8 +275,9 @@ class ComplianceService {
     try {
       await this.api.put(`/violations/${violationId}/resolve`, { resolutionNotes });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to resolve violation');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to resolve violation');
     }
   }
 
@@ -313,8 +323,9 @@ class ComplianceService {
       });
 
       return Array.from(trendsMap.values()).sort((a, b) => a.date.localeCompare(b.date));
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to generate compliance trends');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string }
+      throw new Error(errorObj.message || 'Failed to generate compliance trends');
     }
   }
 

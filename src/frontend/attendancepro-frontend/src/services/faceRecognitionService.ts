@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api';
 
 export interface FaceEnrollmentRequest {
   imageData: string;
@@ -89,8 +89,9 @@ class FaceRecognitionService {
     try {
       const response: AxiosResponse<FaceEnrollmentResponse> = await this.api.post('/enroll', request);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Face enrollment failed');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Face enrollment failed');
     }
   }
 
@@ -98,8 +99,9 @@ class FaceRecognitionService {
     try {
       const response: AxiosResponse<FaceVerificationResponse> = await this.api.post('/verify', request);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Face verification failed');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Face verification failed');
     }
   }
 
@@ -107,8 +109,9 @@ class FaceRecognitionService {
     try {
       const response: AxiosResponse<LivenessDetectionResponse> = await this.api.post('/liveness', request);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Liveness detection failed');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Liveness detection failed');
     }
   }
 
@@ -117,8 +120,9 @@ class FaceRecognitionService {
       const url = userId ? `/templates/${userId}` : '/templates';
       const response: AxiosResponse<FaceTemplate[]> = await this.api.get(url);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch face templates');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch face templates');
     }
   }
 
@@ -126,8 +130,9 @@ class FaceRecognitionService {
     try {
       await this.api.delete(`/templates/${templateId}`);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete face template');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete face template');
     }
   }
 
@@ -135,8 +140,9 @@ class FaceRecognitionService {
     try {
       await this.api.put(`/templates/${templateId}/activate`);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to activate face template');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to activate face template');
     }
   }
 
@@ -144,8 +150,9 @@ class FaceRecognitionService {
     try {
       await this.api.put(`/templates/${templateId}/deactivate`);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to deactivate face template');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to deactivate face template');
     }
   }
 
@@ -162,8 +169,9 @@ class FaceRecognitionService {
 
       const response: AxiosResponse<BiometricAuditLog[]> = await this.api.get(`/audit-logs?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch biometric audit logs');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch biometric audit logs');
     }
   }
 
@@ -185,8 +193,9 @@ class FaceRecognitionService {
       }
 
       return await this.enrollFace({ imageData, userId });
-    } catch (error: any) {
-      throw new Error(error.message || 'Face enrollment with liveness check failed');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string }
+      throw new Error(errorObj.message || 'Face enrollment with liveness check failed');
     }
   }
 
@@ -199,8 +208,9 @@ class FaceRecognitionService {
       }
 
       return await this.verifyFace({ imageData, userId });
-    } catch (error: any) {
-      throw new Error(error.message || 'Face verification with liveness check failed');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string }
+      throw new Error(errorObj.message || 'Face verification with liveness check failed');
     }
   }
 }

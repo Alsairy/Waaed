@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios'
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api'
 
 interface LoginResponse {
   access_token: string
@@ -81,8 +81,9 @@ class AuthService {
       } else {
         throw new Error(response.data.message || 'Login failed')
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Login failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Login failed')
     }
   }
 
@@ -94,15 +95,16 @@ class AuthService {
       } else {
         throw new Error(response.data.message || 'Registration failed')
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Registration failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Registration failed')
     }
   }
 
   async logout(userId: string): Promise<void> {
     try {
       await this.api.post('/auth/logout', { userId })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Logout error:', error)
     }
   }
@@ -118,8 +120,9 @@ class AuthService {
       } else {
         throw new Error(response.data.message || 'Token refresh failed')
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Token refresh failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Token refresh failed')
     }
   }
 
@@ -131,24 +134,27 @@ class AuthService {
       } else {
         throw new Error(response.data.message || 'Failed to get current user')
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to get current user')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to get current user')
     }
   }
 
   async forgotPassword(email: string): Promise<void> {
     try {
       await this.api.post('/auth/forgot-password', { email })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to send reset email')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to send reset email')
     }
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
     try {
       await this.api.post('/auth/reset-password', { token, newPassword })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Password reset failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Password reset failed')
     }
   }
 
@@ -159,8 +165,9 @@ class AuthService {
         currentPassword,
         newPassword,
       })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Password change failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Password change failed')
     }
   }
 
@@ -171,8 +178,9 @@ class AuthService {
         code,
       })
       return response.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || '2FA validation failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || '2FA validation failed')
     }
   }
 
@@ -180,24 +188,27 @@ class AuthService {
     try {
       const response = await this.api.post('/auth/setup-2fa', { userId })
       return response.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || '2FA setup failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || '2FA setup failed')
     }
   }
 
   async enableTwoFactor(userId: string, code: string): Promise<void> {
     try {
       await this.api.post('/auth/enable-2fa', { userId, code })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to enable 2FA')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to enable 2FA')
     }
   }
 
   async disableTwoFactor(userId: string, password: string): Promise<void> {
     try {
       await this.api.post('/auth/disable-2fa', { userId, password })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to disable 2FA')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to disable 2FA')
     }
   }
 
@@ -208,8 +219,9 @@ class AuthService {
         userId,
       })
       return response.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Biometric login failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Biometric login failed')
     }
   }
 
@@ -220,8 +232,9 @@ class AuthService {
         biometricData,
         biometricType,
       })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Biometric enrollment failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Biometric enrollment failed')
     }
   }
 
@@ -233,8 +246,9 @@ class AuthService {
         biometricType,
       })
       return response.data.isValid
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Biometric verification failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Biometric verification failed')
     }
   }
 
@@ -245,8 +259,9 @@ class AuthService {
         platform,
         userId,
       })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Device registration failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Device registration failed')
     }
   }
 
@@ -256,8 +271,9 @@ class AuthService {
         deviceToken,
         userId,
       })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Device unregistration failed')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Device unregistration failed')
     }
   }
 
@@ -272,8 +288,9 @@ class AuthService {
     try {
       const response = await this.api.get(`/auth/devices/${userId}`)
       return response.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch devices')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch devices')
     }
   }
 
@@ -282,8 +299,9 @@ class AuthService {
       await this.api.delete(`/auth/devices/${deviceId}`, {
         data: { userId }
       })
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to revoke device')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to revoke device')
     }
   }
 
@@ -302,8 +320,9 @@ class AuthService {
     try {
       const response = await this.api.get(`/auth/security-settings/${userId}`)
       return response.data
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch security settings')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch security settings')
     }
   }
 
@@ -315,8 +334,9 @@ class AuthService {
   }): Promise<void> {
     try {
       await this.api.put(`/auth/security-settings/${userId}`, settings)
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update security settings')
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update security settings')
     }
   }
 }

@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api';
 
 export interface Tenant {
   id: string;
@@ -259,8 +259,9 @@ class TenantManagementService {
       
       const response: AxiosResponse<{ data: TenantListResponse }> = await this.api.get(`/tenants?${params}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch tenants');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch tenants');
     }
   }
 
@@ -268,8 +269,9 @@ class TenantManagementService {
     try {
       const response: AxiosResponse<{ data: Tenant }> = await this.api.get(`/tenants/${tenantId}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch tenant');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch tenant');
     }
   }
 
@@ -277,8 +279,9 @@ class TenantManagementService {
     try {
       const response: AxiosResponse<{ data: Tenant }> = await this.api.post('/tenants', tenantData);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create tenant');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create tenant');
     }
   }
 
@@ -286,8 +289,9 @@ class TenantManagementService {
     try {
       const response: AxiosResponse<{ data: Tenant }> = await this.api.put(`/tenants/${tenantId}`, tenantData);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update tenant');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update tenant');
     }
   }
 
@@ -295,8 +299,9 @@ class TenantManagementService {
     try {
       await this.api.delete(`/tenants/${tenantId}`);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete tenant');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete tenant');
     }
   }
 
@@ -304,8 +309,9 @@ class TenantManagementService {
     try {
       const response: AxiosResponse<{ data: Tenant }> = await this.api.patch(`/tenants/${tenantId}/status`, { status });
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update tenant status');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update tenant status');
     }
   }
 
@@ -313,8 +319,9 @@ class TenantManagementService {
     try {
       const response: AxiosResponse<{ data: Tenant }> = await this.api.put(`/tenants/${tenantId}/branding`, branding);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update tenant branding');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update tenant branding');
     }
   }
 
@@ -322,8 +329,9 @@ class TenantManagementService {
     try {
       const response: AxiosResponse<{ data: Tenant }> = await this.api.put(`/tenants/${tenantId}/settings`, settings);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update tenant settings');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update tenant settings');
     }
   }
 
@@ -331,8 +339,9 @@ class TenantManagementService {
     try {
       const response: AxiosResponse<{ data: TenantAnalytics }> = await this.api.get(`/tenants/${tenantId}/analytics?period=${period}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch tenant analytics');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch tenant analytics');
     }
   }
 
@@ -344,8 +353,9 @@ class TenantManagementService {
       });
       const response: AxiosResponse<{ data: TenantUsageReport }> = await this.api.get(`/tenants/${tenantId}/usage?${params}`);
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch tenant usage report');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch tenant usage report');
     }
   }
 
@@ -364,8 +374,9 @@ class TenantManagementService {
         responseType: 'blob',
       });
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to export tenants');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to export tenants');
     }
   }
 
@@ -380,8 +391,9 @@ class TenantManagementService {
         },
       });
       return response.data.data.logoUrl;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to upload tenant logo');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to upload tenant logo');
     }
   }
 
@@ -389,8 +401,9 @@ class TenantManagementService {
     try {
       const response = await this.api.get('/features');
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch available features');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch available features');
     }
   }
 
@@ -398,8 +411,9 @@ class TenantManagementService {
     try {
       const response = await this.api.get('/subscription-plans');
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch subscription plans');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch subscription plans');
     }
   }
 
@@ -417,8 +431,9 @@ class TenantManagementService {
     try {
       const response = await this.api.get('/tenants/stats');
       return response.data.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch tenant statistics');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch tenant statistics');
     }
   }
 

@@ -22,7 +22,18 @@ import {
   GitBranch,
   Activity,
   Clock,
-  Mic
+  Mic,
+  BookOpen,
+  GraduationCap,
+  ClipboardList,
+  BarChart2,
+  DollarSign,
+  Library,
+  UserCheck,
+  BookMarked,
+  Calculator,
+  CreditCard,
+  TrendingUp
 } from 'lucide-react'
 
 import { Button } from '../ui/button'
@@ -45,7 +56,7 @@ const PERSONA = import.meta.env.VITE_USER_PERSONA || 'admin'
 
 const getPersonaNavigation = () => {
   const baseNavigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['admin', 'manager', 'user'] },
+    { name: 'Dashboard', href: '/dashboard', icon: Home, roles: ['admin', 'manager', 'user', 'student', 'teacher', 'parent'] },
     { name: 'Attendance', href: '/attendance', icon: Calendar, roles: ['admin', 'manager', 'user'] },
   ]
 
@@ -69,14 +80,65 @@ const getPersonaNavigation = () => {
     { name: 'Voice Management', href: '/voice-management', icon: Mic, roles: ['admin'] },
   ]
 
+  const educationalNavigation = [
+    // SIS Navigation
+    { name: 'Students', href: '/students', icon: UserCheck, roles: ['admin', 'teacher'] },
+    { name: 'Enrollment', href: '/enrollment', icon: ClipboardList, roles: ['admin', 'teacher'] },
+    
+    // LMS Navigation
+    { name: 'Courses', href: '/courses', icon: BookOpen, roles: ['admin', 'teacher', 'student'] },
+    { name: 'Assignments', href: '/assignments', icon: ClipboardList, roles: ['admin', 'teacher', 'student'] },
+    { name: 'Grade Book', href: '/gradebook', icon: BarChart2, roles: ['admin', 'teacher'] },
+    { name: 'Progress Reports', href: '/progress-reports', icon: TrendingUp, roles: ['admin', 'teacher', 'parent'] },
+    
+    // Finance Navigation
+    { name: 'Fees', href: '/fees', icon: DollarSign, roles: ['admin', 'parent'] },
+    { name: 'Payments', href: '/payments', icon: CreditCard, roles: ['admin', 'parent'] },
+    { name: 'Financial Reports', href: '/financial-reports', icon: Calculator, roles: ['admin'] },
+    
+    // Library Navigation
+    { name: 'Library Catalog', href: '/library/catalog', icon: Library, roles: ['admin', 'teacher', 'student'] },
+    { name: 'Book Checkout', href: '/library/checkout', icon: BookMarked, roles: ['admin', 'teacher'] },
+    { name: 'Reservations', href: '/library/reservations', icon: BookOpen, roles: ['admin', 'teacher', 'student'] }
+  ]
+
+  const studentNavigation = [
+    { name: 'My Courses', href: '/courses', icon: BookOpen, roles: ['student'] },
+    { name: 'Assignments', href: '/assignments', icon: ClipboardList, roles: ['student'] },
+    { name: 'Library', href: '/library/catalog', icon: Library, roles: ['student'] },
+    { name: 'Reservations', href: '/library/reservations', icon: BookOpen, roles: ['student'] }
+  ]
+
+  const teacherNavigation = [
+    { name: 'Students', href: '/students', icon: UserCheck, roles: ['teacher'] },
+    { name: 'Courses', href: '/courses', icon: BookOpen, roles: ['teacher'] },
+    { name: 'Assignments', href: '/assignments', icon: ClipboardList, roles: ['teacher'] },
+    { name: 'Grade Book', href: '/gradebook', icon: BarChart2, roles: ['teacher'] },
+    { name: 'Progress Reports', href: '/progress-reports', icon: TrendingUp, roles: ['teacher'] },
+    { name: 'Library', href: '/library/catalog', icon: Library, roles: ['teacher'] },
+    { name: 'Book Checkout', href: '/library/checkout', icon: BookMarked, roles: ['teacher'] }
+  ]
+
+  const parentNavigation = [
+    { name: 'Progress Reports', href: '/progress-reports', icon: TrendingUp, roles: ['parent'] },
+    { name: 'Fees', href: '/fees', icon: DollarSign, roles: ['parent'] },
+    { name: 'Payments', href: '/payments', icon: CreditCard, roles: ['parent'] }
+  ]
+
   switch (PERSONA) {
     case 'admin':
-      return [...baseNavigation, ...adminNavigation]
+      return [...baseNavigation, ...adminNavigation, ...educationalNavigation]
     case 'manager':
       return [...baseNavigation, ...managerNavigation]
+    case 'student':
+      return [...baseNavigation.filter(nav => nav.roles.includes('student')), ...studentNavigation]
+    case 'teacher':
+      return [...baseNavigation.filter(nav => nav.roles.includes('teacher')), ...teacherNavigation]
+    case 'parent':
+      return [...baseNavigation.filter(nav => nav.roles.includes('parent')), ...parentNavigation]
     case 'employee':
     default:
-      return baseNavigation
+      return baseNavigation.filter(nav => nav.roles.includes('user') || nav.roles.includes('admin'))
   }
 }
 
@@ -108,9 +170,15 @@ const DashboardLayout: React.FC = () => {
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center px-4">
         <div className="flex items-center space-x-2">
-          <Shield className="h-8 w-8 text-primary" />
+          {PERSONA === 'student' || PERSONA === 'teacher' || PERSONA === 'parent' ? (
+            <GraduationCap className="h-8 w-8" style={{ color: '#005F96' }} />
+          ) : (
+            <Shield className="h-8 w-8 text-primary" />
+          )}
           <div className="flex flex-col">
-            <span className="text-xl font-bold">Hudur</span>
+            <span className="text-xl font-bold" style={{ color: PERSONA === 'student' || PERSONA === 'teacher' || PERSONA === 'parent' ? '#005F96' : undefined }}>
+              {PERSONA === 'student' || PERSONA === 'teacher' || PERSONA === 'parent' ? 'Waaed' : 'Hudur'}
+            </span>
             <span className="text-xs text-muted-foreground capitalize">{PERSONA} Portal</span>
           </div>
         </div>
