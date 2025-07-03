@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api';
 
 export interface NotificationDto {
   id: string;
@@ -147,8 +147,8 @@ class NotificationService {
   });
 
   constructor() {
-    const setupInterceptors = (apiInstance: any) => {
-      apiInstance.interceptors.request.use((config: any) => {
+    const setupInterceptors = (apiInstance: typeof this.api) => {
+      apiInstance.interceptors.request.use((config) => {
         const token = localStorage.getItem('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -157,8 +157,8 @@ class NotificationService {
       });
 
       apiInstance.interceptors.response.use(
-        (response: any) => response,
-        (error: any) => {
+        (response) => response,
+        (error) => {
           if (error.response?.status === 401) {
             localStorage.removeItem('token');
             window.location.href = '/login';
@@ -177,8 +177,9 @@ class NotificationService {
     try {
       const response: AxiosResponse<NotificationDto> = await this.api.post('/send', request);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to send notification');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to send notification');
     }
   }
 
@@ -186,8 +187,9 @@ class NotificationService {
     try {
       await this.api.post('/send-bulk', request);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to send bulk notification');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to send bulk notification');
     }
   }
 
@@ -200,8 +202,9 @@ class NotificationService {
 
       const response: AxiosResponse<NotificationDto[]> = await this.api.get(`/?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch notifications');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch notifications');
     }
   }
 
@@ -209,11 +212,12 @@ class NotificationService {
     try {
       const response: AxiosResponse<NotificationDto> = await this.api.get(`/${id}`);
       return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string }; status?: number } }
+      if (errorObj.response?.status === 404) {
         return null;
       }
-      throw new Error(error.response?.data?.message || 'Failed to fetch notification');
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch notification');
     }
   }
 
@@ -221,8 +225,9 @@ class NotificationService {
     try {
       await this.api.put(`/${id}/read`);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to mark notification as read');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to mark notification as read');
     }
   }
 
@@ -230,8 +235,9 @@ class NotificationService {
     try {
       await this.api.put('/read-all');
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to mark all notifications as read');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to mark all notifications as read');
     }
   }
 
@@ -239,8 +245,9 @@ class NotificationService {
     try {
       const response: AxiosResponse<number> = await this.api.get('/unread-count');
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch unread count');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch unread count');
     }
   }
 
@@ -248,8 +255,9 @@ class NotificationService {
     try {
       await this.api.delete(`/${id}`);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete notification');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete notification');
     }
   }
 
@@ -257,8 +265,9 @@ class NotificationService {
     try {
       const response: AxiosResponse<NotificationStatsDto> = await this.api.get('/stats');
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch notification statistics');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch notification statistics');
     }
   }
 
@@ -266,8 +275,9 @@ class NotificationService {
     try {
       await this.api.put('/preferences', preferences);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update notification preferences');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update notification preferences');
     }
   }
 
@@ -275,8 +285,9 @@ class NotificationService {
     try {
       const response: AxiosResponse<NotificationPreferencesDto> = await this.api.get('/preferences');
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch notification preferences');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch notification preferences');
     }
   }
 
@@ -287,8 +298,9 @@ class NotificationService {
         platform,
       });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to register device');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to register device');
     }
   }
 
@@ -298,8 +310,9 @@ class NotificationService {
         deviceToken,
       });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to unregister device');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to unregister device');
     }
   }
 
@@ -310,8 +323,9 @@ class NotificationService {
 
       const response: AxiosResponse<NotificationTemplate[]> = await this.templateApi.get(`/?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch notification templates');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch notification templates');
     }
   }
 
@@ -319,11 +333,12 @@ class NotificationService {
     try {
       const response: AxiosResponse<NotificationTemplate> = await this.templateApi.get(`/${name}/${type}`);
       return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string }; status?: number } }
+      if (errorObj.response?.status === 404) {
         return null;
       }
-      throw new Error(error.response?.data?.message || 'Failed to fetch notification template');
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch notification template');
     }
   }
 
@@ -331,8 +346,9 @@ class NotificationService {
     try {
       const response: AxiosResponse<NotificationTemplate> = await this.templateApi.post('/', request);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to create notification template');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create notification template');
     }
   }
 
@@ -340,8 +356,9 @@ class NotificationService {
     try {
       await this.templateApi.put(`/${id}`, request);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update notification template');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update notification template');
     }
   }
 
@@ -349,8 +366,9 @@ class NotificationService {
     try {
       await this.templateApi.delete(`/${id}`);
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to delete notification template');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete notification template');
     }
   }
 
@@ -360,8 +378,9 @@ class NotificationService {
         template,
       });
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to validate notification template');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to validate notification template');
     }
   }
 
@@ -400,7 +419,7 @@ class NotificationService {
         };
       }
       return undefined;
-    } catch (error: any) {
+    } catch (error: unknown) {
       throw new Error('Failed to subscribe to real-time notifications');
     }
   }
