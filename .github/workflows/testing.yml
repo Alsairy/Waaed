@@ -293,7 +293,7 @@ jobs:
             echo "Health check attempt $i/120 at $(date)"
             
             # Check SQL Server with enhanced diagnostics and docker connectivity
-            if timeout 60 /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; then
+            if timeout 60 docker exec sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready!"
                 SQL_READY=1
