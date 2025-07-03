@@ -52,6 +52,7 @@ export interface TranslationKeys {
     theme: string
     darkMode: string
     lightMode: string
+    questions: string
   }
 
   navigation: {
@@ -77,6 +78,11 @@ export interface TranslationKeys {
     libraryCatalog: string
     bookCheckout: string
     reservations: string
+    quizzes: string
+    discussions: string
+    chat: string
+    advancedAnalytics: string
+    eventManagement: string
   }
 
   education: {
@@ -118,6 +124,69 @@ export interface TranslationKeys {
     exams: string
     test: string
     tests: string
+    
+    // Quiz specific translations
+    quizType: string
+    quizTypes: string
+    createQuiz: string
+    editQuiz: string
+    takeQuiz: string
+    startQuiz: string
+    continueQuiz: string
+    retakeQuiz: string
+    submitQuiz: string
+    viewResults: string
+    quizResults: string
+    quizStatistics: string
+    quizAttempts: string
+    bestScore: string
+    averageScore: string
+    timeLimit: string
+    timeRemaining: string
+    questionsAnswered: string
+    totalQuestions: string
+    correctAnswers: string
+    incorrectAnswers: string
+    skippedQuestions: string
+    quizCompleted: string
+    quizSubmitted: string
+    quizInProgress: string
+    quizNotStarted: string
+    multipleChoice: string
+    multipleSelect: string
+    trueFalse: string
+    shortAnswer: string
+    essay: string
+    fillInTheBlank: string
+    correct: string
+    incorrect: string
+    enterAnswer: string
+    enterEssayAnswer: string
+    sampleAnswer: string
+    explanation: string
+    unsupportedQuestionType: string
+    question: string
+    of: string
+    point: string
+    quizPoints: string
+    true: string
+    false: string
+    correctAnswer: string
+    searchQuizzes: string
+    allTypes: string
+    noQuizzesFound: string
+    noQuizzesYet: string
+    tryDifferentSearch: string
+    createFirstQuiz: string
+    checkBackLater: string
+    errorLoading: string
+    answered: string
+    notAnswered: string
+    unanswered: string
+    flagged: string
+    flag: string
+    confirmSubmit: string
+    submitting: string
     project: string
     projects: string
     submission: string
@@ -272,7 +341,118 @@ export interface TranslationKeys {
     standard: string
     standards: string
     benchmark: string
-    benchmarks: string
+    benchmarks: string,
+
+    chat: string,
+    message: string,
+    messages: string,
+    send: string,
+    typing: string,
+    online: string,
+    offline: string,
+    away: string,
+    channel: string,
+    channels: string,
+    directMessage: string,
+    groupChat: string,
+    chatRoom: string,
+    chatRooms: string,
+    participants: string,
+    joinChat: string,
+    leaveChat: string,
+    muteChat: string,
+    unmuteChat: string,
+    chatHistory: string,
+    newMessage: string,
+    unreadMessages: string,
+    messageRead: string,
+    messageDelivered: string,
+    messageSent: string,
+    attachFile: string,
+    emoji: string,
+    reaction: string,
+    reactions: string,
+    reply: string,
+    forward: string,
+    edit: string,
+    
+    discussion: string,
+    discussions: string,
+    forum: string,
+    forums: string,
+    topic: string,
+    topics: string,
+    post: string,
+    posts: string,
+    thread: string,
+    threads: string,
+    replies: string,
+    newTopic: string,
+    newPost: string,
+    latestPost: string,
+    lastReply: string,
+    viewCount: string,
+    replyCount: string,
+    postCount: string,
+    moderator: string,
+    pinned: string,
+    locked: string,
+    sticky: string,
+    featured: string,
+    solved: string,
+    unsolved: string,
+    upvote: string,
+    downvote: string,
+    vote: string,
+    votes: string,
+    like: string,
+    likes: string,
+    dislike: string,
+    share: string,
+    subscribe: string,
+    unsubscribe: string,
+    follow: string,
+    unfollow: string,
+    
+    advancedAnalytics: string,
+    kpi: string,
+    kpis: string,
+    metrics: string,
+    insights: string,
+    trends: string,
+    forecast: string,
+    prediction: string,
+    predictive: string,
+    dataVisualization: string,
+    chart: string,
+    charts: string,
+    graph: string,
+    graphs: string,
+    dateRange: string,
+    timeframe: string,
+    comparison: string,
+    target: string,
+    actual: string,
+    variance: string,
+    decline: string,
+    increase: string,
+    decrease: string,
+    ratio: string,
+    median: string,
+    count: string,
+    sum: string,
+    minimum: string,
+    maximum: string,
+    range: string,
+    distribution: string,
+    correlation: string,
+    regression: string,
+    anomaly: string,
+    outlier: string,
+    pattern: string,
+    seasonality: string,
+    volatility: string,
+    stability: string
   }
 
   status: {
@@ -435,7 +615,8 @@ export const enTranslations: TranslationKeys = {
     language: 'Language',
     theme: 'Theme',
     darkMode: 'Dark Mode',
-    lightMode: 'Light Mode'
+    lightMode: 'Light Mode',
+    questions: 'Questions'
   },
 
   navigation: {
@@ -460,7 +641,12 @@ export const enTranslations: TranslationKeys = {
     financialReports: 'Financial Reports',
     libraryCatalog: 'Library Catalog',
     bookCheckout: 'Book Checkout',
-    reservations: 'Reservations'
+    reservations: 'Reservations',
+    quizzes: 'Quizzes',
+    discussions: 'Discussions',
+    chat: 'Chat',
+    advancedAnalytics: 'Advanced Analytics',
+    eventManagement: 'Event Management'
   },
 
   education: {
@@ -502,6 +688,69 @@ export const enTranslations: TranslationKeys = {
     exams: 'Exams',
     test: 'Test',
     tests: 'Tests',
+    
+    // Quiz specific translations
+    quizType: 'Quiz Type',
+    quizTypes: 'Quiz Types',
+    createQuiz: 'Create Quiz',
+    editQuiz: 'Edit Quiz',
+    takeQuiz: 'Take Quiz',
+    startQuiz: 'Start Quiz',
+    continueQuiz: 'Continue Quiz',
+    retakeQuiz: 'Retake Quiz',
+    submitQuiz: 'Submit Quiz',
+    viewResults: 'View Results',
+    quizResults: 'Quiz Results',
+    quizStatistics: 'Quiz Statistics',
+    quizAttempts: 'Quiz Attempts',
+    bestScore: 'Best Score',
+    averageScore: 'Average Score',
+    timeLimit: 'Time Limit',
+    timeRemaining: 'Time Remaining',
+    questionsAnswered: 'Questions Answered',
+    totalQuestions: 'Total Questions',
+    correctAnswers: 'Correct Answers',
+    incorrectAnswers: 'Incorrect Answers',
+    skippedQuestions: 'Skipped Questions',
+    quizCompleted: 'Quiz Completed',
+    quizSubmitted: 'Quiz Submitted',
+    quizInProgress: 'Quiz In Progress',
+    quizNotStarted: 'Quiz Not Started',
+    multipleChoice: 'Multiple Choice',
+    multipleSelect: 'Multiple Select',
+    trueFalse: 'True/False',
+    shortAnswer: 'Short Answer',
+    essay: 'Essay',
+    fillInTheBlank: 'Fill in the Blank',
+    correct: 'Correct',
+    incorrect: 'Incorrect',
+    enterAnswer: 'Enter your answer',
+    enterEssayAnswer: 'Enter your essay answer',
+    sampleAnswer: 'Sample Answer',
+    explanation: 'Explanation',
+    unsupportedQuestionType: 'Unsupported question type',
+    question: 'Question',
+    of: 'of',
+    point: 'point',
+    quizPoints: 'points',
+    true: 'True',
+    false: 'False',
+    correctAnswer: 'Correct Answer',
+    searchQuizzes: 'Search quizzes',
+    allTypes: 'All Types',
+    noQuizzesFound: 'No quizzes found',
+    noQuizzesYet: 'No quizzes yet',
+    tryDifferentSearch: 'Try a different search',
+    createFirstQuiz: 'Create your first quiz',
+    checkBackLater: 'Check back later',
+    errorLoading: 'Error loading',
+    answered: 'Answered',
+    notAnswered: 'Not Answered',
+    unanswered: 'Unanswered',
+    flagged: 'Flagged',
+    flag: 'Flag',
+    confirmSubmit: 'Confirm Submit',
+    submitting: 'Submitting',
     project: 'Project',
     projects: 'Projects',
     submission: 'Submission',
@@ -656,7 +905,118 @@ export const enTranslations: TranslationKeys = {
     standard: 'Standard',
     standards: 'Standards',
     benchmark: 'Benchmark',
-    benchmarks: 'Benchmarks'
+    benchmarks: 'Benchmarks',
+
+    chat: 'المحادثة',
+    message: 'رسالة',
+    messages: 'الرسائل',
+    send: 'إرسال',
+    typing: 'يكتب',
+    online: 'متصل',
+    offline: 'غير متصل',
+    away: 'غائب',
+    channel: 'قناة',
+    channels: 'القنوات',
+    directMessage: 'رسالة مباشرة',
+    groupChat: 'محادثة جماعية',
+    chatRoom: 'غرفة المحادثة',
+    chatRooms: 'غرف المحادثة',
+    participants: 'المشاركون',
+    joinChat: 'انضمام للمحادثة',
+    leaveChat: 'مغادرة المحادثة',
+    muteChat: 'كتم المحادثة',
+    unmuteChat: 'إلغاء كتم المحادثة',
+    chatHistory: 'تاريخ المحادثة',
+    newMessage: 'رسالة جديدة',
+    unreadMessages: 'رسائل غير مقروءة',
+    messageRead: 'رسالة مقروءة',
+    messageDelivered: 'رسالة مُسلمة',
+    messageSent: 'رسالة مُرسلة',
+    attachFile: 'إرفاق ملف',
+    emoji: 'رموز تعبيرية',
+    reaction: 'تفاعل',
+    reactions: 'التفاعلات',
+    reply: 'رد',
+    forward: 'إعادة توجيه',
+    edit: 'تعديل',
+    
+    discussion: 'مناقشة',
+    discussions: 'المناقشات',
+    forum: 'منتدى',
+    forums: 'المنتديات',
+    topic: 'موضوع',
+    topics: 'المواضيع',
+    post: 'منشور',
+    posts: 'المنشورات',
+    thread: 'موضوع',
+    threads: 'المواضيع',
+    replies: 'الردود',
+    newTopic: 'موضوع جديد',
+    newPost: 'منشور جديد',
+    latestPost: 'آخر منشور',
+    lastReply: 'آخر رد',
+    viewCount: 'المشاهدات',
+    replyCount: 'الردود',
+    postCount: 'المنشورات',
+    moderator: 'مشرف',
+    pinned: 'مثبت',
+    locked: 'مقفل',
+    sticky: 'لاصق',
+    featured: 'مميز',
+    solved: 'محلول',
+    unsolved: 'غير محلول',
+    upvote: 'تصويت إيجابي',
+    downvote: 'تصويت سلبي',
+    vote: 'تصويت',
+    votes: 'الأصوات',
+    like: 'إعجاب',
+    likes: 'الإعجابات',
+    dislike: 'عدم إعجاب',
+    share: 'مشاركة',
+    subscribe: 'اشتراك',
+    unsubscribe: 'إلغاء الاشتراك',
+    follow: 'متابعة',
+    unfollow: 'إلغاء المتابعة',
+    
+    advancedAnalytics: 'التحليلات المتقدمة',
+    kpi: 'مؤشر أداء رئيسي',
+    kpis: 'مؤشرات الأداء الرئيسية',
+    metrics: 'المقاييس',
+    insights: 'الرؤى',
+    trends: 'الاتجاهات',
+    forecast: 'التنبؤ',
+    prediction: 'التوقع',
+    predictive: 'تنبؤي',
+    dataVisualization: 'تصور البيانات',
+    chart: 'مخطط',
+    charts: 'المخططات',
+    graph: 'رسم بياني',
+    graphs: 'الرسوم البيانية',
+    dateRange: 'نطاق التاريخ',
+    timeframe: 'الإطار الزمني',
+    comparison: 'مقارنة',
+    target: 'الهدف',
+    actual: 'الفعلي',
+    variance: 'التباين',
+    decline: 'انخفاض',
+    increase: 'زيادة',
+    decrease: 'نقصان',
+    ratio: 'النسبة',
+    median: 'الوسيط',
+    count: 'العدد',
+    sum: 'المجموع',
+    minimum: 'الحد الأدنى',
+    maximum: 'الحد الأقصى',
+    range: 'النطاق',
+    distribution: 'التوزيع',
+    correlation: 'الارتباط',
+    regression: 'الانحدار',
+    anomaly: 'شذوذ',
+    outlier: 'قيمة شاذة',
+    pattern: 'نمط',
+    seasonality: 'الموسمية',
+    volatility: 'التقلب',
+    stability: 'الاستقرار'
   },
 
   status: {
@@ -819,7 +1179,8 @@ export const arTranslations: TranslationKeys = {
     language: 'اللغة',
     theme: 'المظهر',
     darkMode: 'الوضع المظلم',
-    lightMode: 'الوضع الفاتح'
+    lightMode: 'الوضع الفاتح',
+    questions: 'الأسئلة'
   },
 
   navigation: {
@@ -844,7 +1205,12 @@ export const arTranslations: TranslationKeys = {
     financialReports: 'التقارير المالية',
     libraryCatalog: 'فهرس المكتبة',
     bookCheckout: 'استعارة الكتب',
-    reservations: 'الحجوزات'
+    reservations: 'الحجوزات',
+    quizzes: 'الاختبارات القصيرة',
+    discussions: 'المناقشات',
+    chat: 'المحادثة',
+    advancedAnalytics: 'التحليلات المتقدمة',
+    eventManagement: 'إدارة الأحداث'
   },
 
   education: {
@@ -886,6 +1252,69 @@ export const arTranslations: TranslationKeys = {
     exams: 'الامتحانات',
     test: 'اختبار',
     tests: 'الاختبارات',
+    
+    // Quiz specific translations
+    quizType: 'نوع الاختبار',
+    quizTypes: 'أنواع الاختبارات',
+    createQuiz: 'إنشاء اختبار',
+    editQuiz: 'تعديل الاختبار',
+    takeQuiz: 'أداء الاختبار',
+    startQuiz: 'بدء الاختبار',
+    continueQuiz: 'متابعة الاختبار',
+    retakeQuiz: 'إعادة الاختبار',
+    submitQuiz: 'تسليم الاختبار',
+    viewResults: 'عرض النتائج',
+    quizResults: 'نتائج الاختبار',
+    quizStatistics: 'إحصائيات الاختبار',
+    quizAttempts: 'محاولات الاختبار',
+    bestScore: 'أفضل نتيجة',
+    averageScore: 'المتوسط',
+    timeLimit: 'الحد الزمني',
+    timeRemaining: 'الوقت المتبقي',
+    questionsAnswered: 'الأسئلة المجابة',
+    totalQuestions: 'إجمالي الأسئلة',
+    correctAnswers: 'الإجابات الصحيحة',
+    incorrectAnswers: 'الإجابات الخاطئة',
+    skippedQuestions: 'الأسئلة المتجاهلة',
+    quizCompleted: 'اكتمل الاختبار',
+    quizSubmitted: 'تم تسليم الاختبار',
+    quizInProgress: 'الاختبار قيد التقدم',
+    quizNotStarted: 'لم يبدأ الاختبار',
+    multipleChoice: 'اختيار متعدد',
+    multipleSelect: 'اختيار متعدد',
+    trueFalse: 'صحيح/خطأ',
+    shortAnswer: 'إجابة قصيرة',
+    essay: 'مقال',
+    fillInTheBlank: 'املأ الفراغ',
+    correct: 'صحيح',
+    incorrect: 'خطأ',
+    enterAnswer: 'أدخل إجابتك',
+    enterEssayAnswer: 'أدخل إجابة المقال',
+    sampleAnswer: 'إجابة نموذجية',
+    explanation: 'التفسير',
+    unsupportedQuestionType: 'نوع سؤال غير مدعوم',
+    question: 'سؤال',
+    of: 'من',
+    point: 'نقطة',
+    quizPoints: 'نقاط',
+    true: 'صحيح',
+    false: 'خطأ',
+    correctAnswer: 'الإجابة الصحيحة',
+    searchQuizzes: 'البحث في الاختبارات',
+    allTypes: 'جميع الأنواع',
+    noQuizzesFound: 'لم يتم العثور على اختبارات',
+    noQuizzesYet: 'لا توجد اختبارات بعد',
+    tryDifferentSearch: 'جرب بحثاً مختلفاً',
+    createFirstQuiz: 'أنشئ اختبارك الأول',
+    checkBackLater: 'تحقق لاحقاً',
+    errorLoading: 'خطأ في التحميل',
+    answered: 'مجاب',
+    notAnswered: 'غير مجاب',
+    unanswered: 'غير مجاب',
+    flagged: 'مُعلم',
+    flag: 'علم',
+    confirmSubmit: 'تأكيد التسليم',
+    submitting: 'جاري التسليم',
     project: 'مشروع',
     projects: 'المشاريع',
     submission: 'تسليم',
@@ -1040,7 +1469,118 @@ export const arTranslations: TranslationKeys = {
     standard: 'معيار',
     standards: 'المعايير',
     benchmark: 'مرجع',
-    benchmarks: 'المراجع'
+    benchmarks: 'المراجع',
+
+    chat: 'Chat',
+    message: 'Message',
+    messages: 'Messages',
+    send: 'Send',
+    typing: 'Typing',
+    online: 'Online',
+    offline: 'Offline',
+    away: 'Away',
+    channel: 'Channel',
+    channels: 'Channels',
+    directMessage: 'Direct Message',
+    groupChat: 'Group Chat',
+    chatRoom: 'Chat Room',
+    chatRooms: 'Chat Rooms',
+    participants: 'Participants',
+    joinChat: 'Join Chat',
+    leaveChat: 'Leave Chat',
+    muteChat: 'Mute Chat',
+    unmuteChat: 'Unmute Chat',
+    chatHistory: 'Chat History',
+    newMessage: 'New Message',
+    unreadMessages: 'Unread Messages',
+    messageRead: 'Message Read',
+    messageDelivered: 'Message Delivered',
+    messageSent: 'Message Sent',
+    attachFile: 'Attach File',
+    emoji: 'Emoji',
+    reaction: 'Reaction',
+    reactions: 'Reactions',
+    reply: 'Reply',
+    forward: 'Forward',
+    edit: 'Edit',
+    
+    discussion: 'Discussion',
+    discussions: 'Discussions',
+    forum: 'Forum',
+    forums: 'Forums',
+    topic: 'Topic',
+    topics: 'Topics',
+    post: 'Post',
+    posts: 'Posts',
+    thread: 'Thread',
+    threads: 'Threads',
+    replies: 'Replies',
+    newTopic: 'New Topic',
+    newPost: 'New Post',
+    latestPost: 'Latest Post',
+    lastReply: 'Last Reply',
+    viewCount: 'Views',
+    replyCount: 'Replies',
+    postCount: 'Posts',
+    moderator: 'Moderator',
+    pinned: 'Pinned',
+    locked: 'Locked',
+    sticky: 'Sticky',
+    featured: 'Featured',
+    solved: 'Solved',
+    unsolved: 'Unsolved',
+    upvote: 'Upvote',
+    downvote: 'Downvote',
+    vote: 'Vote',
+    votes: 'Votes',
+    like: 'Like',
+    likes: 'Likes',
+    dislike: 'Dislike',
+    share: 'Share',
+    subscribe: 'Subscribe',
+    unsubscribe: 'Unsubscribe',
+    follow: 'Follow',
+    unfollow: 'Unfollow',
+    
+    advancedAnalytics: 'Advanced Analytics',
+    kpi: 'KPI',
+    kpis: 'KPIs',
+    metrics: 'Metrics',
+    insights: 'Insights',
+    trends: 'Trends',
+    forecast: 'Forecast',
+    prediction: 'Prediction',
+    predictive: 'Predictive',
+    dataVisualization: 'Data Visualization',
+    chart: 'Chart',
+    charts: 'Charts',
+    graph: 'Graph',
+    graphs: 'Graphs',
+    dateRange: 'Date Range',
+    timeframe: 'Timeframe',
+    comparison: 'Comparison',
+    target: 'Target',
+    actual: 'Actual',
+    variance: 'Variance',
+    decline: 'Decline',
+    increase: 'Increase',
+    decrease: 'Decrease',
+    ratio: 'Ratio',
+    median: 'Median',
+    count: 'Count',
+    sum: 'Sum',
+    minimum: 'Minimum',
+    maximum: 'Maximum',
+    range: 'Range',
+    distribution: 'Distribution',
+    correlation: 'Correlation',
+    regression: 'Regression',
+    anomaly: 'Anomaly',
+    outlier: 'Outlier',
+    pattern: 'Pattern',
+    seasonality: 'Seasonality',
+    volatility: 'Volatility',
+    stability: 'Stability'
   },
 
   status: {

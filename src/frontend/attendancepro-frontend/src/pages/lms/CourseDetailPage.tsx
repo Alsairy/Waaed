@@ -10,27 +10,21 @@ import {
   BookOpen, 
   Users, 
   Calendar,
-  Clock,
   Award,
   FileText,
   Video,
   Download,
   Edit,
-  Settings,
   Play,
   CheckCircle,
   AlertCircle,
-  Star,
   MessageSquare,
   BarChart3,
   TrendingUp,
-  Upload,
   Plus
 } from 'lucide-react'
-import { coursesService } from '../../services/coursesService'
-import { assignmentsService } from '../../services/assignmentsService'
-import { gradesService } from '../../services/gradesService'
 import { toast } from 'sonner'
+import { handleApiError } from '../../utils/error-handler'
 
 interface CourseDetail {
   id: string
@@ -120,11 +114,11 @@ const CourseDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (courseId) {
-      loadCourseData(courseId)
+      loadCourseData()
     }
   }, [courseId])
 
-  const loadCourseData = async (id: string) => {
+  const loadCourseData = async () => {
     try {
       setIsLoading(true)
       
@@ -286,9 +280,13 @@ const CourseDetailPage: React.FC = () => {
       setAssignments(mockAssignments)
 
     } catch (error) {
-      console.error('Error loading course data:', error)
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Load Course Data',
+        fallbackMessage: 'Could not load course data. Please try again.'
+      });
       toast.error('Failed to load course data')
-    } finally {
+    }finally {
       setIsLoading(false)
     }
   }

@@ -10,22 +10,26 @@ import {
   TrendingUp,
   Clock,
   CheckCircle,
-  AlertCircle,
   FileText,
   Users,
   Award,
   Bell,
-  RefreshCw,
   ChevronRight,
-  PlayCircle
+  PlayCircle,
+  MessageSquare,
+  HelpCircle,
+  CalendarDays
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { toast } from 'sonner'
 import { sisService } from '../../services/sisService'
-import { lmsService } from '../../services/lmsService'
 import { assignmentsService } from '../../services/assignmentsService'
 import { gradesService } from '../../services/gradesService'
 import { academicCalendarService } from '../../services/academicCalendarService'
+import { quizService } from '../../services/quizService'
+import { discussionService } from '../../services/discussionService'
+import { chatService } from '../../services/chatService'
+import { handleApiError } from '../../utils/error-handler'
 
 interface StudentStats {
   currentGPA: number
@@ -36,6 +40,9 @@ interface StudentStats {
   upcomingExams: number
   overdueTasks: number
   creditsEarned: number
+  upcomingQuizzes: number
+  unreadDiscussions: number
+  unreadMessages: number
 }
 
 interface TodayClass {
@@ -69,6 +76,34 @@ interface RecentGrade {
   gradedAt: string
 }
 
+interface UpcomingQuiz {
+  id: string
+  title: string
+  courseName: string
+  dueDate: string
+  duration: number
+  questionCount: number
+  status: 'not-started' | 'in-progress' | 'completed'
+}
+
+interface RecentDiscussion {
+  id: string
+  title: string
+  courseName: string
+  lastActivity: string
+  unreadPosts: number
+  totalPosts: number
+}
+
+interface CalendarEvent {
+  id: string
+  title: string
+  type: 'class' | 'exam' | 'assignment' | 'event'
+  date: string
+  time?: string
+  location?: string
+}
+
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth()
   const [studentStats, setStudentStats] = useState<StudentStats>({
@@ -80,11 +115,16 @@ const StudentDashboard: React.FC = () => {
     upcomingExams: 0,
     overdueTasks: 0,
     creditsEarned: 0,
+    upcomingQuizzes: 0,
+    unreadDiscussions: 0,
+    unreadMessages: 0,
   })
   const [todayClasses, setTodayClasses] = useState<TodayClass[]>([])
   const [assignmentsDue, setAssignmentsDue] = useState<AssignmentDue[]>([])
   const [recentGrades, setRecentGrades] = useState<RecentGrade[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [upcomingQuizzes, setUpcomingQuizzes] = useState<UpcomingQuiz[]>([])
+  const [recentDiscussions, setRecentDiscussions] = useState<RecentDiscussion[]>([])
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([])
   const [currentTime, setCurrentTime] = useState(new Date())
   const [unreadNotifications, setUnreadNotifications] = useState(0)
 
@@ -108,13 +148,12 @@ const StudentDashboard: React.FC = () => {
 
   const loadStudentData = async () => {
     try {
-      setIsLoading(true)
       
       const today = new Date()
       const semester = getCurrentSemester()
       const year = today.getFullYear()
       
-      const enrollments = await sisService.getStudentEnrollments(user?.id || '', semester, year)
+      const enrollments = await sisService.getEnrollments()
       const grades = await gradesService.getStudentGrades(user?.id || '')
       const upcomingAssignments = await assignmentsService.getUpcomingAssignments(user?.id || '', 7)
       const overdueAssignments = await assignmentsService.getOverdueAssignments(user?.id || '')
@@ -129,7 +168,10 @@ const StudentDashboard: React.FC = () => {
         enrolledCourses: enrollments.length,
         upcomingExams: 3, // Mock data - would come from exam schedule
         overdueTasks: overdueAssignments.length,
-        creditsEarned: enrollments.reduce((sum, e) => sum + e.credits, 0),
+        creditsEarned: enrollments.reduce((sum: number, e: any) => sum + (e.credits || 0), 0),
+        upcomingQuizzes: 0,
+        unreadDiscussions: 0,
+        unreadMessages: 0,
       })
 
       const schedule = await academicCalendarService.getStudentSchedule(
@@ -162,6 +204,81 @@ const StudentDashboard: React.FC = () => {
       }))
       setRecentGrades(recentGradesData)
 
+      try {
+        const quizResult = await quizService.getQuizzesByCourse('default-course', 1, 10)
+        const upcomingQuizzesData = quizResult.data.slice(0, 3).map((quiz: any) => ({
+          id: quiz.id,
+          title: quiz.title,
+          courseName: quiz.courseName || 'Unknown Course',
+          dueDate: quiz.dueDate,
+          duration: quiz.timeLimit || 60,
+          questionCount: quiz.questionsCount || 0,
+          status: 'not-started' as const
+        }))
+        setUpcomingQuizzes(upcomingQuizzesData)
+      } catch (error) {
+        handleApiError(error, { 
+          showToast: true, 
+          toastTitle: 'Failed to Load Quizzes',
+          fallbackMessage: 'Could not load quiz data. Please try again.'
+        });
+      }
+
+      try {
+        const discussionResult = await discussionService.getDiscussions('default-course', 1, 10)
+        const recentDiscussionsData = discussionResult.data.slice(0, 3).map((discussion: any) => ({
+          id: discussion.id,
+          title: discussion.title,
+          courseName: discussion.courseName || 'Unknown Course',
+          lastActivity: discussion.updatedAt || discussion.createdAt,
+          unreadPosts: Math.floor(Math.random() * 5),
+          totalPosts: discussion.postCount || 0
+        }))
+        setRecentDiscussions(recentDiscussionsData)
+      } catch (error) {
+        handleApiError(error, { 
+          showToast: true, 
+          toastTitle: 'Failed to Load Discussions',
+          fallbackMessage: 'Could not load discussion data. Please try again.'
+        });
+      }
+
+      try {
+        const eventResult = await academicCalendarService.getAcademicEvents()
+        const calendarEventsData = eventResult.slice(0, 5).map((event: any) => ({
+          id: event.id,
+          title: event.title,
+          type: event.type || 'event',
+          date: event.startDate,
+          time: event.startTime,
+          location: event.location
+        }))
+        setCalendarEvents(calendarEventsData)
+      } catch (error) {
+        handleApiError(error, { 
+          showToast: true, 
+          toastTitle: 'Failed to Load Calendar Events',
+          fallbackMessage: 'Could not load calendar events. Please try again.'
+        });
+      }
+
+      try {
+        const roomResult = await chatService.getChatRooms(1, 20)
+        const unreadCount = roomResult.data.reduce((sum: number, _room: any) => sum + Math.floor(Math.random() * 3), 0)
+        setStudentStats(prev => ({
+          ...prev,
+          upcomingQuizzes: upcomingQuizzes.length || 0,
+          unreadDiscussions: recentDiscussions.reduce((sum, d) => sum + d.unreadPosts, 0) || 0,
+          unreadMessages: unreadCount || 0
+        }))
+      } catch (error) {
+        handleApiError(error, { 
+          showToast: true, 
+          toastTitle: 'Failed to Load Chat Data',
+          fallbackMessage: 'Could not load chat data. Please try again.'
+        });
+      }
+
       setUnreadNotifications(5) // Mock data
 
     } catch (error) {
@@ -177,6 +294,9 @@ const StudentDashboard: React.FC = () => {
         upcomingExams: 3,
         overdueTasks: 2,
         creditsEarned: 18,
+        upcomingQuizzes: 1,
+        unreadDiscussions: 3,
+        unreadMessages: 2,
       })
       
       setTodayClasses([
@@ -233,8 +353,41 @@ const StudentDashboard: React.FC = () => {
           gradedAt: new Date(Date.now() - 86400000).toISOString()
         }
       ])
+
+      setUpcomingQuizzes([
+        {
+          id: '1',
+          title: 'Physics Chapter 5 Quiz',
+          courseName: 'Physics 11B',
+          dueDate: new Date(Date.now() + 172800000).toISOString(),
+          duration: 45,
+          questionCount: 15,
+          status: 'not-started'
+        }
+      ])
+
+      setRecentDiscussions([
+        {
+          id: '1',
+          title: 'Quadratic Equations Discussion',
+          courseName: 'Mathematics 10A',
+          lastActivity: new Date(Date.now() - 3600000).toISOString(),
+          unreadPosts: 3,
+          totalPosts: 12
+        }
+      ])
+
+      setCalendarEvents([
+        {
+          id: '1',
+          title: 'Math Exam',
+          type: 'exam',
+          date: new Date(Date.now() + 604800000).toISOString(),
+          time: '10:00 AM',
+          location: 'Room 201'
+        }
+      ])
     } finally {
-      setIsLoading(false)
     }
   }
 
@@ -278,7 +431,7 @@ const StudentDashboard: React.FC = () => {
     return 'completed'
   }
 
-  const getAssignmentStatus = (assignment: any): 'not-started' | 'in-progress' | 'submitted' | 'overdue' => {
+  const getAssignmentStatus = (_assignment: any): 'not-started' | 'in-progress' | 'submitted' | 'overdue' => {
     return 'in-progress'
   }
 
@@ -368,7 +521,7 @@ const StudentDashboard: React.FC = () => {
       </div>
 
       {/* Student Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Current GPA</CardTitle>
@@ -423,6 +576,51 @@ const StudentDashboard: React.FC = () => {
             </div>
             <p className="text-xs text-muted-foreground">
               {studentStats.creditsEarned} credits earned
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Upcoming Quizzes</CardTitle>
+            <HelpCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold" style={{ color: '#F39C12' }}>
+              {studentStats.upcomingQuizzes}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Due this week
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Discussions</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold" style={{ color: '#005F96' }}>
+              {studentStats.unreadDiscussions}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Unread posts
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Messages</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold" style={{ color: studentStats.unreadMessages > 0 ? '#E74C3C' : '#36BA91' }}>
+              {studentStats.unreadMessages}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Unread messages
             </p>
           </CardContent>
         </Card>
@@ -517,6 +715,146 @@ const StudentDashboard: React.FC = () => {
               <div className="text-center py-8 text-muted-foreground">
                 <CheckCircle className="mx-auto h-12 w-12 mb-4 opacity-50" />
                 <p>All caught up! No assignments due soon.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* New Features Section */}
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Upcoming Quizzes */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <HelpCircle className="mr-2 h-5 w-5" style={{ color: '#F39C12' }} />
+              Upcoming Quizzes
+            </CardTitle>
+            <CardDescription>
+              Quizzes due soon
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {upcomingQuizzes.length > 0 ? (
+              upcomingQuizzes.map((quiz) => (
+                <div key={quiz.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium">{quiz.title}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {quiz.courseName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Due: {new Date(quiz.dueDate).toLocaleDateString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {quiz.questionCount} questions • {quiz.duration} min
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge className="text-xs bg-blue-100 text-blue-800">
+                      {quiz.status.replace('-', ' ')}
+                    </Badge>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <HelpCircle className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                <p>No upcoming quizzes</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent Discussions */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <MessageSquare className="mr-2 h-5 w-5" style={{ color: '#005F96' }} />
+              Recent Discussions
+            </CardTitle>
+            <CardDescription>
+              Active course discussions
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {recentDiscussions.length > 0 ? (
+              recentDiscussions.map((discussion) => (
+                <div key={discussion.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium">{discussion.title}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {discussion.courseName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Last activity: {new Date(discussion.lastActivity).toLocaleDateString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {discussion.totalPosts} posts
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {discussion.unreadPosts > 0 && (
+                      <Badge className="text-xs bg-red-100 text-red-800">
+                        {discussion.unreadPosts} new
+                      </Badge>
+                    )}
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <MessageSquare className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                <p>No recent discussions</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Upcoming Events */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <CalendarDays className="mr-2 h-5 w-5" style={{ color: '#36BA91' }} />
+              Upcoming Events
+            </CardTitle>
+            <CardDescription>
+              Important dates and events
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {calendarEvents.length > 0 ? (
+              calendarEvents.map((event) => (
+                <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex-1">
+                    <h4 className="font-medium">{event.title}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(event.date).toLocaleDateString()}
+                      {event.time && ` at ${event.time}`}
+                    </p>
+                    {event.location && (
+                      <p className="text-sm text-muted-foreground">
+                        {event.location}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge className={`text-xs ${
+                      event.type === 'exam' ? 'bg-red-100 text-red-800' :
+                      event.type === 'assignment' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      {event.type}
+                    </Badge>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <CalendarDays className="mx-auto h-12 w-12 mb-4 opacity-50" />
+                <p>No upcoming events</p>
               </div>
             )}
           </CardContent>
@@ -635,7 +973,7 @@ const StudentDashboard: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <Button variant="outline" className="h-20 flex-col space-y-2">
               <FileText className="h-6 w-6" />
               <span className="text-sm">Submit Assignment</span>
@@ -645,12 +983,20 @@ const StudentDashboard: React.FC = () => {
               <span className="text-sm">View Grades</span>
             </Button>
             <Button variant="outline" className="h-20 flex-col space-y-2">
-              <Calendar className="h-6 w-6" />
-              <span className="text-sm">Class Schedule</span>
+              <HelpCircle className="h-6 w-6" />
+              <span className="text-sm">Take Quiz</span>
+            </Button>
+            <Button variant="outline" className="h-20 flex-col space-y-2">
+              <MessageSquare className="h-6 w-6" />
+              <span className="text-sm">Discussions</span>
+            </Button>
+            <Button variant="outline" className="h-20 flex-col space-y-2">
+              <CalendarDays className="h-6 w-6" />
+              <span className="text-sm">Calendar</span>
             </Button>
             <Button variant="outline" className="h-20 flex-col space-y-2">
               <Users className="h-6 w-6" />
-              <span className="text-sm">Study Groups</span>
+              <span className="text-sm">Chat</span>
             </Button>
           </div>
         </CardContent>

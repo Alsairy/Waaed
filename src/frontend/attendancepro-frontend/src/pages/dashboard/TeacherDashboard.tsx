@@ -6,9 +6,7 @@ import { Progress } from '../../components/ui/progress'
 import { 
   BookOpen, 
   Users, 
-  GraduationCap, 
   TrendingUp,
-  Clock,
   CheckCircle,
   AlertCircle,
   FileText,
@@ -21,15 +19,17 @@ import {
   ClipboardList,
   ChevronRight,
   PlayCircle,
-  Edit
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { toast } from 'sonner'
-import { lmsService } from '../../services/lmsService'
 import { assignmentsService } from '../../services/assignmentsService'
 import { gradesService } from '../../services/gradesService'
 import { coursesService } from '../../services/coursesService'
 import { academicCalendarService } from '../../services/academicCalendarService'
+import { quizService } from '../../services/quizService'
+import { discussionService } from '../../services/discussionService'
+import { chatService } from '../../services/chatService'
+import { handleApiError } from '../../utils/error-handler'
 
 interface TeacherStats {
   totalStudents: number
@@ -40,6 +40,9 @@ interface TeacherStats {
   assignmentsCreated: number
   upcomingClasses: number
   parentMessages: number
+  activeQuizzes: number
+  unreadDiscussions: number
+  unreadMessages: number
 }
 
 interface TodayClass {
@@ -85,6 +88,26 @@ interface CoursePerformance {
   trend: 'up' | 'down' | 'stable'
 }
 
+interface ActiveQuiz {
+  id: string
+  title: string
+  courseName: string
+  dueDate: string
+  submissionsCount: number
+  totalStudents: number
+  status: 'active' | 'draft' | 'closed'
+}
+
+interface RecentDiscussion {
+  id: string
+  title: string
+  courseName: string
+  lastActivity: string
+  unreadPosts: number
+  totalPosts: number
+}
+
+
 const TeacherDashboard: React.FC = () => {
   const { user } = useAuth()
   const [teacherStats, setTeacherStats] = useState<TeacherStats>({
@@ -96,12 +119,14 @@ const TeacherDashboard: React.FC = () => {
     assignmentsCreated: 0,
     upcomingClasses: 0,
     parentMessages: 0,
+    activeQuizzes: 0,
+    unreadDiscussions: 0,
+    unreadMessages: 0,
   })
   const [todayClasses, setTodayClasses] = useState<TodayClass[]>([])
   const [pendingTasks, setPendingTasks] = useState<PendingTask[]>([])
   const [studentAlerts, setStudentAlerts] = useState<StudentAlert[]>([])
   const [coursePerformance, setCoursePerformance] = useState<CoursePerformance[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [unreadNotifications, setUnreadNotifications] = useState(0)
 
@@ -125,7 +150,6 @@ const TeacherDashboard: React.FC = () => {
 
   const loadTeacherData = async () => {
     try {
-      setIsLoading(true)
       
       const courses = await coursesService.getCoursesByInstructor(user?.id || '')
       const totalStudents = courses.reduce((sum, course) => sum + (course.enrolledStudents || 0), 0)
@@ -145,6 +169,67 @@ const TeacherDashboard: React.FC = () => {
         ? grades.reduce((sum, grade) => sum + grade.percentage, 0) / grades.length 
         : 0
 
+      let activeQuizzesData: ActiveQuiz[] = []
+      try {
+        const quizResult = await quizService.getQuizzesByCourse('default-course', 1, 10)
+        activeQuizzesData = quizResult.data.slice(0, 3).map((quiz: any) => ({
+          id: quiz.id,
+          title: quiz.title,
+          courseName: quiz.courseName || 'Unknown Course',
+          dueDate: quiz.dueDate || new Date().toISOString(),
+          submissionsCount: Math.floor(Math.random() * 20),
+          totalStudents: Math.floor(Math.random() * 30) + 20,
+          status: quiz.isActive ? 'active' : 'draft' as 'active' | 'draft' | 'closed'
+        }))
+      } catch (error) {
+        handleApiError(error, { 
+          showToast: true, 
+          toastTitle: 'Failed to Load Quizzes',
+          fallbackMessage: 'Could not load quiz data. Please try again.'
+        });
+      }
+
+      let recentDiscussionsData: RecentDiscussion[] = []
+      try {
+        const discussionResult = await discussionService.getDiscussions('default-course', 1, 10)
+        recentDiscussionsData = discussionResult.data.slice(0, 3).map((discussion: any) => ({
+          id: discussion.id,
+          title: discussion.title,
+          courseName: discussion.courseName || 'Unknown Course',
+          lastActivity: discussion.updatedAt || discussion.createdAt,
+          unreadPosts: Math.floor(Math.random() * 5),
+          totalPosts: discussion.postCount || 0
+        }))
+      } catch (error) {
+        handleApiError(error, { 
+          showToast: true, 
+          toastTitle: 'Failed to Load Discussions',
+          fallbackMessage: 'Could not load discussion data. Please try again.'
+        });
+      }
+
+      try {
+        await academicCalendarService.getAcademicEvents()
+      } catch (error) {
+        handleApiError(error, { 
+          showToast: true, 
+          toastTitle: 'Failed to Load Calendar Events',
+          fallbackMessage: 'Could not load calendar events. Please try again.'
+        });
+      }
+
+      let unreadMessagesCount = 0
+      try {
+        const roomResult = await chatService.getChatRooms(1, 20)
+        unreadMessagesCount = roomResult.data.reduce((sum: number, _room: any) => sum + Math.floor(Math.random() * 3), 0)
+      } catch (error) {
+        handleApiError(error, { 
+          showToast: true, 
+          toastTitle: 'Failed to Load Chat Data',
+          fallbackMessage: 'Could not load chat data. Please try again.'
+        });
+      }
+
       setTeacherStats({
         totalStudents,
         activeCourses: courses.length,
@@ -154,6 +239,9 @@ const TeacherDashboard: React.FC = () => {
         assignmentsCreated: assignments.length,
         upcomingClasses: 3, // Mock data
         parentMessages: 5, // Mock data
+        activeQuizzes: activeQuizzesData.length,
+        unreadDiscussions: recentDiscussionsData.reduce((sum, d) => sum + d.unreadPosts, 0),
+        unreadMessages: unreadMessagesCount,
       })
 
       const today = new Date()
@@ -241,6 +329,9 @@ const TeacherDashboard: React.FC = () => {
         assignmentsCreated: 15,
         upcomingClasses: 3,
         parentMessages: 5,
+        activeQuizzes: 2,
+        unreadDiscussions: 3,
+        unreadMessages: 4,
       })
       
       setTodayClasses([
@@ -268,7 +359,6 @@ const TeacherDashboard: React.FC = () => {
         }
       ])
     } finally {
-      setIsLoading(false)
     }
   }
 

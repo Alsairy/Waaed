@@ -10,27 +10,19 @@ import {
   Search, 
   Plus, 
   Filter, 
-  Download, 
   Upload,
   Eye,
   Edit,
-  Calendar,
-  Clock,
-  Users,
   CheckCircle,
-  XCircle,
   AlertCircle,
   BarChart3,
   TrendingUp,
   Star,
   Settings,
   Copy,
-  Trash2
 } from 'lucide-react'
-import { assignmentsService } from '../../services/assignmentsService'
-import { coursesService } from '../../services/coursesService'
-import { gradesService } from '../../services/gradesService'
 import { toast } from 'sonner'
+import { handleApiError } from '../../utils/error-handler'
 
 interface Assignment {
   id: string
@@ -277,9 +269,13 @@ const AssignmentsPage: React.FC = () => {
       setAssignmentStats(stats)
 
     } catch (error) {
-      console.error('Error loading assignments:', error)
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Load Assignments',
+        fallbackMessage: 'Could not load assignments. Please try again.'
+      });
       toast.error('Failed to load assignments')
-    } finally {
+    }finally {
       setIsLoading(false)
     }
   }
@@ -352,7 +348,7 @@ const AssignmentsPage: React.FC = () => {
     return '#E74C3C'
   }
 
-  const handleAssignmentAction = async (assignmentId: string, action: 'publish' | 'close' | 'duplicate' | 'delete') => {
+  const handleAssignmentAction = async (action: 'publish' | 'close' | 'duplicate' | 'delete') => {
     try {
       switch (action) {
         case 'publish':
@@ -631,19 +627,19 @@ const AssignmentsPage: React.FC = () => {
                           <Edit className="mr-1 h-3 w-3" />
                           Edit
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleAssignmentAction(assignment.id, 'duplicate')}>
+                        <Button size="sm" variant="outline" onClick={() => handleAssignmentAction('duplicate')}>
                           <Copy className="mr-1 h-3 w-3" />
                           Duplicate
                         </Button>
                       </div>
                       <div className="flex items-center space-x-2">
                         {assignment.status === 'draft' && (
-                          <Button size="sm" onClick={() => handleAssignmentAction(assignment.id, 'publish')} style={{ backgroundColor: '#36BA91' }}>
+                          <Button size="sm" onClick={() => handleAssignmentAction('publish')} style={{ backgroundColor: '#36BA91' }}>
                             Publish
                           </Button>
                         )}
                         {assignment.status === 'published' && (
-                          <Button size="sm" variant="outline" onClick={() => handleAssignmentAction(assignment.id, 'close')}>
+                          <Button size="sm" variant="outline" onClick={() => handleAssignmentAction('close')}>
                             Close
                           </Button>
                         )}

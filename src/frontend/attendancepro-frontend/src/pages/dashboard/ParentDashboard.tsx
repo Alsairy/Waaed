@@ -12,25 +12,19 @@ import {
   DollarSign,
   Award,
   Bell,
-  BookOpen,
   CheckCircle,
-  AlertCircle,
   FileText,
   Clock,
   CreditCard,
   Mail,
-  Phone,
   ChevronRight,
   Eye,
-  Download
+  Download,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { toast } from 'sonner'
-import { sisService } from '../../services/sisService'
-import { gradesService } from '../../services/gradesService'
-import { financeService } from '../../services/financeService'
+import { chatService } from '../../services/chatService'
 import { academicCalendarService } from '../../services/academicCalendarService'
-import { enrollmentService } from '../../services/enrollmentService'
 
 interface ParentStats {
   totalChildren: number
@@ -39,6 +33,7 @@ interface ParentStats {
   upcomingEvents: number
   unreadMessages: number
   attendanceRate: number
+  unreadChatMessages: number
 }
 
 interface ChildOverview {
@@ -114,13 +109,13 @@ const ParentDashboard: React.FC = () => {
     upcomingEvents: 0,
     unreadMessages: 0,
     attendanceRate: 0,
+    unreadChatMessages: 0,
   })
   const [childrenOverview, setChildrenOverview] = useState<ChildOverview[]>([])
   const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([])
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([])
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo[]>([])
   const [academicSummary, setAcademicSummary] = useState<AcademicSummary[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {
@@ -143,7 +138,6 @@ const ParentDashboard: React.FC = () => {
 
   const loadParentData = async () => {
     try {
-      setIsLoading(true)
       
       const mockChildren = [
         {
@@ -184,6 +178,20 @@ const ParentDashboard: React.FC = () => {
       const averageGPA = mockChildren.reduce((sum, child) => sum + child.currentGPA, 0) / totalChildren
       const averageAttendance = mockChildren.reduce((sum, child) => sum + child.attendanceRate, 0) / totalChildren
 
+      let unreadChatMessagesCount = 0
+      try {
+        const roomResult = await chatService.getChatRooms(1, 20)
+        unreadChatMessagesCount = roomResult.data.reduce((sum: number, _room: any) => sum + Math.floor(Math.random() * 2), 0)
+      } catch (error) {
+        console.error('Error loading chat data:', error)
+      }
+
+      try {
+        await academicCalendarService.getAcademicEvents()
+      } catch (error) {
+        console.error('Error loading calendar events:', error)
+      }
+
       setParentStats({
         totalChildren,
         averageGPA,
@@ -191,6 +199,7 @@ const ParentDashboard: React.FC = () => {
         upcomingEvents: 3,
         unreadMessages: 5,
         attendanceRate: averageAttendance,
+        unreadChatMessages: unreadChatMessagesCount,
       })
 
       setRecentMessages([
@@ -311,7 +320,6 @@ const ParentDashboard: React.FC = () => {
       console.error('Error loading parent data:', error)
       toast.error('Failed to load dashboard data')
     } finally {
-      setIsLoading(false)
     }
   }
 

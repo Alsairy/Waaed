@@ -1,26 +1,26 @@
 import axios, { AxiosResponse } from 'axios'
 
-const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5010/api'
 
 interface AcademicEvent {
   id: string
   title: string
   description?: string
-  eventType: string
+  type: string
   startDate: string
   endDate: string
   isAllDay: boolean
   location?: string
   isRecurring: boolean
-  recurrencePattern?: RecurrencePattern
-  attendees?: string[]
-  isPublic: boolean
-  createdBy: string
-  createdByName?: string
-  semester?: string
-  year?: number
+  recurrencePattern?: string
+  priority: string
   status: string
   color?: string
+  academicYearId?: string
+  academicYearName?: string
+  semesterId?: string
+  semesterName?: string
+  createdBy: string
   createdAt: string
   updatedAt?: string
 }
@@ -28,26 +28,63 @@ interface AcademicEvent {
 interface AcademicEventDto {
   title: string
   description?: string
-  eventType: string
+  type: string
   startDate: string
   endDate: string
   isAllDay: boolean
   location?: string
   isRecurring: boolean
-  recurrencePattern?: RecurrencePattern
-  attendees?: string[]
-  isPublic: boolean
-  semester?: string
-  year?: number
+  recurrencePattern?: string
+  priority: string
+  status: string
   color?: string
+  academicYearId?: string
+  semesterId?: string
 }
 
-interface RecurrencePattern {
-  type: 'daily' | 'weekly' | 'monthly' | 'yearly'
-  interval: number
-  daysOfWeek?: number[]
-  endDate?: string
-  occurrences?: number
+interface AcademicYear {
+  id: string
+  name: string
+  startDate: string
+  endDate: string
+  isActive: boolean
+  description?: string
+  semesters?: Semester[]
+  academicEvents?: AcademicEvent[]
+  holidays?: Holiday[]
+  createdAt: string
+  updatedAt?: string
+}
+
+interface AcademicYearDto {
+  name: string
+  startDate: string
+  endDate: string
+  isActive: boolean
+  description?: string
+}
+
+interface Semester {
+  id: string
+  name: string
+  type: string
+  startDate: string
+  endDate: string
+  academicYearId: string
+  academicYearName?: string
+  isActive: boolean
+  academicEvents?: AcademicEvent[]
+  createdAt: string
+  updatedAt?: string
+}
+
+interface SemesterDto {
+  name: string
+  type: string
+  startDate: string
+  endDate: string
+  academicYearId: string
+  isActive: boolean
 }
 
 interface AcademicTerm {
@@ -91,9 +128,9 @@ interface Holiday {
   description?: string
   type: string
   isRecurring: boolean
-  country?: string
-  region?: string
   isObserved: boolean
+  academicYearId?: string
+  academicYearName?: string
   createdAt: string
   updatedAt?: string
 }
@@ -104,9 +141,8 @@ interface HolidayDto {
   description?: string
   type: string
   isRecurring: boolean
-  country?: string
-  region?: string
   isObserved: boolean
+  academicYearId?: string
 }
 
 interface ExamSchedule {
@@ -173,7 +209,8 @@ interface ClassScheduleDto {
 
 interface CalendarView {
   events: AcademicEvent[]
-  terms: AcademicTerm[]
+  academicYears: AcademicYear[]
+  semesters: Semester[]
   holidays: Holiday[]
   examSchedules: ExamSchedule[]
   classSchedules: ClassSchedule[]
@@ -213,16 +250,116 @@ class AcademicCalendarService {
     )
   }
 
+  async getAcademicYears(): Promise<AcademicYear[]> {
+    try {
+      const response: AxiosResponse<AcademicYear[]> = await this.api.get('/academic-years')
+      return response.data
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch academic years')
+    }
+  }
+
+  async getAcademicYear(id: string): Promise<AcademicYear> {
+    try {
+      const response: AxiosResponse<AcademicYear> = await this.api.get(`/academic-years/${id}`)
+      return response.data
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch academic year')
+    }
+  }
+
+  async createAcademicYear(yearData: AcademicYearDto): Promise<AcademicYear> {
+    try {
+      const response: AxiosResponse<AcademicYear> = await this.api.post('/academic-years', yearData)
+      return response.data
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create academic year')
+    }
+  }
+
+  async updateAcademicYear(id: string, yearData: Partial<AcademicYearDto>): Promise<void> {
+    try {
+      await this.api.put(`/academic-years/${id}`, yearData)
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update academic year')
+    }
+  }
+
+  async deleteAcademicYear(id: string): Promise<void> {
+    try {
+      await this.api.delete(`/academic-years/${id}`)
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete academic year')
+    }
+  }
+
+  async getSemesters(academicYearId?: string): Promise<Semester[]> {
+    try {
+      const params = new URLSearchParams()
+      if (academicYearId) params.append('academicYearId', academicYearId)
+      
+      const url = `/semesters${params.toString() ? '?' + params.toString() : ''}`
+      const response: AxiosResponse<Semester[]> = await this.api.get(url)
+      return response.data
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch semesters')
+    }
+  }
+
+  async getSemester(id: string): Promise<Semester> {
+    try {
+      const response: AxiosResponse<Semester> = await this.api.get(`/semesters/${id}`)
+      return response.data
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch semester')
+    }
+  }
+
+  async createSemester(semesterData: SemesterDto): Promise<Semester> {
+    try {
+      const response: AxiosResponse<Semester> = await this.api.post('/semesters', semesterData)
+      return response.data
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to create semester')
+    }
+  }
+
+  async updateSemester(id: string, semesterData: Partial<SemesterDto>): Promise<void> {
+    try {
+      await this.api.put(`/semesters/${id}`, semesterData)
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to update semester')
+    }
+  }
+
+  async deleteSemester(id: string): Promise<void> {
+    try {
+      await this.api.delete(`/semesters/${id}`)
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to delete semester')
+    }
+  }
+
   async getAcademicEvents(startDate?: string, endDate?: string, eventType?: string): Promise<AcademicEvent[]> {
     try {
       const params = new URLSearchParams()
       if (startDate) params.append('startDate', startDate)
       if (endDate) params.append('endDate', endDate)
-      if (eventType) params.append('eventType', eventType)
+      if (eventType) params.append('type', eventType)
       
-      const url = `/sis/academic-events${params.toString() ? '?' + params.toString() : ''}`
-      const response: AxiosResponse<{data: AcademicEvent[]}> = await this.api.get(url)
-      return response.data.data
+      const url = `/academic-events${params.toString() ? '?' + params.toString() : ''}`
+      const response: AxiosResponse<AcademicEvent[]> = await this.api.get(url)
+      return response.data
     } catch (error: unknown) {
       const errorObj = error as { response?: { data?: { message?: string } } }
       throw new Error(errorObj.response?.data?.message || 'Failed to fetch academic events')
@@ -231,8 +368,8 @@ class AcademicCalendarService {
 
   async getAcademicEvent(id: string): Promise<AcademicEvent> {
     try {
-      const response: AxiosResponse<{data: AcademicEvent}> = await this.api.get(`/sis/academic-events/${id}`)
-      return response.data.data
+      const response: AxiosResponse<AcademicEvent> = await this.api.get(`/academic-events/${id}`)
+      return response.data
     } catch (error: unknown) {
       const errorObj = error as { response?: { data?: { message?: string } } }
       throw new Error(errorObj.response?.data?.message || 'Failed to fetch academic event')
@@ -241,8 +378,8 @@ class AcademicCalendarService {
 
   async createAcademicEvent(eventData: AcademicEventDto): Promise<AcademicEvent> {
     try {
-      const response: AxiosResponse<{data: AcademicEvent}> = await this.api.post('/sis/academic-events', eventData)
-      return response.data.data
+      const response: AxiosResponse<AcademicEvent> = await this.api.post('/academic-events', eventData)
+      return response.data
     } catch (error: unknown) {
       const errorObj = error as { response?: { data?: { message?: string } } }
       throw new Error(errorObj.response?.data?.message || 'Failed to create academic event')
@@ -251,7 +388,7 @@ class AcademicCalendarService {
 
   async updateAcademicEvent(id: string, eventData: Partial<AcademicEventDto>): Promise<void> {
     try {
-      await this.api.put(`/sis/academic-events/${id}`, eventData)
+      await this.api.put(`/academic-events/${id}`, eventData)
     } catch (error: unknown) {
       const errorObj = error as { response?: { data?: { message?: string } } }
       throw new Error(errorObj.response?.data?.message || 'Failed to update academic event')
@@ -260,7 +397,7 @@ class AcademicCalendarService {
 
   async deleteAcademicEvent(id: string): Promise<void> {
     try {
-      await this.api.delete(`/sis/academic-events/${id}`)
+      await this.api.delete(`/academic-events/${id}`)
     } catch (error: unknown) {
       const errorObj = error as { response?: { data?: { message?: string } } }
       throw new Error(errorObj.response?.data?.message || 'Failed to delete academic event')
@@ -320,15 +457,15 @@ class AcademicCalendarService {
     }
   }
 
-  async getHolidays(year?: number, country?: string): Promise<Holiday[]> {
+  async getHolidays(startDate?: string, endDate?: string): Promise<Holiday[]> {
     try {
       const params = new URLSearchParams()
-      if (year) params.append('year', year.toString())
-      if (country) params.append('country', country)
+      if (startDate) params.append('startDate', startDate)
+      if (endDate) params.append('endDate', endDate)
       
-      const url = `/sis/holidays${params.toString() ? '?' + params.toString() : ''}`
-      const response: AxiosResponse<{data: Holiday[]}> = await this.api.get(url)
-      return response.data.data
+      const url = `/holidays${params.toString() ? '?' + params.toString() : ''}`
+      const response: AxiosResponse<Holiday[]> = await this.api.get(url)
+      return response.data
     } catch (error: unknown) {
       const errorObj = error as { response?: { data?: { message?: string } } }
       throw new Error(errorObj.response?.data?.message || 'Failed to fetch holidays')
@@ -337,8 +474,8 @@ class AcademicCalendarService {
 
   async createHoliday(holidayData: HolidayDto): Promise<Holiday> {
     try {
-      const response: AxiosResponse<{data: Holiday}> = await this.api.post('/sis/holidays', holidayData)
-      return response.data.data
+      const response: AxiosResponse<Holiday> = await this.api.post('/holidays', holidayData)
+      return response.data
     } catch (error: unknown) {
       const errorObj = error as { response?: { data?: { message?: string } } }
       throw new Error(errorObj.response?.data?.message || 'Failed to create holiday')
@@ -347,7 +484,7 @@ class AcademicCalendarService {
 
   async updateHoliday(id: string, holidayData: Partial<HolidayDto>): Promise<void> {
     try {
-      await this.api.put(`/sis/holidays/${id}`, holidayData)
+      await this.api.put(`/holidays/${id}`, holidayData)
     } catch (error: unknown) {
       const errorObj = error as { response?: { data?: { message?: string } } }
       throw new Error(errorObj.response?.data?.message || 'Failed to update holiday')
@@ -529,7 +666,10 @@ export type {
   AcademicCalendarService, 
   AcademicEvent, 
   AcademicEventDto, 
-  RecurrencePattern, 
+  AcademicYear,
+  AcademicYearDto,
+  Semester,
+  SemesterDto,
   AcademicTerm, 
   AcademicTermDto, 
   Holiday, 

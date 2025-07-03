@@ -2,34 +2,22 @@ import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
-import { Input } from '../../components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { Progress } from '../../components/ui/progress'
 import { 
   BarChart3, 
-  Search, 
-  Filter, 
   Download, 
-  Eye,
   Users,
-  Calendar,
   Clock,
   Award,
-  TrendingUp,
   Target,
   CheckCircle,
   AlertCircle,
   FileText,
-  Settings,
-  Mail,
   BookOpen,
-  GraduationCap
 } from 'lucide-react'
-import { gradesService } from '../../services/gradesService'
-import { coursesService } from '../../services/coursesService'
-import { sisService } from '../../services/sisService'
-import { academicCalendarService } from '../../services/academicCalendarService'
 import { toast } from 'sonner'
+import { handleApiError } from '../../utils/error-handler'
 
 interface StudentProgress {
   studentId: string
@@ -102,7 +90,7 @@ const ProgressReportsPage: React.FC = () => {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
-  const [filters, setFilters] = useState<ProgressFilters>({
+  const [,] = useState<ProgressFilters>({
     grade: '',
     academicStanding: '',
     course: '',
@@ -180,9 +168,13 @@ const ProgressReportsPage: React.FC = () => {
       setProgressStats(stats)
 
     } catch (error) {
-      console.error('Error loading progress data:', error)
+      handleApiError(error, { 
+        showToast: true, 
+        toastTitle: 'Failed to Load Progress Data',
+        fallbackMessage: 'Could not load progress data. Please try again.'
+      });
       toast.error('Failed to load progress data')
-    } finally {
+    }finally {
       setIsLoading(false)
     }
   }

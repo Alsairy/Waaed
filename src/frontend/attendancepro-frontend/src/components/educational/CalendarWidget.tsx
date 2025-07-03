@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { ChevronLeft, ChevronRight, Calendar, Clock, MapPin, Users } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar, Clock, MapPin, Users, Plus, Filter } from 'lucide-react'
 
 interface CalendarEvent {
   id: string
@@ -20,7 +20,10 @@ interface CalendarWidgetProps {
   events: CalendarEvent[]
   onEventClick?: (event: CalendarEvent) => void
   onDateSelect?: (date: Date) => void
+  onCreateEvent?: () => void
   showMiniCalendar?: boolean
+  showCreateButton?: boolean
+  showFilters?: boolean
   className?: string
 }
 
@@ -28,11 +31,16 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   events,
   onEventClick,
   onDateSelect,
+  onCreateEvent,
   showMiniCalendar = true,
+  showCreateButton = false,
+  showFilters = false,
   className = ''
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(new Date())
+  const [eventTypeFilter, setEventTypeFilter] = useState<string>('')
+  const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month')
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
@@ -61,7 +69,16 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
 
   const getEventsForDate = (date: Date) => {
     const dateString = date.toISOString().split('T')[0]
-    return events.filter(event => event.date === dateString)
+    return events.filter(event => {
+      const matchesDate = event.date === dateString
+      const matchesFilter = !eventTypeFilter || event.type === eventTypeFilter
+      return matchesDate && matchesFilter
+    })
+  }
+
+  const getFilteredEvents = () => {
+    if (!eventTypeFilter) return events
+    return events.filter(event => event.type === eventTypeFilter)
   }
 
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -159,7 +176,8 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
 
   const renderEventsList = () => {
     const selectedDateEvents = getEventsForDate(selectedDate)
-    const upcomingEvents = events
+    const filteredEvents = getFilteredEvents()
+    const upcomingEvents = filteredEvents
       .filter(event => new Date(event.date) >= new Date())
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .slice(0, 5)
@@ -175,10 +193,60 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
               : 'Upcoming Events'
             }
           </h3>
-          <Badge variant="outline" className="text-xs">
-            {eventsToShow.length} event{eventsToShow.length !== 1 ? 's' : ''}
-          </Badge>
+          <div className="flex items-center space-x-2">
+            <Badge variant="outline" className="text-xs">
+              {eventsToShow.length} event{eventsToShow.length !== 1 ? 's' : ''}
+            </Badge>
+            {showCreateButton && (
+              <Button
+                size="sm"
+                onClick={onCreateEvent}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                Add
+              </Button>
+            )}
+          </div>
         </div>
+
+        {showFilters && (
+          <div className="flex items-center space-x-2">
+            <Filter className="h-4 w-4 text-gray-500" />
+            <select
+              value={eventTypeFilter}
+              onChange={(e) => setEventTypeFilter(e.target.value)}
+              className="text-xs border border-gray-300 rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All Types</option>
+              <option value="class">Classes</option>
+              <option value="exam">Exams</option>
+              <option value="assignment">Assignments</option>
+              <option value="event">Events</option>
+              <option value="holiday">Holidays</option>
+            </select>
+            <div className="flex border border-gray-300 rounded overflow-hidden">
+              <button
+                onClick={() => setViewMode('month')}
+                className={`px-2 py-1 text-xs ${viewMode === 'month' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+              >
+                Month
+              </button>
+              <button
+                onClick={() => setViewMode('week')}
+                className={`px-2 py-1 text-xs ${viewMode === 'week' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+              >
+                Week
+              </button>
+              <button
+                onClick={() => setViewMode('day')}
+                className={`px-2 py-1 text-xs ${viewMode === 'day' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+              >
+                Day
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {eventsToShow.length === 0 ? (
