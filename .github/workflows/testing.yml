@@ -564,27 +564,27 @@ EOF
           
           # Wait for containers to start first
           echo "Waiting for E2E containers to start..."
-          sleep 30
+          sleep 45
           
-          for i in {1..80}; do
-            echo "E2E health check attempt $i/80 at $(date)"
+          for i in {1..120}; do
+            echo "E2E health check attempt $i/120 at $(date)"
             
             # Check if containers are running first
             if ! docker compose -f docker-compose.e2e.yml ps --format json 2>/dev/null | jq -r ".[].State" | grep -q "running"; then
               echo "✗ E2E containers not running yet (attempt $i)"
               docker compose -f docker-compose.e2e.yml ps 2>/dev/null || true
-              if [ $i -eq 80 ]; then
+              if [ $i -eq 120 ]; then
                 echo "❌ E2E containers failed to start within timeout"
                 exit 1
               fi
-              sleep 20
+              sleep 30
               continue
             fi
             
             echo "✓ E2E containers are running, checking service health..."
             
             # Check SQL Server with much more aggressive timeout and diagnostics
-            if timeout 120s bash -c 'until docker compose -f docker-compose.e2e.yml exec -T sqlserver-e2e /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; do sleep 3; done'; then
+            if timeout 180s bash -c 'until docker compose -f docker-compose.e2e.yml exec -T sqlserver-e2e /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; do sleep 5; done'; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready for E2E tests"
                 SQL_READY=1
