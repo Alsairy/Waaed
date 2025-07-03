@@ -1,0 +1,533 @@
+/**
+ * Waaed RTL (Right-to-Left) Layout Support
+ * 
+ * This CSS file provides comprehensive RTL layout support for Arabic language
+ * following the technical implementation specifications.
+ */
+
+/* Base RTL Support */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="ltr"] {
+  text-align: left;
+}
+
+/* Font Loading for Arabic */
+@font-face {
+  font-family: 'Effra Arabic';
+  src: url('./fonts/effra-arabic-regular.woff2') format('woff2'),
+       url('./fonts/effra-arabic-regular.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
+}
+
+@font-face {
+  font-family: 'Effra Arabic';
+  src: url('./fonts/effra-arabic-medium.woff2') format('woff2'),
+       url('./fonts/effra-arabic-medium.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
+}
+
+@font-face {
+  font-family: 'Effra Arabic';
+  src: url('./fonts/effra-arabic-bold.woff2') format('woff2'),
+       url('./fonts/effra-arabic-bold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
+}
+
+/* English Font Loading */
+@font-face {
+  font-family: 'Effra';
+  src: url('./fonts/effra-regular.woff2') format('woff2'),
+       url('./fonts/effra-regular.woff') format('woff');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Effra';
+  src: url('./fonts/effra-medium.woff2') format('woff2'),
+       url('./fonts/effra-medium.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Effra';
+  src: url('./fonts/effra-bold.woff2') format('woff2'),
+       url('./fonts/effra-bold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* Font Family Application */
+body.ltr {
+  font-family: 'Effra', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body.rtl {
+  font-family: 'Effra Arabic', 'Effra', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Arabic Text Adjustments */
+[dir="rtl"] {
+  font-size: 1.05em; /* Slightly larger font size for Arabic */
+  line-height: 1.7; /* Increased line height for better readability */
+}
+
+/* Layout Components RTL Support */
+
+/* Sidebar RTL */
+[dir="rtl"] .waaed-sidebar {
+  right: 0;
+  left: auto;
+}
+
+[dir="ltr"] .waaed-sidebar {
+  left: 0;
+  right: auto;
+}
+
+/* Dropdown RTL */
+[dir="rtl"] .waaed-dropdown {
+  right: 0;
+  left: auto;
+}
+
+[dir="ltr"] .waaed-dropdown {
+  left: 0;
+  right: auto;
+}
+
+/* Text Alignment Utilities */
+[dir="rtl"] .waaed-text-align-start {
+  text-align: right;
+}
+
+[dir="ltr"] .waaed-text-align-start {
+  text-align: left;
+}
+
+[dir="rtl"] .waaed-text-align-end {
+  text-align: left;
+}
+
+[dir="ltr"] .waaed-text-align-end {
+  text-align: right;
+}
+
+/* Margin and Padding RTL Support */
+[dir="rtl"] .waaed-ml-auto {
+  margin-right: auto;
+  margin-left: unset;
+}
+
+[dir="rtl"] .waaed-mr-auto {
+  margin-left: auto;
+  margin-right: unset;
+}
+
+[dir="rtl"] .waaed-pl-4 {
+  padding-right: 1rem;
+  padding-left: unset;
+}
+
+[dir="rtl"] .waaed-pr-4 {
+  padding-left: 1rem;
+  padding-right: unset;
+}
+
+/* Border RTL Support */
+[dir="rtl"] .waaed-border-l {
+  border-right: 1px solid;
+  border-left: none;
+}
+
+[dir="rtl"] .waaed-border-r {
+  border-left: 1px solid;
+  border-right: none;
+}
+
+/* Flexbox RTL Support */
+[dir="rtl"] .waaed-flex-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .waaed-justify-start {
+  justify-content: flex-end;
+}
+
+[dir="rtl"] .waaed-justify-end {
+  justify-content: flex-start;
+}
+
+/* Navigation RTL Support */
+[dir="rtl"] .waaed-nav-item {
+  padding-right: 1rem;
+  padding-left: 0.5rem;
+}
+
+[dir="ltr"] .waaed-nav-item {
+  padding-left: 1rem;
+  padding-right: 0.5rem;
+}
+
+/* Card Component RTL */
+[dir="rtl"] .waaed-card {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-card-header {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-card-content {
+  text-align: right;
+}
+
+/* Form Elements RTL */
+[dir="rtl"] .waaed-form-label {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-form-input {
+  text-align: right;
+  padding-right: 0.75rem;
+  padding-left: 2.5rem; /* For icons */
+}
+
+[dir="ltr"] .waaed-form-input {
+  text-align: left;
+  padding-left: 0.75rem;
+  padding-right: 2.5rem; /* For icons */
+}
+
+/* Button RTL Support */
+[dir="rtl"] .waaed-btn-with-icon {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .waaed-btn-icon {
+  margin-left: 0.5rem;
+  margin-right: 0;
+}
+
+[dir="ltr"] .waaed-btn-icon {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+/* Table RTL Support */
+[dir="rtl"] .waaed-table {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-table th,
+[dir="rtl"] .waaed-table td {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-table th:first-child,
+[dir="rtl"] .waaed-table td:first-child {
+  padding-right: 1.5rem;
+  padding-left: 0.75rem;
+}
+
+[dir="rtl"] .waaed-table th:last-child,
+[dir="rtl"] .waaed-table td:last-child {
+  padding-left: 1.5rem;
+  padding-right: 0.75rem;
+}
+
+/* Dashboard Layout RTL */
+[dir="rtl"] .waaed-dashboard-main {
+  margin-right: 16rem; /* Sidebar width */
+  margin-left: 0;
+}
+
+[dir="ltr"] .waaed-dashboard-main {
+  margin-left: 16rem; /* Sidebar width */
+  margin-right: 0;
+}
+
+/* Educational Components RTL Support */
+
+/* Course Card RTL */
+[dir="rtl"] .waaed-course-card .course-info {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-course-card .course-stats {
+  flex-direction: row-reverse;
+}
+
+/* Assignment Card RTL */
+[dir="rtl"] .waaed-assignment-card .assignment-meta {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .waaed-assignment-card .assignment-actions {
+  flex-direction: row-reverse;
+}
+
+/* Grade Display RTL */
+[dir="rtl"] .waaed-grade-display .grade-info {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-grade-display .grade-stats {
+  text-align: right;
+}
+
+/* Progress Chart RTL */
+[dir="rtl"] .waaed-progress-chart .chart-legend {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-progress-chart .chart-stats {
+  text-align: right;
+}
+
+/* Calendar Widget RTL */
+[dir="rtl"] .waaed-calendar .calendar-header {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .waaed-calendar .calendar-nav {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .waaed-calendar .event-list {
+  text-align: right;
+}
+
+/* Student Selector RTL */
+[dir="rtl"] .waaed-student-selector .student-info {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-student-selector .student-meta {
+  flex-direction: row-reverse;
+}
+
+/* Modal and Dialog RTL */
+[dir="rtl"] .waaed-modal-header {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-modal-content {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-modal-actions {
+  flex-direction: row-reverse;
+}
+
+/* Notification RTL */
+[dir="rtl"] .waaed-notification {
+  text-align: right;
+}
+
+[dir="rtl"] .waaed-notification-icon {
+  margin-left: 0.75rem;
+  margin-right: 0;
+}
+
+[dir="ltr"] .waaed-notification-icon {
+  margin-right: 0.75rem;
+  margin-left: 0;
+}
+
+/* Search and Filter RTL */
+[dir="rtl"] .waaed-search-input {
+  padding-right: 2.5rem;
+  padding-left: 0.75rem;
+}
+
+[dir="ltr"] .waaed-search-input {
+  padding-left: 2.5rem;
+  padding-right: 0.75rem;
+}
+
+[dir="rtl"] .waaed-search-icon {
+  right: 0.75rem;
+  left: auto;
+}
+
+[dir="ltr"] .waaed-search-icon {
+  left: 0.75rem;
+  right: auto;
+}
+
+/* Breadcrumb RTL */
+[dir="rtl"] .waaed-breadcrumb {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .waaed-breadcrumb-separator {
+  transform: scaleX(-1);
+}
+
+/* Tooltip RTL */
+[dir="rtl"] .waaed-tooltip {
+  text-align: right;
+}
+
+/* Animation Adjustments for RTL */
+[dir="rtl"] .waaed-slide-in-right {
+  animation: waaed-slide-in-left 0.3s ease-out;
+}
+
+[dir="rtl"] .waaed-slide-in-left {
+  animation: waaed-slide-in-right 0.3s ease-out;
+}
+
+@keyframes waaed-slide-in-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes waaed-slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Print Styles RTL */
+@media print {
+  [dir="rtl"] body {
+    text-align: right;
+  }
+  
+  [dir="rtl"] .waaed-print-header {
+    text-align: right;
+  }
+  
+  [dir="rtl"] .waaed-print-content {
+    text-align: right;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  [dir="rtl"] .waaed-text-muted {
+    color: inherit;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  [dir="rtl"] .waaed-transition,
+  [dir="rtl"] .waaed-animation {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Mobile RTL Adjustments */
+@media (max-width: 768px) {
+  [dir="rtl"] .waaed-mobile-nav {
+    right: 0;
+    left: auto;
+  }
+  
+  [dir="rtl"] .waaed-mobile-menu-toggle {
+    right: 1rem;
+    left: auto;
+  }
+  
+  [dir="rtl"] .waaed-mobile-sidebar {
+    right: -100%;
+    left: auto;
+  }
+  
+  [dir="rtl"] .waaed-mobile-sidebar.open {
+    right: 0;
+  }
+}
+
+/* Tablet RTL Adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  [dir="rtl"] .waaed-tablet-layout {
+    flex-direction: row-reverse;
+  }
+}
+
+/* Utility Classes for RTL */
+.rtl-only {
+  display: none;
+}
+
+[dir="rtl"] .rtl-only {
+  display: block;
+}
+
+.ltr-only {
+  display: block;
+}
+
+[dir="rtl"] .ltr-only {
+  display: none;
+}
+
+/* Text Direction Utilities */
+.text-dir-auto {
+  direction: auto;
+}
+
+.text-dir-ltr {
+  direction: ltr;
+}
+
+.text-dir-rtl {
+  direction: rtl;
+}
+
+/* Number and Date Formatting */
+[dir="rtl"] .waaed-number {
+  direction: ltr;
+  text-align: left;
+  display: inline-block;
+}
+
+[dir="rtl"] .waaed-date {
+  direction: ltr;
+  text-align: left;
+  display: inline-block;
+}
+
+/* Icon RTL Support */
+[dir="rtl"] .waaed-icon-chevron-right {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .waaed-icon-chevron-left {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .waaed-icon-arrow-right {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .waaed-icon-arrow-left {
+  transform: scaleX(-1);
+}
