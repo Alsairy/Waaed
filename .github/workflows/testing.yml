@@ -289,11 +289,11 @@ jobs:
           RABBITMQ_READY=0
           
           # Wait for services with individual timeouts and better error handling
-          for i in {1..180}; do
-            echo "Health check attempt $i/180 at $(date)"
+          for i in {1..120}; do
+            echo "Health check attempt $i/120 at $(date)"
             
-            # Check SQL Server with enhanced diagnostics and much longer timeout
-            if timeout 120 /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; then
+            # Check SQL Server with enhanced diagnostics and docker connectivity
+            if timeout 60 /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready!"
                 SQL_READY=1
@@ -466,7 +466,7 @@ jobs:
             libappindicator1 libnss3 lsb-release xdg-utils wget
           
           echo "Installing Node.js Playwright package..."
-          npm install -g playwright@1.39.0
+          npm install -g playwright@1.41.0
           
           echo "Installing Playwright browser: ${{ matrix.browser }} with dependencies..."
           npx playwright install --with-deps ${{ matrix.browser }} || npx playwright install ${{ matrix.browser }}
