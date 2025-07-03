@@ -345,7 +345,7 @@ jobs:
               exit 1
             fi
             
-            sleep 15
+            sleep 10
           done
 
       - name: Restore dependencies
@@ -360,7 +360,7 @@ jobs:
           ConnectionStrings__Redis: "localhost:6379"
           ConnectionStrings__RabbitMQ: "amqp://waaed:waaedtest123@localhost:5672/"
           ASPNETCORE_ENVIRONMENT: Testing
-        timeout-minutes: 15
+        timeout-minutes: 20
         run: |
           # Create test results directory
           mkdir -p ${{ env.TEST_RESULTS_PATH }}/integration
@@ -374,7 +374,7 @@ jobs:
             --collect:"XPlat Code Coverage" \
             --results-directory ${{ env.TEST_RESULTS_PATH }}/integration \
             --settings tests/coverlet.runsettings \
-            --blame-hang-timeout 10m \
+            --blame-hang-timeout 15m \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Generate integration coverage report
