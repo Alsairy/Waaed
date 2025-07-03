@@ -4,25 +4,21 @@ import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Input } from '../../components/ui/input'
 import { Progress } from '../../components/ui/progress'
+import { LoadingState } from '../../components/ui/error-display'
+import { useAsync } from '../../hooks/use-async'
+import { handleApiError } from '../../utils/error-handler'
 import { 
   BookOpen, 
   Search, 
   Plus, 
   Filter, 
-  Download, 
   Upload,
   Eye,
   Edit,
   Users,
-  Calendar,
-  Clock,
-  Award,
-  BarChart3,
   TrendingUp,
   Star,
-  ChevronRight,
   PlayCircle,
-  FileText,
   Settings
 } from 'lucide-react'
 import { coursesService } from '../../services/coursesService'
@@ -77,7 +73,6 @@ const CoursesPage: React.FC = () => {
     totalStudents: 0,
     averageCompletion: 0
   })
-  const [isLoading, setIsLoading] = useState(true)
   const [filters, setFilters] = useState<CourseFilters>({
     category: '',
     status: '',
@@ -87,17 +82,8 @@ const CoursesPage: React.FC = () => {
   })
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
-  useEffect(() => {
-    loadCourses()
-  }, [])
-
-  useEffect(() => {
-    applyFilters()
-  }, [courses, filters])
-
-  const loadCourses = async () => {
-    try {
-      setIsLoading(true)
+  const { data: courses, loading: isLoading, error, retry } = useAsync(
+    async () => {
       
       const mockCourses: Course[] = [
         {
@@ -240,16 +226,27 @@ const CoursesPage: React.FC = () => {
         averageCompletion: mockCourses.reduce((sum, c) => sum + c.completionRate, 0) / mockCourses.length
       }
       setCourseStats(stats)
-
-    } catch (error) {
-      console.error('Error loading courses:', error)
-      toast.error('Failed to load courses')
-    } finally {
-      setIsLoading(false)
+      return mockCourses
+    },
+    [],
+    {
+      onError: (error) => {
+        handleApiError(error, { 
+          toastTitle: 'Failed to load courses',
+          fallbackMessage: 'Unable to load course data. Please try again.'
+        })
+      }
     }
-  }
+  )
+
+  useEffect(() => {
+    if (courses) {
+      applyFilters()
+    }
+  }, [courses, filters])
 
   const applyFilters = () => {
+    if (!courses) return
     let filtered = courses
 
     if (filters.category) {
@@ -310,7 +307,15 @@ const CoursesPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <LoadingState
+      isLoading={isLoading}
+      error={error}
+      onRetry={retry}
+      loadingText="Loading courses..."
+      errorTitle="Failed to Load Courses"
+      errorMessage="Unable to load course data. Please check your connection and try again."
+    >
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -624,7 +629,8 @@ const CoursesPage: React.FC = () => {
           )}
         </>
       )}
-    </div>
+      </div>
+    </LoadingState>
   )
 }
 
