@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:5000/api';
 
 export interface LocationData {
   latitude: number;
@@ -147,8 +147,9 @@ class AttendanceService {
       } else {
         throw new Error(response.data.message || 'Check-in failed');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Check-in failed');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Check-in failed');
     }
   }
 
@@ -161,8 +162,9 @@ class AttendanceService {
       } else {
         throw new Error(response.data.message || 'Check-out failed');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Check-out failed');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Check-out failed');
     }
   }
 
@@ -175,8 +177,9 @@ class AttendanceService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch today\'s attendance');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch today\'s attendance');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch today\'s attendance');
     }
   }
 
@@ -202,8 +205,9 @@ class AttendanceService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch attendance records');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch attendance records');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch attendance records');
     }
   }
 
@@ -211,8 +215,9 @@ class AttendanceService {
     try {
       const response: AxiosResponse<GeofenceValidationResponse> = await this.api.post('/validate-geofence', request);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Geofence validation failed');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Geofence validation failed');
     }
   }
 
@@ -220,8 +225,9 @@ class AttendanceService {
     try {
       const response: AxiosResponse<BeaconValidationResponse> = await this.api.post('/validate-beacon', request);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Beacon validation failed');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Beacon validation failed');
     }
   }
 
@@ -238,8 +244,9 @@ class AttendanceService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch attendance statistics');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch attendance statistics');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to fetch attendance statistics');
     }
   }
 
@@ -258,8 +265,9 @@ class AttendanceService {
 
       const response: AxiosResponse<AttendanceReport> = await this.api.get(`/report?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to generate attendance report');
+    } catch (error: unknown) {
+      const errorObj = error as { response?: { data?: { message?: string } } }
+      throw new Error(errorObj.response?.data?.message || 'Failed to generate attendance report');
     }
   }
 
@@ -323,8 +331,9 @@ class AttendanceService {
           } else {
             throw new Error(`Location validation failed: ${geofenceValidation.message}`);
           }
-        } catch (error: any) {
-          throw new Error(`GPS check-in failed: ${error.message}`);
+        } catch (error: unknown) {
+          const errorObj = error as { message?: string }
+          throw new Error(`GPS check-in failed: ${errorObj.message}`);
         }
       }
 
@@ -333,8 +342,9 @@ class AttendanceService {
       }
 
       return await this.checkIn(checkInData);
-    } catch (error: any) {
-      throw new Error(error.message || 'Smart check-in failed');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string }
+      throw new Error(errorObj.message || 'Smart check-in failed');
     }
   }
 
@@ -361,8 +371,9 @@ class AttendanceService {
           } else {
             throw new Error(`Location validation failed: ${geofenceValidation.message}`);
           }
-        } catch (error: any) {
-          throw new Error(`GPS check-out failed: ${error.message}`);
+        } catch (error: unknown) {
+          const errorObj = error as { message?: string }
+          throw new Error(`GPS check-out failed: ${errorObj.message}`);
         }
       }
 
@@ -371,8 +382,9 @@ class AttendanceService {
       }
 
       return await this.checkOut(checkOutData);
-    } catch (error: any) {
-      throw new Error(error.message || 'Smart check-out failed');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string }
+      throw new Error(errorObj.message || 'Smart check-out failed');
     }
   }
 }
