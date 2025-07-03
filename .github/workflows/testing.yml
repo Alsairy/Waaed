@@ -250,9 +250,9 @@ jobs:
           - 15672:15672
         options: >-
           --health-cmd "rabbitmq-diagnostics -q ping"
-          --health-interval=30s
-          --health-timeout=30s
-          --health-retries=3
+          --health-interval=10s
+          --health-timeout=45s
+          --health-retries=15
 
     steps:
       - uses: actions/checkout@v4
@@ -850,7 +850,7 @@ EOF
               echo "✓ Performance test containers are running"
               
               # Check SQL Server health with much more aggressive timeout and multiple connection attempts
-              if timeout 180s bash -c 'until docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; do sleep 5; done'; then
+              if timeout 300s bash -c 'until docker exec sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT GETDATE()" > /dev/null 2>&1; do sleep 8; done'; then
                 if [ $SQL_READY -eq 0 ]; then
                   echo "✓ SQL Server is now healthy for performance tests"
                   SQL_READY=1
