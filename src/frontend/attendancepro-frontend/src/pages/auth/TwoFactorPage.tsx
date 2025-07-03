@@ -61,7 +61,7 @@ const TwoFactorPage: React.FC = () => {
         toast.error(result.error || '2FA verification failed')
         setCode('')
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
       setCode('')
     } finally {

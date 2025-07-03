@@ -22,7 +22,6 @@ import {
   Copy,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { handleApiError } from '../../utils/error-handler'
 
 interface Assignment {
   id: string
@@ -268,14 +267,9 @@ const AssignmentsPage: React.FC = () => {
       }
       setAssignmentStats(stats)
 
-    } catch (error) {
-      handleApiError(error, { 
-        showToast: true, 
-        toastTitle: 'Failed to Load Assignments',
-        fallbackMessage: 'Could not load assignments. Please try again.'
-      });
+    } catch {
       toast.error('Failed to load assignments')
-    }finally {
+    } finally {
       setIsLoading(false)
     }
   }
@@ -365,7 +359,7 @@ const AssignmentsPage: React.FC = () => {
           break
       }
       loadAssignments()
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${action} assignment`)
     }
   }

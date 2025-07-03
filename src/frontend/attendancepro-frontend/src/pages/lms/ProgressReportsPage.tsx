@@ -17,7 +17,6 @@ import {
   BookOpen,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { handleApiError } from '../../utils/error-handler'
 
 interface StudentProgress {
   studentId: string
@@ -167,14 +166,9 @@ const ProgressReportsPage: React.FC = () => {
       }
       setProgressStats(stats)
 
-    } catch (error) {
-      handleApiError(error, { 
-        showToast: true, 
-        toastTitle: 'Failed to Load Progress Data',
-        fallbackMessage: 'Could not load progress data. Please try again.'
-      });
+    } catch {
       toast.error('Failed to load progress data')
-    }finally {
+    } finally {
       setIsLoading(false)
     }
   }
@@ -223,7 +217,7 @@ const ProgressReportsPage: React.FC = () => {
           toast.success('Detailed analytics report generated')
           break
       }
-    } catch (error) {
+    } catch {
       toast.error(`Failed to generate ${type} report`)
     }
   }

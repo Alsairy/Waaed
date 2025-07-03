@@ -273,7 +273,7 @@ const EnrollmentPage: React.FC = () => {
       )
       setEnrollmentRequests(updatedRequests)
       toast.success(`Request ${action}d successfully`)
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${action} request`)
     }
   }

@@ -379,7 +379,7 @@ const GradeBookPage: React.FC = () => {
       setEditingGrade(null)
       setGradeInput('')
       toast.success('Grade updated successfully')
-    } catch (error) {
+    } catch {
       toast.error('Failed to update grade')
     }
   }
@@ -413,7 +413,7 @@ const GradeBookPage: React.FC = () => {
           toast.success('Grades published to students')
           break
       }
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${action} grades`)
     }
   }
