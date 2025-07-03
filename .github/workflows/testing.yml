@@ -335,7 +335,12 @@ jobs:
           ConnectionStrings__Redis: "localhost:6379"
           ConnectionStrings__RabbitMQ: "amqp://waaed:waaedtest123@localhost:5672/"
           ASPNETCORE_ENVIRONMENT: Testing
+        timeout-minutes: 15
         run: |
+          # Create test results directory
+          mkdir -p ${{ env.TEST_RESULTS_PATH }}/integration
+          
+          # Run integration tests with extended timeout
           dotnet test tests/integration/Waaed.Tests.Integration.csproj \
             --no-build \
             --configuration Release \
@@ -344,6 +349,7 @@ jobs:
             --collect:"XPlat Code Coverage" \
             --results-directory ${{ env.TEST_RESULTS_PATH }}/integration \
             --settings tests/coverlet.runsettings \
+            --blame-hang-timeout 10m \
             -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - name: Generate integration coverage report
@@ -448,65 +454,64 @@ jobs:
 
       - name: Start test environment
         run: |
-          # Create test docker-compose file
-          cat > docker-compose.e2e.yml << 'EOF'
-          version: '3.8'
-          services:
-            sqlserver:
-              image: mcr.microsoft.com/mssql/server:2022-latest
-              environment:
-                SA_PASSWORD: WaaedE2EP@ssw0rd123
-                ACCEPT_EULA: Y
-              ports:
-                - "1433:1433"
+          echo "Installing Playwright dependencies..."
+          sudo apt-get update
+          sudo apt-get install -y libnss3-dev libatk-bridge2.0-dev libdrm-dev libxkbcommon-dev libgtk-3-dev libgbm-dev libasound2-dev
+          
+          # Install Playwright browsers
+          npx playwright install --with-deps ${{ matrix.browser }}
+          
+          # Use the existing docker-compose.e2e.yml file
+          if [ ! -f "docker-compose.e2e.yml" ]; then
+            echo "❌ docker-compose.e2e.yml not found!"
+            exit 1
+          fi
 
-            redis:
-              image: redis:7-alpine
-              ports:
-                - "6379:6379"
-
-            api-gateway:
-              build:
-                context: .
-                dockerfile: src/backend/gateways/Dockerfile
-              ports:
-                - "5000:80"
-              environment:
-                - ASPNETCORE_ENVIRONMENT=Testing
-                - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=WaaedE2ETest;User Id=sa;Password=WaaedE2EP@ssw0rd123;TrustServerCertificate=true;
-                - ConnectionStrings__Redis=redis:6379
-              depends_on:
-                - sqlserver
-                - redis
-
-            frontend:
-              build:
-                context: frontend
-                dockerfile: Dockerfile
-              ports:
-                - "3000:80"
-              environment:
-                - VITE_API_BASE_URL=http://localhost:5000
-              depends_on:
-                - api-gateway
-          EOF
-
+          echo "Starting E2E test environment..."
           docker compose -f docker-compose.e2e.yml up -d
 
-          # Wait for services to be ready
-          echo "Waiting for services to start..."
-          sleep 90
-          
-          # Check if services are actually running
-          echo "Checking service status..."
-          docker compose -f docker-compose.e2e.yml ps
-
-          # Health check with better error handling and logging
-          echo "Checking API Gateway health..."
-          timeout 300 bash -c 'until curl -f http://localhost:5000/health; do echo "Waiting for API Gateway..."; sleep 10; done' || echo "API Gateway health check failed"
-          
-          echo "Checking Frontend health..."
-          timeout 300 bash -c 'until curl -f http://localhost:3000; do echo "Waiting for Frontend..."; sleep 10; done' || echo "Frontend health check failed"
+          # Wait for services with comprehensive health checks
+          echo "Waiting for services to be healthy..."
+          timeout 600 bash -c '
+            while true; do
+              echo "Checking service health... $(date)"
+              
+              # Check SQL Server
+              if docker compose -f docker-compose.e2e.yml exec -T sqlserver-e2e /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -Q "SELECT 1" > /dev/null 2>&1; then
+                echo "✓ SQL Server is ready"
+                SQL_READY=1
+              else
+                echo "✗ SQL Server not ready"
+                SQL_READY=0
+              fi
+              
+              # Check Redis
+              if docker compose -f docker-compose.e2e.yml exec -T redis-e2e redis-cli ping > /dev/null 2>&1; then
+                echo "✓ Redis is ready"
+                REDIS_READY=1
+              else
+                echo "✗ Redis not ready"
+                REDIS_READY=0
+              fi
+              
+              # Check RabbitMQ
+              if docker compose -f docker-compose.e2e.yml exec -T rabbitmq-e2e rabbitmq-diagnostics ping > /dev/null 2>&1; then
+                echo "✓ RabbitMQ is ready"
+                RABBITMQ_READY=1
+              else
+                echo "✗ RabbitMQ not ready"
+                RABBITMQ_READY=0
+              fi
+              
+              # All services ready?
+              if [ $SQL_READY -eq 1 ] && [ $REDIS_READY -eq 1 ] && [ $RABBITMQ_READY -eq 1 ]; then
+                echo "🎉 All services are ready!"
+                break
+              fi
+              
+              sleep 20
+            done
+          '
 
       - name: Run E2E tests
         env:
@@ -598,24 +603,32 @@ jobs:
           version: '3.8'
           services:
             sqlserver-perf:
-              image: mcr.microsoft.com/mssql/server:2019-latest
+              image: mcr.microsoft.com/mssql/server:2022-latest
               environment:
                 SA_PASSWORD: WaaedPerfP@ssw0rd123
                 ACCEPT_EULA: Y
                 MSSQL_PID: Express
-                MSSQL_MEMORY_LIMIT_MB: 1024
+                MSSQL_MEMORY_LIMIT_MB: 2048
                 MSSQL_TCP_PORT: 1433
+                MSSQL_ENABLE_HADR: 0
+                MSSQL_AGENT_ENABLED: false
               ports:
                 - "1433:1433"
               healthcheck:
-                test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -Q 'SELECT 1' || exit 1"]
-                interval: 10s
-                timeout: 30s
-                retries: 30
-                start_period: 60s
+                test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q 'SELECT 1' || exit 1"]
+                interval: 15s
+                timeout: 60s
+                retries: 40
+                start_period: 120s
               volumes:
                 - sqlserver_perf_data:/var/opt/mssql
               restart: unless-stopped
+              deploy:
+                resources:
+                  limits:
+                    memory: 4G
+                  reservations:
+                    memory: 2G
 
             redis-perf:
               image: redis:7-alpine
@@ -624,9 +637,9 @@ jobs:
               healthcheck:
                 test: ["CMD", "redis-cli", "ping"]
                 interval: 5s
-                timeout: 3s
-                retries: 10
-                start_period: 10s
+                timeout: 10s
+                retries: 20
+                start_period: 30s
               restart: unless-stopped
 
           volumes:
@@ -634,23 +647,47 @@ jobs:
           EOF
 
           # Start services with docker-compose
-          docker-compose -f docker-compose.perf.yml up -d
+          docker compose -f docker-compose.perf.yml up -d
           
-          # Wait for services with better error handling
+          # Wait for services with better error handling and extended timeout
           echo "Waiting for services to be healthy..."
-          timeout 300 bash -c '
+          timeout 600 bash -c '
             while true; do
-              if docker-compose -f docker-compose.perf.yml ps --services --filter "status=running" | grep -q sqlserver-perf && \
-                 docker-compose -f docker-compose.perf.yml ps --services --filter "status=running" | grep -q redis-perf; then
-                echo "Services are running, checking health..."
-                if /opt/mssql-tools/bin/sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -Q "SELECT 1" > /dev/null 2>&1 && \
-                   redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; then
-                  echo "All services are healthy!"
+              echo "Checking service status... $(date)"
+              
+              # Check if containers are running
+              if docker compose -f docker-compose.perf.yml ps --format json | jq -r ".[].State" | grep -q "running"; then
+                echo "✓ Containers are running"
+                
+                # Check SQL Server health
+                if /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+                  echo "✓ SQL Server is healthy"
+                  SQL_READY=1
+                else
+                  echo "✗ SQL Server not ready"
+                  SQL_READY=0
+                fi
+                
+                # Check Redis health
+                if redis-cli -h localhost -p 6379 ping > /dev/null 2>&1; then
+                  echo "✓ Redis is healthy"
+                  REDIS_READY=1
+                else
+                  echo "✗ Redis not ready"
+                  REDIS_READY=0
+                fi
+                
+                # All services ready?
+                if [ $SQL_READY -eq 1 ] && [ $REDIS_READY -eq 1 ]; then
+                  echo "🎉 All services are healthy!"
                   break
                 fi
+              else
+                echo "✗ Containers not running yet"
               fi
+              
               echo "Waiting for services... $(date)"
-              sleep 10
+              sleep 15
             done
           '
 
@@ -694,7 +731,7 @@ jobs:
       - name: Cleanup performance test environment
         if: always()
         run: |
-          docker-compose -f docker-compose.perf.yml down -v || true
+          docker compose -f docker-compose.perf.yml down -v || true
           docker system prune -f || true
 
   frontend-tests:

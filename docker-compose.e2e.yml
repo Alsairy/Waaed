@@ -13,7 +13,7 @@ services:
     ports:
       - "1433:1433"
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -Q 'SELECT 1' || exit 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -C -Q 'SELECT 1' || exit 1"]
       interval: 30s
       timeout: 120s
       retries: 20
@@ -28,7 +28,7 @@ services:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   rabbitmq-e2e:
     image: rabbitmq:3-management-alpine
@@ -42,7 +42,7 @@ services:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 10
 
 volumes:
   sqlserver_e2e_data:
