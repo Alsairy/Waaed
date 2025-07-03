@@ -749,7 +749,7 @@ jobs:
               echo "✓ Performance test containers are running"
               
               # Check SQL Server health with enhanced diagnostics
-              if /opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+              if docker exec sqlserver-perf /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -Q "SELECT 1" > /dev/null 2>&1; then
                 if [ $SQL_READY -eq 0 ]; then
                   echo "✓ SQL Server is now healthy for performance tests"
                   SQL_READY=1
