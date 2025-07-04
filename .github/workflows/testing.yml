@@ -293,7 +293,7 @@ jobs:
             echo "Health check attempt $i/120 at $(date)"
             
             # Check SQL Server using container-based connection approach
-            if timeout 60s docker exec sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" -t 15 > /dev/null 2>&1; then
+            if timeout 30s docker exec sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" -t 10 > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready!"
                 SQL_READY=1
@@ -741,7 +741,7 @@ jobs:
           echo "Waiting for containers to start..."
           sleep 30
           
-          for i in {1..250}; do
+          for i in {1..120}; do
             echo "Performance test health check attempt $i/250 at $(date)"
             
             # Check if containers are running
@@ -793,7 +793,7 @@ jobs:
               fi
             fi
             
-            if [ $i -eq 250 ]; then
+            if [ $i -eq 120 ]; then
               echo "❌ Performance test services failed to become healthy within maximum timeout"
               echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY"
               echo "=== Final SQL Server Container Logs ==="
@@ -815,7 +815,7 @@ jobs:
         env:
           TEST_SCENARIO: ${{ matrix.test-scenario }}
           TEST_BASE_URL: ${{ github.event.inputs.environment == 'staging' && 'https://staging.waaed.app' || github.event.inputs.environment == 'production' && 'https://app.waaed.app' || 'http://localhost:5000' }}
-          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WaaedPerfTest;User Id=sa;Password=WaaedPerfP@ssw0rd123;TrustServerCertificate=true;Encrypt=false;"
+          ConnectionStrings__DefaultConnection: "Server=localhost;Database=WaaedPerfTest;User Id=sa;Password=WaaedPerfP@ssw0rd123;TrustServerCertificate=true;Encrypt=false;"
           ConnectionStrings__Redis: "localhost:6379"
         run: |
           dotnet test tests/performance/Waaed.Tests.Performance.csproj \
