@@ -497,10 +497,24 @@ jobs:
           # Install Playwright browsers with fallback
           npx playwright install --with-deps ${{ matrix.browser }} || npx playwright install ${{ matrix.browser }}
           
+          # Verify working directory and file existence
+          echo "Current working directory: $(pwd)"
+          echo "Repository contents:"
+          ls -la
+          echo "Looking for docker-compose files:"
+          find . -name "docker-compose*.yml" -type f
+          
           # Use existing docker-compose.e2e.yml file with improved configurations
           echo "Using existing docker-compose.e2e.yml for E2E tests..."
           
-          echo "✓ docker-compose.e2e.yml created successfully"
+          if [ ! -f "docker-compose.e2e.yml" ]; then
+            echo "❌ docker-compose.e2e.yml not found in $(pwd)"
+            echo "Available files:"
+            ls -la *.yml *.yaml 2>/dev/null || echo "No YAML files found"
+            exit 1
+          fi
+          
+          echo "✓ docker-compose.e2e.yml found successfully"
           echo "Verifying file exists:"
           ls -la docker-compose.e2e.yml
           echo "File content preview:"
