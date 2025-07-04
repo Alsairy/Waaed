@@ -654,7 +654,11 @@ jobs:
       - name: Cleanup test environment
         if: always()
         run: |
-          docker compose -f docker-compose.e2e.yml down -v || true
+          if [ -f "docker-compose.e2e.yml" ]; then
+            docker compose -f docker-compose.e2e.yml down -v || true
+          else
+            echo "docker-compose.e2e.yml not found, skipping cleanup"
+          fi
           docker system prune -f
 
   performance-tests:
