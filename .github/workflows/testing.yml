@@ -701,11 +701,32 @@ jobs:
       - name: Cleanup test environment
         if: always()
         run: |
+          echo "=== E2E Test Environment Cleanup ==="
+          echo "Current directory: $(pwd)"
+          echo "Available files:"
+          ls -la *.yml 2>/dev/null || echo "No .yml files found"
+          
+          # Try multiple paths for docker-compose.e2e.yml
           if [ -f "docker-compose.e2e.yml" ]; then
+            echo "✓ Found docker-compose.e2e.yml in current directory"
             docker compose -f docker-compose.e2e.yml down -v || true
+          elif [ -f "./docker-compose.e2e.yml" ]; then
+            echo "✓ Found docker-compose.e2e.yml with relative path"
+            docker compose -f ./docker-compose.e2e.yml down -v || true
+          elif [ -f "${{ github.workspace }}/docker-compose.e2e.yml" ]; then
+            echo "✓ Found docker-compose.e2e.yml in workspace"
+            docker compose -f ${{ github.workspace }}/docker-compose.e2e.yml down -v || true
           else
-            echo "docker-compose.e2e.yml not found, skipping cleanup"
+            echo "⚠️ docker-compose.e2e.yml not found in any expected location, skipping cleanup"
+            echo "Workspace: ${{ github.workspace }}"
+            find . -name "docker-compose.e2e.yml" -type f 2>/dev/null || echo "File not found anywhere"
           fi
+          
+          # Clean up any remaining E2E containers
+          docker ps -a --filter "name=e2e" --format "table {{.Names}}\t{{.Status}}" || true
+          docker stop $(docker ps -q --filter "name=e2e") 2>/dev/null || true
+          docker rm $(docker ps -aq --filter "name=e2e") 2>/dev/null || true
+          
           docker system prune -f
 
   performance-tests:
