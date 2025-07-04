@@ -890,7 +890,7 @@ EOF
         env:
           TEST_SCENARIO: ${{ matrix.test-scenario }}
           TEST_BASE_URL: ${{ github.event.inputs.environment == 'staging' && 'https://staging.waaed.app' || github.event.inputs.environment == 'production' && 'https://app.waaed.app' || 'http://localhost:5000' }}
-          ConnectionStrings__DefaultConnection: "Server=localhost;Database=WaaedPerfTest;User Id=sa;Password=WaaedPerfP@ssw0rd123;TrustServerCertificate=true;"
+          ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=WaaedPerfTest;User Id=sa;Password=WaaedPerfP@ssw0rd123;TrustServerCertificate=true;Encrypt=false;"
           ConnectionStrings__Redis: "localhost:6379"
         run: |
           dotnet test tests/performance/Waaed.Tests.Performance.csproj \
