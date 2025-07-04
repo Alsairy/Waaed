@@ -613,9 +613,8 @@ jobs:
             ls -la *.yml *.yaml 2>/dev/null || echo "No YAML files found"
             exit 1
           fi
-
-      - name: Run E2E tests
-        run: |
+          
+          # Run the actual E2E tests
           dotnet test tests/e2e/Waaed.Tests.E2E.csproj \
             --no-build \
             --configuration Release \
