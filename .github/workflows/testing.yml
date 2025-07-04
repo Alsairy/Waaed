@@ -747,12 +747,12 @@ jobs:
           SQL_READY=0
           REDIS_READY=0
           
-          # Wait for containers to start first
-          echo "Waiting for containers to start..."
-          sleep 30
+          # Wait for containers to start first with enhanced logging
+          echo "Waiting for containers to start with enhanced diagnostics..."
+          sleep 20
           
-          for i in {1..60}; do
-            echo "Performance test health check attempt $i/60 at $(date)"
+          for i in {1..45}; do
+            echo "Performance test health check attempt $i/45 at $(date) - Enhanced timeout strategy"
             
             # Check if containers are running
             if docker compose -f docker-compose.perf.yml ps --format json 2>/dev/null | jq -r ".[].State" | grep -q "running"; then
@@ -815,8 +815,8 @@ jobs:
               fi
             fi
             
-            if [ $i -eq 60 ]; then
-              echo "❌ Performance test services failed to become ready within timeout"
+            if [ $i -eq 45 ]; then
+              echo "❌ Performance test services failed to become ready within optimized timeout"
               echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY"
               echo "=== Final SQL Server Container Logs ==="
               docker compose -f docker-compose.perf.yml logs sqlserver-perf --tail 100 2>/dev/null || true
