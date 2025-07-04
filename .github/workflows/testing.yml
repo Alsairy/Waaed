@@ -297,13 +297,13 @@ jobs:
           for i in {1..60}; do
             echo "Health check attempt $i/120 at $(date)"
             
-            # Check SQL Server using multiple connection approaches
-            if timeout 30s docker exec sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" -t 10 > /dev/null 2>&1; then
+            # Check SQL Server using enhanced connection approaches with better timeout handling
+            if timeout 10s docker exec sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" -t 3 > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready (docker exec method)!"
                 SQL_READY=1
               fi
-            elif timeout 15s sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+            elif timeout 8s sqlcmd -S localhost,1433 -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" -t 3 > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready (direct sqlcmd method)!"
                 SQL_READY=1
@@ -311,6 +311,11 @@ jobs:
             elif docker ps --filter "name=sqlserver" --format "{{.Status}}" | grep -q "healthy"; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready (health check method)!"
+                SQL_READY=1
+              fi
+            elif timeout 6s docker exec $(docker ps -q --filter "name=sqlserver") /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+              if [ $SQL_READY -eq 0 ]; then
+                echo "✓ SQL Server is now ready (alternative docker exec method)!"
                 SQL_READY=1
               fi
             else
@@ -334,16 +339,33 @@ jobs:
               fi
             fi
             
-            # Check RabbitMQ with enhanced diagnostics
-            if timeout 60 curl -f http://localhost:15672 > /dev/null 2>&1; then
+            # Check RabbitMQ with enhanced diagnostics and multiple connection methods
+            if timeout 15 curl -f http://localhost:15672 > /dev/null 2>&1; then
               if [ $RABBITMQ_READY -eq 0 ]; then
-                echo "✓ RabbitMQ is now ready!"
+                echo "✓ RabbitMQ is now ready (management UI method)!"
+                RABBITMQ_READY=1
+              fi
+            elif timeout 10 docker exec $(docker ps -q --filter "name=rabbitmq") rabbitmq-diagnostics -q ping > /dev/null 2>&1; then
+              if [ $RABBITMQ_READY -eq 0 ]; then
+                echo "✓ RabbitMQ is now ready (diagnostics ping method)!"
+                RABBITMQ_READY=1
+              fi
+            elif timeout 8 docker exec $(docker ps -q --filter "name=rabbitmq") rabbitmqctl status > /dev/null 2>&1; then
+              if [ $RABBITMQ_READY -eq 0 ]; then
+                echo "✓ RabbitMQ is now ready (rabbitmqctl status method)!"
+                RABBITMQ_READY=1
+              fi
+            elif docker ps --filter "name=rabbitmq" --format "{{.Status}}" | grep -q "healthy"; then
+              if [ $RABBITMQ_READY -eq 0 ]; then
+                echo "✓ RabbitMQ is now ready (health check method)!"
                 RABBITMQ_READY=1
               fi
             else
               if [ $((i % 3)) -eq 0 ]; then
                 echo "✗ RabbitMQ not ready (attempt $i) - checking container status..."
                 docker ps --filter "name=rabbitmq" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
+                echo "=== RabbitMQ Recent Logs ==="
+                docker logs $(docker ps -q --filter "name=rabbitmq") --tail 5 2>/dev/null || true
               fi
             fi
             
@@ -763,13 +785,13 @@ jobs:
             if docker compose -f docker-compose.perf.yml ps --format json 2>/dev/null | jq -r ".[].State" | grep -q "running"; then
               echo "✓ Performance test containers are running"
               
-              # Check SQL Server with multiple connection methods
-              if docker compose -f docker-compose.perf.yml exec -T sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" -t 5 > /dev/null 2>&1; then
+              # Check SQL Server with enhanced connection methods and better error handling
+              if timeout 10s docker compose -f docker-compose.perf.yml exec -T sqlserver-perf /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" -t 3 > /dev/null 2>&1; then
                 if [ $SQL_READY -eq 0 ]; then
                   echo "✓ SQL Server is now ready for performance tests (docker-compose exec method)"
                   SQL_READY=1
                 fi
-              elif timeout 15s sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+              elif timeout 10s sqlcmd -S localhost,1433 -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" -t 3 > /dev/null 2>&1; then
                 if [ $SQL_READY -eq 0 ]; then
                   echo "✓ SQL Server is now ready for performance tests (direct sqlcmd method)"
                   SQL_READY=1
@@ -777,6 +799,11 @@ jobs:
               elif docker compose -f docker-compose.perf.yml ps sqlserver-perf --format json 2>/dev/null | jq -r '.[].Health' | grep -q "healthy"; then
                 if [ $SQL_READY -eq 0 ]; then
                   echo "✓ SQL Server is now ready for performance tests (health check method)"
+                  SQL_READY=1
+                fi
+              elif timeout 8s docker exec $(docker compose -f docker-compose.perf.yml ps -q sqlserver-perf) /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedPerfP@ssw0rd123 -C -Q "SELECT 1" > /dev/null 2>&1; then
+                if [ $SQL_READY -eq 0 ]; then
+                  echo "✓ SQL Server is now ready for performance tests (direct docker exec method)"
                   SQL_READY=1
                 fi
               else
