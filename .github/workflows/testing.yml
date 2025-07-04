@@ -29,7 +29,7 @@
 # - Manual dispatch for targeted testing scenarios
 # - Scheduled runs for performance baseline maintenance
 #
-name: Enhanced Comprehensive Testing - Force CI Refresh v3 - Local Verified
+name: Enhanced Comprehensive Testing - Force CI Refresh v4 - FINAL FORCE EXECUTION
 
 # Add permissions for GitHub token to access repository and write comments
 permissions:
@@ -83,6 +83,7 @@ env:
   COVERAGE_THRESHOLD: '80'                   # Minimum code coverage requirement
   PERFORMANCE_BASELINE_BRANCH: 'main'       # Branch for performance comparisons
   CI_FORCE_REFRESH: 'true'                  # Force fresh CI execution - Local Verified Fixes Applied
+  WORKFLOW_EXECUTION_ID: '1751641600'        # Unique execution identifier to force GitHub Actions recognition
 
 jobs:
   # ============================================================================
