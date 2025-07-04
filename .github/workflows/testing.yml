@@ -69,6 +69,11 @@ on:
           - test
           - staging
           - production
+      force_refresh:
+        description: 'Force complete workflow refresh'
+        required: false
+        default: 'false'
+        type: boolean
 
 # Global environment variables for consistent testing
 env:
