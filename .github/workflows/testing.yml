@@ -289,11 +289,11 @@ jobs:
           RABBITMQ_READY=0
           
           # Wait for services with individual timeouts and better error handling
-          for i in {1..120}; do
+          for i in {1..60}; do
             echo "Health check attempt $i/120 at $(date)"
             
-            # Check SQL Server with improved connection approach and diagnostics
-            if timeout 90s docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" -t 30 > /dev/null 2>&1; then
+            # Check SQL Server with simplified connection approach (no explicit port)
+            if timeout 60s /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedTestP@ssw0rd123 -C -Q "SELECT 1" -t 15 > /dev/null 2>&1; then
               if [ $SQL_READY -eq 0 ]; then
                 echo "✓ SQL Server is now ready!"
                 SQL_READY=1
@@ -338,7 +338,7 @@ jobs:
               break
             fi
             
-            if [ $i -eq 180 ]; then
+            if [ $i -eq 60 ]; then
               echo "❌ Services failed to become ready within extended timeout"
               echo "Final status: SQL_READY=$SQL_READY, REDIS_READY=$REDIS_READY, RABBITMQ_READY=$RABBITMQ_READY"
               docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" || true
@@ -349,7 +349,7 @@ jobs:
               exit 1
             fi
             
-            sleep 12
+            sleep 5
           done
 
       - name: Restore dependencies
