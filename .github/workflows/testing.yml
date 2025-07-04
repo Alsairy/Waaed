@@ -82,10 +82,11 @@ env:
   TEST_RESULTS_PATH: './test-results'        # Centralized test results location
   COVERAGE_THRESHOLD: '80'                   # Minimum code coverage requirement
   PERFORMANCE_BASELINE_BRANCH: 'main'       # Branch for performance comparisons
-  CI_FORCE_REFRESH: 'v5-bypass-caching-force-execution'  # Force fresh CI execution - Local Verified Fixes Applied
-  WORKFLOW_EXECUTION_ID: '1751658400'        # Unique execution identifier to force GitHub Actions recognition
-  GITHUB_ACTIONS_CACHE_BYPASS: 'force-refresh-v5-${{ github.run_id }}-${{ github.run_attempt }}'
+  CI_FORCE_REFRESH: 'v6-new-branch-force-execution-${{ github.run_id }}'  # Force fresh CI execution - Local Verified Fixes Applied
+  WORKFLOW_EXECUTION_ID: '1751658504'        # Unique execution identifier to force GitHub Actions recognition
+  GITHUB_ACTIONS_CACHE_BYPASS: 'force-refresh-v6-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}'
   WORKFLOW_FORCE_EXECUTION: 'true'           # Additional force execution flag
+  NEW_BRANCH_EXECUTION: 'devin-1751658504-bypass-cache'  # New branch identifier
 
 jobs:
   # ============================================================================
