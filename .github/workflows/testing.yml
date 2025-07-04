@@ -639,7 +639,9 @@ services:
       timeout: 10s
       retries: 20
       start_period: 30s
-          
+
+      - name: Run E2E tests
+        run: |
           dotnet test tests/e2e/Waaed.Tests.E2E.csproj \
             --no-build \
             --configuration Release \
