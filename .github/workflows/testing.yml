@@ -29,7 +29,7 @@
 # - Manual dispatch for targeted testing scenarios
 # - Scheduled runs for performance baseline maintenance
 #
-name: Enhanced Comprehensive Testing - CI Fixes Applied
+name: Enhanced Comprehensive Testing - Force CI Refresh v2
 
 # Add permissions for GitHub token to access repository and write comments
 permissions:
