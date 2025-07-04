@@ -14,7 +14,7 @@
 
 > **🌟 World-Class Unified Education Platform** - Complete educational management solution with AI-powered analytics, real-time collaboration, and comprehensive business intelligence for modern educational institutions.
 
-## 📋 Table of Contents
+## 📋 Table of Contents 
 
 - [🎯 Overview](#-overview)
 - [✨ Key Features](#-key-features)
