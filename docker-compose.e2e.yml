@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  sqlserver-e2e:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: WaaedE2EP@ssw0rd123
+      ACCEPT_EULA: Y
+      MSSQL_PID: Express
+      MSSQL_MEMORY_LIMIT_MB: 2048
+      MSSQL_ENABLE_HADR: 0
+      MSSQL_AGENT_ENABLED: false
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P WaaedE2EP@ssw0rd123 -C -Q 'SELECT 1' || exit 1"]
+      interval: 15s
+      timeout: 60s
+      retries: 40
+      start_period: 180s
+    volumes:
+      - sqlserver_e2e_data:/var/opt/mssql
+
+  redis-e2e:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+
+  rabbitmq-e2e:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: waaed
+      RABBITMQ_DEFAULT_PASS: WaaedE2EP@ssw0rd123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 60s
+      retries: 25
+      start_period: 120s
+
+volumes:
+  sqlserver_e2e_data:
