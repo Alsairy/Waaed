@@ -1027,4 +1027,4 @@ jobs:
           else
             echo "QUALITY_GATE_STATUS=failed" >> $GITHUB_ENV
           fi
-# Trigger CI run - force refresh
+# Trigger CI run - force refresh with targeted fixes for persistent failures
