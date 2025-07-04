@@ -82,6 +82,7 @@ env:
   TEST_RESULTS_PATH: './test-results'        # Centralized test results location
   COVERAGE_THRESHOLD: '80'                   # Minimum code coverage requirement
   PERFORMANCE_BASELINE_BRANCH: 'main'       # Branch for performance comparisons
+  CI_FORCE_REFRESH: 'true'                  # Force fresh CI execution - Local Verified Fixes Applied
 
 jobs:
   # ============================================================================
