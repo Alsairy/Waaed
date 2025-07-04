@@ -1,5 +1,5 @@
 ---
-# Waaed Platform - Comprehensive Testing Workflow
+# Waaed Platform - Enhanced Testing Workflow with Targeted CI Fixes
 #
 # This workflow provides comprehensive testing capabilities for the Waaed
 # platform,
@@ -29,7 +29,7 @@
 # - Manual dispatch for targeted testing scenarios
 # - Scheduled runs for performance baseline maintenance
 #
-name: Comprehensive Testing
+name: Enhanced Comprehensive Testing - CI Fixes Applied
 
 # Add permissions for GitHub token to access repository and write comments
 permissions:
