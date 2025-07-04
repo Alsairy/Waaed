@@ -42,7 +42,7 @@ permissions:
 on:
   # Automatic triggers for code changes
   push:
-    branches: [main, develop, 'feature/*', 'hotfix/*']
+    branches: [main, develop, 'feature/*', 'hotfix/*', 'devin/*']
   pull_request:
     branches: [main, develop]
 
