@@ -67,8 +67,9 @@ const LeaveApprovalPage: React.FC = () => {
       ])
       setLeaveRequests(requestsData)
       setLeaveTypes(typesData)
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to load approval data')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to load approval data')
     } finally {
       setIsLoading(false)
     }
@@ -119,8 +120,9 @@ const LeaveApprovalPage: React.FC = () => {
       
       await loadData()
       
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to process approval')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to process approval')
     } finally {
       setIsSubmittingApproval(false)
     }
@@ -152,8 +154,9 @@ const LeaveApprovalPage: React.FC = () => {
       
       await loadData()
       
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to process bulk approval')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to process bulk approval')
     } finally {
       setIsLoading(false)
     }

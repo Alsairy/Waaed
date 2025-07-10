@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Input } from '../../components/ui/input'
@@ -14,17 +14,14 @@ import {
   Edit,
   Trash2,
   GraduationCap,
-  Calendar,
-  Phone,
-  Mail,
-  MapPin,
-  ChevronRight,
   UserPlus,
   FileText,
-  MoreHorizontal
+  MoreHorizontal,
+  Mail
 } from 'lucide-react'
 import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
+import LoadingSpinner from '../../components/LoadingSpinner'
 
 interface Student {
   id: string
@@ -62,6 +59,7 @@ const StudentsPage: React.FC = () => {
   const [selectedStudents, setSelectedStudents] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [studentsPerPage] = useState(20)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadStudents()
@@ -74,10 +72,12 @@ const StudentsPage: React.FC = () => {
   const loadStudents = async () => {
     try {
       setIsLoading(true)
+      setError(null)
       const studentsData = await sisService.getStudents()
-      setStudents(studentsData)
+      setStudents(studentsData as unknown as Student[])
     } catch (error) {
       console.error('Error loading students:', error)
+      setError('Failed to load students')
       toast.error('Failed to load students')
       
       const mockStudents: Student[] = [
@@ -165,6 +165,10 @@ const StudentsPage: React.FC = () => {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const retry = () => {
+    loadStudents()
   }
 
   const applyFilters = () => {
@@ -264,15 +268,23 @@ const StudentsPage: React.FC = () => {
     setSelectedStudents([])
   }
 
+  if (isLoading) {
+    return <LoadingSpinner />
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <p className="text-red-600">{error}</p>
+        <button onClick={retry} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          Retry
+        </button>
+      </div>
+    )
+  }
+
   return (
-    <LoadingState
-      isLoading={isLoading}
-      error={error}
-      onRetry={retry}
-      loadingText="Loading students..."
-      errorTitle="Failed to Load Students"
-      errorMessage="Unable to load student data. Please check your connection and try again."
-    >
+    <div>
       <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -581,7 +593,7 @@ const StudentsPage: React.FC = () => {
         </CardContent>
       </Card>
       </div>
-    </LoadingState>
+    </div>
   )
 }
 

@@ -89,7 +89,7 @@ class AuthService {
 
   async register(userData: RegisterData): Promise<void> {
     try {
-      const response: AxiosResponse<{success: boolean; data: any; message: string}> = await this.api.post('/auth/register', userData)
+      const response: AxiosResponse<{success: boolean; data: unknown; message: string}> = await this.api.post('/auth/register', userData)
       if (response.data.success) {
         return
       } else {

@@ -10,26 +10,17 @@ import {
   Search, 
   Plus, 
   Filter, 
-  Download, 
   Upload,
   Eye,
   Edit,
-  Calendar,
-  Clock,
-  Users,
   CheckCircle,
-  XCircle,
   AlertCircle,
   BarChart3,
   TrendingUp,
   Star,
   Settings,
-  Copy,
-  Trash2
+  Copy
 } from 'lucide-react'
-import { assignmentsService } from '../../services/assignmentsService'
-import { coursesService } from '../../services/coursesService'
-import { gradesService } from '../../services/gradesService'
 import { toast } from 'sonner'
 
 interface Assignment {
@@ -352,7 +343,7 @@ const AssignmentsPage: React.FC = () => {
     return '#E74C3C'
   }
 
-  const handleAssignmentAction = async (assignmentId: string, action: 'publish' | 'close' | 'duplicate' | 'delete') => {
+  const handleAssignmentAction = async (_assignmentId: string, action: 'publish' | 'close' | 'duplicate' | 'delete') => {
     try {
       switch (action) {
         case 'publish':
@@ -370,6 +361,7 @@ const AssignmentsPage: React.FC = () => {
       }
       loadAssignments()
     } catch (error) {
+      console.error('Assignment action error:', error)
       toast.error(`Failed to ${action} assignment`)
     }
   }

@@ -388,7 +388,7 @@ class NotificationService {
     try {
       await this.api.get('/health');
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -419,7 +419,7 @@ class NotificationService {
         };
       }
       return undefined;
-    } catch (error: unknown) {
+    } catch {
       throw new Error('Failed to subscribe to real-time notifications');
     }
   }
@@ -431,7 +431,7 @@ class NotificationService {
         return permission === 'granted';
       }
       return false;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

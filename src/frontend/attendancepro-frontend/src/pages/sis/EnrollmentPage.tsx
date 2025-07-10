@@ -5,28 +5,21 @@ import { Badge } from '../../components/ui/badge'
 import { Input } from '../../components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { 
-  Users, 
   Search, 
   Plus, 
   Filter, 
   Download, 
   Upload,
-  BookOpen,
-  Calendar,
   Clock,
   CheckCircle,
   XCircle,
   AlertCircle,
   UserPlus,
-  UserMinus,
   FileText,
   BarChart3,
   TrendingUp,
   Settings
 } from 'lucide-react'
-import { enrollmentService } from '../../services/enrollmentService'
-import { coursesService } from '../../services/coursesService'
-import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
 
 interface EnrollmentRequest {
@@ -88,7 +81,7 @@ const EnrollmentPage: React.FC = () => {
     totalStudents: 0,
     enrolledStudents: 0
   })
-  const [isLoading, setIsLoading] = useState(true)
+  const [, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('requests')
   const [filters, setFilters] = useState({
     status: '',
@@ -278,9 +271,10 @@ const EnrollmentPage: React.FC = () => {
             }
           : request
       )
-      setEnrollmentRequests(updatedRequests)
+      setEnrollmentRequests(updatedRequests as EnrollmentRequest[])
       toast.success(`Request ${action}d successfully`)
     } catch (error) {
+      console.error('Request action error:', error)
       toast.error(`Failed to ${action} request`)
     }
   }

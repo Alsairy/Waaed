@@ -6,9 +6,7 @@ import { Progress } from '../../components/ui/progress'
 import { 
   BookOpen, 
   Users, 
-  GraduationCap, 
   TrendingUp,
-  Clock,
   CheckCircle,
   AlertCircle,
   FileText,
@@ -20,12 +18,10 @@ import {
   UserCheck,
   ClipboardList,
   ChevronRight,
-  PlayCircle,
-  Edit
+  PlayCircle
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { toast } from 'sonner'
-import { lmsService } from '../../services/lmsService'
 import { assignmentsService } from '../../services/assignmentsService'
 import { gradesService } from '../../services/gradesService'
 import { coursesService } from '../../services/coursesService'
@@ -101,7 +97,6 @@ const TeacherDashboard: React.FC = () => {
   const [pendingTasks, setPendingTasks] = useState<PendingTask[]>([])
   const [studentAlerts, setStudentAlerts] = useState<StudentAlert[]>([])
   const [coursePerformance, setCoursePerformance] = useState<CoursePerformance[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [unreadNotifications, setUnreadNotifications] = useState(0)
 
@@ -125,8 +120,6 @@ const TeacherDashboard: React.FC = () => {
 
   const loadTeacherData = async () => {
     try {
-      setIsLoading(true)
-      
       const courses = await coursesService.getCoursesByInstructor(user?.id || '')
       const totalStudents = courses.reduce((sum, course) => sum + (course.enrolledStudents || 0), 0)
       
@@ -267,8 +260,6 @@ const TeacherDashboard: React.FC = () => {
           attendanceTaken: false
         }
       ])
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -279,7 +270,7 @@ const TeacherDashboard: React.FC = () => {
     return 'Summer'
   }
 
-  const filterTodayClasses = (schedule: any[], courses: any[]) => {
+  const filterTodayClasses = (schedule: { dayOfWeek: number; courseId: string; id: string; startTime: string; endTime: string; location?: string }[], courses: { id: string; title?: string; code?: string; enrolledStudents?: number }[]) => {
     const today = new Date().getDay()
     return schedule.filter(cls => cls.dayOfWeek === today).map(cls => {
       const course = courses.find(c => c.id === cls.courseId)

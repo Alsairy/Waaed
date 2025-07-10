@@ -1,10 +1,10 @@
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000'
+const API_BASE_URL = (import.meta as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL || 'http://localhost:5000'
 
 export interface RealTimeEvent {
   type: 'attendance' | 'notification' | 'analytics' | 'leave' | 'system'
-  data: any
+  data: unknown
   timestamp: string
   userId?: string
   tenantId?: string
@@ -32,7 +32,7 @@ export interface NotificationUpdate {
 
 export interface AnalyticsUpdate {
   type: 'overview' | 'attendance-rate' | 'productivity' | 'department'
-  data: any
+  data: unknown
   timestamp: string
 }
 
@@ -42,7 +42,7 @@ class RealTimeService {
   private maxReconnectAttempts = 5
   private reconnectDelay = 5000
   private isConnecting = false
-  private eventHandlers: Map<string, ((data: any) => void)[]> = new Map()
+  private eventHandlers: Map<string, ((data: unknown) => void)[]> = new Map()
 
   constructor() {
     this.initializeConnection()
@@ -107,7 +107,7 @@ class RealTimeService {
       } as RealTimeEvent)
     })
 
-    this.connection.on('LeaveStatusUpdate', (data: any) => {
+    this.connection.on('LeaveStatusUpdate', (data: unknown) => {
       this.emitEvent('leave-status-update', data)
       this.emitEvent('real-time-event', {
         type: 'leave',
@@ -116,7 +116,7 @@ class RealTimeService {
       } as RealTimeEvent)
     })
 
-    this.connection.on('SystemAlert', (data: any) => {
+    this.connection.on('SystemAlert', (data: unknown) => {
       this.emitEvent('system-alert', data)
       this.emitEvent('real-time-event', {
         type: 'system',
@@ -232,14 +232,14 @@ class RealTimeService {
     }
   }
 
-  public on(eventName: string, handler: (data: any) => void) {
+  public on(eventName: string, handler: (data: unknown) => void) {
     if (!this.eventHandlers.has(eventName)) {
       this.eventHandlers.set(eventName, [])
     }
     this.eventHandlers.get(eventName)!.push(handler)
   }
 
-  public off(eventName: string, handler: (data: any) => void) {
+  public off(eventName: string, handler: (data: unknown) => void) {
     const handlers = this.eventHandlers.get(eventName)
     if (handlers) {
       const index = handlers.indexOf(handler)
@@ -249,7 +249,7 @@ class RealTimeService {
     }
   }
 
-  private emitEvent(eventName: string, data: any) {
+  private emitEvent(eventName: string, data: unknown) {
     const handlers = this.eventHandlers.get(eventName)
     if (handlers) {
       handlers.forEach(handler => {

@@ -108,7 +108,17 @@ const TenantManagementPage: React.FC = () => {
   const [tenantUsage, setTenantUsage] = useState<TenantUsageReport | null>(null);
   const [availableFeatures, setAvailableFeatures] = useState<Array<{ id: string; name: string; description: string; category: string }>>([]);
   const [, setSubscriptionPlans] = useState<Array<{ id: string; name: string; description: string; price: number; features: string[] }>>([]);
-  const [tenantStats, setTenantStats] = useState<any>(null);
+  const [tenantStats, setTenantStats] = useState<{
+    totalTenants: number;
+    activeTenants: number;
+    trialTenants: number;
+    suspendedTenants: number;
+    newTenantsThisMonth: number;
+    totalUsers: number;
+    totalRevenue: number;
+    planBreakdown: { plan: string; count: number; }[];
+    countryBreakdown: { country: string; count: number; }[];
+  } | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 10,
@@ -160,8 +170,9 @@ const TenantManagementPage: React.FC = () => {
         totalPages: response.totalPages,
         totalCount: response.totalCount,
       }));
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to load tenants');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to load tenants');
     } finally {
       setLoading(false);
     }
@@ -171,8 +182,9 @@ const TenantManagementPage: React.FC = () => {
     try {
       const features = await tenantManagementService.getAvailableFeatures();
       setAvailableFeatures(features);
-    } catch (error: any) {
-      toast.error('Failed to load available features');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to load available features');
     }
   };
 
@@ -180,8 +192,9 @@ const TenantManagementPage: React.FC = () => {
     try {
       const plans = await tenantManagementService.getSubscriptionPlans();
       setSubscriptionPlans(plans);
-    } catch (error: any) {
-      toast.error('Failed to load subscription plans');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to load subscription plans');
     }
   };
 
@@ -189,8 +202,9 @@ const TenantManagementPage: React.FC = () => {
     try {
       const stats = await tenantManagementService.getTenantStats();
       setTenantStats(stats);
-    } catch (error: any) {
-      toast.error('Failed to load tenant statistics');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to load tenant statistics');
     }
   };
 
@@ -203,8 +217,9 @@ const TenantManagementPage: React.FC = () => {
       const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       const usage = await tenantManagementService.getTenantUsageReport(tenantId, startDate, endDate);
       setTenantUsage(usage);
-    } catch (error: any) {
-      toast.error('Failed to load tenant analytics');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to load tenant analytics');
     }
   };
 
@@ -215,8 +230,9 @@ const TenantManagementPage: React.FC = () => {
       setShowCreateDialog(false);
       createForm.reset();
       loadTenants();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to create tenant');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to create tenant');
     }
   };
 
@@ -231,8 +247,9 @@ const TenantManagementPage: React.FC = () => {
       await tenantManagementService.deleteTenant(tenantId);
       toast.success('Tenant deleted successfully');
       loadTenants();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to delete tenant');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to delete tenant');
     }
   };
 
@@ -241,8 +258,9 @@ const TenantManagementPage: React.FC = () => {
       await tenantManagementService.updateTenantStatus(tenantId, status);
       toast.success('Tenant status updated successfully');
       loadTenants();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update tenant status');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to update tenant status');
     }
   };
 
@@ -258,8 +276,9 @@ const TenantManagementPage: React.FC = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       toast.success('Tenants exported successfully');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to export tenants');
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to export tenants');
     }
   };
 
@@ -441,7 +460,7 @@ const TenantManagementPage: React.FC = () => {
                 className="pl-8"
               />
             </div>
-            <Select value={filters.status || ''} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value as any }))}>
+            <Select value={filters.status || ''} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value === 'all' ? undefined : value as 'Active' | 'Inactive' | 'Suspended' | 'Trial' }))}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
@@ -453,7 +472,7 @@ const TenantManagementPage: React.FC = () => {
                 <SelectItem value="Trial">Trial</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={filters.subscriptionPlan || ''} onValueChange={(value) => setFilters(prev => ({ ...prev, subscriptionPlan: value as any }))}>
+            <Select value={filters.subscriptionPlan || ''} onValueChange={(value) => setFilters(prev => ({ ...prev, subscriptionPlan: value === 'all' ? undefined : value as 'Basic' | 'Professional' | 'Enterprise' | 'Custom' }))}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by plan" />
               </SelectTrigger>

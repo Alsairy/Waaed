@@ -9,7 +9,7 @@ interface WorkflowStep {
   assignedTo?: string;
   dueDays?: number;
   isAutomated: boolean;
-  configuration?: Record<string, any>;
+  configuration?: Record<string, unknown>;
 }
 
 interface WorkflowTemplate {

@@ -136,7 +136,7 @@ interface LibraryReport {
   title: string
   type: string
   period: string
-  data: any
+  data: unknown
   generatedAt: string
   generatedBy: string
 }

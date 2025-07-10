@@ -6,17 +6,13 @@ import { Input } from '../../components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { Progress } from '../../components/ui/progress'
 import { 
-  BarChart3, 
   Search, 
   Plus, 
   Filter, 
   Download, 
-  Upload,
   Eye,
   Edit,
-  Users,
   Calendar,
-  Clock,
   DollarSign,
   AlertCircle,
   CheckCircle,
@@ -29,8 +25,6 @@ import {
   PieChart,
   LineChart
 } from 'lucide-react'
-import { financeService } from '../../services/financeService'
-import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
 
 interface FinancialReport {
@@ -238,7 +232,7 @@ const FinancialReportsPage: React.FC = () => {
     }).format(amount)
   }
 
-  const handleReportAction = async (action: 'create' | 'edit' | 'delete' | 'publish' | 'archive', reportId?: string) => {
+  const handleReportAction = async (action: 'create' | 'edit' | 'delete' | 'publish' | 'archive') => {
     try {
       switch (action) {
         case 'create':
@@ -259,6 +253,7 @@ const FinancialReportsPage: React.FC = () => {
       }
       loadFinancialReports()
     } catch (error) {
+      console.error('Report action error:', error)
       toast.error(`Failed to ${action} report`)
     }
   }
@@ -280,6 +275,7 @@ const FinancialReportsPage: React.FC = () => {
           break
       }
     } catch (error) {
+      console.error('Bulk action error:', error)
       toast.error(`Failed to ${action} reports`)
     }
   }
@@ -562,7 +558,7 @@ const FinancialReportsPage: React.FC = () => {
                           <Eye className="mr-1 h-3 w-3" />
                           View Report
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleReportAction('edit', report.id)}>
+                        <Button size="sm" variant="outline" onClick={() => handleReportAction('edit')}>
                           <Edit className="mr-1 h-3 w-3" />
                           Edit
                         </Button>
@@ -573,12 +569,12 @@ const FinancialReportsPage: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         {report.status === 'draft' && (
-                          <Button size="sm" onClick={() => handleReportAction('publish', report.id)} style={{ backgroundColor: '#36BA91' }}>
+                          <Button size="sm" onClick={() => handleReportAction('publish')} style={{ backgroundColor: '#36BA91' }}>
                             Publish
                           </Button>
                         )}
                         {report.status === 'published' && (
-                          <Button size="sm" variant="outline" onClick={() => handleReportAction('archive', report.id)}>
+                          <Button size="sm" variant="outline" onClick={() => handleReportAction('archive')}>
                             Archive
                           </Button>
                         )}
@@ -697,7 +693,7 @@ const FinancialReportsPage: React.FC = () => {
                     {reports.filter(r => r.data.outstandingAmount > 50000).length}
                   </div>
                   <p className="text-sm text-muted-foreground">High Outstanding</p>
-                  <p className="text-xs text-muted-foreground">>50K outstanding</p>
+                  <p className="text-xs text-muted-foreground">&gt;50K outstanding</p>
                 </div>
                 <div>
                   <div className="text-2xl font-bold" style={{ color: '#005F96' }}>

@@ -491,7 +491,7 @@ class AcademicCalendarService {
     }
   }
 
-  async importCalendar(calendarData: any, format: 'ics' | 'csv'): Promise<{
+  async importCalendar(calendarData: unknown, format: 'ics' | 'csv'): Promise<{
     imported: number
     errors: string[]
   }> {

@@ -6,10 +6,8 @@ import { Input } from '../../components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { Progress } from '../../components/ui/progress'
 import { 
-  BookOpen, 
   Search, 
-  Plus, 
-  Filter, 
+  Filter,
   Download, 
   Upload,
   Eye,
@@ -20,17 +18,12 @@ import {
   TrendingUp,
   Star,
   CheckCircle,
-  AlertCircle,
   Calculator,
   FileText,
   Settings,
   Mail,
   MessageSquare
 } from 'lucide-react'
-import { gradesService } from '../../services/gradesService'
-import { coursesService } from '../../services/coursesService'
-import { assignmentsService } from '../../services/assignmentsService'
-import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
 
 interface GradeEntry {
@@ -387,6 +380,7 @@ const GradeBookPage: React.FC = () => {
       setGradeInput('')
       toast.success('Grade updated successfully')
     } catch (error) {
+      console.error('Grade update error:', error)
       toast.error('Failed to update grade')
     }
   }
@@ -421,6 +415,7 @@ const GradeBookPage: React.FC = () => {
           break
       }
     } catch (error) {
+      console.error('Bulk action error:', error)
       toast.error(`Failed to ${action} grades`)
     }
   }
@@ -680,7 +675,7 @@ const GradeBookPage: React.FC = () => {
                                     {grade.letterGrade} ({grade.earnedPoints}/{grade.maxPoints})
                                   </div>
                                 </div>
-                                <Button size="sm" variant="outline" onClick={() => handleGradeEdit(grade.id, grade.percentage)}>
+                                <Button size="sm" variant="outline" onClick={() => handleGradeEdit(grade.id, grade.percentage || 0)}>
                                   <Edit className="h-3 w-3" />
                                 </Button>
                               </>

@@ -3,34 +3,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Input } from '../../components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
-import { Progress } from '../../components/ui/progress'
 import { 
   BookOpen, 
   Search, 
   Plus, 
   Filter, 
   Download, 
-  Upload,
   Eye,
-  Edit,
   Users,
-  Calendar,
-  Clock,
   Star,
-  AlertCircle,
   CheckCircle,
   FileText,
-  Settings,
-  Mail,
   Heart,
   Share,
   Bookmark,
   Grid,
   List
 } from 'lucide-react'
-import { libraryService } from '../../services/libraryService'
-import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
 
 interface Book {
@@ -336,7 +325,7 @@ const CatalogPage: React.FC = () => {
     ))
   }
 
-  const handleBookAction = async (action: 'reserve' | 'checkout' | 'favorite' | 'share', bookId: string) => {
+  const handleBookAction = async (action: 'reserve' | 'checkout' | 'favorite' | 'share') => {
     try {
       switch (action) {
         case 'reserve':
@@ -354,6 +343,7 @@ const CatalogPage: React.FC = () => {
       }
       loadLibraryCatalog()
     } catch (error) {
+      console.error('Book action error:', error)
       toast.error(`Failed to ${action} book`)
     }
   }
@@ -372,6 +362,7 @@ const CatalogPage: React.FC = () => {
           break
       }
     } catch (error) {
+      console.error('Bulk action error:', error)
       toast.error(`Failed to ${action}`)
     }
   }
@@ -677,10 +668,10 @@ const CatalogPage: React.FC = () => {
 
                       <div className="flex items-center justify-between pt-2 border-t">
                         <div className="flex items-center space-x-1">
-                          <Button size="sm" variant="outline" onClick={() => handleBookAction('favorite', book.id)}>
+                          <Button size="sm" variant="outline" onClick={() => handleBookAction('favorite')}>
                             <Heart className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="outline" onClick={() => handleBookAction('share', book.id)}>
+                          <Button size="sm" variant="outline" onClick={() => handleBookAction('share')}>
                             <Share className="h-3 w-3" />
                           </Button>
                           <Button size="sm" variant="outline">
@@ -689,11 +680,11 @@ const CatalogPage: React.FC = () => {
                         </div>
                         <div className="flex items-center space-x-1">
                           {book.availableCopies > 0 ? (
-                            <Button size="sm" onClick={() => handleBookAction('checkout', book.id)} style={{ backgroundColor: '#36BA91' }}>
+                            <Button size="sm" onClick={() => handleBookAction('checkout')} style={{ backgroundColor: '#36BA91' }}>
                               Checkout
                             </Button>
                           ) : (
-                            <Button size="sm" variant="outline" onClick={() => handleBookAction('reserve', book.id)}>
+                            <Button size="sm" variant="outline" onClick={() => handleBookAction('reserve')}>
                               Reserve
                             </Button>
                           )}
@@ -778,23 +769,23 @@ const CatalogPage: React.FC = () => {
                                 <Eye className="mr-1 h-3 w-3" />
                                 View Details
                               </Button>
-                              <Button size="sm" variant="outline" onClick={() => handleBookAction('favorite', book.id)}>
+                              <Button size="sm" variant="outline" onClick={() => handleBookAction('favorite')}>
                                 <Heart className="mr-1 h-3 w-3" />
                                 Favorite
                               </Button>
-                              <Button size="sm" variant="outline" onClick={() => handleBookAction('share', book.id)}>
+                              <Button size="sm" variant="outline" onClick={() => handleBookAction('share')}>
                                 <Share className="mr-1 h-3 w-3" />
                                 Share
                               </Button>
                             </div>
                             <div className="flex items-center space-x-2">
                               {book.availableCopies > 0 ? (
-                                <Button size="sm" onClick={() => handleBookAction('checkout', book.id)} style={{ backgroundColor: '#36BA91' }}>
+                                <Button size="sm" onClick={() => handleBookAction('checkout')} style={{ backgroundColor: '#36BA91' }}>
                                   <BookOpen className="mr-1 h-3 w-3" />
                                   Checkout
                                 </Button>
                               ) : (
-                                <Button size="sm" variant="outline" onClick={() => handleBookAction('reserve', book.id)}>
+                                <Button size="sm" variant="outline" onClick={() => handleBookAction('reserve')}>
                                   <Bookmark className="mr-1 h-3 w-3" />
                                   Reserve
                                 </Button>

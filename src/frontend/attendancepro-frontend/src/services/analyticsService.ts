@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (import.meta as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 export interface AnalyticsOverview {
   totalEmployees: number;
@@ -53,7 +53,7 @@ export interface PredictiveInsight {
   recommendedActions: string[];
   affectedUsers?: string[];
   predictedDate?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AbsenteeismRisk {
@@ -98,7 +98,7 @@ export interface AnomalyDetection {
   detectedAt: string;
   resolved: boolean;
   resolvedAt?: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 export interface AnalyticsFilter {
@@ -144,8 +144,8 @@ class AnalyticsService {
   });
 
   constructor() {
-    const setupInterceptors = (apiInstance: any) => {
-      apiInstance.interceptors.request.use((config: any) => {
+    const setupInterceptors = (apiInstance: typeof this.api) => {
+      apiInstance.interceptors.request.use((config) => {
         const token = localStorage.getItem('token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -154,9 +154,9 @@ class AnalyticsService {
       });
 
       apiInstance.interceptors.response.use(
-        (response: any) => response,
-        (error: any) => {
-          if (error.response?.status === 401) {
+        (response: AxiosResponse) => response,
+        (error: unknown) => {
+          if (error && typeof error === 'object' && 'response' in error && (error as { response?: { status?: number } }).response?.status === 401) {
             localStorage.removeItem('token');
             window.location.href = '/login';
           }
@@ -183,8 +183,11 @@ class AnalyticsService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch analytics overview');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch analytics overview');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to fetch analytics overview';
+      throw new Error(errorMessage);
     }
   }
 
@@ -202,8 +205,11 @@ class AnalyticsService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch attendance trends');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch attendance trends');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to fetch attendance trends';
+      throw new Error(errorMessage);
     }
   }
 
@@ -222,8 +228,11 @@ class AnalyticsService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch productivity metrics');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch productivity metrics');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to fetch productivity metrics';
+      throw new Error(errorMessage);
     }
   }
 
@@ -241,8 +250,11 @@ class AnalyticsService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch department analytics');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch department analytics');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to fetch department analytics';
+      throw new Error(errorMessage);
     }
   }
 
@@ -257,8 +269,11 @@ class AnalyticsService {
 
       const response = await this.predictiveApi.get(`/predict-attendance?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to predict attendance');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to predict attendance';
+      throw new Error(errorMessage);
     }
   }
 
@@ -269,8 +284,11 @@ class AnalyticsService {
 
       const response: AxiosResponse<AbsenteeismRisk[]> = await this.predictiveApi.get(`/absenteeism-risk?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch absenteeism risk');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to fetch absenteeism risk';
+      throw new Error(errorMessage);
     }
   }
 
@@ -281,8 +299,11 @@ class AnalyticsService {
 
       const response: AxiosResponse<TurnoverRisk[]> = await this.predictiveApi.get(`/turnover-risk?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch turnover risk');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to fetch turnover risk';
+      throw new Error(errorMessage);
     }
   }
 
@@ -291,8 +312,11 @@ class AnalyticsService {
       const params = new URLSearchParams({ startDate, endDate });
       const response: AxiosResponse<WorkforceCapacity[]> = await this.predictiveApi.get(`/workforce-capacity?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch workforce capacity forecast');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to fetch workforce capacity forecast';
+      throw new Error(errorMessage);
     }
   }
 
@@ -304,8 +328,11 @@ class AnalyticsService {
 
       const response: AxiosResponse<AnomalyDetection[]> = await this.predictiveApi.get(`/anomalies?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch anomalies');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to fetch anomalies';
+      throw new Error(errorMessage);
     }
   }
 
@@ -317,8 +344,11 @@ class AnalyticsService {
 
       const response: AxiosResponse<PredictiveInsight[]> = await this.predictiveApi.get(`/insights?${params}`);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch predictive insights');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to fetch predictive insights';
+      throw new Error(errorMessage);
     }
   }
 
@@ -326,8 +356,11 @@ class AnalyticsService {
     try {
       await this.predictiveApi.put(`/anomalies/${anomalyId}/resolve`, { resolution });
       return true;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to resolve anomaly');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to resolve anomaly';
+      throw new Error(errorMessage);
     }
   }
 
@@ -360,8 +393,9 @@ class AnalyticsService {
           },
         ],
       };
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to generate attendance chart data');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate attendance chart data';
+      throw new Error(errorMessage);
     }
   }
 
@@ -387,8 +421,9 @@ class AnalyticsService {
           },
         ],
       };
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to generate productivity chart data');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate productivity chart data';
+      throw new Error(errorMessage);
     }
   }
 
@@ -413,8 +448,9 @@ class AnalyticsService {
           },
         ],
       };
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to generate department chart data');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate department chart data';
+      throw new Error(errorMessage);
     }
   }
 
@@ -430,8 +466,11 @@ class AnalyticsService {
       } else {
         throw new Error(response.data.message || 'Failed to fetch recent activity');
       }
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to fetch recent activity');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to fetch recent activity';
+      throw new Error(errorMessage);
     }
   }
 
@@ -439,7 +478,7 @@ class AnalyticsService {
     try {
       await this.api.get('/health');
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -465,8 +504,11 @@ class AnalyticsService {
       });
 
       return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to export report');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error 
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : 'Failed to export report';
+      throw new Error(errorMessage);
     }
   }
 }

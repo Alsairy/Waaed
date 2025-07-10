@@ -11,13 +11,9 @@ import {
   Plus, 
   Filter, 
   Download, 
-  Upload,
   Eye,
   Edit,
-  Users,
-  Calendar,
   Clock,
-  CreditCard,
   AlertCircle,
   CheckCircle,
   FileText,
@@ -27,8 +23,6 @@ import {
   TrendingUp,
   Receipt
 } from 'lucide-react'
-import { financeService } from '../../services/financeService'
-import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
 
 interface FeeStructure {
@@ -335,7 +329,7 @@ const FeesPage: React.FC = () => {
     }).format(amount)
   }
 
-  const handleFeeAction = async (action: 'create' | 'edit' | 'delete' | 'activate' | 'deactivate', feeId?: string) => {
+  const handleFeeAction = async (action: 'create' | 'edit' | 'delete' | 'activate' | 'deactivate') => {
     try {
       switch (action) {
         case 'create':
@@ -355,7 +349,7 @@ const FeesPage: React.FC = () => {
           break
       }
       loadFeesData()
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${action} fee structure`)
     }
   }
@@ -373,7 +367,7 @@ const FeesPage: React.FC = () => {
           toast.success('Payment reminders sent successfully')
           break
       }
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${action}`)
     }
   }
@@ -608,7 +602,7 @@ const FeesPage: React.FC = () => {
                           <Eye className="mr-1 h-3 w-3" />
                           View Details
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleFeeAction('edit', fee.id)}>
+                        <Button size="sm" variant="outline" onClick={() => handleFeeAction('edit')}>
                           <Edit className="mr-1 h-3 w-3" />
                           Edit
                         </Button>
@@ -619,11 +613,11 @@ const FeesPage: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         {fee.isActive ? (
-                          <Button size="sm" variant="outline" onClick={() => handleFeeAction('deactivate', fee.id)}>
+                          <Button size="sm" variant="outline" onClick={() => handleFeeAction('deactivate')}>
                             Deactivate
                           </Button>
                         ) : (
-                          <Button size="sm" onClick={() => handleFeeAction('activate', fee.id)} style={{ backgroundColor: '#36BA91' }}>
+                          <Button size="sm" onClick={() => handleFeeAction('activate')} style={{ backgroundColor: '#36BA91' }}>
                             Activate
                           </Button>
                         )}
