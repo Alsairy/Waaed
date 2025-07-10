@@ -106,32 +106,35 @@ const EmployeeDashboard: React.FC = () => {
   }, [realTimeUpdates])
 
   const setupRealTimeConnections = () => {
-    realTimeService.on('connection-status', (status) => {
-      setConnectionStatus(status.status)
-      if (status.status === 'connected') {
+    realTimeService.on('connection-status', (status: unknown) => {
+      const statusData = status as { status: 'connected' | 'disconnected' | 'reconnecting' | 'error' }
+      setConnectionStatus(statusData.status)
+      if (statusData.status === 'connected') {
         toast.success('Real-time connection established')
-      } else if (status.status === 'disconnected') {
+      } else if (statusData.status === 'disconnected') {
         toast.error('Real-time connection lost')
-      } else if (status.status === 'reconnecting') {
+      } else if (statusData.status === 'reconnecting') {
         toast.info('Reconnecting to real-time service...')
       }
     })
 
-    realTimeService.on('personal-update', (update) => {
+    realTimeService.on('personal-update', (update: unknown) => {
       if (realTimeUpdates) {
         loadEmployeeData()
-        setPersonalActivity(prev => [update, ...prev.slice(0, 9)])
-        toast.info(`${update.action.replace('-', ' ')} recorded`)
+        const updateData = update as PersonalActivity
+        setPersonalActivity(prev => [updateData, ...prev.slice(0, 9)])
+        toast.info(`${updateData.action.replace('-', ' ')} recorded`)
       }
     })
 
-    realTimeService.on('leave-status-update', (update) => {
+    realTimeService.on('leave-status-update', (update: unknown) => {
+      const updateData = update as { requestId: string; status: 'pending' | 'approved' | 'rejected' }
       setLeaveRequests(prev => prev.map(req => 
-        req.id === update.requestId 
-          ? { ...req, status: update.status }
+        req.id === updateData.requestId 
+          ? { ...req, status: updateData.status }
           : req
       ))
-      toast.info(`Leave request ${update.status}`)
+      toast.info(`Leave request ${updateData.status}`)
     })
   }
 
@@ -215,7 +218,6 @@ const EmployeeDashboard: React.FC = () => {
     } catch (error) {
       console.error('Error loading employee data:', error)
       toast.error('Failed to load dashboard data')
-    } finally {
     }
   }
 
