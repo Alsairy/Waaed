@@ -422,7 +422,7 @@ class LeaveManagementService {
     try {
       await this.api.get('/health');
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

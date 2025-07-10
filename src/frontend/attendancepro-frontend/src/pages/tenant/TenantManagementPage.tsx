@@ -171,7 +171,7 @@ const TenantManagementPage: React.FC = () => {
     try {
       const features = await tenantManagementService.getAvailableFeatures();
       setAvailableFeatures(features);
-    } catch (error: any) {
+    } catch {
       toast.error('Failed to load available features');
     }
   };
@@ -180,7 +180,7 @@ const TenantManagementPage: React.FC = () => {
     try {
       const plans = await tenantManagementService.getSubscriptionPlans();
       setSubscriptionPlans(plans);
-    } catch (error: any) {
+    } catch {
       toast.error('Failed to load subscription plans');
     }
   };
@@ -189,7 +189,7 @@ const TenantManagementPage: React.FC = () => {
     try {
       const stats = await tenantManagementService.getTenantStats();
       setTenantStats(stats);
-    } catch (error: any) {
+    } catch {
       toast.error('Failed to load tenant statistics');
     }
   };
@@ -203,7 +203,7 @@ const TenantManagementPage: React.FC = () => {
       const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       const usage = await tenantManagementService.getTenantUsageReport(tenantId, startDate, endDate);
       setTenantUsage(usage);
-    } catch (error: any) {
+    } catch {
       toast.error('Failed to load tenant analytics');
     }
   };

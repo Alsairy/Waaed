@@ -11,15 +11,11 @@ import {
   Plus, 
   Filter, 
   Download, 
-  Upload,
   Eye,
   Edit,
-  Users,
-  Calendar,
   Clock,
   DollarSign,
   AlertCircle,
-  CheckCircle,
   FileText,
   Settings,
   Mail,
@@ -29,8 +25,6 @@ import {
   Banknote,
   Wallet
 } from 'lucide-react'
-import { financeService } from '../../services/financeService'
-import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
 
 interface Payment {
@@ -332,7 +326,7 @@ const PaymentsPage: React.FC = () => {
     }).format(amount)
   }
 
-  const handlePaymentAction = async (action: 'process' | 'refund' | 'cancel' | 'retry', paymentId: string) => {
+  const handlePaymentAction = async (action: 'process' | 'refund' | 'cancel' | 'retry') => {
     try {
       switch (action) {
         case 'process':
@@ -634,19 +628,19 @@ const PaymentsPage: React.FC = () => {
                           </Button>
                         )}
                         {payment.status === 'pending' && (
-                          <Button size="sm" onClick={() => handlePaymentAction('process', payment.id)} style={{ backgroundColor: '#36BA91' }}>
+                          <Button size="sm" onClick={() => handlePaymentAction('process')} style={{ backgroundColor: '#36BA91' }}>
                             Process Payment
                           </Button>
                         )}
                       </div>
                       <div className="flex items-center space-x-2">
                         {payment.status === 'completed' && (
-                          <Button size="sm" variant="outline" onClick={() => handlePaymentAction('refund', payment.id)}>
+                          <Button size="sm" variant="outline" onClick={() => handlePaymentAction('refund')}>
                             Refund
                           </Button>
                         )}
                         {payment.status === 'failed' && (
-                          <Button size="sm" variant="outline" onClick={() => handlePaymentAction('retry', payment.id)}>
+                          <Button size="sm" variant="outline" onClick={() => handlePaymentAction('retry')}>
                             Retry Payment
                           </Button>
                         )}

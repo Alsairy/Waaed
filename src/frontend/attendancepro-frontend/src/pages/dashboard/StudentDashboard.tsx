@@ -10,19 +10,16 @@ import {
   TrendingUp,
   Clock,
   CheckCircle,
-  AlertCircle,
   FileText,
   Users,
   Award,
   Bell,
-  RefreshCw,
   ChevronRight,
   PlayCircle
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { toast } from 'sonner'
 import { sisService } from '../../services/sisService'
-import { lmsService } from '../../services/lmsService'
 import { assignmentsService } from '../../services/assignmentsService'
 import { gradesService } from '../../services/gradesService'
 import { academicCalendarService } from '../../services/academicCalendarService'
@@ -84,7 +81,6 @@ const StudentDashboard: React.FC = () => {
   const [todayClasses, setTodayClasses] = useState<TodayClass[]>([])
   const [assignmentsDue, setAssignmentsDue] = useState<AssignmentDue[]>([])
   const [recentGrades, setRecentGrades] = useState<RecentGrade[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
   const [unreadNotifications, setUnreadNotifications] = useState(0)
 
@@ -108,13 +104,12 @@ const StudentDashboard: React.FC = () => {
 
   const loadStudentData = async () => {
     try {
-      setIsLoading(true)
       
       const today = new Date()
       const semester = getCurrentSemester()
       const year = today.getFullYear()
       
-      const enrollments = await sisService.getStudentEnrollments(user?.id || '', semester, year)
+      const enrollments = await sisService.getEnrollments(user?.id || '')
       const grades = await gradesService.getStudentGrades(user?.id || '')
       const upcomingAssignments = await assignmentsService.getUpcomingAssignments(user?.id || '', 7)
       const overdueAssignments = await assignmentsService.getOverdueAssignments(user?.id || '')
@@ -129,7 +124,7 @@ const StudentDashboard: React.FC = () => {
         enrolledCourses: enrollments.length,
         upcomingExams: 3, // Mock data - would come from exam schedule
         overdueTasks: overdueAssignments.length,
-        creditsEarned: enrollments.reduce((sum, e) => sum + e.credits, 0),
+        creditsEarned: enrollments.reduce((sum: number, e: any) => sum + (e.credits || 0), 0),
       })
 
       const schedule = await academicCalendarService.getStudentSchedule(
@@ -145,7 +140,7 @@ const StudentDashboard: React.FC = () => {
         title: assignment.title,
         courseName: assignment.courseName || 'Unknown Course',
         dueDate: assignment.dueDate,
-        status: getAssignmentStatus(assignment),
+        status: getAssignmentStatus(),
         priority: getAssignmentPriority(assignment.dueDate)
       }))
       setAssignmentsDue(assignmentsDueData)
@@ -234,7 +229,6 @@ const StudentDashboard: React.FC = () => {
         }
       ])
     } finally {
-      setIsLoading(false)
     }
   }
 
@@ -278,7 +272,7 @@ const StudentDashboard: React.FC = () => {
     return 'completed'
   }
 
-  const getAssignmentStatus = (assignment: any): 'not-started' | 'in-progress' | 'submitted' | 'overdue' => {
+  const getAssignmentStatus = (): 'not-started' | 'in-progress' | 'submitted' | 'overdue' => {
     return 'in-progress'
   }
 

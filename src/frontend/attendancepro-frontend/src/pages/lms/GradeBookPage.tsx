@@ -6,9 +6,7 @@ import { Input } from '../../components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { Progress } from '../../components/ui/progress'
 import { 
-  BookOpen, 
   Search, 
-  Plus, 
   Filter, 
   Download, 
   Upload,
@@ -20,17 +18,12 @@ import {
   TrendingUp,
   Star,
   CheckCircle,
-  AlertCircle,
   Calculator,
   FileText,
   Settings,
   Mail,
   MessageSquare
 } from 'lucide-react'
-import { gradesService } from '../../services/gradesService'
-import { coursesService } from '../../services/coursesService'
-import { assignmentsService } from '../../services/assignmentsService'
-import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
 
 interface GradeEntry {
@@ -680,7 +673,7 @@ const GradeBookPage: React.FC = () => {
                                     {grade.letterGrade} ({grade.earnedPoints}/{grade.maxPoints})
                                   </div>
                                 </div>
-                                <Button size="sm" variant="outline" onClick={() => handleGradeEdit(grade.id, grade.percentage)}>
+                                <Button size="sm" variant="outline" onClick={() => handleGradeEdit(grade.id, grade.percentage || 0)}>
                                   <Edit className="h-3 w-3" />
                                 </Button>
                               </>

@@ -58,7 +58,7 @@ const RegisterPage: React.FC = () => {
       } else {
         toast.error(result.error || 'Registration failed')
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
 import { Input } from '../../components/ui/input'
@@ -14,11 +14,7 @@ import {
   Edit,
   Trash2,
   GraduationCap,
-  Calendar,
-  Phone,
   Mail,
-  MapPin,
-  ChevronRight,
   UserPlus,
   FileText,
   MoreHorizontal
@@ -34,7 +30,7 @@ interface Student {
   email: string
   phone?: string
   dateOfBirth: string
-  grade: string
+  grade?: string
   enrollmentStatus: 'active' | 'inactive' | 'graduated' | 'transferred'
   enrollmentDate: string
   gpa?: number
@@ -264,15 +260,19 @@ const StudentsPage: React.FC = () => {
     setSelectedStudents([])
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading students...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <LoadingState
-      isLoading={isLoading}
-      error={error}
-      onRetry={retry}
-      loadingText="Loading students..."
-      errorTitle="Failed to Load Students"
-      errorMessage="Unable to load student data. Please check your connection and try again."
-    >
+    <div className="space-y-6">
       <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -581,7 +581,7 @@ const StudentsPage: React.FC = () => {
         </CardContent>
       </Card>
       </div>
-    </LoadingState>
+    </div>
   )
 }
 
