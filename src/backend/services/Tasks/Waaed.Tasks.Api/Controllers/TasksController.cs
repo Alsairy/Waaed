@@ -4,22 +4,27 @@ using AutoMapper;
 using Waaed.Tasks.Api.Data;
 using Waaed.Tasks.Api.Entities;
 using Waaed.Tasks.Api.DTOs;
+using Waaed.Shared.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Waaed.Tasks.Api.Controllers;
 
 [ApiController]
 [Route("api/tasks/[controller]")]
+[Authorize]
 public class TasksController : ControllerBase
 {
     private readonly TasksDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<TasksController> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
-    public TasksController(TasksDbContext context, IMapper mapper, ILogger<TasksController> logger)
+    public TasksController(TasksDbContext context, IMapper mapper, ILogger<TasksController> logger, ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet]
@@ -87,8 +92,13 @@ public class TasksController : ControllerBase
     {
         try
         {
+            if (!_currentUserService.IsAuthenticated || !_currentUserService.UserId.HasValue)
+            {
+                return Unauthorized("User authentication required");
+            }
+
             var task = _mapper.Map<Task>(createDto);
-            task.CreatedBy = Guid.NewGuid(); // TODO: Get from authenticated user
+            task.CreatedBy = _currentUserService.UserId.Value;
             task.Status = "Not Started";
             task.CreatedAt = DateTime.UtcNow;
             task.UpdatedAt = DateTime.UtcNow;

@@ -4,22 +4,27 @@ using AutoMapper;
 using Waaed.Blogs.Api.Data;
 using Waaed.Blogs.Api.Entities;
 using Waaed.Blogs.Api.DTOs;
+using Waaed.Shared.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Waaed.Blogs.Api.Controllers;
 
 [ApiController]
 [Route("api/blogs/[controller]")]
+[Authorize]
 public class CommentsController : ControllerBase
 {
     private readonly BlogsDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<CommentsController> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CommentsController(BlogsDbContext context, IMapper mapper, ILogger<CommentsController> logger)
+    public CommentsController(BlogsDbContext context, IMapper mapper, ILogger<CommentsController> logger, ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet("post/{postId}")]
@@ -48,8 +53,13 @@ public class CommentsController : ControllerBase
     {
         try
         {
+            if (!_currentUserService.IsAuthenticated || !_currentUserService.UserId.HasValue)
+            {
+                return Unauthorized("User authentication required");
+            }
+
             var comment = _mapper.Map<BlogComment>(createDto);
-            comment.AuthorId = Guid.NewGuid(); // TODO: Get from authenticated user
+            comment.AuthorId = _currentUserService.UserId.Value;
             comment.CreatedAt = DateTime.UtcNow;
             comment.UpdatedAt = DateTime.UtcNow;
 
