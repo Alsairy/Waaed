@@ -49,7 +49,6 @@ import ReservationsPage from './pages/library/ReservationsPage'
 import './App.css'
 
 const PERSONA = import.meta.env.VITE_USER_PERSONA || 'admin'
-const EDUCATIONAL_PERSONAS = ['student', 'teacher', 'parent', 'admin']
 
 const getPersonaRoutes = () => {
   const getDashboardComponent = () => {
