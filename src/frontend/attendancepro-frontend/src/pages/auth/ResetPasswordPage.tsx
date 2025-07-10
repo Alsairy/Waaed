@@ -63,7 +63,7 @@ const ResetPasswordPage: React.FC = () => {
       } else {
         toast.error(result.error || 'Password reset failed')
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
