@@ -29,7 +29,7 @@
 # - Manual dispatch for targeted testing scenarios
 # - Scheduled runs for performance baseline maintenance
 #
-name: Enhanced Comprehensive Testing - FORCE GITHUB ACTIONS REFRESH v5 - BYPASS CACHING
+name: Enhanced Comprehensive Testing - FORCE GITHUB ACTIONS REFRESH v7 - ULTIMATE CACHE BYPASS
 
 # Add permissions for GitHub token to access repository and write comments
 permissions:
@@ -82,11 +82,13 @@ env:
   TEST_RESULTS_PATH: './test-results'        # Centralized test results location
   COVERAGE_THRESHOLD: '80'                   # Minimum code coverage requirement
   PERFORMANCE_BASELINE_BRANCH: 'main'       # Branch for performance comparisons
-  CI_FORCE_REFRESH: 'v6-new-branch-force-execution-${{ github.run_id }}'  # Force fresh CI execution - Local Verified Fixes Applied
-  WORKFLOW_EXECUTION_ID: '1751658504'        # Unique execution identifier to force GitHub Actions recognition
-  GITHUB_ACTIONS_CACHE_BYPASS: 'force-refresh-v6-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}'
+  CI_FORCE_REFRESH: 'v7-ultimate-cache-bypass-${{ github.run_id }}-${{ github.run_attempt }}'  # Force fresh CI execution - Package Fix Applied
+  WORKFLOW_EXECUTION_ID: '1752182977'        # Unique execution identifier to force GitHub Actions recognition
+  GITHUB_ACTIONS_CACHE_BYPASS: 'force-refresh-v7-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-${{ github.event.number }}'
   WORKFLOW_FORCE_EXECUTION: 'true'           # Additional force execution flag
-  NEW_BRANCH_EXECUTION: 'devin-1751658504-bypass-cache'  # New branch identifier
+  NEW_BRANCH_EXECUTION: 'devin-1752182977-ultimate-bypass-cache'  # New branch identifier
+  PLAYWRIGHT_PACKAGE_FIX: 'libasound2-dev-libayatana-appindicator3-1-v7'  # Package fix identifier
+  CACHE_BUSTER: '${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-${{ github.event.head.sha }}'
 
 jobs:
   # ============================================================================
