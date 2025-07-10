@@ -4,22 +4,27 @@ using AutoMapper;
 using Waaed.Polls.Api.Data;
 using Waaed.Polls.Api.Entities;
 using Waaed.Polls.Api.DTOs;
+using Waaed.Shared.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Waaed.Polls.Api.Controllers;
 
 [ApiController]
 [Route("api/polls/[controller]")]
+[Authorize]
 public class PollsController : ControllerBase
 {
     private readonly PollsDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<PollsController> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
-    public PollsController(PollsDbContext context, IMapper mapper, ILogger<PollsController> logger)
+    public PollsController(PollsDbContext context, IMapper mapper, ILogger<PollsController> logger, ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet]
@@ -74,8 +79,13 @@ public class PollsController : ControllerBase
     {
         try
         {
+            if (!_currentUserService.IsAuthenticated || !_currentUserService.UserId.HasValue)
+            {
+                return Unauthorized("User authentication required");
+            }
+
             var poll = _mapper.Map<Poll>(createDto);
-            poll.CreatedBy = Guid.NewGuid(); // TODO: Get from authenticated user
+            poll.CreatedBy = _currentUserService.UserId.Value;
             poll.CreatedAt = DateTime.UtcNow;
             poll.UpdatedAt = DateTime.UtcNow;
 
@@ -97,6 +107,11 @@ public class PollsController : ControllerBase
     {
         try
         {
+            if (!_currentUserService.IsAuthenticated || !_currentUserService.UserId.HasValue)
+            {
+                return Unauthorized("User authentication required");
+            }
+
             var poll = await _context.Polls
                 .Include(p => p.Options)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -111,7 +126,7 @@ public class PollsController : ControllerBase
                 return BadRequest("Poll is not currently active");
             }
 
-            var userId = Guid.NewGuid(); // TODO: Get from authenticated user
+            var userId = _currentUserService.UserId.Value;
 
             if (!poll.AllowMultipleVotes)
             {

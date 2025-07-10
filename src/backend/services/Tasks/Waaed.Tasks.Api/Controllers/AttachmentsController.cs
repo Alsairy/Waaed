@@ -4,22 +4,27 @@ using AutoMapper;
 using Waaed.Tasks.Api.Data;
 using Waaed.Tasks.Api.Entities;
 using Waaed.Tasks.Api.DTOs;
+using Waaed.Shared.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Waaed.Tasks.Api.Controllers;
 
 [ApiController]
 [Route("api/tasks/[controller]")]
+[Authorize]
 public class AttachmentsController : ControllerBase
 {
     private readonly TasksDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<AttachmentsController> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
-    public AttachmentsController(TasksDbContext context, IMapper mapper, ILogger<AttachmentsController> logger)
+    public AttachmentsController(TasksDbContext context, IMapper mapper, ILogger<AttachmentsController> logger, ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet("task/{taskId}")]
@@ -47,6 +52,11 @@ public class AttachmentsController : ControllerBase
     {
         try
         {
+            if (!_currentUserService.IsAuthenticated || !_currentUserService.UserId.HasValue)
+            {
+                return Unauthorized("User authentication required");
+            }
+
             if (file == null || file.Length == 0)
             {
                 return BadRequest("No file provided");
@@ -71,7 +81,7 @@ public class AttachmentsController : ControllerBase
                 FilePath = filePath,
                 FileType = file.ContentType,
                 FileSize = file.Length,
-                UploadedBy = Guid.NewGuid(), // TODO: Get from authenticated user
+                UploadedBy = _currentUserService.UserId.Value,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };

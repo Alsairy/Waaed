@@ -4,22 +4,27 @@ using AutoMapper;
 using Waaed.Blogs.Api.Data;
 using Waaed.Blogs.Api.Entities;
 using Waaed.Blogs.Api.DTOs;
+using Waaed.Shared.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Waaed.Blogs.Api.Controllers;
 
 [ApiController]
 [Route("api/blogs/[controller]")]
+[Authorize]
 public class BlogPostsController : ControllerBase
 {
     private readonly BlogsDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<BlogPostsController> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
-    public BlogPostsController(BlogsDbContext context, IMapper mapper, ILogger<BlogPostsController> logger)
+    public BlogPostsController(BlogsDbContext context, IMapper mapper, ILogger<BlogPostsController> logger, ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet]
@@ -85,8 +90,13 @@ public class BlogPostsController : ControllerBase
     {
         try
         {
+            if (!_currentUserService.IsAuthenticated || !_currentUserService.UserId.HasValue)
+            {
+                return Unauthorized("User authentication required");
+            }
+
             var post = _mapper.Map<BlogPost>(createDto);
-            post.AuthorId = Guid.NewGuid(); // TODO: Get from authenticated user
+            post.AuthorId = _currentUserService.UserId.Value;
             post.CreatedAt = DateTime.UtcNow;
             post.UpdatedAt = DateTime.UtcNow;
 
