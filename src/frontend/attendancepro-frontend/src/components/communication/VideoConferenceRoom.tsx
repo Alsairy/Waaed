@@ -8,15 +8,13 @@ import {
   VideoOff, 
   Mic, 
   MicOff, 
-  Phone, 
   PhoneOff, 
   Users, 
   Settings,
   Share,
-  MessageSquare,
-  MoreVertical
+  MessageSquare
 } from 'lucide-react';
-import { VideoConference, ConferenceParticipant, videoConferencingService } from '../../services/videoConferencingService';
+import { VideoConference, videoConferencingService } from '../../services/videoConferencingService';
 import { useToast } from '../../hooks/use-toast';
 
 interface VideoConferenceRoomProps {
@@ -28,7 +26,6 @@ export function VideoConferenceRoom({ conferenceId, onLeave }: VideoConferenceRo
   const [conference, setConference] = useState<VideoConference | null>(null);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
-  const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showParticipants, setShowParticipants] = useState(false);
@@ -72,7 +69,6 @@ export function VideoConferenceRoom({ conferenceId, onLeave }: VideoConferenceRo
         localVideoRef.current.srcObject = stream;
       }
 
-      setIsConnected(true);
       toast({
         title: "Connected",
         description: "Successfully connected to the conference",
@@ -137,7 +133,6 @@ export function VideoConferenceRoom({ conferenceId, onLeave }: VideoConferenceRo
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
     }
-    setIsConnected(false);
   };
 
   const formatDuration = (startTime: string) => {

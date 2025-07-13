@@ -10,7 +10,6 @@ import {
   Megaphone, 
   Plus, 
   Search, 
-  Filter, 
   Eye, 
   Edit, 
   Trash2, 
@@ -27,7 +26,7 @@ interface AnnouncementBoardProps {
   canCreate?: boolean;
 }
 
-export function AnnouncementBoard({ userRole, canCreate = false }: AnnouncementBoardProps) {
+export function AnnouncementBoard({ canCreate = false }: AnnouncementBoardProps) {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
