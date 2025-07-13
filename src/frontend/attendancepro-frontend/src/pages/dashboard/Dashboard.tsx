@@ -92,38 +92,41 @@ const Dashboard: React.FC = () => {
 
   const setupRealTimeConnections = () => {
     realTimeService.on('connection-status', (status) => {
-      setConnectionStatus(status.status)
-      if (status.status === 'connected') {
+      const connectionStatus = status as { status: 'connected' | 'disconnected' | 'reconnecting' | 'error' }
+      setConnectionStatus(connectionStatus.status)
+      if (connectionStatus.status === 'connected') {
         toast.success('Real-time connection established')
-      } else if (status.status === 'disconnected') {
+      } else if (connectionStatus.status === 'disconnected') {
         toast.error('Real-time connection lost')
-      } else if (status.status === 'reconnecting') {
+      } else if (connectionStatus.status === 'reconnecting') {
         toast.info('Reconnecting to real-time service...')
       }
     })
 
     realTimeService.on('attendance-update', (update) => {
       if (realTimeUpdates) {
+        const attendanceUpdate = update as { userName: string; action: 'check-in' | 'check-out' | 'late' | 'absent'; timestamp: string; location?: string }
         loadDashboardData()
         setRecentActivity(prev => [
           {
             id: Date.now().toString(),
-            employeeName: update.userName,
-            action: update.action,
-            time: new Date(update.timestamp).toLocaleTimeString(),
-            location: update.location || 'Unknown'
+            employeeName: attendanceUpdate.userName,
+            action: attendanceUpdate.action,
+            time: new Date(attendanceUpdate.timestamp).toLocaleTimeString(),
+            location: attendanceUpdate.location || 'Unknown'
           },
           ...prev.slice(0, 9)
         ])
-        toast.info(`${update.userName} ${update.action.replace('-', ' ')}`)
+        toast.info(`${attendanceUpdate.userName} ${attendanceUpdate.action.replace('-', ' ')}`)
       }
     })
 
     realTimeService.on('analytics-update', (update) => {
-      if (realTimeUpdates && update.type === 'overview') {
+      const analyticsUpdate = update as { type: string; data: Record<string, unknown> }
+      if (realTimeUpdates && analyticsUpdate.type === 'overview') {
         setAttendanceStats(prev => ({
           ...prev,
-          ...update.data
+          ...analyticsUpdate.data
         }))
       }
     })
@@ -131,12 +134,24 @@ const Dashboard: React.FC = () => {
     // Notification updates
     realTimeService.on('notification-received', (notification) => {
       setUnreadNotifications(prev => prev + 1)
-      toast.info(`New notification: ${notification.title}`)
-      notificationService.showBrowserNotification(notification)
+      const notificationData = notification as { title: string }
+      toast.info(`New notification: ${notificationData.title}`)
+      const fullNotification = {
+        id: Date.now().toString(),
+        userId: 'current-user',
+        title: notificationData.title,
+        message: notificationData.title,
+        type: 'info' as const,
+        isRead: false,
+        createdAt: new Date().toISOString(),
+        priority: 'normal' as const
+      }
+      notificationService.showBrowserNotification(fullNotification)
     })
 
     realTimeService.on('system-alert', (alert) => {
-      toast.error(`System Alert: ${alert.message}`)
+      const alertData = alert as { message: string }
+      toast.error(`System Alert: ${alertData.message}`)
     })
   }
 

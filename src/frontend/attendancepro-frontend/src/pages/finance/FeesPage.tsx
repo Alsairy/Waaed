@@ -349,7 +349,7 @@ const FeesPage: React.FC = () => {
           break
       }
       loadFeesData()
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${action} fee structure`)
     }
   }
@@ -367,7 +367,7 @@ const FeesPage: React.FC = () => {
           toast.success('Payment reminders sent successfully')
           break
       }
-    } catch (error) {
+    } catch {
       toast.error(`Failed to ${action}`)
     }
   }

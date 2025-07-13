@@ -344,6 +344,7 @@ const PaymentsPage: React.FC = () => {
       }
       loadPaymentsData()
     } catch (error) {
+      console.error('Payment action error:', error)
       toast.error(`Failed to ${action} payment`)
     }
   }
@@ -365,6 +366,7 @@ const PaymentsPage: React.FC = () => {
           break
       }
     } catch (error) {
+      console.error('Bulk payment action error:', error)
       toast.error(`Failed to ${action}`)
     }
   }

@@ -18,7 +18,7 @@ import {
   UserCheck,
   ClipboardList,
   ChevronRight,
-  PlayCircle,
+  PlayCircle
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { toast } from 'sonner'
@@ -120,7 +120,6 @@ const TeacherDashboard: React.FC = () => {
 
   const loadTeacherData = async () => {
     try {
-      
       const courses = await coursesService.getCoursesByInstructor(user?.id || '')
       const totalStudents = courses.reduce((sum, course) => sum + (course.enrolledStudents || 0), 0)
       
@@ -261,7 +260,6 @@ const TeacherDashboard: React.FC = () => {
           attendanceTaken: false
         }
       ])
-    } finally {
     }
   }
 
@@ -272,7 +270,7 @@ const TeacherDashboard: React.FC = () => {
     return 'Summer'
   }
 
-  const filterTodayClasses = (schedule: any[], courses: any[]) => {
+  const filterTodayClasses = (schedule: { dayOfWeek: number; courseId: string; id: string; startTime: string; endTime: string; location?: string }[], courses: { id: string; title?: string; code?: string; enrolledStudents?: number }[]) => {
     const today = new Date().getDay()
     return schedule.filter(cls => cls.dayOfWeek === today).map(cls => {
       const course = courses.find(c => c.id === cls.courseId)

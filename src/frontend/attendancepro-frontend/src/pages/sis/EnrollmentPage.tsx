@@ -267,9 +267,10 @@ const EnrollmentPage: React.FC = () => {
             }
           : request
       )
-      setEnrollmentRequests(updatedRequests)
+      setEnrollmentRequests(updatedRequests as EnrollmentRequest[])
       toast.success(`Request ${action}d successfully`)
     } catch (error) {
+      console.error('Request action error:', error)
       toast.error(`Failed to ${action} request`)
     }
   }

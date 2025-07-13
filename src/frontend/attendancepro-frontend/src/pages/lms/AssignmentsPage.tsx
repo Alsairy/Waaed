@@ -19,7 +19,7 @@ import {
   TrendingUp,
   Star,
   Settings,
-  Copy,
+  Copy
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -361,6 +361,7 @@ const AssignmentsPage: React.FC = () => {
       }
       loadAssignments()
     } catch (error) {
+      console.error('Assignment action error:', error)
       toast.error(`Failed to ${action} assignment`)
     }
   }

@@ -72,8 +72,9 @@ const WebhooksManagementPage: React.FC = () => {
       setEventTypes(eventTypesData);
       setStats(statsData);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      setError(errorObj.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -83,8 +84,9 @@ const WebhooksManagementPage: React.FC = () => {
     try {
       const deliveriesData = await webhooksService.getDeliveryHistory(subscriptionId);
       setDeliveries(deliveriesData);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      setError(errorObj.message || 'An error occurred');
     }
   };
 
@@ -114,8 +116,9 @@ const WebhooksManagementPage: React.FC = () => {
       });
       setCustomHeaders([]);
       await loadData();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      setError(errorObj.message || 'An error occurred');
     }
   };
 
@@ -140,8 +143,9 @@ const WebhooksManagementPage: React.FC = () => {
       setCustomHeaders([]);
       setSelectedSubscription(null);
       await loadData();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      setError(errorObj.message || 'An error occurred');
     }
   };
 
@@ -151,8 +155,9 @@ const WebhooksManagementPage: React.FC = () => {
     try {
       await webhooksService.deleteSubscription(id);
       await loadData();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      setError(errorObj.message || 'An error occurred');
     }
   };
 
@@ -172,8 +177,9 @@ const WebhooksManagementPage: React.FC = () => {
       
       setIsTestDialogOpen(false);
       setTestForm({ eventType: '', payload: {} });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      setError(errorObj.message || 'An error occurred');
     }
   };
 
@@ -183,8 +189,9 @@ const WebhooksManagementPage: React.FC = () => {
       if (selectedSubscription) {
         await loadDeliveries(selectedSubscription.id);
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const errorObj = err as { message?: string };
+      setError(errorObj.message || 'An error occurred');
     }
   };
 

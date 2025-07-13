@@ -44,7 +44,7 @@ export interface WebhookDelivery {
   id: string;
   subscriptionId: string;
   eventType: string;
-  payload: any;
+  payload: unknown;
   url: string;
   httpStatusCode?: number;
   responseBody?: string;
@@ -74,7 +74,7 @@ export interface WebhookEventType {
 
 export interface TriggerWebhookRequest {
   eventType: string;
-  payload: any;
+  payload: unknown;
 }
 
 class WebhooksService {

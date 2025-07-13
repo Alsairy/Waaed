@@ -276,7 +276,7 @@ export const VoiceManagementPage: React.FC = () => {
                 mode="authentication"
                 userId={userId}
                 onVoiceCommand={() => {}}
-                onVoiceAuthentication={(result: any) => {
+                onVoiceAuthentication={(result: { isAuthenticated: boolean }) => {
                   if (result.isAuthenticated) {
                     toast.success('Voice authentication successful');
                   } else {

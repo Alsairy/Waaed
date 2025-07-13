@@ -253,6 +253,7 @@ const FinancialReportsPage: React.FC = () => {
       }
       loadFinancialReports()
     } catch (error) {
+      console.error('Report action error:', error)
       toast.error(`Failed to ${action} report`)
     }
   }
@@ -274,6 +275,7 @@ const FinancialReportsPage: React.FC = () => {
           break
       }
     } catch (error) {
+      console.error('Bulk action error:', error)
       toast.error(`Failed to ${action} reports`)
     }
   }

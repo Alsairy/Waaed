@@ -57,8 +57,9 @@ const LeaveBalancePage: React.FC = () => {
       setLeaveTypes(typesData)
       setLeaveHistory(historyData)
       setLeaveCalendar(calendarData)
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to load leave data')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to load leave data')
     } finally {
       setIsLoading(false)
     }
