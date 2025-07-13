@@ -12,23 +12,26 @@ public class AcademicCalendarService : IAcademicCalendarService
     private readonly AcademicCalendarDbContext _context;
     private readonly IMapper _mapper;
     private readonly ICurrentUserService _currentUserService;
+    private readonly ITenantContext _tenantContext;
     private readonly ILogger<AcademicCalendarService> _logger;
 
     public AcademicCalendarService(
         AcademicCalendarDbContext context,
         IMapper mapper,
         ICurrentUserService currentUserService,
+        ITenantContext tenantContext,
         ILogger<AcademicCalendarService> logger)
     {
         _context = context;
         _mapper = mapper;
         _currentUserService = currentUserService;
+        _tenantContext = tenantContext;
         _logger = logger;
     }
 
     public async Task<IEnumerable<AcademicYearDto>> GetAcademicYearsAsync()
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var academicYears = await _context.AcademicYears
             .Where(ay => ay.TenantId == tenantId)
             .OrderByDescending(ay => ay.StartDate)
@@ -39,7 +42,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<AcademicYearDto?> GetAcademicYearByIdAsync(int id)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var academicYear = await _context.AcademicYears
             .FirstOrDefaultAsync(ay => ay.Id == id && ay.TenantId == tenantId);
 
@@ -48,9 +51,9 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<AcademicYearDto> CreateAcademicYearAsync(CreateAcademicYearDto dto)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var academicYear = _mapper.Map<AcademicYear>(dto);
-        academicYear.TenantId = tenantId;
+        academicYear.TenantId = tenantId ?? string.Empty;
         academicYear.CreatedAt = DateTime.UtcNow;
         academicYear.UpdatedAt = DateTime.UtcNow;
 
@@ -63,7 +66,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<AcademicYearDto?> UpdateAcademicYearAsync(int id, UpdateAcademicYearDto dto)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var academicYear = await _context.AcademicYears
             .FirstOrDefaultAsync(ay => ay.Id == id && ay.TenantId == tenantId);
 
@@ -78,7 +81,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<bool> DeleteAcademicYearAsync(int id)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var academicYear = await _context.AcademicYears
             .FirstOrDefaultAsync(ay => ay.Id == id && ay.TenantId == tenantId);
 
@@ -91,7 +94,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<IEnumerable<SemesterDto>> GetSemestersAsync(int? academicYearId = null)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var query = _context.Semesters
             .Where(s => s.TenantId == tenantId);
 
@@ -109,7 +112,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<SemesterDto?> GetSemesterByIdAsync(int id)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var semester = await _context.Semesters
             .FirstOrDefaultAsync(s => s.Id == id && s.TenantId == tenantId);
 
@@ -118,9 +121,9 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<SemesterDto> CreateSemesterAsync(CreateSemesterDto dto)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var semester = _mapper.Map<Semester>(dto);
-        semester.TenantId = tenantId;
+        semester.TenantId = tenantId ?? string.Empty;
         semester.CreatedAt = DateTime.UtcNow;
         semester.UpdatedAt = DateTime.UtcNow;
 
@@ -132,7 +135,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<SemesterDto?> UpdateSemesterAsync(int id, UpdateSemesterDto dto)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var semester = await _context.Semesters
             .FirstOrDefaultAsync(s => s.Id == id && s.TenantId == tenantId);
 
@@ -147,7 +150,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<bool> DeleteSemesterAsync(int id)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var semester = await _context.Semesters
             .FirstOrDefaultAsync(s => s.Id == id && s.TenantId == tenantId);
 
@@ -160,7 +163,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<IEnumerable<AcademicEventDto>> GetAcademicEventsAsync(DateTime? startDate = null, DateTime? endDate = null, string? eventType = null)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var query = _context.AcademicEvents
             .Where(ae => ae.TenantId == tenantId);
 
@@ -188,7 +191,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<AcademicEventDto?> GetAcademicEventByIdAsync(int id)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var academicEvent = await _context.AcademicEvents
             .FirstOrDefaultAsync(ae => ae.Id == id && ae.TenantId == tenantId);
 
@@ -197,11 +200,11 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<AcademicEventDto> CreateAcademicEventAsync(CreateAcademicEventDto dto)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var userId = _currentUserService.UserId;
         var academicEvent = _mapper.Map<AcademicEvent>(dto);
-        academicEvent.TenantId = tenantId;
-        academicEvent.CreatedBy = userId;
+        academicEvent.TenantId = tenantId ?? string.Empty;
+        academicEvent.CreatedBy = userId?.ToString();
         academicEvent.CreatedAt = DateTime.UtcNow;
         academicEvent.UpdatedAt = DateTime.UtcNow;
 
@@ -213,7 +216,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<AcademicEventDto?> UpdateAcademicEventAsync(int id, UpdateAcademicEventDto dto)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var academicEvent = await _context.AcademicEvents
             .FirstOrDefaultAsync(ae => ae.Id == id && ae.TenantId == tenantId);
 
@@ -228,7 +231,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<bool> DeleteAcademicEventAsync(int id)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var academicEvent = await _context.AcademicEvents
             .FirstOrDefaultAsync(ae => ae.Id == id && ae.TenantId == tenantId);
 
@@ -241,7 +244,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<IEnumerable<HolidayDto>> GetHolidaysAsync(DateTime? startDate = null, DateTime? endDate = null, string? holidayType = null)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var query = _context.Holidays
             .Where(h => h.TenantId == tenantId);
 
@@ -269,7 +272,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<HolidayDto?> GetHolidayByIdAsync(int id)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var holiday = await _context.Holidays
             .FirstOrDefaultAsync(h => h.Id == id && h.TenantId == tenantId);
 
@@ -278,9 +281,9 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<HolidayDto> CreateHolidayAsync(CreateHolidayDto dto)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var holiday = _mapper.Map<Holiday>(dto);
-        holiday.TenantId = tenantId;
+        holiday.TenantId = tenantId ?? string.Empty;
         holiday.CreatedAt = DateTime.UtcNow;
         holiday.UpdatedAt = DateTime.UtcNow;
 
@@ -292,7 +295,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<HolidayDto?> UpdateHolidayAsync(int id, UpdateHolidayDto dto)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var holiday = await _context.Holidays
             .FirstOrDefaultAsync(h => h.Id == id && h.TenantId == tenantId);
 
@@ -307,7 +310,7 @@ public class AcademicCalendarService : IAcademicCalendarService
 
     public async Task<bool> DeleteHolidayAsync(int id)
     {
-        var tenantId = _currentUserService.TenantId;
+        var tenantId = _tenantContext.TenantId?.ToString();
         var holiday = await _context.Holidays
             .FirstOrDefaultAsync(h => h.Id == id && h.TenantId == tenantId);
 

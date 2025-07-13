@@ -17,9 +17,10 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<AcademicCalendarDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-        services.AddAutoMapper(typeof(AcademicCalendarMappingProfile));
+        services.AddAutoMapper(typeof(AcademicCalendarMappingProfile).Assembly);
 
         services.AddScoped<IAcademicCalendarService, AcademicCalendarService>();
+        services.AddScoped<ITenantContext, TenantContext>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IDateTimeProvider, DateTimeProvider>();
 

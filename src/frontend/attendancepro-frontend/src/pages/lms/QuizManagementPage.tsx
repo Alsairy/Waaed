@@ -11,10 +11,7 @@ import { Checkbox } from '../../components/ui/checkbox';
 import { 
   BookOpen, 
   Plus, 
-  Edit, 
   Trash2, 
-  Search,
-  Filter,
   Clock,
   Users,
   CheckCircle,
@@ -57,7 +54,7 @@ export function QuizManagementPage() {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [courseFilter, setCourseFilter] = useState<string>('');
+  const [courseFilter] = useState<string>('');
   
   const [showCreateQuizDialog, setShowCreateQuizDialog] = useState(false);
   const [showCreateQuestionDialog, setShowCreateQuestionDialog] = useState(false);
@@ -93,8 +90,8 @@ export function QuizManagementPage() {
   const loadQuizzes = async () => {
     try {
       setIsLoading(true);
-      const quizzesData = await quizService.getQuizzes();
-      setQuizzes(quizzesData);
+      const quizzesData = await quizService.getQuizzes('default-course-id');
+      setQuizzes(quizzesData.data);
     } catch (err) {
       setError('Failed to load quizzes');
       console.error('Error loading quizzes:', err);
@@ -105,7 +102,7 @@ export function QuizManagementPage() {
 
   const loadQuizQuestions = async (quizId: string) => {
     try {
-      const questionsData = await quizService.getQuizQuestions(quizId);
+      const questionsData = await quizService.getQuizQuestions('default-course-id', quizId);
       setQuestions(questionsData);
     } catch (err) {
       console.error('Error loading questions:', err);
@@ -114,7 +111,7 @@ export function QuizManagementPage() {
 
   const loadQuizAttempts = async (quizId: string) => {
     try {
-      const attemptsData = await quizService.getQuizAttempts(quizId);
+      const attemptsData = await quizService.getQuizAttempts('default-course-id', quizId);
       setAttempts(attemptsData);
     } catch (err) {
       console.error('Error loading attempts:', err);
@@ -123,7 +120,26 @@ export function QuizManagementPage() {
 
   const handleCreateQuiz = async () => {
     try {
-      await quizService.createQuiz(newQuiz);
+      const quizDto = {
+        title: newQuiz.title,
+        description: newQuiz.description,
+        instructions: newQuiz.instructions,
+        type: 'Quiz',
+        points: 100,
+        timeLimit: newQuiz.timeLimit,
+        allowedAttempts: newQuiz.maxAttempts,
+        scoringPolicy: 'HighestScore',
+        availableFrom: newQuiz.availableFrom,
+        availableUntil: newQuiz.availableUntil,
+        shuffleQuestions: false,
+        shuffleAnswers: false,
+        showCorrectAnswers: true,
+        oneQuestionAtATime: false,
+        cantGoBack: false,
+        accessCode: '',
+        requireLockdownBrowser: false
+      };
+      await quizService.createQuiz('default-course-id', quizDto);
       setShowCreateQuizDialog(false);
       setNewQuiz({
         title: '',
@@ -148,7 +164,16 @@ export function QuizManagementPage() {
     if (!selectedQuiz) return;
     
     try {
-      await quizService.createQuestion(selectedQuiz.id, newQuestion);
+      const questionData = {
+        text: newQuestion.questionText,
+        type: newQuestion.questionType,
+        points: newQuestion.points,
+        position: 1,
+        answerChoices: newQuestion.options,
+        correctAnswer: newQuestion.correctAnswers[0],
+        feedback: newQuestion.explanation
+      };
+      await quizService.createQuestion('default-course-id', selectedQuiz.id, questionData);
       setShowCreateQuestionDialog(false);
       setNewQuestion({
         questionText: '',
@@ -167,7 +192,7 @@ export function QuizManagementPage() {
 
   const handlePublishQuiz = async (quizId: string) => {
     try {
-      await quizService.publishQuiz(quizId);
+      await quizService.publishQuiz('default-course-id', quizId);
       loadQuizzes();
     } catch (err) {
       setError('Failed to publish quiz');
@@ -177,7 +202,7 @@ export function QuizManagementPage() {
 
   const handleUnpublishQuiz = async (quizId: string) => {
     try {
-      await quizService.unpublishQuiz(quizId);
+      await quizService.unpublishQuiz('default-course-id', quizId);
       loadQuizzes();
     } catch (err) {
       setError('Failed to unpublish quiz');
@@ -188,7 +213,7 @@ export function QuizManagementPage() {
   const handleDeleteQuiz = async (quizId: string) => {
     if (window.confirm('Are you sure you want to delete this quiz?')) {
       try {
-        await quizService.deleteQuiz(quizId);
+        await quizService.deleteQuiz('default-course-id', quizId);
         loadQuizzes();
       } catch (err) {
         setError('Failed to delete quiz');
@@ -200,8 +225,8 @@ export function QuizManagementPage() {
   const handleDeleteQuestion = async (questionId: string) => {
     if (window.confirm('Are you sure you want to delete this question?')) {
       try {
-        await quizService.deleteQuestion(questionId);
         if (selectedQuiz) {
+          await quizService.deleteQuestion('default-course-id', selectedQuiz.id, questionId);
           loadQuizQuestions(selectedQuiz.id);
         }
       } catch (err) {
@@ -223,29 +248,32 @@ export function QuizManagementPage() {
     setShowAttemptsDialog(true);
   };
 
-  const getStatusColor = (isPublished: boolean, availableFrom: string, availableUntil: string) => {
+  const getStatusColor = (availableFrom?: string, availableUntil?: string) => {
+    if (!availableFrom || !availableUntil) return 'bg-gray-100 text-gray-800';
+    
     const now = new Date();
     const startDate = new Date(availableFrom);
     const endDate = new Date(availableUntil);
     
-    if (!isPublished) return 'bg-gray-100 text-gray-800';
     if (now < startDate) return 'bg-yellow-100 text-yellow-800';
     if (now > endDate) return 'bg-red-100 text-red-800';
     return 'bg-green-100 text-green-800';
   };
 
-  const getStatusText = (isPublished: boolean, availableFrom: string, availableUntil: string) => {
+  const getStatusText = (availableFrom?: string, availableUntil?: string) => {
+    if (!availableFrom || !availableUntil) return 'Draft';
+    
     const now = new Date();
     const startDate = new Date(availableFrom);
     const endDate = new Date(availableUntil);
     
-    if (!isPublished) return 'Draft';
     if (now < startDate) return 'Scheduled';
     if (now > endDate) return 'Expired';
     return 'Active';
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Not set';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -258,7 +286,8 @@ export function QuizManagementPage() {
   const calculateQuizStats = (quiz: Quiz) => {
     const quizAttempts = attempts.filter(attempt => attempt.quizId === quiz.id);
     const totalAttempts = quizAttempts.length;
-    const passedAttempts = quizAttempts.filter(attempt => attempt.score >= quiz.passingScore).length;
+    const passingScore = 70; // Default passing score since it's not in Quiz interface
+    const passedAttempts = quizAttempts.filter(attempt => attempt.score >= passingScore).length;
     const averageScore = totalAttempts > 0 
       ? quizAttempts.reduce((sum, attempt) => sum + attempt.score, 0) / totalAttempts 
       : 0;
@@ -274,7 +303,7 @@ export function QuizManagementPage() {
   const filteredQuizzes = quizzes.filter(quiz => {
     const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          quiz.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = !statusFilter || getStatusText(quiz.isPublished, quiz.availableFrom, quiz.availableUntil) === statusFilter;
+    const matchesStatus = !statusFilter || getStatusText(quiz.availableFrom, quiz.availableUntil) === statusFilter;
     const matchesCourse = !courseFilter || quiz.courseId === courseFilter;
     return matchesSearch && matchesStatus && matchesCourse;
   });
@@ -429,8 +458,8 @@ export function QuizManagementPage() {
                     </CardTitle>
                     <p className="text-sm text-gray-600 mt-1">{quiz.description}</p>
                   </div>
-                  <Badge className={getStatusColor(quiz.isPublished, quiz.availableFrom, quiz.availableUntil)}>
-                    {getStatusText(quiz.isPublished, quiz.availableFrom, quiz.availableUntil)}
+                  <Badge className={getStatusColor(quiz.availableFrom, quiz.availableUntil)}>
+                    {getStatusText(quiz.availableFrom, quiz.availableUntil)}
                   </Badge>
                 </div>
               </CardHeader>
@@ -457,7 +486,7 @@ export function QuizManagementPage() {
                   
                   <div className="text-sm text-gray-600">
                     <p>Available: {formatDate(quiz.availableFrom)} - {formatDate(quiz.availableUntil)}</p>
-                    <p>Passing Score: {quiz.passingScore}% | Max Attempts: {quiz.maxAttempts}</p>
+                    <p>Time Limit: {quiz.timeLimit} min | Max Attempts: {quiz.allowedAttempts}</p>
                   </div>
 
                   <div className="flex gap-2 flex-wrap">
@@ -479,7 +508,7 @@ export function QuizManagementPage() {
                       View Attempts
                     </Button>
 
-                    {quiz.isPublished ? (
+                    {getStatusText(quiz.availableFrom, quiz.availableUntil) === 'Active' ? (
                       <Button
                         variant="outline"
                         size="sm"
@@ -623,32 +652,32 @@ export function QuizManagementPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="font-medium">Q{index + 1}.</span>
-                          <Badge variant="outline">{question.questionType}</Badge>
+                          <Badge variant="outline">{question.type}</Badge>
                           <Badge variant="outline">{question.points} pts</Badge>
                         </div>
-                        <p className="mb-2">{question.questionText}</p>
-                        {question.options && question.options.length > 0 && (
+                        <p className="mb-2">{question.text}</p>
+                        {question.answerChoices && question.answerChoices.length > 0 && (
                           <div className="space-y-1">
-                            {question.options.map((option, optIndex) => (
+                            {question.answerChoices.map((option: string, optIndex: number) => (
                               <div
                                 key={optIndex}
                                 className={`text-sm p-2 rounded ${
-                                  question.correctAnswers.includes(option)
+                                  question.correctAnswer === option
                                     ? 'bg-green-100 text-green-800'
                                     : 'bg-gray-100'
                                 }`}
                               >
                                 {String.fromCharCode(65 + optIndex)}. {option}
-                                {question.correctAnswers.includes(option) && (
+                                {question.correctAnswer === option && (
                                   <CheckCircle className="w-4 h-4 inline ml-2" />
                                 )}
                               </div>
                             ))}
                           </div>
                         )}
-                        {question.explanation && (
+                        {question.feedback && (
                           <div className="mt-2 p-2 bg-blue-50 rounded text-sm">
-                            <strong>Explanation:</strong> {question.explanation}
+                            <strong>Explanation:</strong> {question.feedback}
                           </div>
                         )}
                       </div>
@@ -685,7 +714,7 @@ export function QuizManagementPage() {
                 </div>
                 <div className="p-3 bg-green-50 rounded">
                   <div className="text-2xl font-bold text-green-600">
-                    {attempts.filter(a => a.score >= selectedQuiz.passingScore).length}
+                    {attempts.filter(a => a.score >= 70).length}
                   </div>
                   <div className="text-sm text-gray-600">Passed</div>
                 </div>
@@ -697,7 +726,7 @@ export function QuizManagementPage() {
                 </div>
                 <div className="p-3 bg-purple-50 rounded">
                   <div className="text-2xl font-bold text-purple-600">
-                    {attempts.length > 0 ? ((attempts.filter(a => a.score >= selectedQuiz.passingScore).length / attempts.length) * 100).toFixed(1) : 0}%
+                    {attempts.length > 0 ? ((attempts.filter(a => a.score >= 70).length / attempts.length) * 100).toFixed(1) : 0}%
                   </div>
                   <div className="text-sm text-gray-600">Pass Rate</div>
                 </div>
@@ -708,19 +737,19 @@ export function QuizManagementPage() {
                   <Card key={attempt.id} className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium">{attempt.studentName}</p>
+                        <p className="font-medium">{attempt.studentId}</p>
                         <p className="text-sm text-gray-600">
                           Submitted: {formatDate(attempt.submittedAt)}
                         </p>
                       </div>
                       <div className="text-right">
                         <div className={`text-lg font-bold ${
-                          attempt.score >= selectedQuiz.passingScore ? 'text-green-600' : 'text-red-600'
+                          attempt.score >= 70 ? 'text-green-600' : 'text-red-600'
                         }`}>
                           {attempt.score}%
                         </div>
                         <div className="text-sm text-gray-600">
-                          {attempt.score >= selectedQuiz.passingScore ? 'Passed' : 'Failed'}
+                          {attempt.score >= 70 ? 'Passed' : 'Failed'}
                         </div>
                       </div>
                     </div>

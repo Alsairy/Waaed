@@ -10,33 +10,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { 
   Calendar, 
   Plus, 
-  Edit, 
   Trash2, 
-  Search,
-  Filter,
   Clock,
   MapPin,
   Users,
   BookOpen,
   GraduationCap
 } from 'lucide-react';
-import { academicCalendarService, AcademicYear, Semester, AcademicEvent, Holiday } from '../../services/academicCalendarService';
+import { academicCalendarService, AcademicTerm, AcademicTermDto, AcademicEvent, Holiday } from '../../services/academicCalendarService';
 
-interface CreateAcademicYearRequest {
-  name: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-}
 
-interface CreateSemesterRequest {
-  name: string;
-  description: string;
-  academicYearId: string;
-  startDate: string;
-  endDate: string;
-  semesterType: 'Fall' | 'Spring' | 'Summer' | 'Winter';
-}
 
 interface CreateAcademicEventRequest {
   title: string;
@@ -62,8 +45,8 @@ interface CreateHolidayRequest {
 }
 
 export function AcademicCalendarManagementPage() {
-  const [academicYears, setAcademicYears] = useState<AcademicYear[]>([]);
-  const [semesters, setSemesters] = useState<Semester[]>([]);
+  const [academicTerms, setAcademicTerms] = useState<AcademicTerm[]>([]);
+  const [examSchedules, setExamSchedules] = useState<any[]>([]);
   const [events, setEvents] = useState<AcademicEvent[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,20 +62,22 @@ export function AcademicCalendarManagementPage() {
   const [showCreateEventDialog, setShowCreateEventDialog] = useState(false);
   const [showCreateHolidayDialog, setShowCreateHolidayDialog] = useState(false);
   
-  const [newAcademicYear, setNewAcademicYear] = useState<CreateAcademicYearRequest>({
+  const [newAcademicTerm, setNewAcademicTerm] = useState<AcademicTermDto>({
     name: '',
-    description: '',
-    startDate: '',
-    endDate: ''
-  });
-  
-  const [newSemester, setNewSemester] = useState<CreateSemesterRequest>({
-    name: '',
-    description: '',
-    academicYearId: '',
+    type: '',
     startDate: '',
     endDate: '',
-    semesterType: 'Fall'
+    year: new Date().getFullYear()
+  });
+  
+  const [newSemester, setNewSemester] = useState<any>({
+    name: '',
+    examType: 'Final',
+    examDate: '',
+    startTime: '',
+    endTime: '',
+    location: '',
+    duration: 120
   });
   
   const [newEvent, setNewEvent] = useState<CreateAcademicEventRequest>({
@@ -124,7 +109,7 @@ export function AcademicCalendarManagementPage() {
 
   useEffect(() => {
     if (selectedAcademicYear) {
-      loadSemesters(selectedAcademicYear);
+      loadSemesters();
       loadEvents(selectedAcademicYear, selectedSemester);
     }
   }, [selectedAcademicYear, selectedSemester]);
@@ -132,16 +117,16 @@ export function AcademicCalendarManagementPage() {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      const [yearsData, holidaysData] = await Promise.all([
-        academicCalendarService.getAcademicYears(),
+      const [termsData, holidaysData] = await Promise.all([
+        academicCalendarService.getAcademicTerms(),
         academicCalendarService.getHolidays()
       ]);
       
-      setAcademicYears(yearsData);
+      setAcademicTerms(termsData);
       setHolidays(holidaysData);
       
-      if (yearsData.length > 0 && !selectedAcademicYear) {
-        setSelectedAcademicYear(yearsData[0].id);
+      if (termsData.length > 0 && !selectedAcademicYear) {
+        setSelectedAcademicYear(termsData[0].id);
       }
     } catch (err) {
       setError('Failed to load academic calendar data');
@@ -151,10 +136,10 @@ export function AcademicCalendarManagementPage() {
     }
   };
 
-  const loadSemesters = async (academicYearId: string) => {
+  const loadSemesters = async () => {
     try {
-      const semestersData = await academicCalendarService.getSemesters(academicYearId);
-      setSemesters(semestersData);
+      const examSchedulesData = await academicCalendarService.getExamSchedules();
+      setExamSchedules(examSchedulesData);
     } catch (err) {
       console.error('Error loading semesters:', err);
     }
@@ -171,9 +156,21 @@ export function AcademicCalendarManagementPage() {
 
   const handleCreateAcademicYear = async () => {
     try {
-      await academicCalendarService.createAcademicYear(newAcademicYear);
+      await academicCalendarService.createAcademicTerm({
+        name: newAcademicTerm.name,
+        type: 'Semester',
+        startDate: newAcademicTerm.startDate,
+        endDate: newAcademicTerm.endDate,
+        year: new Date().getFullYear()
+      });
       setShowCreateYearDialog(false);
-      setNewAcademicYear({ name: '', description: '', startDate: '', endDate: '' });
+      setNewAcademicTerm({ 
+        name: '', 
+        type: '', 
+        startDate: '', 
+        endDate: '', 
+        year: new Date().getFullYear() 
+      });
       loadData();
     } catch (err) {
       setError('Failed to create academic year');
@@ -183,19 +180,18 @@ export function AcademicCalendarManagementPage() {
 
   const handleCreateSemester = async () => {
     try {
-      await academicCalendarService.createSemester(newSemester);
+      await academicCalendarService.createExamSchedule(newSemester);
       setShowCreateSemesterDialog(false);
       setNewSemester({
-        name: '',
-        description: '',
-        academicYearId: '',
-        startDate: '',
-        endDate: '',
-        semesterType: 'Fall'
+        courseId: '',
+        examType: 'Final',
+        examDate: '',
+        startTime: '',
+        endTime: '',
+        location: '',
+        duration: 120
       });
-      if (selectedAcademicYear) {
-        loadSemesters(selectedAcademicYear);
-      }
+      loadSemesters();
     } catch (err) {
       setError('Failed to create semester');
       console.error('Error creating semester:', err);
@@ -204,7 +200,16 @@ export function AcademicCalendarManagementPage() {
 
   const handleCreateEvent = async () => {
     try {
-      await academicCalendarService.createAcademicEvent(newEvent);
+      await academicCalendarService.createAcademicEvent({
+        title: newEvent.title,
+        description: newEvent.description,
+        eventType: newEvent.eventType,
+        startDate: newEvent.startDate,
+        endDate: newEvent.endDate || newEvent.startDate,
+        isAllDay: false,
+        isRecurring: false,
+        isPublic: true
+      });
       setShowCreateEventDialog(false);
       setNewEvent({
         title: '',
@@ -229,7 +234,11 @@ export function AcademicCalendarManagementPage() {
 
   const handleCreateHoliday = async () => {
     try {
-      await academicCalendarService.createHoliday(newHoliday);
+      await academicCalendarService.createHoliday({
+        ...newHoliday,
+        type: 'National',
+        isObserved: true
+      });
       setShowCreateHolidayDialog(false);
       setNewHoliday({
         name: '',
@@ -250,7 +259,7 @@ export function AcademicCalendarManagementPage() {
   const handleDeleteAcademicYear = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this academic year?')) {
       try {
-        await academicCalendarService.deleteAcademicYear(id);
+        await academicCalendarService.deleteAcademicEvent(id);
         loadData();
       } catch (err) {
         setError('Failed to delete academic year');
@@ -276,7 +285,7 @@ export function AcademicCalendarManagementPage() {
   const handleDeleteHoliday = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this holiday?')) {
       try {
-        await academicCalendarService.deleteHoliday(id);
+        await academicCalendarService.deleteAcademicEvent(id);
         loadData();
       } catch (err) {
         setError('Failed to delete holiday');
@@ -306,14 +315,14 @@ export function AcademicCalendarManagementPage() {
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         event.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = !eventTypeFilter || event.eventType === eventTypeFilter;
     return matchesSearch && matchesType;
   });
 
   const filteredHolidays = holidays.filter(holiday =>
     holiday.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    holiday.description.toLowerCase().includes(searchTerm.toLowerCase())
+    holiday.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {
@@ -346,25 +355,25 @@ export function AcademicCalendarManagementPage() {
               <div className="space-y-4">
                 <Input
                   placeholder="Academic Year Name"
-                  value={newAcademicYear.name}
-                  onChange={(e) => setNewAcademicYear({ ...newAcademicYear, name: e.target.value })}
+                  value={newAcademicTerm.name}
+                  onChange={(e) => setNewAcademicTerm({ ...newAcademicTerm, name: e.target.value })}
                 />
                 <Textarea
                   placeholder="Description"
-                  value={newAcademicYear.description}
-                  onChange={(e) => setNewAcademicYear({ ...newAcademicYear, description: e.target.value })}
+                  value={newAcademicTerm.description}
+                  onChange={(e) => setNewAcademicTerm({ ...newAcademicTerm, description: e.target.value })}
                 />
                 <Input
                   type="date"
                   placeholder="Start Date"
-                  value={newAcademicYear.startDate}
-                  onChange={(e) => setNewAcademicYear({ ...newAcademicYear, startDate: e.target.value })}
+                  value={newAcademicTerm.startDate}
+                  onChange={(e) => setNewAcademicTerm({ ...newAcademicTerm, startDate: e.target.value })}
                 />
                 <Input
                   type="date"
                   placeholder="End Date"
-                  value={newAcademicYear.endDate}
-                  onChange={(e) => setNewAcademicYear({ ...newAcademicYear, endDate: e.target.value })}
+                  value={newAcademicTerm.endDate}
+                  onChange={(e) => setNewAcademicTerm({ ...newAcademicTerm, endDate: e.target.value })}
                 />
                 <Button onClick={handleCreateAcademicYear} className="w-full">
                   Create Academic Year
@@ -391,7 +400,7 @@ export function AcademicCalendarManagementPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {academicYears.map((year) => (
+              {academicTerms.map((year) => (
                 <div
                   key={year.id}
                   className={`p-3 border rounded-lg cursor-pointer transition-colors ${
@@ -445,13 +454,13 @@ export function AcademicCalendarManagementPage() {
                   <div className="space-y-4">
                     <Input
                       placeholder="Semester Name"
-                      value={newSemester.name}
-                      onChange={(e) => setNewSemester({ ...newSemester, name: e.target.value })}
+                      value={newSemester.courseId}
+                      onChange={(e) => setNewSemester({ ...newSemester, courseId: e.target.value })}
                     />
                     <Select
-                      value={newSemester.semesterType}
-                      onValueChange={(value: 'Fall' | 'Spring' | 'Summer' | 'Winter') =>
-                        setNewSemester({ ...newSemester, semesterType: value })
+                      value={newSemester.examType}
+                      onValueChange={(value: string) =>
+                        setNewSemester({ ...newSemester, examType: value })
                       }
                     >
                       <SelectTrigger>
@@ -466,24 +475,24 @@ export function AcademicCalendarManagementPage() {
                     </Select>
                     <Textarea
                       placeholder="Description"
-                      value={newSemester.description}
-                      onChange={(e) => setNewSemester({ ...newSemester, description: e.target.value })}
+                      value={newSemester.location || ''}
+                      onChange={(e) => setNewSemester({ ...newSemester, location: e.target.value })}
                     />
                     <Input
                       type="date"
                       placeholder="Start Date"
-                      value={newSemester.startDate}
-                      onChange={(e) => setNewSemester({ ...newSemester, startDate: e.target.value })}
+                      value={newSemester.examDate}
+                      onChange={(e) => setNewSemester({ ...newSemester, examDate: e.target.value })}
                     />
                     <Input
                       type="date"
                       placeholder="End Date"
-                      value={newSemester.endDate}
-                      onChange={(e) => setNewSemester({ ...newSemester, endDate: e.target.value })}
+                      value={newSemester.startTime}
+                      onChange={(e) => setNewSemester({ ...newSemester, startTime: e.target.value })}
                     />
                     <Button
                       onClick={() => {
-                        setNewSemester({ ...newSemester, academicYearId: selectedAcademicYear });
+                        setNewSemester({ ...newSemester, endTime: selectedAcademicYear || '' });
                         handleCreateSemester();
                       }}
                       className="w-full"
@@ -497,7 +506,7 @@ export function AcademicCalendarManagementPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {semesters.map((semester) => (
+              {examSchedules.map((semester: any) => (
                 <div
                   key={semester.id}
                   className={`p-3 border rounded-lg cursor-pointer transition-colors ${
@@ -507,12 +516,12 @@ export function AcademicCalendarManagementPage() {
                   }`}
                   onClick={() => setSelectedSemester(semester.id)}
                 >
-                  <h3 className="font-medium">{semester.name}</h3>
+                  <h3 className="font-medium">{semester.name || 'Unnamed Semester'}</h3>
                   <Badge variant="outline" className="mt-1">
-                    {semester.semesterType}
+                    {semester.type || 'Regular'}
                   </Badge>
                   <p className="text-sm text-gray-600 mt-1">
-                    {formatDate(semester.startDate)} - {formatDate(semester.endDate)}
+                    {semester.startDate ? formatDate(semester.startDate) : 'TBD'} - {semester.endDate ? formatDate(semester.endDate) : 'TBD'}
                   </p>
                 </div>
               ))}
@@ -730,7 +739,7 @@ export function AcademicCalendarManagementPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <h3 className="font-medium">{holiday.name}</h3>
-                        <Badge variant="outline">{holiday.holidayType}</Badge>
+                        <Badge variant="outline">{holiday.type}</Badge>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">{holiday.description}</p>
                       <div className="flex items-center gap-1 text-sm text-gray-500">

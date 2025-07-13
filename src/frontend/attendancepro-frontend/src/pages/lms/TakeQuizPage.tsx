@@ -98,7 +98,7 @@ export default function TakeQuizPage() {
         setAttempt(existingAttempt);
         const savedResponses = await quizService.getAttemptResponses(existingAttempt.id);
         const responsesMap: Record<string, QuestionResponse> = {};
-        savedResponses.forEach((response: any) => {
+        savedResponses.forEach((response: QuestionResponse) => {
           responsesMap[response.questionId] = response;
         });
         setResponses(responsesMap);
