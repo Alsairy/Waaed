@@ -7,8 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/ta
 import { Progress } from '../../components/ui/progress'
 import { 
   Search, 
-  Filter, 
-  Download, 
+  Filter,
+  Download,
   Upload,
   Eye,
   Edit,
@@ -380,6 +380,7 @@ const GradeBookPage: React.FC = () => {
       setGradeInput('')
       toast.success('Grade updated successfully')
     } catch (error) {
+      console.error('Grade update error:', error)
       toast.error('Failed to update grade')
     }
   }
@@ -414,6 +415,7 @@ const GradeBookPage: React.FC = () => {
           break
       }
     } catch (error) {
+      console.error('Bulk action error:', error)
       toast.error(`Failed to ${action} grades`)
     }
   }

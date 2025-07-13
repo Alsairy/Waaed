@@ -304,6 +304,7 @@ const ReservationsPage: React.FC = () => {
       }
       loadReservationData()
     } catch (error) {
+      console.error('Reservation action error:', error)
       toast.error(`Failed to ${action} reservation`)
     }
   }
@@ -322,6 +323,7 @@ const ReservationsPage: React.FC = () => {
           break
       }
     } catch (error) {
+      console.error('Bulk action error:', error)
       toast.error(`Failed to ${action}`)
     }
   }

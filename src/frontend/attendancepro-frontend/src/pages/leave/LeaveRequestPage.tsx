@@ -44,9 +44,10 @@ const LeaveRequestPage: React.FC = () => {
       ])
       setLeaveTypes(typesData)
       setLeaveBalances(balancesData)
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to load leave data')
-    } finally {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load leave data'
+      toast.error(errorMessage)
+    }finally {
       setIsLoading(false)
     }
   }
@@ -193,9 +194,10 @@ const LeaveRequestPage: React.FC = () => {
       
       await loadInitialData()
       
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to submit leave request')
-    } finally {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit leave request'
+      toast.error(errorMessage)
+    }finally {
       setIsSubmitting(false)
     }
   }

@@ -118,33 +118,36 @@ const ManagerDashboard: React.FC = () => {
 
   const setupRealTimeConnections = () => {
     realTimeService.on('connection-status', (status) => {
-      setConnectionStatus(status.status)
-      if (status.status === 'connected') {
+      const connectionStatus = status as { status: 'connected' | 'disconnected' | 'reconnecting' | 'error' }
+      setConnectionStatus(connectionStatus.status)
+      if (connectionStatus.status === 'connected') {
         toast.success('Real-time connection established')
-      } else if (status.status === 'disconnected') {
+      } else if (connectionStatus.status === 'disconnected') {
         toast.error('Real-time connection lost')
-      } else if (status.status === 'reconnecting') {
+      } else if (connectionStatus.status === 'reconnecting') {
         toast.info('Reconnecting to real-time service...')
       }
     })
 
     realTimeService.on('team-update', (update) => {
       if (realTimeUpdates) {
+        const teamUpdate = update as { message: string }
         loadManagerData()
-        toast.info(`Team update: ${update.message}`)
+        toast.info(`Team update: ${teamUpdate.message}`)
       }
     })
 
     realTimeService.on('leave-request', (request) => {
+      const leaveRequest = request as { employeeName: string }
       setPendingTasks(prev => [{
         id: Date.now().toString(),
         type: 'leave-approval',
-        title: `Leave request from ${request.employeeName}`,
-        employee: request.employeeName,
+        title: `Leave request from ${leaveRequest.employeeName}`,
+        employee: leaveRequest.employeeName,
         priority: 'medium',
         dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
       }, ...prev.slice(0, 9)])
-      toast.info(`New leave request from ${request.employeeName}`)
+      toast.info(`New leave request from ${leaveRequest.employeeName}`)
     })
   }
 

@@ -46,8 +46,8 @@ const CheckInModal: React.FC<CheckInModalProps> = ({ open, onOpenChange, onSucce
         setLocationStatus('invalid')
         toast.error(`Location validation failed: ${validation.message}`)
       }
-    } catch (error: any) {
-      toast.error(error.message || 'GPS check-in failed')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'GPS check-in failed')
       setLocationStatus('invalid')
     } finally {
       setIsLoading(false)
@@ -69,8 +69,8 @@ const CheckInModal: React.FC<CheckInModalProps> = ({ open, onOpenChange, onSucce
       onSuccess()
       onOpenChange(false)
       setShowFaceVerification(false)
-    } catch (error: any) {
-      toast.error(error.message || 'Face check-in failed')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Face check-in failed')
     } finally {
       setIsLoading(false)
     }
@@ -86,8 +86,8 @@ const CheckInModal: React.FC<CheckInModalProps> = ({ open, onOpenChange, onSucce
       toast.success('Manual check-in successful!')
       onSuccess()
       onOpenChange(false)
-    } catch (error: any) {
-      toast.error(error.message || 'Manual check-in failed')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Manual check-in failed')
     } finally {
       setIsLoading(false)
     }
@@ -149,7 +149,7 @@ const CheckInModal: React.FC<CheckInModalProps> = ({ open, onOpenChange, onSucce
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={checkInMethod} onValueChange={(value) => setCheckInMethod(value as any)}>
+        <Tabs value={checkInMethod} onValueChange={(value) => setCheckInMethod(value as 'gps' | 'face' | 'beacon' | 'manual')}>
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="gps">
               <Navigation className="w-4 h-4 mr-2" />
@@ -295,8 +295,8 @@ const AttendancePage: React.FC = () => {
       setTodayAttendance(todayData)
       setAttendanceStats(statsData)
       setRecentRecords(recordsData)
-    } catch (error: any) {
-      setError(error.message || 'Failed to load attendance data')
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to load attendance data')
       toast.error('Failed to load attendance data')
     } finally {
       setIsLoading(false)
@@ -312,8 +312,8 @@ const AttendancePage: React.FC = () => {
       })
       toast.success('Check-out successful!')
       await loadAttendanceData()
-    } catch (error: any) {
-      toast.error(error.message || 'Check-out failed')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Check-out failed')
     } finally {
       setIsLoading(false)
     }

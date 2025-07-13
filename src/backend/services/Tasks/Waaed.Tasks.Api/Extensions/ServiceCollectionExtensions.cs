@@ -55,7 +55,6 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddAuthorization();
-
         // Add CORS
         services.AddCors(options =>
         {

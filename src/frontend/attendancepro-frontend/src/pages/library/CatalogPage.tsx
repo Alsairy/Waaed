@@ -343,6 +343,7 @@ const CatalogPage: React.FC = () => {
       }
       loadLibraryCatalog()
     } catch (error) {
+      console.error('Book action error:', error)
       toast.error(`Failed to ${action} book`)
     }
   }
@@ -361,6 +362,7 @@ const CatalogPage: React.FC = () => {
           break
       }
     } catch (error) {
+      console.error('Bulk action error:', error)
       toast.error(`Failed to ${action}`)
     }
   }

@@ -102,21 +102,23 @@ const AdminDashboard: React.FC = () => {
   }, [realTimeUpdates])
 
   const setupRealTimeConnections = () => {
-    realTimeService.on('connection-status', (status) => {
-      setConnectionStatus(status.status)
-      if (status.status === 'connected') {
+    realTimeService.on('connection-status', (status: unknown) => {
+      const statusObj = status as { status: 'connected' | 'disconnected' | 'reconnecting' | 'error' };
+      setConnectionStatus(statusObj.status)
+      if (statusObj.status === 'connected') {
         toast.success('Real-time connection established')
-      } else if (status.status === 'disconnected') {
+      } else if (statusObj.status === 'disconnected') {
         toast.error('Real-time connection lost')
-      } else if (status.status === 'reconnecting') {
+      } else if (statusObj.status === 'reconnecting') {
         toast.info('Reconnecting to real-time service...')
       }
     })
 
-    realTimeService.on('system-alert', (alert) => {
-      setSystemAlerts(prev => [alert, ...prev.slice(0, 9)])
-      if (alert.type === 'critical') {
-        toast.error(`Critical Alert: ${alert.message}`)
+    realTimeService.on('system-alert', (alert: unknown) => {
+      const alertObj = alert as SystemAlert;
+      setSystemAlerts(prev => [alertObj, ...prev.slice(0, 9)])
+      if (alertObj.type === 'critical') {
+        toast.error(`Critical Alert: ${alertObj.message}`)
       }
     })
 

@@ -207,6 +207,7 @@ const ProgressReportsPage: React.FC = () => {
           break
       }
     } catch (error) {
+      console.error('Report generation error:', error)
       toast.error(`Failed to generate ${type} report`)
     }
   }

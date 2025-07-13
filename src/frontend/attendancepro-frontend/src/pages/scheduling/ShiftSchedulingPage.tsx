@@ -511,7 +511,7 @@ const CreateShiftDialog: React.FC<{ onCreateShift: (data: Partial<Shift>) => voi
     location: '',
     maxEmployees: 1,
     minEmployees: 1,
-    type: 'Regular' as const
+    type: 'Regular' as "Regular" | "Overtime" | "Night" | "Weekend" | "Holiday"
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -558,7 +558,7 @@ const CreateShiftDialog: React.FC<{ onCreateShift: (data: Partial<Shift>) => voi
             </div>
             <div>
               <Label htmlFor="type">Type</Label>
-              <Select value={formData.type} onValueChange={(value: any) => setFormData({ ...formData, type: value })}>
+              <Select value={formData.type} onValueChange={(value: "Regular" | "Overtime" | "Night" | "Weekend" | "Holiday") => setFormData({ ...formData, type: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

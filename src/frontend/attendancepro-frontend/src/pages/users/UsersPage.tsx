@@ -50,7 +50,14 @@ const UsersPage: React.FC = () => {
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showFilterDialog, setShowFilterDialog] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
-  const [userStats, setUserStats] = useState<any>(null)
+  const [userStats, setUserStats] = useState<{
+    totalUsers: number;
+    activeUsers: number;
+    inactiveUsers: number;
+    newUsersThisMonth: number;
+    departmentBreakdown: { department: string; count: number; }[];
+    roleBreakdown: { role: string; count: number; }[];
+  } | null>(null)
 
   const createForm = useForm<CreateUserRequest>({
     resolver: zodResolver(createUserSchema),
@@ -100,8 +107,9 @@ const UsersPage: React.FC = () => {
       })
       setUsers(response.users)
       setTotalCount(response.totalCount)
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to load users')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to load users')
     } finally {
       setLoading(false)
     }
@@ -111,7 +119,7 @@ const UsersPage: React.FC = () => {
     try {
       const depts = await userManagementService.getDepartments()
       setDepartments(depts)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load departments:', error)
     }
   }
@@ -120,7 +128,7 @@ const UsersPage: React.FC = () => {
     try {
       const rolesList = await userManagementService.getRoles()
       setRoles(rolesList)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load roles:', error)
     }
   }
@@ -129,7 +137,7 @@ const UsersPage: React.FC = () => {
     try {
       const stats = await userManagementService.getUserStats()
       setUserStats(stats)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to load user stats:', error)
     }
   }
@@ -142,8 +150,9 @@ const UsersPage: React.FC = () => {
       createForm.reset()
       loadUsers()
       loadUserStats()
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to create user')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to create user')
     }
   }
 
@@ -157,8 +166,9 @@ const UsersPage: React.FC = () => {
       setEditingUser(null)
       editForm.reset()
       loadUsers()
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update user')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to update user')
     }
   }
 
@@ -172,8 +182,9 @@ const UsersPage: React.FC = () => {
       toast.success('User deleted successfully')
       loadUsers()
       loadUserStats()
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to delete user')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to delete user')
     }
   }
 
@@ -183,8 +194,9 @@ const UsersPage: React.FC = () => {
       toast.success(`User ${newStatus.toLowerCase()} successfully`)
       loadUsers()
       loadUserStats()
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update user status')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to update user status')
     }
   }
 
@@ -192,8 +204,9 @@ const UsersPage: React.FC = () => {
     try {
       await userManagementService.resetUserPassword(userId, true)
       toast.success('Password reset email sent successfully')
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to reset password')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to reset password')
     }
   }
 
@@ -233,8 +246,9 @@ const UsersPage: React.FC = () => {
       setSelectedUsers([])
       loadUsers()
       loadUserStats()
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to perform bulk action')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to perform bulk action')
     }
   }
 
@@ -250,8 +264,9 @@ const UsersPage: React.FC = () => {
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
       toast.success('Users exported successfully')
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to export users')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to export users')
     }
   }
 
@@ -267,8 +282,9 @@ const UsersPage: React.FC = () => {
       }
       loadUsers()
       loadUserStats()
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to import users')
+    } catch (error: unknown) {
+      const errorObj = error as { message?: string };
+      toast.error(errorObj.message || 'Failed to import users')
     }
     
     event.target.value = ''
@@ -589,7 +605,7 @@ const UsersPage: React.FC = () => {
                   <label className="text-sm font-medium">Status</label>
                   <Select 
                     value={filters.status || ''} 
-                    onValueChange={(value) => setFilters(prev => ({ ...prev, status: value as any || undefined }))}
+                    onValueChange={(value) => setFilters(prev => ({ ...prev, status: value === '' ? undefined : value as 'Active' | 'Inactive' | 'Suspended' }))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="All statuses" />

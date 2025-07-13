@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
+import LoadingSpinner from '../../components/LoadingSpinner'
 
 interface Student {
   id: string
@@ -58,6 +59,7 @@ const StudentsPage: React.FC = () => {
   const [selectedStudents, setSelectedStudents] = useState<string[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [studentsPerPage] = useState(20)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadStudents()
@@ -70,10 +72,12 @@ const StudentsPage: React.FC = () => {
   const loadStudents = async () => {
     try {
       setIsLoading(true)
+      setError(null)
       const studentsData = await sisService.getStudents()
-      setStudents(studentsData)
+      setStudents(studentsData as unknown as Student[])
     } catch (error) {
       console.error('Error loading students:', error)
+      setError('Failed to load students')
       toast.error('Failed to load students')
       
       const mockStudents: Student[] = [
@@ -161,6 +165,10 @@ const StudentsPage: React.FC = () => {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const retry = () => {
+    loadStudents()
   }
 
   const applyFilters = () => {
@@ -261,12 +269,16 @@ const StudentsPage: React.FC = () => {
   }
 
   if (isLoading) {
+    return <LoadingSpinner />
+  }
+
+  if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading students...</p>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <p className="text-red-600">{error}</p>
+        <button onClick={retry} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          Retry
+        </button>
       </div>
     )
   }
