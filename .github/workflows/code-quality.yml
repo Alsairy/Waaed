@@ -3,7 +3,7 @@ name: Code Quality & Linting
 
 on:
   push:
-    branches: ["main", "develop"]
+    branches: ["main", "develop", "devin/*"]
     paths:
       - 'src/**'
       - 'frontend/**'
