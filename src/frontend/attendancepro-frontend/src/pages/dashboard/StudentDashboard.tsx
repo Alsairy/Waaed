@@ -6,17 +6,18 @@ import { Progress } from '../../components/ui/progress'
 import { 
   BookOpen, 
   Calendar, 
-  Clock, 
-  TrendingUp, 
-  AlertCircle,
-  Users,
+  TrendingUp,
+  Clock,
   FileText,
+  Users,
+  AlertCircle,
   Star
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { sisService } from '../../services/sisService'
 import { assignmentsService } from '../../services/assignmentsService'
 import { gradesService } from '../../services/gradesService'
+import { academicCalendarService } from '../../services/academicCalendarService'
 import { toast } from 'sonner'
 
 interface StudentStats {
@@ -145,6 +146,11 @@ const StudentDashboard = () => {
 
   const loadStudentData = async () => {
     try {
+      
+      const today = new Date()
+      const semester = getCurrentSemester()
+      const year = today.getFullYear()
+      
       const enrollments = await sisService.getEnrollments(user?.id || '')
       const grades = await gradesService.getStudentGrades(user?.id || '')
       const overdueAssignments = await assignmentsService.getOverdueAssignments(user?.id || '')
@@ -153,12 +159,58 @@ const StudentDashboard = () => {
       
       setStudentStats({
         currentGPA,
+        attendanceRate: 94.5, // Mock data - would come from attendance service
+        completedAssignments: grades.filter(g => g.grade > 0).length,
+        totalAssignments: grades.length,
+        enrolledCourses: enrollments.length,
+        upcomingExams: 3, // Mock data - would come from exam schedule
+        overdueTasks: overdueAssignments.length,
+        creditsEarned: enrollments.reduce((sum: number, e: any) => sum + (e.credits || 0), 0),
+      })
+
+      const schedule = await academicCalendarService.getStudentSchedule(
+        user?.id || '', 
+        semester, 
+        year
+      )
+      const todaySchedule = filterTodayClasses(schedule)
+      setTodayClasses(todaySchedule)
+
+      const upcomingAssignments = await assignmentsService.getUpcomingAssignments(user?.id || '')
+      const assignmentsDueData = upcomingAssignments.slice(0, 5).map((assignment: any) => ({
+        id: assignment.id,
+        title: assignment.title,
+        courseName: assignment.courseName || 'Unknown Course',
+        dueDate: assignment.dueDate,
+        status: getAssignmentStatus() as 'in-progress' | 'not-started' | 'submitted',
+        priority: getAssignmentPriority(assignment.dueDate)
+      }))
+      setAssignmentsDue(assignmentsDueData)
+
+      const recentGradesData = grades.slice(0, 5).map(grade => ({
+        id: grade.id,
+        assignmentName: grade.assignmentName || 'Assignment',
+        courseName: grade.courseName || 'Unknown Course',
+        grade: grade.grade,
+        maxPoints: grade.maxPoints,
+        percentage: grade.percentage,
+        letterGrade: grade.letterGrade,
+        gradedAt: grade.gradedAt
+      }))
+      setRecentGrades(recentGradesData)
+
+    } catch (error) {
+      console.error('Error loading student data:', error)
+      toast.error('Failed to load dashboard data')
+      
+      setStudentStats({
+        currentGPA: 3.2,
         attendanceRate: 94.5,
         completedAssignments: 15,
         totalAssignments: 20,
-        enrolledCourses: enrollments.length,
+        enrolledCourses: 5,
         upcomingExams: 3,
-        overdueTasks: overdueAssignments.length,
+        overdueTasks: 2,
         creditsEarned: 18,
       })
       
@@ -241,10 +293,99 @@ const StudentDashboard = () => {
           gradedAt: new Date(Date.now() - 86400000).toISOString()
         }
       ])
+
     } catch (error) {
       console.error('Error loading student data:', error)
       toast.error('Failed to load dashboard data')
+      
+      setStudentStats({
+        currentGPA: 3.2,
+        attendanceRate: 94.5,
+        completedAssignments: 15,
+        totalAssignments: 20,
+        enrolledCourses: 5,
+        upcomingExams: 3,
+        overdueTasks: 2,
+        creditsEarned: 18,
+      })
+      
+      setTodayClasses([
+        {
+          id: '1',
+          courseName: 'Mathematics 10A',
+          courseCode: 'MATH10A',
+          startTime: '09:00',
+          endTime: '10:00',
+          room: 'Room 201',
+          instructorName: 'Dr. Sarah Johnson',
+          status: 'upcoming'
+        },
+        {
+          id: '2',
+          courseName: 'Physics 11B',
+          courseCode: 'PHYS11B',
+          startTime: '11:00',
+          endTime: '12:00',
+          room: 'Room 305',
+          instructorName: 'Prof. Ahmed Ali',
+          status: 'upcoming'
+        }
+      ])
+      
+      setAssignmentsDue([
+        {
+          id: '1',
+          title: 'Quadratic Equations Worksheet',
+          courseName: 'Mathematics 10A',
+          dueDate: new Date(Date.now() + 86400000).toISOString(),
+          status: 'in-progress',
+          priority: 'high'
+        },
+        {
+          id: '2',
+          title: 'Physics Lab Report',
+          courseName: 'Physics 11B',
+          dueDate: new Date(Date.now() + 259200000).toISOString(),
+          status: 'not-started',
+          priority: 'medium'
+        }
+      ])
+      
+      setRecentGrades([
+        {
+          id: '1',
+          assignmentName: 'Algebra Test',
+          courseName: 'Mathematics 10A',
+          grade: 85,
+          maxPoints: 100,
+          percentage: 85,
+          letterGrade: 'B+',
+          gradedAt: new Date(Date.now() - 86400000).toISOString()
+        }
+      ])
+    } finally {
     }
+  }
+
+  const getCurrentSemester = () => {
+    const month = new Date().getMonth()
+    if (month >= 8 || month <= 0) return 'Fall'
+    if (month >= 1 && month <= 4) return 'Spring'
+    return 'Summer'
+  }
+
+  const getAssignmentStatus = (): 'not-started' | 'in-progress' | 'submitted' | 'overdue' => {
+    return 'in-progress'
+  }
+
+  const getAssignmentPriority = (dueDate: string): 'high' | 'medium' | 'low' => {
+    const due = new Date(dueDate)
+    const now = new Date()
+    const diffDays = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    
+    if (diffDays <= 1) return 'high'
+    if (diffDays <= 3) return 'medium'
+    return 'low'
   }
 
   useEffect(() => {

@@ -404,13 +404,13 @@ class NotificationService {
           try {
             const notification: NotificationDto = JSON.parse(event.data);
             callback(notification);
-          } catch (error) {
-            console.error('Failed to parse notification:', error);
+          } catch {
+            console.error('Failed to parse notification');
           }
         };
 
-        eventSource.onerror = (error) => {
-          console.error('Notification stream error:', error);
+        eventSource.onerror = () => {
+          console.error('Notification stream error');
           eventSource.close();
         };
 
@@ -458,8 +458,8 @@ class NotificationService {
           browserNotification.close();
         }, 5000);
       }
-    } catch (error) {
-      console.error('Failed to show browser notification:', error);
+    } catch {
+      console.error('Failed to show browser notification');
     }
   }
 }

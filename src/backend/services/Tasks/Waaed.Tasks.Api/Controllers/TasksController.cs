@@ -97,7 +97,7 @@ public class TasksController : ControllerBase
                 return Unauthorized("User authentication required");
             }
 
-            var task = _mapper.Map<Task>(createDto);
+            var task = _mapper.Map<Entities.Task>(createDto);
             task.CreatedBy = _currentUserService.UserId.Value;
             task.Status = "Not Started";
             task.CreatedAt = DateTime.UtcNow;

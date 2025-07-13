@@ -19,6 +19,7 @@ interface Student {
   grade?: string
   section?: string
   status: string
+  enrollmentStatus: 'active' | 'inactive' | 'graduated' | 'transferred'
   profilePictureUrl?: string
   emergencyContact?: string
   medicalInfo?: string

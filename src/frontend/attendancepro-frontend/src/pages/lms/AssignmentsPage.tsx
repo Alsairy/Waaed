@@ -343,7 +343,7 @@ const AssignmentsPage: React.FC = () => {
     return '#E74C3C'
   }
 
-  const handleAssignmentAction = async (_assignmentId: string, action: 'publish' | 'close' | 'duplicate' | 'delete') => {
+  const handleAssignmentAction = async (action: 'publish' | 'close' | 'duplicate' | 'delete') => {
     try {
       switch (action) {
         case 'publish':
@@ -623,19 +623,19 @@ const AssignmentsPage: React.FC = () => {
                           <Edit className="mr-1 h-3 w-3" />
                           Edit
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleAssignmentAction(assignment.id, 'duplicate')}>
+                        <Button size="sm" variant="outline" onClick={() => handleAssignmentAction('duplicate')}>
                           <Copy className="mr-1 h-3 w-3" />
                           Duplicate
                         </Button>
                       </div>
                       <div className="flex items-center space-x-2">
                         {assignment.status === 'draft' && (
-                          <Button size="sm" onClick={() => handleAssignmentAction(assignment.id, 'publish')} style={{ backgroundColor: '#36BA91' }}>
+                          <Button size="sm" onClick={() => handleAssignmentAction('publish')} style={{ backgroundColor: '#36BA91' }}>
                             Publish
                           </Button>
                         )}
                         {assignment.status === 'published' && (
-                          <Button size="sm" variant="outline" onClick={() => handleAssignmentAction(assignment.id, 'close')}>
+                          <Button size="sm" variant="outline" onClick={() => handleAssignmentAction('close')}>
                             Close
                           </Button>
                         )}

@@ -112,7 +112,6 @@ const ParentDashboard: React.FC = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([])
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo[]>([])
   const [academicSummary, setAcademicSummary] = useState<AcademicSummary[]>([])
-  const [, setIsLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {
@@ -135,7 +134,6 @@ const ParentDashboard: React.FC = () => {
 
   const loadParentData = async () => {
     try {
-      setIsLoading(true)
       
       const mockChildren = [
         {
@@ -303,7 +301,6 @@ const ParentDashboard: React.FC = () => {
       console.error('Error loading parent data:', error)
       toast.error('Failed to load dashboard data')
     } finally {
-      setIsLoading(false)
     }
   }
 

@@ -9,7 +9,7 @@ public class TasksDbContext : DbContext
     {
     }
 
-    public DbSet<Task> Tasks { get; set; }
+    public DbSet<Entities.Task> Tasks { get; set; }
     public DbSet<TaskComment> TaskComments { get; set; }
     public DbSet<TaskAttachment> TaskAttachments { get; set; }
 
@@ -17,7 +17,7 @@ public class TasksDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Task>(entity =>
+        modelBuilder.Entity<Entities.Task>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Title).IsRequired().HasMaxLength(200);

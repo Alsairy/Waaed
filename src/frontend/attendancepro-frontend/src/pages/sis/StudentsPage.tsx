@@ -14,10 +14,10 @@ import {
   Edit,
   Trash2,
   GraduationCap,
+  Mail,
   UserPlus,
   FileText,
-  MoreHorizontal,
-  Mail
+  MoreHorizontal
 } from 'lucide-react'
 import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
@@ -31,7 +31,7 @@ interface Student {
   email: string
   phone?: string
   dateOfBirth: string
-  grade: string
+  grade?: string
   enrollmentStatus: 'active' | 'inactive' | 'graduated' | 'transferred'
   enrollmentDate: string
   gpa?: number
@@ -284,7 +284,7 @@ const StudentsPage: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="space-y-6">
       <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">

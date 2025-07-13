@@ -62,12 +62,6 @@ interface AcademicMilestone {
   courseName?: string
 }
 
-interface ProgressFilters {
-  grade: string
-  academicStanding: string
-  course: string
-  searchTerm: string
-}
 
 interface ProgressStats {
   totalStudents: number
@@ -89,12 +83,6 @@ const ProgressReportsPage: React.FC = () => {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
-  const [,] = useState<ProgressFilters>({
-    grade: '',
-    academicStanding: '',
-    course: '',
-    searchTerm: ''
-  })
 
   useEffect(() => {
     loadProgressData()
