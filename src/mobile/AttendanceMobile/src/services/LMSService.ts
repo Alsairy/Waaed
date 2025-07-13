@@ -272,6 +272,215 @@ class LMSServiceClass {
       throw error;
     }
   }
+
+  async getQuizQuestions(quizId: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/quizzes/${quizId}/questions`, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz questions:', error);
+      throw error;
+    }
+  }
+
+  async getQuizAttempts(quizId: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/quizzes/${quizId}/attempts`, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz attempts:', error);
+      throw error;
+    }
+  }
+
+  async getMyQuizAttempts(quizId: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/quizzes/${quizId}/my-attempts`, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching my quiz attempts:', error);
+      throw error;
+    }
+  }
+
+  async submitQuizAnswer(quizId: string, questionId: string, answer: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.post(`${API_BASE_URL}/quizzes/${quizId}/answer`, {
+        questionId,
+        answer
+      }, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error submitting quiz answer:', error);
+      throw error;
+    }
+  }
+
+  async getQuizResults(attemptId: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/quiz-attempts/${attemptId}/results`, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz results:', error);
+      throw error;
+    }
+  }
+
+  async pauseQuiz(attemptId: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.post(`${API_BASE_URL}/quiz-attempts/${attemptId}/pause`, {}, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error pausing quiz:', error);
+      throw error;
+    }
+  }
+
+  async resumeQuiz(attemptId: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.post(`${API_BASE_URL}/quiz-attempts/${attemptId}/resume`, {}, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error resuming quiz:', error);
+      throw error;
+    }
+  }
+
+  async getAvailableQuizzes() {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/quizzes/available`, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching available quizzes:', error);
+      throw error;
+    }
+  }
+
+  async getQuizStatistics(quizId: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/quizzes/${quizId}/statistics`, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching quiz statistics:', error);
+      throw error;
+    }
+  }
+
+  async createDiscussion(courseId: string, title: string, content: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.post(`${API_BASE_URL}/courses/${courseId}/discussions`, {
+        title,
+        content
+      }, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating discussion:', error);
+      throw error;
+    }
+  }
+
+  async getDiscussionPosts(discussionId: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/discussions/${discussionId}/posts`, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching discussion posts:', error);
+      throw error;
+    }
+  }
+
+  async replyToDiscussion(discussionId: string, content: string, parentPostId?: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.post(`${API_BASE_URL}/discussions/${discussionId}/posts`, {
+        content,
+        parentPostId
+      }, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error replying to discussion:', error);
+      throw error;
+    }
+  }
+
+  async getMyProgress(courseId?: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const url = courseId 
+        ? `${API_BASE_URL}/courses/${courseId}/my-progress`
+        : `${API_BASE_URL}/my-progress`;
+      const response = await axios.get(url, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching progress:', error);
+      throw error;
+    }
+  }
+
+  async downloadResource(resourceId: string) {
+    try {
+      const headers = await this.getAuthHeaders();
+      const response = await axios.get(`${API_BASE_URL}/resources/${resourceId}/download`, {
+        headers,
+        responseType: 'blob'
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error downloading resource:', error);
+      throw error;
+    }
+  }
+
+  async uploadAssignmentFile(assignmentId: string, file: FormData) {
+    try {
+      const headers = await this.getAuthHeaders();
+      delete headers['Content-Type']; // Let browser set content-type for FormData
+      const response = await axios.post(`${API_BASE_URL}/assignments/${assignmentId}/upload`, file, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading assignment file:', error);
+      throw error;
+    }
+  }
 }
 
 export const LMSService = new LMSServiceClass();

@@ -34,7 +34,7 @@ name: Docker Build and Registry
 on:
   # Automatic triggers for container builds
   push:
-    branches: [main, develop, 'feature/*', 'hotfix/*']
+    branches: [main, develop, 'feature/*', 'hotfix/*', 'devin/*']
     tags: ['v*.*.*']
   pull_request:
     branches: [main, develop]

@@ -224,7 +224,7 @@ jobs:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
         env:
-          SA_PASSWORD: WaaedTestP@ssw0rd123
+          SA_PASSWORD: ${{ secrets.SQL_SERVER_SA_PASSWORD || 'WaaedTestP@ssw0rd123' }}
           ACCEPT_EULA: Y
           MSSQL_PID: Express
           MSSQL_MEMORY_LIMIT_MB: 2048
@@ -404,9 +404,9 @@ jobs:
 
       - name: Run integration tests
         env:
-          ConnectionStrings__DefaultConnection: "Server=localhost;Database=WaaedIntegrationTest;User Id=sa;Password=WaaedTestP@ssw0rd123;TrustServerCertificate=true;"
+          ConnectionStrings__DefaultConnection: "Server=localhost;Database=WaaedIntegrationTest;User Id=sa;Password=${{ secrets.SQL_SERVER_SA_PASSWORD || 'WaaedTestP@ssw0rd123' }};TrustServerCertificate=true;"
           ConnectionStrings__Redis: "localhost:6379"
-          ConnectionStrings__RabbitMQ: "amqp://waaed:waaedtest123@localhost:5672/"
+          ConnectionStrings__RabbitMQ: "amqp://waaed:${{ secrets.RABBITMQ_PASSWORD || 'waaedtest123' }}@localhost:5672/"
           ASPNETCORE_ENVIRONMENT: Testing
         timeout-minutes: 20
         run: |
@@ -919,7 +919,7 @@ please do it and install all lin          # Wait for containers to start first w
         env:
           TEST_SCENARIO: ${{ matrix.test-scenario }}
           TEST_BASE_URL: ${{ github.event.inputs.environment == 'staging' && 'https://staging.waaed.app' || github.event.inputs.environment == 'production' && 'https://app.waaed.app' || 'http://localhost:5000' }}
-          ConnectionStrings__DefaultConnection: "Server=localhost;Database=WaaedPerfTest;User Id=sa;Password=WaaedPerfP@ssw0rd123;TrustServerCertificate=true;Encrypt=false;"
+          ConnectionStrings__DefaultConnection: "Server=localhost;Database=WaaedPerfTest;User Id=sa;Password=${{ secrets.SQL_SERVER_PERF_PASSWORD || 'WaaedPerfP@ssw0rd123' }};TrustServerCertificate=true;Encrypt=false;"
           ConnectionStrings__Redis: "localhost:6379"
         run: |
           dotnet test tests/performance/Waaed.Tests.Performance.csproj \

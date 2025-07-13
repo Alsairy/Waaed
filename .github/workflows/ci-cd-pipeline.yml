@@ -31,7 +31,7 @@ name: CI/CD Pipeline
 on:
   # Automatic triggers for branch pushes
   push:
-    branches: ["main", "develop", "feature/*", "hotfix/*"]
+    branches: ["main", "develop", "feature/*", "hotfix/*", "devin/*"]
 
   # Pull request validation
   pull_request:
