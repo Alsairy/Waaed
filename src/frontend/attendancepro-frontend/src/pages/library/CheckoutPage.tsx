@@ -8,18 +8,12 @@ import { Progress } from '../../components/ui/progress'
 import { 
   BookOpen, 
   Search, 
-  Plus, 
   Filter, 
   Download, 
-  Upload,
   Eye,
   Edit,
   Users,
-  Calendar,
-  Clock,
-  Star,
   AlertCircle,
-  CheckCircle,
   FileText,
   Settings,
   Mail,
@@ -29,8 +23,6 @@ import {
   UserCheck,
   BookCheck
 } from 'lucide-react'
-import { libraryService } from '../../services/libraryService'
-import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
 
 interface CheckoutRecord {
@@ -263,7 +255,7 @@ const CheckoutPage: React.FC = () => {
     return new Date(dateString).toLocaleString()
   }
 
-  const handleCheckoutAction = async (action: 'checkout' | 'return' | 'renew' | 'mark_lost' | 'mark_damaged', checkoutId?: string) => {
+  const handleCheckoutAction = async (action: 'checkout' | 'return' | 'renew' | 'mark_lost' | 'mark_damaged') => {
     try {
       switch (action) {
         case 'checkout':
@@ -611,22 +603,22 @@ const CheckoutPage: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         {checkout.status === 'checked_out' || checkout.status === 'overdue' ? (
                           <>
-                            <Button size="sm" onClick={() => handleCheckoutAction('return', checkout.id)} style={{ backgroundColor: '#36BA91' }}>
+                            <Button size="sm" onClick={() => handleCheckoutAction('return')} style={{ backgroundColor: '#36BA91' }}>
                               <RotateCcw className="mr-1 h-3 w-3" />
                               Return Book
                             </Button>
                             {checkout.renewalCount < checkout.maxRenewals && (
-                              <Button size="sm" variant="outline" onClick={() => handleCheckoutAction('renew', checkout.id)}>
+                              <Button size="sm" variant="outline" onClick={() => handleCheckoutAction('renew')}>
                                 Renew
                               </Button>
                             )}
                           </>
                         ) : (
                           <div className="flex items-center space-x-2">
-                            <Button size="sm" variant="outline" onClick={() => handleCheckoutAction('mark_lost', checkout.id)}>
+                            <Button size="sm" variant="outline" onClick={() => handleCheckoutAction('mark_lost')}>
                               Mark Lost
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => handleCheckoutAction('mark_damaged', checkout.id)}>
+                            <Button size="sm" variant="outline" onClick={() => handleCheckoutAction('mark_damaged')}>
                               Mark Damaged
                             </Button>
                           </div>

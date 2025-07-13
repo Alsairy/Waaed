@@ -8,19 +8,13 @@ import { Progress } from '../../components/ui/progress'
 import { 
   BookOpen, 
   Search, 
-  Plus, 
   Filter, 
   Download, 
-  Upload,
   Eye,
   Edit,
-  Users,
-  Calendar,
   Clock,
-  Star,
   AlertCircle,
   CheckCircle,
-  FileText,
   Settings,
   Mail,
   Bookmark,
@@ -30,8 +24,6 @@ import {
   BookCheck,
   CalendarDays
 } from 'lucide-react'
-import { libraryService } from '../../services/libraryService'
-import { sisService } from '../../services/sisService'
 import { toast } from 'sonner'
 
 interface Reservation {
@@ -286,7 +278,7 @@ const ReservationsPage: React.FC = () => {
     return new Date(dateString).toLocaleString()
   }
 
-  const handleReservationAction = async (action: 'reserve' | 'fulfill' | 'cancel' | 'extend' | 'notify', reservationId?: string) => {
+  const handleReservationAction = async (action: 'reserve' | 'fulfill' | 'cancel' | 'extend' | 'notify') => {
     try {
       switch (action) {
         case 'reserve':
@@ -641,7 +633,7 @@ const ReservationsPage: React.FC = () => {
                           Edit Reservation
                         </Button>
                         {reservation.status === 'active' && !reservation.notificationSent && (
-                          <Button size="sm" variant="outline" onClick={() => handleReservationAction('notify', reservation.id)}>
+                          <Button size="sm" variant="outline" onClick={() => handleReservationAction('notify')}>
                             <Mail className="mr-1 h-3 w-3" />
                             Send Notification
                           </Button>
@@ -650,21 +642,21 @@ const ReservationsPage: React.FC = () => {
                       <div className="flex items-center space-x-2">
                         {reservation.status === 'active' ? (
                           <>
-                            <Button size="sm" onClick={() => handleReservationAction('fulfill', reservation.id)} style={{ backgroundColor: '#36BA91' }}>
+                            <Button size="sm" onClick={() => handleReservationAction('fulfill')} style={{ backgroundColor: '#36BA91' }}>
                               <Check className="mr-1 h-3 w-3" />
                               Fulfill
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => handleReservationAction('extend', reservation.id)}>
+                            <Button size="sm" variant="outline" onClick={() => handleReservationAction('extend')}>
                               <CalendarDays className="mr-1 h-3 w-3" />
                               Extend
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => handleReservationAction('cancel', reservation.id)}>
+                            <Button size="sm" variant="outline" onClick={() => handleReservationAction('cancel')}>
                               <X className="mr-1 h-3 w-3" />
                               Cancel
                             </Button>
                           </>
                         ) : reservation.status === 'expired' ? (
-                          <Button size="sm" variant="outline" onClick={() => handleReservationAction('cancel', reservation.id)}>
+                          <Button size="sm" variant="outline" onClick={() => handleReservationAction('cancel')}>
                             <X className="mr-1 h-3 w-3" />
                             Remove
                           </Button>

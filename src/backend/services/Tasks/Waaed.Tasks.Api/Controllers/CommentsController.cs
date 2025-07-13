@@ -4,22 +4,27 @@ using AutoMapper;
 using Waaed.Tasks.Api.Data;
 using Waaed.Tasks.Api.Entities;
 using Waaed.Tasks.Api.DTOs;
+using Waaed.Shared.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Waaed.Tasks.Api.Controllers;
 
 [ApiController]
 [Route("api/tasks/[controller]")]
+[Authorize]
 public class CommentsController : ControllerBase
 {
     private readonly TasksDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<CommentsController> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CommentsController(TasksDbContext context, IMapper mapper, ILogger<CommentsController> logger)
+    public CommentsController(TasksDbContext context, IMapper mapper, ILogger<CommentsController> logger, ICurrentUserService currentUserService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet("task/{taskId}")]
@@ -48,8 +53,13 @@ public class CommentsController : ControllerBase
     {
         try
         {
+            if (!_currentUserService.IsAuthenticated || !_currentUserService.UserId.HasValue)
+            {
+                return Unauthorized("User authentication required");
+            }
+
             var comment = _mapper.Map<TaskComment>(createDto);
-            comment.AuthorId = Guid.NewGuid(); // TODO: Get from authenticated user
+            comment.AuthorId = _currentUserService.UserId.Value;
             comment.CreatedAt = DateTime.UtcNow;
             comment.UpdatedAt = DateTime.UtcNow;
 

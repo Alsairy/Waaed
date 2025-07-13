@@ -388,7 +388,7 @@ class NotificationService {
     try {
       await this.api.get('/health');
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -404,13 +404,13 @@ class NotificationService {
           try {
             const notification: NotificationDto = JSON.parse(event.data);
             callback(notification);
-          } catch (error) {
-            console.error('Failed to parse notification:', error);
+          } catch {
+            console.error('Failed to parse notification');
           }
         };
 
-        eventSource.onerror = (error) => {
-          console.error('Notification stream error:', error);
+        eventSource.onerror = () => {
+          console.error('Notification stream error');
           eventSource.close();
         };
 
@@ -419,7 +419,7 @@ class NotificationService {
         };
       }
       return undefined;
-    } catch (error: unknown) {
+    } catch {
       throw new Error('Failed to subscribe to real-time notifications');
     }
   }
@@ -431,7 +431,7 @@ class NotificationService {
         return permission === 'granted';
       }
       return false;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -458,8 +458,8 @@ class NotificationService {
           browserNotification.close();
         }, 5000);
       }
-    } catch (error) {
-      console.error('Failed to show browser notification:', error);
+    } catch {
+      console.error('Failed to show browser notification');
     }
   }
 }

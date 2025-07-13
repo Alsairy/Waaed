@@ -43,7 +43,7 @@ const ForgotPasswordPage: React.FC = () => {
       } else {
         toast.error(result.error || 'Failed to send reset email')
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)

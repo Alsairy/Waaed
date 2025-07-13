@@ -12,25 +12,17 @@ import {
   DollarSign,
   Award,
   Bell,
-  BookOpen,
   CheckCircle,
-  AlertCircle,
   FileText,
   Clock,
   CreditCard,
   Mail,
-  Phone,
   ChevronRight,
   Eye,
   Download
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { toast } from 'sonner'
-import { sisService } from '../../services/sisService'
-import { gradesService } from '../../services/gradesService'
-import { financeService } from '../../services/financeService'
-import { academicCalendarService } from '../../services/academicCalendarService'
-import { enrollmentService } from '../../services/enrollmentService'
 
 interface ParentStats {
   totalChildren: number
@@ -120,7 +112,6 @@ const ParentDashboard: React.FC = () => {
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([])
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo[]>([])
   const [academicSummary, setAcademicSummary] = useState<AcademicSummary[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
 
   useEffect(() => {
@@ -143,7 +134,6 @@ const ParentDashboard: React.FC = () => {
 
   const loadParentData = async () => {
     try {
-      setIsLoading(true)
       
       const mockChildren = [
         {
@@ -311,7 +301,6 @@ const ParentDashboard: React.FC = () => {
       console.error('Error loading parent data:', error)
       toast.error('Failed to load dashboard data')
     } finally {
-      setIsLoading(false)
     }
   }
 

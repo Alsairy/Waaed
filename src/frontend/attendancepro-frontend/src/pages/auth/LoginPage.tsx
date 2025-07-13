@@ -56,7 +56,7 @@ const LoginPage: React.FC = () => {
       } else {
         toast.error(result.error || 'Login failed')
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)

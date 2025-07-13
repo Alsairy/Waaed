@@ -8,8 +8,8 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<Task, TaskDto>();
-        CreateMap<CreateTaskDto, Task>()
+        CreateMap<Entities.Task, TaskDto>();
+        CreateMap<CreateTaskDto, Entities.Task>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()));
 
         CreateMap<TaskComment, TaskCommentDto>();
