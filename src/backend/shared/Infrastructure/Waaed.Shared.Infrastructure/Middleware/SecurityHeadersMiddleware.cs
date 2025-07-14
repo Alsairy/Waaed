@@ -30,7 +30,7 @@ public class SecurityHeadersMiddleware
             "style-src 'self' 'unsafe-inline'; " +
             "img-src 'self' data: https:; " +
             "font-src 'self' data:; " +
-            "connect-src 'self' https://staging.waaed.platform.com; " +
+            "connect-src 'self' http://staging-api.waaed.sa; " +
             "frame-ancestors 'none'");
 
         await _next(context);
