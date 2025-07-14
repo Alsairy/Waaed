@@ -302,8 +302,6 @@ services:
     image: nginx:alpine
     ports:
       - "80:80"
-    volumes:
-      - ./nginx/staging.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - api-gateway
       - frontend

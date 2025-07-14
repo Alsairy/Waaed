@@ -15,10 +15,10 @@ const environments: Record<string, EnvironmentConfig> = {
     environment: 'development'
   },
   staging: {
-    apiUrl: 'https://staging.waaed.platform.com/api',
-    authUrl: 'https://staging.waaed.platform.com/api/auth',
-    faceRecognitionUrl: 'https://staging.waaed.platform.com/api/face-recognition',
-    attendanceUrl: 'https://staging.waaed.platform.com/api/attendance',
+    apiUrl: 'http://staging-api.waaed.sa/api',
+    authUrl: 'http://staging-api.waaed.sa/api/auth',
+    faceRecognitionUrl: 'http://staging-api.waaed.sa/api/face-recognition',
+    attendanceUrl: 'http://staging-api.waaed.sa/api/attendance',
     environment: 'staging'
   },
   production: {
