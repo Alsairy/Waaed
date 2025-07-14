@@ -122,36 +122,6 @@ export default function TakeQuizPage() {
     }
   }, [courseId, quizId, accessCode, toast]);
 
-  useEffect(() => {
-    loadQuiz();
-  }, [loadQuiz]);
-
-  useEffect(() => {
-    if (timeRemaining > 0 && attempt?.status === 'InProgress') {
-      const timer = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            handleAutoSubmit();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => clearInterval(timer);
-    }
-  }, [timeRemaining, attempt?.status, handleAutoSubmit]);
-
-  useEffect(() => {
-    const autoSaveInterval = setInterval(() => {
-      if (attempt && Object.keys(responses).length > 0) {
-        autoSaveResponses();
-      }
-    }, 30000);
-
-    return () => clearInterval(autoSaveInterval);
-  }, [attempt, responses, autoSaveResponses]);
-
   const handleAutoSubmit = useCallback(async () => {
     if (!attempt) return;
 
@@ -185,6 +155,36 @@ export default function TakeQuizPage() {
       setAutoSaveStatus('error');
     }
   }, [attempt, responses]);
+
+  useEffect(() => {
+    loadQuiz();
+  }, [loadQuiz]);
+
+  useEffect(() => {
+    if (timeRemaining > 0 && attempt?.status === 'InProgress') {
+      const timer = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            handleAutoSubmit();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [timeRemaining, attempt?.status, handleAutoSubmit]);
+
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      if (attempt && Object.keys(responses).length > 0) {
+        autoSaveResponses();
+      }
+    }, 30000);
+
+    return () => clearInterval(autoSaveInterval);
+  }, [attempt, responses, autoSaveResponses]);
 
   const handleResponseChange = (questionId: string, response: string) => {
     setResponses(prev => ({

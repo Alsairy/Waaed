@@ -276,7 +276,7 @@ export function AnnouncementBoard({ canCreate = false }: AnnouncementBoardProps)
             <div className="flex gap-4">
               <Select
                 value={newAnnouncement.targetAudience}
-                onValueChange={(value: string) => setNewAnnouncement({ ...newAnnouncement, targetAudience: value })}
+                onValueChange={(value: string) => setNewAnnouncement({ ...newAnnouncement, targetAudience: value as "All" | "Students" | "Teachers" | "Parents" | "Staff" })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Target audience" />
@@ -291,7 +291,7 @@ export function AnnouncementBoard({ canCreate = false }: AnnouncementBoardProps)
               </Select>
               <Select
                 value={newAnnouncement.priority}
-                onValueChange={(value: string) => setNewAnnouncement({ ...newAnnouncement, priority: value })}
+                onValueChange={(value: string) => setNewAnnouncement({ ...newAnnouncement, priority: value as "Low" | "Normal" | "High" | "Urgent" })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Priority" />
