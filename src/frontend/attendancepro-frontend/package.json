@@ -10,6 +10,7 @@
     "build:manager": "tsc -b && vite build --mode manager", 
     "build:employee": "tsc -b && vite build --mode employee",
     "lint": "eslint .",
+    "type-check": "tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
