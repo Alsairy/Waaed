@@ -86,7 +86,7 @@ export class OfflineService {
   }
 
   private static async syncSingleItem(item: any): Promise<void> {
-    const baseUrl = 'https://app-hgzbalgb.fly.dev/api';
+    const baseUrl = 'https://staging.waaed.platform.com/api';
     let endpoint = '';
     
     switch (item.type) {
