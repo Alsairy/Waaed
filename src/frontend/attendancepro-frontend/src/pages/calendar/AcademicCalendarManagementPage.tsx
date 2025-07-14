@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -103,18 +103,7 @@ export function AcademicCalendarManagementPage() {
     isRecurring: false
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    if (selectedAcademicYear) {
-      loadSemesters();
-      loadEvents(selectedAcademicYear, selectedSemester);
-    }
-  }, [selectedAcademicYear, selectedSemester]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       const [termsData, holidaysData] = await Promise.all([
@@ -134,7 +123,18 @@ export function AcademicCalendarManagementPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedAcademicYear]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    if (selectedAcademicYear) {
+      loadSemesters();
+      loadEvents(selectedAcademicYear, selectedSemester);
+    }
+  }, [selectedAcademicYear, selectedSemester]);
 
   const loadSemesters = async () => {
     try {

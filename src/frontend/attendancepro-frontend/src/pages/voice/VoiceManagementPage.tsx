@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { VoiceRecognitionComponent } from '../../components/voice/VoiceRecognitionComponent';
 import { toast } from 'sonner';
 
@@ -36,11 +36,7 @@ export const VoiceManagementPage: React.FC = () => {
 
   const userId = localStorage.getItem('userId') || '';
 
-  useEffect(() => {
-    loadVoiceData();
-  }, []);
-
-  const loadVoiceData = async () => {
+  const loadVoiceData = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -82,7 +78,11 @@ export const VoiceManagementPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    loadVoiceData();
+  }, [loadVoiceData]);
 
   const handleDeleteVoiceTemplate = async () => {
     try {

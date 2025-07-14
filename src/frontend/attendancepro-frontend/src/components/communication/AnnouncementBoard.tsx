@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -46,11 +46,7 @@ export function AnnouncementBoard({ canCreate = false }: AnnouncementBoardProps)
 
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadAnnouncements();
-  }, [currentPage, filterPriority, filterAudience]);
-
-  const loadAnnouncements = async () => {
+  const loadAnnouncements = useCallback(async () => {
     try {
       setIsLoading(true);
       const { announcements: data, totalCount: count } = await announcementService.getAnnouncements(
@@ -68,7 +64,11 @@ export function AnnouncementBoard({ canCreate = false }: AnnouncementBoardProps)
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, filterPriority, filterAudience]);
+
+  useEffect(() => {
+    loadAnnouncements();
+  }, [loadAnnouncements]);
 
   const handleCreateAnnouncement = async () => {
     try {
@@ -115,7 +115,8 @@ export function AnnouncementBoard({ canCreate = false }: AnnouncementBoardProps)
         description: "Announcement published successfully",
       });
       loadAnnouncements();
-    } catch (err) {
+    } catch (error) {
+      console.error('Error publishing announcement:', error);
       toast({
         title: "Error",
         description: "Failed to publish announcement",
@@ -132,7 +133,8 @@ export function AnnouncementBoard({ canCreate = false }: AnnouncementBoardProps)
         description: "Announcement deleted successfully",
       });
       loadAnnouncements();
-    } catch (err) {
+    } catch (error) {
+      console.error('Error deleting announcement:', error);
       toast({
         title: "Error",
         description: "Failed to delete announcement",
@@ -274,7 +276,7 @@ export function AnnouncementBoard({ canCreate = false }: AnnouncementBoardProps)
             <div className="flex gap-4">
               <Select
                 value={newAnnouncement.targetAudience}
-                onValueChange={(value: any) => setNewAnnouncement({ ...newAnnouncement, targetAudience: value })}
+                onValueChange={(value: string) => setNewAnnouncement({ ...newAnnouncement, targetAudience: value as "All" | "Students" | "Teachers" | "Parents" | "Staff" })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Target audience" />
@@ -289,7 +291,7 @@ export function AnnouncementBoard({ canCreate = false }: AnnouncementBoardProps)
               </Select>
               <Select
                 value={newAnnouncement.priority}
-                onValueChange={(value: any) => setNewAnnouncement({ ...newAnnouncement, priority: value })}
+                onValueChange={(value: string) => setNewAnnouncement({ ...newAnnouncement, priority: value as "Low" | "Normal" | "High" | "Urgent" })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Priority" />

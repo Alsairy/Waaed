@@ -13,7 +13,7 @@ export interface FaceVerificationResult {
 }
 
 export class FaceRecognitionService {
-  private static readonly BASE_URL = 'https://app-hgzbalgb.fly.dev/api/face-recognition';
+  private static readonly BASE_URL = 'https://staging.waaed.platform.com/api/face-recognition';
 
   static async enrollFace(photoBase64: string, userId?: string): Promise<FaceEnrollmentResult> {
     try {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Bluetooth, Wifi, WifiOff, CheckCircle, AlertCircle, Loader2, MapPin } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -46,6 +46,19 @@ const BeaconScannerComponent: React.FC<BeaconScannerComponentProps> = ({
   const scanIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  const isAuthorizedBeacon = useCallback((beacon: BeaconData): boolean => {
+    return authorizedBeacons.includes(beacon.uuid) || 
+           authorizedBeacons.includes(beacon.id) ||
+           authorizedBeacons.length === 0
+  }, [authorizedBeacons])
+
+  const handleAutoCheckIn = useCallback((beacon: BeaconData) => {
+    if (isAuthorizedBeacon(beacon)) {
+      onCheckInTriggered?.(beacon)
+      toast.success(`Auto check-in triggered by ${beacon.name || beacon.id}`)
+    }
+  }, [isAuthorizedBeacon, onCheckInTriggered])
+
   useEffect(() => {
     checkBluetoothSupport()
     return () => {
@@ -64,7 +77,7 @@ const BeaconScannerComponent: React.FC<BeaconScannerComponentProps> = ({
         handleAutoCheckIn(nearest)
       }
     }
-  }, [detectedBeacons, autoCheckIn])
+  }, [detectedBeacons, autoCheckIn, isAuthorizedBeacon, handleAutoCheckIn])
 
   const checkBluetoothSupport = async () => {
     if ('bluetooth' in navigator) {
@@ -206,19 +219,6 @@ const BeaconScannerComponent: React.FC<BeaconScannerComponentProps> = ({
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current)
       progressIntervalRef.current = null
-    }
-  }
-
-  const isAuthorizedBeacon = (beacon: BeaconData): boolean => {
-    return authorizedBeacons.includes(beacon.uuid) || 
-           authorizedBeacons.includes(beacon.id) ||
-           authorizedBeacons.length === 0
-  }
-
-  const handleAutoCheckIn = (beacon: BeaconData) => {
-    if (isAuthorizedBeacon(beacon)) {
-      onCheckInTriggered?.(beacon)
-      toast.success(`Auto check-in triggered by ${beacon.name || beacon.id}`)
     }
   }
 

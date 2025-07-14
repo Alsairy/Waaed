@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Calendar, Clock, Users, AlertTriangle, Plus, Edit, CheckCircle, XCircle } from 'lucide-react'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
@@ -67,11 +67,33 @@ const ShiftSchedulingPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('schedule')
 
-  useEffect(() => {
-    loadScheduleData()
+  const loadAssignments = useCallback(async () => {
+    try {
+      const startDate = selectedDate
+      const endDate = selectedDate
+      const response = await fetch(`/api/shiftscheduling/assignments?tenantId=tenant1&startDate=${startDate}&endDate=${endDate}`)
+      if (response.ok) {
+        const data = await response.json()
+        setAssignments(data)
+      }
+    } catch (error) {
+      console.error('Error loading assignments:', error)
+    }
   }, [selectedDate])
 
-  const loadScheduleData = async () => {
+  const loadConflicts = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/shiftscheduling/conflicts?tenantId=tenant1`)
+      if (response.ok) {
+        const data = await response.json()
+        setConflicts(data)
+      }
+    } catch (error) {
+      console.error('Error loading conflicts:', error)
+    }
+  }, [])
+
+  const loadScheduleData = useCallback(async () => {
     setIsLoading(true)
     try {
       await Promise.all([
@@ -86,7 +108,11 @@ const ShiftSchedulingPage: React.FC = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [loadAssignments, loadConflicts])
+
+  useEffect(() => {
+    loadScheduleData()
+  }, [loadScheduleData])
 
   const loadShifts = async () => {
     try {
@@ -97,32 +123,6 @@ const ShiftSchedulingPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error loading shifts:', error)
-    }
-  }
-
-  const loadAssignments = async () => {
-    try {
-      const startDate = selectedDate
-      const endDate = selectedDate
-      const response = await fetch(`/api/shiftscheduling/assignments?tenantId=tenant1&startDate=${startDate}&endDate=${endDate}`)
-      if (response.ok) {
-        const data = await response.json()
-        setAssignments(data)
-      }
-    } catch (error) {
-      console.error('Error loading assignments:', error)
-    }
-  }
-
-  const loadConflicts = async () => {
-    try {
-      const response = await fetch(`/api/shiftscheduling/conflicts?tenantId=tenant1&status=Open`)
-      if (response.ok) {
-        const data = await response.json()
-        setConflicts(data)
-      }
-    } catch (error) {
-      console.error('Error loading conflicts:', error)
     }
   }
 

@@ -41,7 +41,7 @@ class AnnouncementService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
+      baseURL: process.env.REACT_APP_API_URL || 'http://staging-api.waaed.sa',
       headers: {
         'Content-Type': 'application/json',
       },

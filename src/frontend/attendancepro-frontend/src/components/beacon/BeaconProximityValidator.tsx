@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { MapPin, CheckCircle, AlertTriangle, Clock, Bluetooth } from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
@@ -40,12 +40,24 @@ const BeaconProximityValidator: React.FC<BeaconProximityValidatorProps> = ({
   const [validBeacons, setValidBeacons] = useState<BeaconValidationRule[]>([])
   const [invalidBeacons, setInvalidBeacons] = useState<BeaconValidationRule[]>([])
 
+  const timeToMinutes = useCallback((time: string): number => {
+    const [hours, minutes] = time.split(':').map(Number)
+    return hours * 60 + minutes
+  }, [])
 
-  useEffect(() => {
-    validateBeacons()
-  }, [detectedBeacons, validationRules])
+  const isWithinTimeRange = useCallback((currentTime: string, startTime: string, endTime: string): boolean => {
+    const current = timeToMinutes(currentTime)
+    const start = timeToMinutes(startTime)
+    const end = timeToMinutes(endTime)
+    
+    if (start <= end) {
+      return current >= start && current <= end
+    } else {
+      return current >= start || current <= end
+    }
+  }, [timeToMinutes])
 
-  const validateBeacons = () => {
+  const validateBeacons = useCallback(() => {
     const currentTime = new Date()
     const currentHour = currentTime.getHours()
     const currentMinute = currentTime.getMinutes()
@@ -85,24 +97,14 @@ const BeaconProximityValidator: React.FC<BeaconProximityValidatorProps> = ({
 
 
     onValidationChange?.(valid.length > 0, valid)
-  }
+  }, [detectedBeacons, validationRules, onValidationChange, isWithinTimeRange])
 
-  const isWithinTimeRange = (currentTime: string, startTime: string, endTime: string): boolean => {
-    const current = timeToMinutes(currentTime)
-    const start = timeToMinutes(startTime)
-    const end = timeToMinutes(endTime)
+  useEffect(() => {
+    validateBeacons()
+  }, [validateBeacons])
 
-    if (start <= end) {
-      return current >= start && current <= end
-    } else {
-      return current >= start || current <= end
-    }
-  }
 
-  const timeToMinutes = (time: string): number => {
-    const [hours, minutes] = time.split(':').map(Number)
-    return hours * 60 + minutes
-  }
+
 
   const getValidationStatus = () => {
     if (validBeacons.length > 0) {

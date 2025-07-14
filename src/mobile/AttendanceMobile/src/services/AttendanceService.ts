@@ -3,7 +3,7 @@ import { Location } from '../types/Location';
 import { AuthService } from './AuthService';
 
 export class AttendanceService {
-  private static readonly BASE_URL = 'https://app-hgzbalgb.fly.dev/api/attendance';
+  private static readonly BASE_URL = 'https://staging.waaed.platform.com/api/attendance';
 
   static async checkIn(
     method: AttendanceMethod,

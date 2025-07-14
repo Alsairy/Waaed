@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Plus, Search, Filter, Download, Upload, MoreHorizontal, Edit, Trash2, UserCheck, UserX, Shield, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -79,25 +79,7 @@ const UsersPage: React.FC = () => {
     resolver: zodResolver(updateUserSchema),
   })
 
-  useEffect(() => {
-    loadUsers()
-    loadDepartments()
-    loadRoles()
-    loadUserStats()
-  }, [currentPage, filters])
-
-  useEffect(() => {
-    const delayedSearch = setTimeout(() => {
-      if (searchTerm !== filters.search) {
-        setFilters(prev => ({ ...prev, search: searchTerm, page: 1 }))
-        setCurrentPage(1)
-      }
-    }, 500)
-
-    return () => clearTimeout(delayedSearch)
-  }, [searchTerm])
-
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true)
       const response = await userManagementService.getUsers({
@@ -113,7 +95,25 @@ const UsersPage: React.FC = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentPage, filters, pageSize])
+
+  useEffect(() => {
+    loadUsers()
+    loadDepartments()
+    loadRoles()
+    loadUserStats()
+  }, [loadUsers])
+
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      if (searchTerm !== filters.search) {
+        setFilters(prev => ({ ...prev, search: searchTerm, page: 1 }))
+        setCurrentPage(1)
+      }
+    }, 500)
+
+    return () => clearTimeout(delayedSearch)
+  }, [searchTerm, filters.search])
 
   const loadDepartments = async () => {
     try {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -95,13 +95,41 @@ const AssignmentsPage: React.FC = () => {
     searchTerm: ''
   })
 
+  const applyFilters = useCallback(() => {
+    let filtered = assignments
+
+    if (filters.course) {
+      filtered = filtered.filter(assignment => assignment.courseCode === filters.course)
+    }
+
+    if (filters.status) {
+      filtered = filtered.filter(assignment => assignment.status === filters.status)
+    }
+
+    if (filters.type) {
+      filtered = filtered.filter(assignment => assignment.type === filters.type)
+    }
+
+    if (filters.searchTerm) {
+      const searchLower = filters.searchTerm.toLowerCase()
+      filtered = filtered.filter(assignment => 
+        assignment.title.toLowerCase().includes(searchLower) ||
+        assignment.description.toLowerCase().includes(searchLower) ||
+        assignment.courseName.toLowerCase().includes(searchLower) ||
+        assignment.instructorName.toLowerCase().includes(searchLower)
+      )
+    }
+
+    setFilteredAssignments(filtered)
+  }, [assignments, filters])
+
   useEffect(() => {
     loadAssignments()
   }, [])
 
   useEffect(() => {
     applyFilters()
-  }, [assignments, filters])
+  }, [applyFilters])
 
   const loadAssignments = async () => {
     try {
@@ -275,33 +303,6 @@ const AssignmentsPage: React.FC = () => {
     }
   }
 
-  const applyFilters = () => {
-    let filtered = assignments
-
-    if (filters.course) {
-      filtered = filtered.filter(assignment => assignment.courseCode === filters.course)
-    }
-
-    if (filters.status) {
-      filtered = filtered.filter(assignment => assignment.status === filters.status)
-    }
-
-    if (filters.type) {
-      filtered = filtered.filter(assignment => assignment.type === filters.type)
-    }
-
-    if (filters.searchTerm) {
-      const searchLower = filters.searchTerm.toLowerCase()
-      filtered = filtered.filter(assignment => 
-        assignment.title.toLowerCase().includes(searchLower) ||
-        assignment.description.toLowerCase().includes(searchLower) ||
-        assignment.courseName.toLowerCase().includes(searchLower) ||
-        assignment.instructorName.toLowerCase().includes(searchLower)
-      )
-    }
-
-    setFilteredAssignments(filtered)
-  }
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -65,9 +65,34 @@ const StudentsPage: React.FC = () => {
     loadStudents()
   }, [])
 
+  const applyFilters = useCallback(() => {
+    if (!students) return
+    let filtered = students
+
+    if (filters.grade) {
+      filtered = filtered.filter(student => student.grade === filters.grade)
+    }
+
+    if (filters.status) {
+      filtered = filtered.filter(student => student.enrollmentStatus === filters.status)
+    }
+
+    if (filters.searchTerm) {
+      const searchLower = filters.searchTerm.toLowerCase()
+      filtered = filtered.filter(student => 
+        student.firstName.toLowerCase().includes(searchLower) ||
+        student.lastName.toLowerCase().includes(searchLower) ||
+        student.email.toLowerCase().includes(searchLower) ||
+        student.studentId.toLowerCase().includes(searchLower)
+      )
+    }
+
+    setFilteredStudents(filtered)
+  }, [students, filters])
+
   useEffect(() => {
     applyFilters()
-  }, [students, filters])
+  }, [applyFilters])
 
   const loadStudents = async () => {
     try {
@@ -169,32 +194,6 @@ const StudentsPage: React.FC = () => {
 
   const retry = () => {
     loadStudents()
-  }
-
-  const applyFilters = () => {
-    if (!students) return
-    let filtered = students
-
-    if (filters.grade) {
-      filtered = filtered.filter(student => student.grade === filters.grade)
-    }
-
-    if (filters.status) {
-      filtered = filtered.filter(student => student.enrollmentStatus === filters.status)
-    }
-
-    if (filters.searchTerm) {
-      const searchLower = filters.searchTerm.toLowerCase()
-      filtered = filtered.filter(student => 
-        student.firstName.toLowerCase().includes(searchLower) ||
-        student.lastName.toLowerCase().includes(searchLower) ||
-        student.studentId.toLowerCase().includes(searchLower) ||
-        student.email.toLowerCase().includes(searchLower)
-      )
-    }
-
-    setFilteredStudents(filtered)
-    setCurrentPage(1)
   }
 
   const getStatusColor = (status: string) => {

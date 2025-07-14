@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   Calendar, 
   Clock, 
@@ -35,11 +35,7 @@ const LeaveBalancePage: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1)
 
-  useEffect(() => {
-    loadData()
-  }, [selectedYear, selectedMonth])
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true)
       
@@ -63,7 +59,11 @@ const LeaveBalancePage: React.FC = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [selectedYear, selectedMonth])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const refreshData = async () => {
     await loadData()

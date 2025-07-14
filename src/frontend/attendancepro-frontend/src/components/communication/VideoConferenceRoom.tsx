@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -35,16 +35,7 @@ export function VideoConferenceRoom({ conferenceId, onLeave }: VideoConferenceRo
   const remoteVideosRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadConference();
-    initializeWebRTC();
-    
-    return () => {
-      cleanup();
-    };
-  }, [conferenceId]);
-
-  const loadConference = async () => {
+  const loadConference = useCallback(async () => {
     try {
       setIsLoading(true);
       const conferenceData = await videoConferencingService.getConference(conferenceId);
@@ -56,9 +47,9 @@ export function VideoConferenceRoom({ conferenceId, onLeave }: VideoConferenceRo
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [conferenceId]);
 
-  const initializeWebRTC = async () => {
+  const initializeWebRTC = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: isVideoEnabled,
@@ -77,7 +68,16 @@ export function VideoConferenceRoom({ conferenceId, onLeave }: VideoConferenceRo
       setError('Failed to access camera/microphone');
       console.error('WebRTC initialization error:', err);
     }
-  };
+  }, [isVideoEnabled, isAudioEnabled, toast]);
+
+  useEffect(() => {
+    loadConference();
+    initializeWebRTC();
+    
+    return () => {
+      cleanup();
+    };
+  }, [conferenceId, loadConference, initializeWebRTC]);
 
   const toggleVideo = async () => {
     try {

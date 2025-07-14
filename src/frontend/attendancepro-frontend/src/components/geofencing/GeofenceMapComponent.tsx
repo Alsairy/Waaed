@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { MapPin, Navigation, AlertCircle, CheckCircle, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
 
 import { Button } from '../ui/button'
@@ -46,17 +46,7 @@ const GeofenceMapComponent: React.FC<GeofenceMapComponentProps> = ({
     longitude: 46.6753
   })
 
-  useEffect(() => {
-    if (currentPosition) {
-      setMapCenter({
-        latitude: currentPosition.coords.latitude,
-        longitude: currentPosition.coords.longitude
-      })
-      validateCurrentLocation()
-    }
-  }, [currentPosition, geofences])
-
-  const validateCurrentLocation = () => {
+  const validateCurrentLocation = useCallback(() => {
     if (!currentPosition || geofences.length === 0) {
       setValidationStatus(null)
       return
@@ -90,14 +80,34 @@ const GeofenceMapComponent: React.FC<GeofenceMapComponentProps> = ({
       }
     }
 
-    const nearestGeofence = findNearestGeofence(userLat, userLng)
+    let nearest: { geofence: GeofenceArea; distance: number } | null = null
+    let minDistance = Infinity
+
+    for (const geofence of geofences) {
+      const distance = calculateDistance(userLat, userLng, geofence.center.latitude, geofence.center.longitude)
+      if (distance < minDistance) {
+        minDistance = distance
+        nearest = { geofence, distance }
+      }
+    }
+
     setValidationStatus({
       isValid: false,
-      geofence: nearestGeofence?.geofence,
-      distance: nearestGeofence?.distance
+      geofence: nearest?.geofence,
+      distance: nearest?.distance
     })
     onLocationValidated?.(false)
-  }
+  }, [currentPosition, geofences, onLocationValidated])
+
+  useEffect(() => {
+    if (currentPosition) {
+      setMapCenter({
+        latitude: currentPosition.coords.latitude,
+        longitude: currentPosition.coords.longitude
+      })
+      validateCurrentLocation()
+    }
+  }, [currentPosition, validateCurrentLocation])
 
   const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
     const R = 6371e3 // Earth's radius in meters
@@ -114,20 +124,6 @@ const GeofenceMapComponent: React.FC<GeofenceMapComponentProps> = ({
     return R * c
   }
 
-  const findNearestGeofence = (lat: number, lng: number): { geofence: GeofenceArea; distance: number } | null => {
-    let nearest: { geofence: GeofenceArea; distance: number } | null = null
-    let minDistance = Infinity
-
-    for (const geofence of geofences) {
-      const distance = calculateDistance(lat, lng, geofence.center.latitude, geofence.center.longitude)
-      if (distance < minDistance) {
-        minDistance = distance
-        nearest = { geofence, distance }
-      }
-    }
-
-    return nearest
-  }
 
   const checkAllowedHours = (allowedHours?: { start: string; end: string }): boolean => {
     if (!allowedHours) return true

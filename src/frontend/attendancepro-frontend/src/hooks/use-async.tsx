@@ -14,7 +14,6 @@ interface UseAsyncOptions<T> {
 
 export function useAsync<T>(
   asyncFunction: () => Promise<T>,
-  dependencies: readonly unknown[] = [],
   options: UseAsyncOptions<T> = {}
 ) {
   const { immediate = true, onSuccess, onError } = options
@@ -39,7 +38,7 @@ export function useAsync<T>(
       onError?.(errorObj)
       throw errorObj
     }
-  }, dependencies)
+  }, [asyncFunction, onSuccess, onError])
 
   useEffect(() => {
     if (immediate) {
@@ -59,8 +58,7 @@ export function useAsync<T>(
 }
 
 export function useAsyncCallback<T extends readonly unknown[], R>(
-  asyncFunction: (...args: T) => Promise<R>,
-  dependencies: readonly unknown[] = []
+  asyncFunction: (...args: T) => Promise<R>
 ) {
   const [state, setState] = useState<UseAsyncState<R>>({
     data: null,
@@ -80,7 +78,7 @@ export function useAsyncCallback<T extends readonly unknown[], R>(
       setState({ data: null, loading: false, error: errorObj })
       throw errorObj
     }
-  }, dependencies)
+  }, [asyncFunction])
 
   const reset = useCallback(() => {
     setState({ data: null, loading: false, error: null })

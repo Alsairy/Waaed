@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Trash2, Eye, EyeOff, Plus, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -35,11 +35,7 @@ const BiometricTemplateManager: React.FC<BiometricTemplateManagerProps> = ({
   })
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadTemplates()
-  }, [userId])
-
-  const loadTemplates = async () => {
+  const loadTemplates = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
@@ -52,7 +48,11 @@ const BiometricTemplateManager: React.FC<BiometricTemplateManagerProps> = ({
     }finally {
       setIsLoading(false)
     }
-  }
+  }, [userId])
+
+  useEffect(() => {
+    loadTemplates()
+  }, [loadTemplates])
 
   const handleActivateTemplate = async (templateId: string) => {
     try {

@@ -122,6 +122,40 @@ export default function TakeQuizPage() {
     }
   }, [courseId, quizId, accessCode, toast]);
 
+  const handleAutoSubmit = useCallback(async () => {
+    if (!attempt) return;
+
+    try {
+      await quizService.submitQuizAttempt(attempt.id, Object.values(responses));
+      toast({
+        title: 'Quiz Auto-Submitted',
+        description: 'Time expired. Your quiz has been automatically submitted.',
+        variant: 'default',
+      });
+      navigate(`/courses/${courseId}/quizzes/${quizId}/results`);
+    } catch (error) {
+      console.error('Auto-submit failed:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to auto-submit quiz. Please try submitting manually.',
+        variant: 'destructive',
+      });
+    }
+  }, [attempt, responses, toast, navigate, courseId, quizId]);
+
+  const autoSaveResponses = useCallback(async () => {
+    if (!attempt) return;
+
+    try {
+      setAutoSaveStatus('saving');
+      await quizService.saveResponses(attempt.id, Object.values(responses));
+      setAutoSaveStatus('saved');
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+      setAutoSaveStatus('error');
+    }
+  }, [attempt, responses]);
+
   useEffect(() => {
     loadQuiz();
   }, [loadQuiz]);
@@ -140,7 +174,7 @@ export default function TakeQuizPage() {
 
       return () => clearInterval(timer);
     }
-  }, [timeRemaining, attempt?.status]);
+  }, [timeRemaining, attempt?.status, handleAutoSubmit]);
 
   useEffect(() => {
     const autoSaveInterval = setInterval(() => {
@@ -150,20 +184,7 @@ export default function TakeQuizPage() {
     }, 30000);
 
     return () => clearInterval(autoSaveInterval);
-  }, [attempt, responses]);
-
-  const autoSaveResponses = async () => {
-    if (!attempt) return;
-
-    try {
-      setAutoSaveStatus('saving');
-      await quizService.saveResponses(attempt.id, Object.values(responses));
-      setAutoSaveStatus('saved');
-    } catch (error) {
-      console.error('Auto-save failed:', error);
-      setAutoSaveStatus('error');
-    }
-  };
+  }, [attempt, responses, autoSaveResponses]);
 
   const handleResponseChange = (questionId: string, response: string) => {
     setResponses(prev => ({
@@ -184,27 +205,6 @@ export default function TakeQuizPage() {
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0 && quiz && !quiz.cantGoBack) {
       setCurrentQuestionIndex(prev => prev - 1);
-    }
-  };
-
-  const handleAutoSubmit = async () => {
-    if (!attempt) return;
-
-    try {
-      await quizService.submitQuizAttempt(attempt.id, Object.values(responses));
-      toast({
-        title: 'Quiz Auto-Submitted',
-        description: 'Time expired. Your quiz has been automatically submitted.',
-        variant: 'default',
-      });
-      navigate(`/courses/${courseId}/quizzes/${quizId}/results`);
-    } catch (error) {
-      console.error('Auto-submit failed:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to auto-submit quiz. Please try submitting manually.',
-        variant: 'destructive',
-      });
     }
   };
 
