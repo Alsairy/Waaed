@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -223,9 +223,9 @@ const CoursesPage: React.FC = () => {
       setCourseStats(stats)
       return mockCourses
     },
-    [],
     {
-      onError: (error) => {
+      immediate: true,
+      onError: (error: Error) => {
         handleApiError(error, { 
           toastTitle: 'Failed to load courses',
           fallbackMessage: 'Unable to load course data. Please try again.'
@@ -234,13 +234,7 @@ const CoursesPage: React.FC = () => {
     }
   )
 
-  useEffect(() => {
-    if (courses) {
-      applyFilters()
-    }
-  }, [courses, filters])
-
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     if (!courses) return
     let filtered = courses
 
@@ -273,7 +267,13 @@ const CoursesPage: React.FC = () => {
     }
 
     setFilteredCourses(filtered)
-  }
+  }, [courses, filters])
+
+  useEffect(() => {
+    if (courses) {
+      applyFilters()
+    }
+  }, [courses, filters, applyFilters])
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -39,9 +39,38 @@ const NotificationCenter: React.FC = () => {
     loadCategories()
   }, [])
 
+  const applyFilters = useCallback(() => {
+    let filtered = [...notifications]
+
+    if (searchTerm) {
+      filtered = filtered.filter(notification =>
+        notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        notification.message.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    if (selectedCategory && selectedCategory !== 'all') {
+      filtered = filtered.filter(notification => notification.category === selectedCategory)
+    }
+
+    if (selectedPriority && selectedPriority !== 'all') {
+      filtered = filtered.filter(notification => notification.priority === selectedPriority)
+    }
+
+    if (selectedType && selectedType !== 'all') {
+      filtered = filtered.filter(notification => notification.type === selectedType)
+    }
+
+    if (showUnreadOnly) {
+      filtered = filtered.filter(notification => !notification.isRead)
+    }
+
+    setFilteredNotifications(filtered)
+  }, [notifications, searchTerm, selectedCategory, selectedPriority, selectedType, showUnreadOnly])
+
   useEffect(() => {
     applyFilters()
-  }, [notifications, searchTerm, selectedCategory, selectedPriority, selectedType, showUnreadOnly])
+  }, [applyFilters])
 
   const loadNotifications = async () => {
     try {
@@ -73,34 +102,10 @@ const NotificationCenter: React.FC = () => {
     }
   }
 
-  const applyFilters = () => {
-    let filtered = notifications
 
-    if (searchTerm) {
-      filtered = filtered.filter(notification =>
-        notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        notification.message.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(notification => notification.category === selectedCategory)
-    }
-
-    if (selectedPriority !== 'all') {
-      filtered = filtered.filter(notification => notification.priority === selectedPriority)
-    }
-
-    if (selectedType !== 'all') {
-      filtered = filtered.filter(notification => notification.type === selectedType)
-    }
-
-    if (showUnreadOnly) {
-      filtered = filtered.filter(notification => !notification.isRead)
-    }
-
-    setFilteredNotifications(filtered)
-  }
+  useEffect(() => {
+    applyFilters()
+  }, [applyFilters])
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {

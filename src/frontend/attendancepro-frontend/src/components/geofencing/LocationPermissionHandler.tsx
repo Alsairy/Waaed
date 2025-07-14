@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { MapPin, AlertCircle, CheckCircle, Settings, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -28,16 +28,8 @@ const LocationPermissionHandler: React.FC<LocationPermissionHandlerProps> = ({
   const [isWatching, setIsWatching] = useState(false)
   const [watchId, setWatchId] = useState<number | null>(null)
 
-  useEffect(() => {
-    checkInitialPermission()
-    return () => {
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId)
-      }
-    }
-  }, [watchId])
 
-  const checkInitialPermission = async () => {
+  const checkInitialPermission = useCallback(async () => {
     if (!navigator.geolocation) {
       setPermissionState('unavailable')
       return
@@ -49,7 +41,6 @@ const LocationPermissionHandler: React.FC<LocationPermissionHandlerProps> = ({
       switch (permission.state) {
         case 'granted':
           setPermissionState('granted')
-          getCurrentPosition()
           break
         case 'denied':
           setPermissionState('denied')
@@ -61,16 +52,23 @@ const LocationPermissionHandler: React.FC<LocationPermissionHandlerProps> = ({
 
       permission.addEventListener('change', () => {
         setPermissionState(permission.state as PermissionState)
-        if (permission.state === 'granted') {
-          getCurrentPosition()
-        } else if (permission.state === 'denied') {
+        if (permission.state === 'denied') {
           onPermissionDenied?.()
         }
       })
     } catch {
       setPermissionState('unknown')
     }
-  }
+  }, [onPermissionDenied])
+
+  useEffect(() => {
+    checkInitialPermission()
+    return () => {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId)
+      }
+    }
+  }, [checkInitialPermission, watchId])
 
   const requestPermission = () => {
     if (!navigator.geolocation) {
@@ -116,7 +114,7 @@ const LocationPermissionHandler: React.FC<LocationPermissionHandlerProps> = ({
     )
   }
 
-  const getCurrentPosition = () => {
+  const getCurrentPosition = useCallback(() => {
     if (!navigator.geolocation) return
 
     navigator.geolocation.getCurrentPosition(
@@ -134,7 +132,7 @@ const LocationPermissionHandler: React.FC<LocationPermissionHandlerProps> = ({
         maximumAge: 60000
       }
     )
-  }
+  }, [onPermissionGranted])
 
   const startWatchingPosition = () => {
     if (!navigator.geolocation || permissionState !== 'granted') return

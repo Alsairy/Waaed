@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -86,7 +86,7 @@ const StudentDashboard = () => {
     return totalPoints / grades.length
   }
 
-  const filterTodayClasses = (schedule: { 
+  const filterTodayClasses = useCallback((schedule: { 
     id?: string; 
     startTime: string; 
     endTime: string; 
@@ -107,7 +107,7 @@ const StudentDashboard = () => {
       instructorName: cls.instructorName || 'TBA',
       status: getClassStatus(cls.startTime, cls.endTime)
     }))
-  }
+  }, [])
 
   const getClassStatus = (startTime: string, endTime: string): 'upcoming' | 'current' | 'completed' => {
     const now = new Date()
@@ -144,7 +144,7 @@ const StudentDashboard = () => {
     }
   }
 
-  const loadStudentData = async () => {
+  const loadStudentData = useCallback(async () => {
     try {
       
       const today = new Date()
@@ -165,7 +165,7 @@ const StudentDashboard = () => {
         enrolledCourses: enrollments.length,
         upcomingExams: 3, // Mock data - would come from exam schedule
         overdueTasks: overdueAssignments.length,
-        creditsEarned: enrollments.reduce((sum: number, e: any) => sum + (e.credits || 0), 0),
+        creditsEarned: enrollments.reduce((sum: number, e: { credits?: number }) => sum + (e.credits || 0), 0),
       })
 
       const schedule = await academicCalendarService.getStudentSchedule(
@@ -177,7 +177,7 @@ const StudentDashboard = () => {
       setTodayClasses(todaySchedule)
 
       const upcomingAssignments = await assignmentsService.getUpcomingAssignments(user?.id || '')
-      const assignmentsDueData = upcomingAssignments.slice(0, 5).map((assignment: any) => ({
+      const assignmentsDueData = upcomingAssignments.slice(0, 5).map((assignment: { id: string; title: string; courseName?: string; dueDate: string }) => ({
         id: assignment.id,
         title: assignment.title,
         courseName: assignment.courseName || 'Unknown Course',
@@ -293,79 +293,19 @@ const StudentDashboard = () => {
           gradedAt: new Date(Date.now() - 86400000).toISOString()
         }
       ])
-
-    } catch (error) {
-      console.error('Error loading student data:', error)
-      toast.error('Failed to load dashboard data')
-      
-      setStudentStats({
-        currentGPA: 3.2,
-        attendanceRate: 94.5,
-        completedAssignments: 15,
-        totalAssignments: 20,
-        enrolledCourses: 5,
-        upcomingExams: 3,
-        overdueTasks: 2,
-        creditsEarned: 18,
-      })
-      
-      setTodayClasses([
-        {
-          id: '1',
-          courseName: 'Mathematics 10A',
-          courseCode: 'MATH10A',
-          startTime: '09:00',
-          endTime: '10:00',
-          room: 'Room 201',
-          instructorName: 'Dr. Sarah Johnson',
-          status: 'upcoming'
-        },
-        {
-          id: '2',
-          courseName: 'Physics 11B',
-          courseCode: 'PHYS11B',
-          startTime: '11:00',
-          endTime: '12:00',
-          room: 'Room 305',
-          instructorName: 'Prof. Ahmed Ali',
-          status: 'upcoming'
-        }
-      ])
-      
-      setAssignmentsDue([
-        {
-          id: '1',
-          title: 'Quadratic Equations Worksheet',
-          courseName: 'Mathematics 10A',
-          dueDate: new Date(Date.now() + 86400000).toISOString(),
-          status: 'in-progress',
-          priority: 'high'
-        },
-        {
-          id: '2',
-          title: 'Physics Lab Report',
-          courseName: 'Physics 11B',
-          dueDate: new Date(Date.now() + 259200000).toISOString(),
-          status: 'not-started',
-          priority: 'medium'
-        }
-      ])
-      
-      setRecentGrades([
-        {
-          id: '1',
-          assignmentName: 'Algebra Test',
-          courseName: 'Mathematics 10A',
-          grade: 85,
-          maxPoints: 100,
-          percentage: 85,
-          letterGrade: 'B+',
-          gradedAt: new Date(Date.now() - 86400000).toISOString()
-        }
-      ])
     } finally {
     }
-  }
+  }, [user?.id, filterTodayClasses])
+
+  useEffect(() => {
+    loadStudentData()
+    
+    const interval = setInterval(() => {
+      loadStudentData()
+    }, 300000) // Refresh every 5 minutes
+
+    return () => clearInterval(interval)
+  }, [loadStudentData])
 
   const getCurrentSemester = () => {
     const month = new Date().getMonth()
@@ -388,15 +328,6 @@ const StudentDashboard = () => {
     return 'low'
   }
 
-  useEffect(() => {
-    loadStudentData()
-    
-    const interval = setInterval(() => {
-      loadStudentData()
-    }, 300000)
-
-    return () => clearInterval(interval)
-  }, [])
 
   useEffect(() => {
     const timer = setTimeout(() => {

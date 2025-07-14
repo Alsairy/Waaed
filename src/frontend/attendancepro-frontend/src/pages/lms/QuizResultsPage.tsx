@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -80,11 +80,7 @@ export default function QuizResultsPage() {
   const [showAnswers, setShowAnswers] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'details' | 'statistics'>('overview');
 
-  useEffect(() => {
-    loadResults();
-  }, [courseId, quizId, attemptId]);
-
-  const loadResults = async () => {
+  const loadResults = useCallback(async () => {
     if (!courseId || !quizId) return;
 
     try {
@@ -127,7 +123,11 @@ export default function QuizResultsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [courseId, quizId, attemptId, toast]);
+
+  useEffect(() => {
+    loadResults();
+  }, [loadResults]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);

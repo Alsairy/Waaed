@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -146,14 +146,7 @@ const TenantManagementPage: React.FC = () => {
     resolver: zodResolver(brandingSchema),
   });
 
-  useEffect(() => {
-    loadTenants();
-    loadAvailableFeatures();
-    loadSubscriptionPlans();
-    loadTenantStats();
-  }, [filters, pagination.page, pagination.pageSize]);
-
-  const loadTenants = async () => {
+  const loadTenants = useCallback(async () => {
     try {
       setLoading(true);
       const searchFilters: TenantSearchFilters = {
@@ -176,7 +169,14 @@ const TenantManagementPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, pagination.page, pagination.pageSize, searchTerm]);
+
+  useEffect(() => {
+    loadTenants();
+    loadAvailableFeatures();
+    loadSubscriptionPlans();
+    loadTenantStats();
+  }, [loadTenants]);
 
   const loadAvailableFeatures = async () => {
     try {

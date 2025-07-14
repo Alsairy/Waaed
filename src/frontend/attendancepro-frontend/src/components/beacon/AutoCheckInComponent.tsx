@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { CheckCircle, Clock, MapPin, Bluetooth, AlertCircle, Settings } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -61,49 +61,37 @@ const AutoCheckInComponent: React.FC<AutoCheckInComponentProps> = ({
     success: boolean
   }>>([])
 
-  useEffect(() => {
-    if (settings.enabled) {
-      checkForAutoCheckIn()
-    }
-  }, [detectedBeacons, settings])
-
-  const checkForAutoCheckIn = () => {
-    if (!settings.enabled || isProcessingCheckIn) return
-
-    const eligibleBeacons = detectedBeacons.filter(beacon => 
-      isAuthorizedBeacon(beacon) &&
-      isWithinProximityThreshold(beacon) &&
-      isWithinTimeWindow() &&
-      !isInCooldownPeriod()
-    )
-
-    if (eligibleBeacons.length > 0) {
-      const nearestBeacon = eligibleBeacons.reduce((prev, current) => 
-        prev.distance < current.distance ? prev : current
-      )
-
-      if (settings.requireConfirmation) {
-        setPendingCheckIn(nearestBeacon)
-      } else {
-        performAutoCheckIn(nearestBeacon)
-      }
-    }
-  }
-
-  const isAuthorizedBeacon = (beacon: BeaconData): boolean => {
+  const isAuthorizedBeacon = useCallback((beacon: BeaconData): boolean => {
     return authorizedBeacons.includes(beacon.id) || 
            (beacon.name && authorizedBeacons.includes(beacon.name)) ||
            authorizedBeacons.length === 0
-  }
+  }, [authorizedBeacons])
 
-  const isWithinProximityThreshold = (beacon: BeaconData): boolean => {
+  const isWithinProximityThreshold = useCallback((beacon: BeaconData): boolean => {
     if (settings.proximityThreshold === 'immediate') {
       return beacon.proximity === 'immediate'
     }
     return ['immediate', 'near'].includes(beacon.proximity)
-  }
+  }, [settings.proximityThreshold])
 
-  const isWithinTimeWindow = (): boolean => {
+  const timeToMinutes = useCallback((time: string): number => {
+    const [hours, minutes] = time.split(':').map(Number)
+    return hours * 60 + minutes
+  }, [])
+
+  const isTimeInRange = useCallback((current: string, start: string, end: string): boolean => {
+    const currentMinutes = timeToMinutes(current)
+    const startMinutes = timeToMinutes(start)
+    const endMinutes = timeToMinutes(end)
+
+    if (startMinutes <= endMinutes) {
+      return currentMinutes >= startMinutes && currentMinutes <= endMinutes
+    } else {
+      return currentMinutes >= startMinutes || currentMinutes <= endMinutes
+    }
+  }, [timeToMinutes])
+
+  const isWithinTimeWindow = useCallback((): boolean => {
     if (!settings.allowedTimeWindow) return true
 
     const now = new Date()
@@ -114,31 +102,14 @@ const AutoCheckInComponent: React.FC<AutoCheckInComponentProps> = ({
       settings.allowedTimeWindow.start,
       settings.allowedTimeWindow.end
     )
-  }
+  }, [settings.allowedTimeWindow, isTimeInRange])
 
-  const isTimeInRange = (current: string, start: string, end: string): boolean => {
-    const currentMinutes = timeToMinutes(current)
-    const startMinutes = timeToMinutes(start)
-    const endMinutes = timeToMinutes(end)
-
-    if (startMinutes <= endMinutes) {
-      return currentMinutes >= startMinutes && currentMinutes <= endMinutes
-    } else {
-      return currentMinutes >= startMinutes || currentMinutes <= endMinutes
-    }
-  }
-
-  const timeToMinutes = (time: string): number => {
-    const [hours, minutes] = time.split(':').map(Number)
-    return hours * 60 + minutes
-  }
-
-  const isInCooldownPeriod = (): boolean => {
+  const isInCooldownPeriod = useCallback((): boolean => {
     if (!lastCheckInTime) return false
     return Date.now() - lastCheckInTime < settings.cooldownPeriod
-  }
+  }, [lastCheckInTime, settings.cooldownPeriod])
 
-  const performAutoCheckIn = async (beacon: BeaconData) => {
+  const performAutoCheckIn = useCallback(async (beacon: BeaconData) => {
     setIsProcessingCheckIn(true)
     setPendingCheckIn(null)
 
@@ -187,7 +158,36 @@ const AutoCheckInComponent: React.FC<AutoCheckInComponentProps> = ({
     } finally {
       setIsProcessingCheckIn(false)
     }
-  }
+  }, [onCheckInSuccess, onCheckInError])
+
+  const checkForAutoCheckIn = useCallback(() => {
+    if (!settings.enabled || isProcessingCheckIn) return
+
+    const eligibleBeacons = detectedBeacons.filter(beacon => 
+      isAuthorizedBeacon(beacon) &&
+      isWithinProximityThreshold(beacon) &&
+      isWithinTimeWindow() &&
+      !isInCooldownPeriod()
+    )
+
+    if (eligibleBeacons.length > 0) {
+      const nearestBeacon = eligibleBeacons.reduce((prev, current) => 
+        prev.distance < current.distance ? prev : current
+      )
+
+      if (settings.requireConfirmation) {
+        setPendingCheckIn(nearestBeacon)
+      } else {
+        performAutoCheckIn(nearestBeacon)
+      }
+    }
+  }, [settings.enabled, isProcessingCheckIn, detectedBeacons, settings.requireConfirmation, isAuthorizedBeacon, isWithinProximityThreshold, isWithinTimeWindow, isInCooldownPeriod, performAutoCheckIn])
+
+  useEffect(() => {
+    if (settings.enabled) {
+      checkForAutoCheckIn()
+    }
+  }, [settings.enabled, checkForAutoCheckIn])
 
   const handleConfirmCheckIn = () => {
     if (pendingCheckIn) {

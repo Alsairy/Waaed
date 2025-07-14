@@ -152,7 +152,7 @@ export default function TakeQuizPage() {
     return () => clearInterval(autoSaveInterval);
   }, [attempt, responses]);
 
-  const autoSaveResponses = async () => {
+  const autoSaveResponses = useCallback(async () => {
     if (!attempt) return;
 
     try {
@@ -163,7 +163,7 @@ export default function TakeQuizPage() {
       console.error('Auto-save failed:', error);
       setAutoSaveStatus('error');
     }
-  };
+  }, [attempt, responses]);
 
   const handleResponseChange = (questionId: string, response: string) => {
     setResponses(prev => ({
@@ -187,7 +187,7 @@ export default function TakeQuizPage() {
     }
   };
 
-  const handleAutoSubmit = async () => {
+  const handleAutoSubmit = useCallback(async () => {
     if (!attempt) return;
 
     try {
@@ -206,7 +206,7 @@ export default function TakeQuizPage() {
         variant: 'destructive',
       });
     }
-  };
+  }, [attempt, responses, toast, navigate, courseId, quizId]);
 
   const handleSubmitQuiz = async () => {
     if (!attempt) return;

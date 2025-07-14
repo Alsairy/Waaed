@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -122,17 +122,8 @@ const ParentDashboard: React.FC = () => {
     return () => clearInterval(timer)
   }, [])
 
-  useEffect(() => {
-    loadParentData()
-    
-    const interval = setInterval(() => {
-      loadParentData()
-    }, 300000) // Refresh every 5 minutes
 
-    return () => clearInterval(interval)
-  }, [])
-
-  const loadParentData = async () => {
+  const loadParentData = useCallback(async () => {
     try {
       
       const mockChildren = [
@@ -302,7 +293,17 @@ const ParentDashboard: React.FC = () => {
       toast.error('Failed to load dashboard data')
     } finally {
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    loadParentData()
+    
+    const interval = setInterval(() => {
+      loadParentData()
+    }, 300000) // Refresh every 5 minutes
+
+    return () => clearInterval(interval)
+  }, [loadParentData])
 
   const getStatusColor = (status: string) => {
     switch (status) {

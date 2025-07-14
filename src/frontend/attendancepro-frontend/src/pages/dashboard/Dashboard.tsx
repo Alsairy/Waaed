@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   Calendar, 
   Clock, 
@@ -72,25 +72,7 @@ const Dashboard: React.FC = () => {
     return () => clearInterval(timer)
   }, [])
 
-  useEffect(() => {
-    loadDashboardData()
-    loadNotificationCount()
-    setupRealTimeConnections()
-    
-    const interval = setInterval(() => {
-      if (realTimeUpdates) {
-        loadDashboardData()
-        loadNotificationCount()
-      }
-    }, 30000) // Update every 30 seconds
-
-    return () => {
-      clearInterval(interval)
-      cleanupRealTimeConnections()
-    }
-  }, [realTimeUpdates])
-
-  const setupRealTimeConnections = () => {
+  const setupRealTimeConnections = useCallback(() => {
     realTimeService.on('connection-status', (status) => {
       const connectionStatus = status as { status: 'connected' | 'disconnected' | 'reconnecting' | 'error' }
       setConnectionStatus(connectionStatus.status)
@@ -153,7 +135,25 @@ const Dashboard: React.FC = () => {
       const alertData = alert as { message: string }
       toast.error(`System Alert: ${alertData.message}`)
     })
-  }
+  }, [realTimeUpdates])
+
+  useEffect(() => {
+    loadDashboardData()
+    loadNotificationCount()
+    setupRealTimeConnections()
+    
+    const interval = setInterval(() => {
+      if (realTimeUpdates) {
+        loadDashboardData()
+        loadNotificationCount()
+      }
+    }, 30000) // Update every 30 seconds
+
+    return () => {
+      clearInterval(interval)
+      cleanupRealTimeConnections()
+    }
+  }, [realTimeUpdates, setupRealTimeConnections])
 
   const cleanupRealTimeConnections = () => {
     realTimeService.off('connection-status', () => {})

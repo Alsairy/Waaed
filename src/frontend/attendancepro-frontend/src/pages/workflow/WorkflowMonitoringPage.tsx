@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
 interface WorkflowInstance {
@@ -64,12 +64,8 @@ const WorkflowMonitoringPage: React.FC = () => {
   const [filterType, setFilterType] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
 
-  useEffect(() => {
-    loadActiveWorkflows();
-    loadWorkflowMetrics();
-  }, []);
 
-  const loadActiveWorkflows = async () => {
+  const loadActiveWorkflows = useCallback(async () => {
     try {
       setIsLoading(true);
       const url = new URL('/api/advancedworkflow/instances/active', window.location.origin);
@@ -102,7 +98,12 @@ const WorkflowMonitoringPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [filterType, filterStatus]);
+
+  useEffect(() => {
+    loadActiveWorkflows();
+    loadWorkflowMetrics();
+  }, [loadActiveWorkflows]);
 
   const loadWorkflowMetrics = async () => {
     try {

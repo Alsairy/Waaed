@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -108,17 +108,45 @@ const TeacherDashboard: React.FC = () => {
     return () => clearInterval(timer)
   }, [])
 
-  useEffect(() => {
-    loadTeacherData()
-    
-    const interval = setInterval(() => {
-      loadTeacherData()
-    }, 300000) // Refresh every 5 minutes
+  const getCurrentSemester = () => {
+    const month = new Date().getMonth()
+    if (month >= 8 || month <= 0) return 'Fall'
+    if (month >= 1 && month <= 4) return 'Spring'
+    return 'Summer'
+  }
 
-    return () => clearInterval(interval)
+  const getClassStatus = useCallback((startTime: string, endTime: string): 'upcoming' | 'current' | 'completed' => {
+    const now = new Date()
+    const currentTime = now.getHours() * 60 + now.getMinutes()
+    const [startHour, startMin] = startTime.split(':').map(Number)
+    const [endHour, endMin] = endTime.split(':').map(Number)
+    const start = startHour * 60 + startMin
+    const end = endHour * 60 + endMin
+
+    if (currentTime < start) return 'upcoming'
+    if (currentTime >= start && currentTime <= end) return 'current'
+    return 'completed'
   }, [])
 
-  const loadTeacherData = async () => {
+  const filterTodayClasses = useCallback((schedule: { dayOfWeek: number; courseId: string; id: string; startTime: string; endTime: string; location?: string }[], courses: { id: string; title?: string; code?: string; enrolledStudents?: number }[]) => {
+    const today = new Date().getDay()
+    return schedule.filter(cls => cls.dayOfWeek === today).map(cls => {
+      const course = courses.find(c => c.id === cls.courseId)
+      return {
+        id: cls.id,
+        courseName: course?.title || 'Unknown Course',
+        courseCode: course?.code || '',
+        startTime: cls.startTime,
+        endTime: cls.endTime,
+        room: cls.location || 'TBA',
+        enrolledStudents: course?.enrolledStudents || 0,
+        status: getClassStatus(cls.startTime, cls.endTime),
+        attendanceTaken: false
+      }
+    })
+  }, [getClassStatus])
+
+  const loadTeacherData = useCallback(async () => {
     try {
       const courses = await coursesService.getCoursesByInstructor(user?.id || '')
       const totalStudents = courses.reduce((sum, course) => sum + (course.enrolledStudents || 0), 0)
@@ -133,7 +161,7 @@ const TeacherDashboard: React.FC = () => {
       )
       const grades = allGrades.flat()
       
-      const pendingGrades = assignments.length - grades.length // Simplified calculation
+      const pendingGrades = assignments.length - grades.length
       const averagePerformance = grades.length > 0 
         ? grades.reduce((sum, grade) => sum + grade.percentage, 0) / grades.length 
         : 0
@@ -143,10 +171,10 @@ const TeacherDashboard: React.FC = () => {
         activeCourses: courses.length,
         pendingGrades: Math.max(0, pendingGrades),
         averageClassPerformance: averagePerformance,
-        attendanceRate: 92.5, // Mock data
+        attendanceRate: 92.5,
         assignmentsCreated: assignments.length,
-        upcomingClasses: 3, // Mock data
-        parentMessages: 5, // Mock data
+        upcomingClasses: 3,
+        parentMessages: 5,
       })
 
       const today = new Date()
@@ -165,9 +193,9 @@ const TeacherDashboard: React.FC = () => {
         courseId: course.id,
         courseName: course.title,
         courseCode: course.code,
-        averageGrade: Math.random() * 20 + 75, // Mock data
+        averageGrade: Math.random() * 20 + 75,
         totalStudents: course.enrolledStudents || 0,
-        attendanceRate: Math.random() * 10 + 85, // Mock data
+        attendanceRate: Math.random() * 10 + 85,
         assignmentsCount: assignments.filter(a => a.courseId === course.id).length,
         trend: ['up', 'down', 'stable'][Math.floor(Math.random() * 3)] as 'up' | 'down' | 'stable'
       }))
@@ -219,7 +247,7 @@ const TeacherDashboard: React.FC = () => {
         }
       ])
 
-      setUnreadNotifications(8) // Mock data
+      setUnreadNotifications(8)
 
     } catch (error) {
       console.error('Error loading teacher data:', error)
@@ -261,45 +289,17 @@ const TeacherDashboard: React.FC = () => {
         }
       ])
     }
-  }
+  }, [user?.id, filterTodayClasses])
 
-  const getCurrentSemester = () => {
-    const month = new Date().getMonth()
-    if (month >= 8 || month <= 0) return 'Fall'
-    if (month >= 1 && month <= 4) return 'Spring'
-    return 'Summer'
-  }
+  useEffect(() => {
+    loadTeacherData()
+    
+    const interval = setInterval(() => {
+      loadTeacherData()
+    }, 300000)
 
-  const filterTodayClasses = (schedule: { dayOfWeek: number; courseId: string; id: string; startTime: string; endTime: string; location?: string }[], courses: { id: string; title?: string; code?: string; enrolledStudents?: number }[]) => {
-    const today = new Date().getDay()
-    return schedule.filter(cls => cls.dayOfWeek === today).map(cls => {
-      const course = courses.find(c => c.id === cls.courseId)
-      return {
-        id: cls.id,
-        courseName: course?.title || 'Unknown Course',
-        courseCode: course?.code || '',
-        startTime: cls.startTime,
-        endTime: cls.endTime,
-        room: cls.location || 'TBA',
-        enrolledStudents: course?.enrolledStudents || 0,
-        status: getClassStatus(cls.startTime, cls.endTime),
-        attendanceTaken: false // Mock data
-      }
-    })
-  }
-
-  const getClassStatus = (startTime: string, endTime: string): 'upcoming' | 'current' | 'completed' => {
-    const now = new Date()
-    const currentTime = now.getHours() * 60 + now.getMinutes()
-    const [startHour, startMin] = startTime.split(':').map(Number)
-    const [endHour, endMin] = endTime.split(':').map(Number)
-    const start = startHour * 60 + startMin
-    const end = endHour * 60 + endMin
-
-    if (currentTime < start) return 'upcoming'
-    if (currentTime >= start && currentTime <= end) return 'current'
-    return 'completed'
-  }
+    return () => clearInterval(interval)
+  }, [loadTeacherData])
 
   const getStatusColor = (status: string) => {
     switch (status) {
