@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -108,17 +108,7 @@ const TeacherDashboard: React.FC = () => {
     return () => clearInterval(timer)
   }, [])
 
-  useEffect(() => {
-    loadTeacherData()
-    
-    const interval = setInterval(() => {
-      loadTeacherData()
-    }, 300000) // Refresh every 5 minutes
-
-    return () => clearInterval(interval)
-  }, [])
-
-  const loadTeacherData = async () => {
+  const loadTeacherData = useCallback(async () => {
     try {
       const courses = await coursesService.getCoursesByInstructor(user?.id || '')
       const totalStudents = courses.reduce((sum, course) => sum + (course.enrolledStudents || 0), 0)
@@ -261,7 +251,17 @@ const TeacherDashboard: React.FC = () => {
         }
       ])
     }
-  }
+  }, [user?.id])
+
+  useEffect(() => {
+    loadTeacherData()
+    
+    const interval = setInterval(() => {
+      loadTeacherData()
+    }, 300000) // Refresh every 5 minutes
+
+    return () => clearInterval(interval)
+  }, [loadTeacherData])
 
   const getCurrentSemester = () => {
     const month = new Date().getMonth()

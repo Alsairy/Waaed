@@ -300,7 +300,6 @@ const ParentDashboard: React.FC = () => {
     } catch (error) {
       console.error('Error loading parent data:', error)
       toast.error('Failed to load dashboard data')
-    } finally {
     }
   }
 

@@ -13,7 +13,7 @@ import {
   AlertCircle,
   Star
 } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '../../contexts/auth-utils'
 import { sisService } from '../../services/sisService'
 import { assignmentsService } from '../../services/assignmentsService'
 import { gradesService } from '../../services/gradesService'
@@ -144,9 +144,29 @@ const StudentDashboard = () => {
     }
   }
 
+  const getCurrentSemester = () => {
+    const month = new Date().getMonth()
+    if (month >= 8 || month <= 0) return 'Fall'
+    if (month >= 1 && month <= 4) return 'Spring'
+    return 'Summer'
+  }
+
+  const getAssignmentStatus = (): 'not-started' | 'in-progress' | 'submitted' | 'overdue' => {
+    return 'in-progress'
+  }
+
+  const getAssignmentPriority = (dueDate: string): 'high' | 'medium' | 'low' => {
+    const due = new Date(dueDate)
+    const now = new Date()
+    const diffDays = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    
+    if (diffDays <= 1) return 'high'
+    if (diffDays <= 3) return 'medium'
+    return 'low'
+  }
+
   const loadStudentData = async () => {
     try {
-      
       const today = new Date()
       const semester = getCurrentSemester()
       const year = today.getFullYear()
@@ -165,7 +185,7 @@ const StudentDashboard = () => {
         enrolledCourses: enrollments.length,
         upcomingExams: 3, // Mock data - would come from exam schedule
         overdueTasks: overdueAssignments.length,
-        creditsEarned: enrollments.reduce((sum: number, e: any) => sum + (e.credits || 0), 0),
+        creditsEarned: enrollments.reduce((sum: number, e: { credits?: number }) => sum + (e.credits || 0), 0),
       })
 
       const schedule = await academicCalendarService.getStudentSchedule(
@@ -177,7 +197,7 @@ const StudentDashboard = () => {
       setTodayClasses(todaySchedule)
 
       const upcomingAssignments = await assignmentsService.getUpcomingAssignments(user?.id || '')
-      const assignmentsDueData = upcomingAssignments.slice(0, 5).map((assignment: any) => ({
+      const assignmentsDueData = upcomingAssignments.slice(0, 5).map((assignment: { id: string; title: string; courseName?: string; dueDate: string }) => ({
         id: assignment.id,
         title: assignment.title,
         courseName: assignment.courseName || 'Unknown Course',
@@ -293,99 +313,7 @@ const StudentDashboard = () => {
           gradedAt: new Date(Date.now() - 86400000).toISOString()
         }
       ])
-
-    } catch (error) {
-      console.error('Error loading student data:', error)
-      toast.error('Failed to load dashboard data')
-      
-      setStudentStats({
-        currentGPA: 3.2,
-        attendanceRate: 94.5,
-        completedAssignments: 15,
-        totalAssignments: 20,
-        enrolledCourses: 5,
-        upcomingExams: 3,
-        overdueTasks: 2,
-        creditsEarned: 18,
-      })
-      
-      setTodayClasses([
-        {
-          id: '1',
-          courseName: 'Mathematics 10A',
-          courseCode: 'MATH10A',
-          startTime: '09:00',
-          endTime: '10:00',
-          room: 'Room 201',
-          instructorName: 'Dr. Sarah Johnson',
-          status: 'upcoming'
-        },
-        {
-          id: '2',
-          courseName: 'Physics 11B',
-          courseCode: 'PHYS11B',
-          startTime: '11:00',
-          endTime: '12:00',
-          room: 'Room 305',
-          instructorName: 'Prof. Ahmed Ali',
-          status: 'upcoming'
-        }
-      ])
-      
-      setAssignmentsDue([
-        {
-          id: '1',
-          title: 'Quadratic Equations Worksheet',
-          courseName: 'Mathematics 10A',
-          dueDate: new Date(Date.now() + 86400000).toISOString(),
-          status: 'in-progress',
-          priority: 'high'
-        },
-        {
-          id: '2',
-          title: 'Physics Lab Report',
-          courseName: 'Physics 11B',
-          dueDate: new Date(Date.now() + 259200000).toISOString(),
-          status: 'not-started',
-          priority: 'medium'
-        }
-      ])
-      
-      setRecentGrades([
-        {
-          id: '1',
-          assignmentName: 'Algebra Test',
-          courseName: 'Mathematics 10A',
-          grade: 85,
-          maxPoints: 100,
-          percentage: 85,
-          letterGrade: 'B+',
-          gradedAt: new Date(Date.now() - 86400000).toISOString()
-        }
-      ])
-    } finally {
     }
-  }
-
-  const getCurrentSemester = () => {
-    const month = new Date().getMonth()
-    if (month >= 8 || month <= 0) return 'Fall'
-    if (month >= 1 && month <= 4) return 'Spring'
-    return 'Summer'
-  }
-
-  const getAssignmentStatus = (): 'not-started' | 'in-progress' | 'submitted' | 'overdue' => {
-    return 'in-progress'
-  }
-
-  const getAssignmentPriority = (dueDate: string): 'high' | 'medium' | 'low' => {
-    const due = new Date(dueDate)
-    const now = new Date()
-    const diffDays = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    
-    if (diffDays <= 1) return 'high'
-    if (diffDays <= 3) return 'medium'
-    return 'low'
   }
 
   useEffect(() => {
