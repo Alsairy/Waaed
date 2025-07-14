@@ -40,6 +40,22 @@ const BeaconProximityValidator: React.FC<BeaconProximityValidatorProps> = ({
   const [validBeacons, setValidBeacons] = useState<BeaconValidationRule[]>([])
   const [invalidBeacons, setInvalidBeacons] = useState<BeaconValidationRule[]>([])
 
+  const timeToMinutes = useCallback((time: string): number => {
+    const [hours, minutes] = time.split(':').map(Number)
+    return hours * 60 + minutes
+  }, [])
+
+  const isWithinTimeRange = useCallback((currentTime: string, startTime: string, endTime: string): boolean => {
+    const current = timeToMinutes(currentTime)
+    const start = timeToMinutes(startTime)
+    const end = timeToMinutes(endTime)
+    
+    if (start <= end) {
+      return current >= start && current <= end
+    } else {
+      return current >= start || current <= end
+    }
+  }, [timeToMinutes])
 
   const validateBeacons = useCallback(() => {
     const currentTime = new Date()
@@ -81,7 +97,7 @@ const BeaconProximityValidator: React.FC<BeaconProximityValidatorProps> = ({
 
 
     onValidationChange?.(valid.length > 0, valid)
-  }, [detectedBeacons, validationRules, onValidationChange])
+  }, [detectedBeacons, validationRules, onValidationChange, isWithinTimeRange])
 
   useEffect(() => {
     validateBeacons()
@@ -89,22 +105,6 @@ const BeaconProximityValidator: React.FC<BeaconProximityValidatorProps> = ({
 
 
 
-  const timeToMinutes = useCallback((time: string): number => {
-    const [hours, minutes] = time.split(':').map(Number)
-    return hours * 60 + minutes
-  }, [])
-
-  const isWithinTimeRange = useCallback((currentTime: string, startTime: string, endTime: string): boolean => {
-    const current = timeToMinutes(currentTime)
-    const start = timeToMinutes(startTime)
-    const end = timeToMinutes(endTime)
-    
-    if (start <= end) {
-      return current >= start && current <= end
-    } else {
-      return current >= start || current <= end
-    }
-  }, [timeToMinutes])
 
   const getValidationStatus = () => {
     if (validBeacons.length > 0) {

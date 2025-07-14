@@ -140,7 +140,7 @@ export default function TakeQuizPage() {
 
       return () => clearInterval(timer);
     }
-  }, [timeRemaining, attempt?.status]);
+  }, [timeRemaining, attempt?.status, handleAutoSubmit]);
 
   useEffect(() => {
     const autoSaveInterval = setInterval(() => {
@@ -150,7 +150,28 @@ export default function TakeQuizPage() {
     }, 30000);
 
     return () => clearInterval(autoSaveInterval);
-  }, [attempt, responses]);
+  }, [attempt, responses, autoSaveResponses]);
+
+  const handleAutoSubmit = useCallback(async () => {
+    if (!attempt) return;
+
+    try {
+      await quizService.submitQuizAttempt(attempt.id, Object.values(responses));
+      toast({
+        title: 'Quiz Auto-Submitted',
+        description: 'Time expired. Your quiz has been automatically submitted.',
+        variant: 'default',
+      });
+      navigate(`/courses/${courseId}/quizzes/${quizId}/results`);
+    } catch (error) {
+      console.error('Auto-submit failed:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to auto-submit quiz. Please try submitting manually.',
+        variant: 'destructive',
+      });
+    }
+  }, [attempt, responses, toast, navigate, courseId, quizId]);
 
   const autoSaveResponses = useCallback(async () => {
     if (!attempt) return;
@@ -186,27 +207,6 @@ export default function TakeQuizPage() {
       setCurrentQuestionIndex(prev => prev - 1);
     }
   };
-
-  const handleAutoSubmit = useCallback(async () => {
-    if (!attempt) return;
-
-    try {
-      await quizService.submitQuizAttempt(attempt.id, Object.values(responses));
-      toast({
-        title: 'Quiz Auto-Submitted',
-        description: 'Time expired. Your quiz has been automatically submitted.',
-        variant: 'default',
-      });
-      navigate(`/courses/${courseId}/quizzes/${quizId}/results`);
-    } catch (error) {
-      console.error('Auto-submit failed:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to auto-submit quiz. Please try submitting manually.',
-        variant: 'destructive',
-      });
-    }
-  }, [attempt, responses, toast, navigate, courseId, quizId]);
 
   const handleSubmitQuiz = async () => {
     if (!attempt) return;
