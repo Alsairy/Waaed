@@ -51,6 +51,7 @@ namespace Waaed.Shared.Infrastructure.Extensions
 
             services.AddScoped<ITenantContext, TenantContext>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IUserContextService, UserContextService>();
             services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
             services.AddScoped<IWorkflowAutomationService, WorkflowAutomationService>();

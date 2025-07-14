@@ -1,25 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Waaed.LMS.Api.Data;
 using Waaed.LMS.Api.DTOs;
 using Waaed.LMS.Api.Entities;
+using Waaed.Shared.Infrastructure.Services;
 using AutoMapper;
 
 namespace Waaed.LMS.Api.Controllers;
 
 [ApiController]
 [Route("api/lms/courses/{courseId}/[controller]")]
+[Authorize]
 public class AssignmentsController : ControllerBase
 {
     private readonly LMSDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<AssignmentsController> _logger;
+    private readonly IUserContextService _userContextService;
 
-    public AssignmentsController(LMSDbContext context, IMapper mapper, ILogger<AssignmentsController> logger)
+    public AssignmentsController(LMSDbContext context, IMapper mapper, ILogger<AssignmentsController> logger, IUserContextService userContextService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _userContextService = userContextService;
     }
 
     [HttpGet]
@@ -158,7 +163,7 @@ public class AssignmentsController : ControllerBase
                 GroupSetId = createAssignmentDto.GroupSetId,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CreatedBy = "current-user-id"
+                CreatedBy = _userContextService.GetCurrentUserId().ToString()
             };
 
             _context.Assignments.Add(assignment);

@@ -1,25 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using Waaed.SIS.Api.Data;
 using Waaed.SIS.Api.Entities;
 using Waaed.SIS.Api.DTOs;
+using Waaed.Shared.Infrastructure.Services;
 
 namespace Waaed.SIS.Api.Controllers;
 
 [ApiController]
 [Route("api/sis/[controller]")]
+[Authorize]
 public class StudentsController : ControllerBase
 {
     private readonly SISDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<StudentsController> _logger;
+    private readonly IUserContextService _userContextService;
 
-    public StudentsController(SISDbContext context, IMapper mapper, ILogger<StudentsController> logger)
+    public StudentsController(SISDbContext context, IMapper mapper, ILogger<StudentsController> logger, IUserContextService userContextService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _userContextService = userContextService;
     }
 
     [HttpGet]

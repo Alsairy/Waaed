@@ -1,25 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Waaed.LMS.Api.Data;
 using Waaed.LMS.Api.DTOs;
 using Waaed.LMS.Api.Entities;
+using Waaed.Shared.Infrastructure.Services;
 using AutoMapper;
 
 namespace Waaed.LMS.Api.Controllers;
 
 [ApiController]
 [Route("api/lms/[controller]")]
+[Authorize]
 public class RubricsController : ControllerBase
 {
     private readonly LMSDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<RubricsController> _logger;
+    private readonly IUserContextService _userContextService;
 
-    public RubricsController(LMSDbContext context, IMapper mapper, ILogger<RubricsController> logger)
+    public RubricsController(LMSDbContext context, IMapper mapper, ILogger<RubricsController> logger, IUserContextService userContextService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _userContextService = userContextService;
     }
 
     [HttpGet]
@@ -130,10 +135,10 @@ public class RubricsController : ControllerBase
                 Description = createRubricDto.Description,
                 Type = rubricType,
                 IsPublic = createRubricDto.IsPublic,
-                TenantId = "current-tenant-id",
+                TenantId = _userContextService.GetCurrentTenantId().ToString(),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CreatedBy = "current-user-id"
+                CreatedBy = _userContextService.GetCurrentUserId().ToString()
             };
 
             foreach (var criterionDto in createRubricDto.Criteria)

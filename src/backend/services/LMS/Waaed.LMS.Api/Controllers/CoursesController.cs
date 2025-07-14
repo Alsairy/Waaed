@@ -1,25 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Waaed.LMS.Api.Data;
 using Waaed.LMS.Api.DTOs;
 using Waaed.LMS.Api.Entities;
+using Waaed.Shared.Infrastructure.Services;
 using AutoMapper;
 
 namespace Waaed.LMS.Api.Controllers;
 
 [ApiController]
 [Route("api/lms/[controller]")]
+[Authorize]
 public class CoursesController : ControllerBase
 {
     private readonly LMSDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<CoursesController> _logger;
+    private readonly IUserContextService _userContextService;
 
-    public CoursesController(LMSDbContext context, IMapper mapper, ILogger<CoursesController> logger)
+    public CoursesController(LMSDbContext context, IMapper mapper, ILogger<CoursesController> logger, IUserContextService userContextService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _userContextService = userContextService;
     }
 
     [HttpGet]
@@ -154,8 +159,8 @@ public class CoursesController : ControllerBase
                 Term = createCourseDto.Term,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CreatedBy = createCourseDto.InstructorId,
-                UpdatedBy = createCourseDto.InstructorId
+                CreatedBy = _userContextService.GetCurrentUserId().ToString(),
+                UpdatedBy = _userContextService.GetCurrentUserId().ToString()
             };
 
             _context.Courses.Add(course);
@@ -304,8 +309,8 @@ public class CoursesController : ControllerBase
                 Term = originalCourse.Term,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CreatedBy = originalCourse.InstructorId,
-                UpdatedBy = originalCourse.InstructorId
+                CreatedBy = _userContextService.GetCurrentUserId().ToString(),
+                UpdatedBy = _userContextService.GetCurrentUserId().ToString()
             };
 
             _context.Courses.Add(newCourse);
