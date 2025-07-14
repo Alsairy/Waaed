@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { MapPin, AlertCircle, CheckCircle, Settings, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -28,16 +28,7 @@ const LocationPermissionHandler: React.FC<LocationPermissionHandlerProps> = ({
   const [isWatching, setIsWatching] = useState(false)
   const [watchId, setWatchId] = useState<number | null>(null)
 
-  useEffect(() => {
-    checkInitialPermission()
-    return () => {
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId)
-      }
-    }
-  }, [watchId])
-
-  const checkInitialPermission = async () => {
+  const checkInitialPermission = useCallback(async () => {
     if (!navigator.geolocation) {
       setPermissionState('unavailable')
       return
@@ -70,7 +61,16 @@ const LocationPermissionHandler: React.FC<LocationPermissionHandlerProps> = ({
     } catch {
       setPermissionState('unknown')
     }
-  }
+  }, [onPermissionDenied])
+
+  useEffect(() => {
+    checkInitialPermission()
+    return () => {
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId)
+      }
+    }
+  }, [watchId, checkInitialPermission])
 
   const requestPermission = () => {
     if (!navigator.geolocation) {

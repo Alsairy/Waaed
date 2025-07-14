@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { CheckCircle, Clock, MapPin, Bluetooth, AlertCircle, Settings } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -61,13 +61,7 @@ const AutoCheckInComponent: React.FC<AutoCheckInComponentProps> = ({
     success: boolean
   }>>([])
 
-  useEffect(() => {
-    if (settings.enabled) {
-      checkForAutoCheckIn()
-    }
-  }, [detectedBeacons, settings])
-
-  const checkForAutoCheckIn = () => {
+  const checkForAutoCheckIn = useCallback(() => {
     if (!settings.enabled || isProcessingCheckIn) return
 
     const eligibleBeacons = detectedBeacons.filter(beacon => 
@@ -88,7 +82,13 @@ const AutoCheckInComponent: React.FC<AutoCheckInComponentProps> = ({
         performAutoCheckIn(nearestBeacon)
       }
     }
-  }
+  }, [settings.enabled, isProcessingCheckIn, detectedBeacons, settings.requireConfirmation])
+
+  useEffect(() => {
+    if (settings.enabled) {
+      checkForAutoCheckIn()
+    }
+  }, [settings, checkForAutoCheckIn])
 
   const isAuthorizedBeacon = (beacon: BeaconData): boolean => {
     return authorizedBeacons.includes(beacon.id) || 

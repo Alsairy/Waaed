@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { TrendingUp, Activity, AlertTriangle, RefreshCw, Calendar, Users, Brain } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, AreaChart, Area, PieChart as RechartsPieChart, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts'
 import { toast } from 'sonner'
@@ -56,7 +56,7 @@ const AnalyticsPage: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
   const [activeTab, setActiveTab] = useState('overview')
 
-  const loadAnalyticsData = async () => {
+  const loadAnalyticsData = useCallback(async () => {
     try {
       setIsLoading(true)
       const endDate = new Date()
@@ -93,9 +93,9 @@ const AnalyticsPage: React.FC = () => {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
-  const generateWorkforceInsights = () => {
+  const generateWorkforceInsights = useCallback(() => {
     const mockInsights: WorkforceInsight[] = [
       {
         id: '1',
@@ -135,9 +135,9 @@ const AnalyticsPage: React.FC = () => {
       }
     ]
     setWorkforceInsights(mockInsights)
-  }
+  }, [])
 
-  const generateAttendancePatterns = () => {
+  const generateAttendancePatterns = useCallback(() => {
     const mockPatterns: AttendancePattern[] = [
       {
         id: '1',
@@ -177,9 +177,9 @@ const AnalyticsPage: React.FC = () => {
       }
     ]
     setAttendancePatterns(mockPatterns)
-  }
+  }, [])
 
-  const generateWorkforcePredictions = () => {
+  const generateWorkforcePredictions = useCallback(() => {
     const mockPredictions: WorkforcePrediction[] = [
       {
         id: '1',
@@ -219,11 +219,11 @@ const AnalyticsPage: React.FC = () => {
       }
     ]
     setPredictions(mockPredictions)
-  }
+  }, [])
 
   useEffect(() => {
     loadAnalyticsData()
-  }, [])
+  }, [loadAnalyticsData])
 
   const formatPercentage = (value: number): string => {
     return `${(value * 100).toFixed(1)}%`

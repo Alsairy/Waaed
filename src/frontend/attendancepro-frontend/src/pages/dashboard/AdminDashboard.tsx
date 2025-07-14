@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -83,25 +83,7 @@ const AdminDashboard: React.FC = () => {
     return () => clearInterval(timer)
   }, [])
 
-  useEffect(() => {
-    loadAdminData()
-    loadNotificationCount()
-    setupRealTimeConnections()
-    
-    const interval = setInterval(() => {
-      if (realTimeUpdates) {
-        loadAdminData()
-        loadNotificationCount()
-      }
-    }, 30000)
-
-    return () => {
-      clearInterval(interval)
-      cleanupRealTimeConnections()
-    }
-  }, [realTimeUpdates])
-
-  const setupRealTimeConnections = () => {
+  const setupRealTimeConnections = useCallback(() => {
     realTimeService.on('connection-status', (status: unknown) => {
       const statusObj = status as { status: 'connected' | 'disconnected' | 'reconnecting' | 'error' };
       setConnectionStatus(statusObj.status)
@@ -127,7 +109,25 @@ const AdminDashboard: React.FC = () => {
         loadAdminData()
       }
     })
-  }
+  }, [realTimeUpdates])
+
+  useEffect(() => {
+    loadAdminData()
+    loadNotificationCount()
+    setupRealTimeConnections()
+    
+    const interval = setInterval(() => {
+      if (realTimeUpdates) {
+        loadAdminData()
+        loadNotificationCount()
+      }
+    }, 30000)
+
+    return () => {
+      clearInterval(interval)
+      cleanupRealTimeConnections()
+    }
+  }, [realTimeUpdates, setupRealTimeConnections])
 
   const cleanupRealTimeConnections = () => {
     realTimeService.off('connection-status', () => {})

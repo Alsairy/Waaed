@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Wifi, WifiOff, Download, Upload, CheckCircle, Clock } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -38,49 +38,22 @@ const OfflineLocationCache: React.FC<OfflineLocationCacheProps> = ({
   const [syncProgress, setSyncProgress] = useState(0)
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null)
 
-  useEffect(() => {
-    loadCachedData()
-    setupNetworkListeners()
-    setupAutoSync()
-
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (isOnline && cachedData.some(item => !item.synced)) {
-      syncCachedData()
-    }
-  }, [isOnline, cachedData])
-
-  const setupNetworkListeners = () => {
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-  }
-
-  const handleOnline = () => {
+  const handleOnline = useCallback(() => {
     setIsOnline(true)
     toast.success('Connection restored - syncing cached data...')
-  }
+  }, [])
 
-  const handleOffline = () => {
+  const handleOffline = useCallback(() => {
     setIsOnline(false)
     toast.info('Working offline - data will be cached locally')
-  }
+  }, [])
 
-  const setupAutoSync = () => {
-    const interval = setInterval(() => {
-      if (isOnline && cachedData.some(item => !item.synced)) {
-        syncCachedData()
-      }
-    }, syncInterval)
+  const setupNetworkListeners = useCallback(() => {
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+  }, [handleOnline, handleOffline])
 
-    return () => clearInterval(interval)
-  }
-
-  const loadCachedData = () => {
+  const loadCachedData = useCallback(() => {
     try {
       const stored = localStorage.getItem('attendance_location_cache')
       if (stored) {
@@ -90,9 +63,9 @@ const OfflineLocationCache: React.FC<OfflineLocationCacheProps> = ({
     } catch (error) {
       console.error('Error loading cached data:', error)
     }
-  }
+  }, [])
 
-  const saveCachedData = (data: CachedLocationData[]) => {
+  const saveCachedData = useCallback((data: CachedLocationData[]) => {
     try {
       localStorage.setItem('attendance_location_cache', JSON.stringify(data))
       setCachedData(data)
@@ -100,11 +73,9 @@ const OfflineLocationCache: React.FC<OfflineLocationCacheProps> = ({
       console.error('Error saving cached data:', error)
       toast.error('Failed to cache data locally')
     }
-  }
+  }, [])
 
-
-
-  const syncCachedData = async () => {
+  const syncCachedData = useCallback(async () => {
     if (isSyncing || !isOnline) return
 
     const unsyncedData = cachedData.filter(item => !item.synced)
@@ -145,7 +116,34 @@ const OfflineLocationCache: React.FC<OfflineLocationCacheProps> = ({
       setIsSyncing(false)
       setTimeout(() => setSyncProgress(0), 2000)
     }
-  }
+  }, [isSyncing, isOnline, cachedData, onDataSync, saveCachedData])
+
+  const setupAutoSync = useCallback(() => {
+    const interval = setInterval(() => {
+      if (isOnline && cachedData.some(item => !item.synced)) {
+        syncCachedData()
+      }
+    }, syncInterval)
+
+    return () => clearInterval(interval)
+  }, [isOnline, cachedData, syncInterval, syncCachedData])
+
+  useEffect(() => {
+    loadCachedData()
+    setupNetworkListeners()
+    setupAutoSync()
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [loadCachedData, setupNetworkListeners, setupAutoSync, handleOnline, handleOffline])
+
+  useEffect(() => {
+    if (isOnline && cachedData.some(item => !item.synced)) {
+      syncCachedData()
+    }
+  }, [isOnline, cachedData, syncCachedData])
 
   const clearSyncedData = () => {
     const unsyncedData = cachedData.filter(item => !item.synced)

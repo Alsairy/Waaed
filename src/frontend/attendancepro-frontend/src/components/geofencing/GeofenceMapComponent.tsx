@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { MapPin, Navigation, AlertCircle, CheckCircle, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
 
 import { Button } from '../ui/button'
@@ -46,17 +46,7 @@ const GeofenceMapComponent: React.FC<GeofenceMapComponentProps> = ({
     longitude: 46.6753
   })
 
-  useEffect(() => {
-    if (currentPosition) {
-      setMapCenter({
-        latitude: currentPosition.coords.latitude,
-        longitude: currentPosition.coords.longitude
-      })
-      validateCurrentLocation()
-    }
-  }, [currentPosition, geofences])
-
-  const validateCurrentLocation = () => {
+  const validateCurrentLocation = useCallback(() => {
     if (!currentPosition || geofences.length === 0) {
       setValidationStatus(null)
       return
@@ -97,7 +87,17 @@ const GeofenceMapComponent: React.FC<GeofenceMapComponentProps> = ({
       distance: nearestGeofence?.distance
     })
     onLocationValidated?.(false)
-  }
+  }, [currentPosition, geofences, onLocationValidated])
+
+  useEffect(() => {
+    if (currentPosition) {
+      setMapCenter({
+        latitude: currentPosition.coords.latitude,
+        longitude: currentPosition.coords.longitude
+      })
+      validateCurrentLocation()
+    }
+  }, [currentPosition, geofences, validateCurrentLocation])
 
   const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
     const R = 6371e3 // Earth's radius in meters

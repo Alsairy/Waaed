@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -17,7 +17,7 @@ import {
   BookOpen,
   GraduationCap
 } from 'lucide-react';
-import { academicCalendarService, AcademicTerm, AcademicTermDto, AcademicEvent, Holiday } from '../../services/academicCalendarService';
+import { academicCalendarService, AcademicTerm, AcademicTermDto, AcademicEvent, Holiday, ExamSchedule, ExamScheduleDto } from '../../services/academicCalendarService';
 
 
 
@@ -46,7 +46,7 @@ interface CreateHolidayRequest {
 
 export function AcademicCalendarManagementPage() {
   const [academicTerms, setAcademicTerms] = useState<AcademicTerm[]>([]);
-  const [examSchedules, setExamSchedules] = useState<any[]>([]);
+  const [examSchedules, setExamSchedules] = useState<ExamSchedule[]>([]);
   const [events, setEvents] = useState<AcademicEvent[]>([]);
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,8 +70,8 @@ export function AcademicCalendarManagementPage() {
     year: new Date().getFullYear()
   });
   
-  const [newSemester, setNewSemester] = useState<any>({
-    name: '',
+  const [newSemester, setNewSemester] = useState<Partial<ExamScheduleDto>>({
+    courseId: '',
     examType: 'Final',
     examDate: '',
     startTime: '',
@@ -103,18 +103,7 @@ export function AcademicCalendarManagementPage() {
     isRecurring: false
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    if (selectedAcademicYear) {
-      loadSemesters();
-      loadEvents(selectedAcademicYear, selectedSemester);
-    }
-  }, [selectedAcademicYear, selectedSemester]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
       const [termsData, holidaysData] = await Promise.all([
@@ -134,7 +123,18 @@ export function AcademicCalendarManagementPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [selectedAcademicYear]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    if (selectedAcademicYear) {
+      loadSemesters();
+      loadEvents(selectedAcademicYear, selectedSemester);
+    }
+  }, [selectedAcademicYear, selectedSemester]);
 
   const loadSemesters = async () => {
     try {
@@ -180,7 +180,7 @@ export function AcademicCalendarManagementPage() {
 
   const handleCreateSemester = async () => {
     try {
-      await academicCalendarService.createExamSchedule(newSemester);
+      await academicCalendarService.createExamSchedule(newSemester as ExamScheduleDto);
       setShowCreateSemesterDialog(false);
       setNewSemester({
         courseId: '',
@@ -506,7 +506,7 @@ export function AcademicCalendarManagementPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {examSchedules.map((semester: any) => (
+              {examSchedules.map((semester: ExamSchedule) => (
                 <div
                   key={semester.id}
                   className={`p-3 border rounded-lg cursor-pointer transition-colors ${
@@ -516,12 +516,12 @@ export function AcademicCalendarManagementPage() {
                   }`}
                   onClick={() => setSelectedSemester(semester.id)}
                 >
-                  <h3 className="font-medium">{semester.name || 'Unnamed Semester'}</h3>
+                  <h3 className="font-medium">{semester.courseName || 'Unnamed Exam'}</h3>
                   <Badge variant="outline" className="mt-1">
-                    {semester.type || 'Regular'}
+                    {semester.examType || 'Regular'}
                   </Badge>
                   <p className="text-sm text-gray-600 mt-1">
-                    {semester.startDate ? formatDate(semester.startDate) : 'TBD'} - {semester.endDate ? formatDate(semester.endDate) : 'TBD'}
+                    {semester.examDate ? formatDate(semester.examDate) : 'TBD'} - {semester.startTime && semester.endTime ? `${semester.startTime} - ${semester.endTime}` : 'TBD'}
                   </p>
                 </div>
               ))}

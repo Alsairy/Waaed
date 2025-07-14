@@ -150,7 +150,7 @@ export default function TakeQuizPage() {
     }, 30000);
 
     return () => clearInterval(autoSaveInterval);
-  }, [attempt, responses]);
+  }, [attempt, responses, autoSaveResponses]);
 
   const autoSaveResponses = async () => {
     if (!attempt) return;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
@@ -87,25 +87,7 @@ const EmployeeDashboard: React.FC = () => {
     return () => clearInterval(timer)
   }, [])
 
-  useEffect(() => {
-    loadEmployeeData()
-    loadNotificationCount()
-    setupRealTimeConnections()
-    
-    const interval = setInterval(() => {
-      if (realTimeUpdates) {
-        loadEmployeeData()
-        loadNotificationCount()
-      }
-    }, 30000)
-
-    return () => {
-      clearInterval(interval)
-      cleanupRealTimeConnections()
-    }
-  }, [realTimeUpdates])
-
-  const setupRealTimeConnections = () => {
+  const setupRealTimeConnections = useCallback(() => {
     realTimeService.on('connection-status', (status: unknown) => {
       const statusData = status as { status: 'connected' | 'disconnected' | 'reconnecting' | 'error' }
       setConnectionStatus(statusData.status)
@@ -136,7 +118,25 @@ const EmployeeDashboard: React.FC = () => {
       ))
       toast.info(`Leave request ${updateData.status}`)
     })
-  }
+  }, [realTimeUpdates])
+
+  useEffect(() => {
+    loadEmployeeData()
+    loadNotificationCount()
+    setupRealTimeConnections()
+    
+    const interval = setInterval(() => {
+      if (realTimeUpdates) {
+        loadEmployeeData()
+        loadNotificationCount()
+      }
+    }, 30000)
+
+    return () => {
+      clearInterval(interval)
+      cleanupRealTimeConnections()
+    }
+  }, [realTimeUpdates, setupRealTimeConnections])
 
   const cleanupRealTimeConnections = () => {
     // Note: realTimeService.off() may require specific handler references

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FileText, Shield, AlertTriangle, CheckCircle, XCircle, Download, TrendingUp, Calendar } from 'lucide-react';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
@@ -64,11 +64,7 @@ const CompliancePage: React.FC = () => {
     { code: 'SA', name: 'Saudi Arabia' }
   ];
 
-  useEffect(() => {
-    loadData();
-  }, [selectedRegion]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [dashboardData, violationsData, requirementsData, trendsData] = await Promise.all([
@@ -93,7 +89,11 @@ const CompliancePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedTenantId, selectedRegion]);
+
+  useEffect(() => {
+    loadData();
+  }, [selectedRegion, loadData]);
 
   const handleGenerateReport = async () => {
     try {

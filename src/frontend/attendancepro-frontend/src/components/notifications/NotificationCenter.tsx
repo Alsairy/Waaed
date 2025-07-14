@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -39,10 +39,6 @@ const NotificationCenter: React.FC = () => {
     loadCategories()
   }, [])
 
-  useEffect(() => {
-    applyFilters()
-  }, [notifications, searchTerm, selectedCategory, selectedPriority, selectedType, showUnreadOnly])
-
   const loadNotifications = async () => {
     try {
       setIsLoading(true)
@@ -73,7 +69,7 @@ const NotificationCenter: React.FC = () => {
     }
   }
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = notifications
 
     if (searchTerm) {
@@ -100,7 +96,11 @@ const NotificationCenter: React.FC = () => {
     }
 
     setFilteredNotifications(filtered)
-  }
+  }, [notifications, searchTerm, selectedCategory, selectedPriority, selectedType, showUnreadOnly])
+
+  useEffect(() => {
+    applyFilters()
+  }, [applyFilters])
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
