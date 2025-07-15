@@ -269,8 +269,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3100:80"
+    env_file:
+      - .env.staging
     environment:
-      - VITE_API_BASE_URL=http://staging-api.waaed.sa/api
       - NODE_ENV=staging
     depends_on:
       - api-gateway
