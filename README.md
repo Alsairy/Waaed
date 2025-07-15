@@ -225,6 +225,9 @@ dotnet ef database update
 
 # Seed sample data
 dotnet run --seed-data
+
+# Test database connectivity
+DB_PASSWORD=$DB_PASSWORD DB_NAME=Waaed scripts/check-db-connection.sh
 ```
 
 ## 🚀 Deployment
