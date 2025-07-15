@@ -14,7 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Database
-builder.Services.AddDbContext<HudurDbContext>(options =>
+builder.Services.AddDbContext<WaaedDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Custom Services
@@ -71,7 +71,7 @@ builder.Services.AddCors(options =>
 
 // Health Checks
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<HudurDbContext>();
+    .AddDbContextCheck<WaaedDbContext>();
 
 // Shared Infrastructure
 builder.Services.AddSharedInfrastructure(builder.Configuration);

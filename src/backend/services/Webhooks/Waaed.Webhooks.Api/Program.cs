@@ -16,9 +16,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo 
     { 
-        Title = "Hudur Webhooks API", 
+        Title = "Waaed Webhooks API", 
         Version = "v1",
-        Description = "Webhook management and delivery service for the Hudur platform"
+        Description = "Webhook management and delivery service for the Waaed platform"
     });
     
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -103,7 +103,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Hudur Webhooks API v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Waaed Webhooks API v1");
         c.RoutePrefix = string.Empty;
     });
 }

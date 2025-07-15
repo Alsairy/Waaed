@@ -19,9 +19,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo 
     { 
-        Title = "Hudur Integrations API", 
+        Title = "Waaed Integrations API", 
         Version = "v1",
-        Description = "SCIM 2.0 and HR system integrations for the Hudur platform"
+        Description = "SCIM 2.0 and HR system integrations for the Waaed platform"
     });
     
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -112,7 +112,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Hudur Integrations API v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Waaed Integrations API v1");
         c.RoutePrefix = string.Empty;
     });
 }

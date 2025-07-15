@@ -83,7 +83,7 @@
   "jest": {
     "preset": "react-native"
   },
-  "description": "Hudur Mobile - Enterprise attendance management mobile application with biometric authentication, GPS tracking, and offline capabilities.",
+  "description": "Waaed Mobile - Educational ERP and attendance management mobile application with biometric authentication, GPS tracking, and offline capabilities.",
   "keywords": [
     "attendance",
     "biometric",

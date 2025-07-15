@@ -18,9 +18,9 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo 
     { 
-        Title = "Hudur Notifications API", 
+        Title = "Waaed Notifications API", 
         Version = "v1",
-        Description = "Comprehensive notification service for the Hudur platform"
+        Description = "Comprehensive notification service for the Waaed platform"
     });
     
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -116,7 +116,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Hudur Notifications API v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Waaed Notifications API v1");
         c.RoutePrefix = string.Empty;
     });
 }

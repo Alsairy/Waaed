@@ -1,8 +1,8 @@
-# Hudur Platform - Administrator Guide
+# Waaed Platform - Administrator Guide
 
 ## Overview
 
-Welcome to the Hudur Platform Administrator Guide. This comprehensive guide will help you manage and configure your enterprise workforce management platform effectively.
+Welcome to the Waaed Platform Administrator Guide.This comprehensive guide will help you manage and configure your enterprise workforce management platform effectively.
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ Welcome to the Hudur Platform Administrator Guide. This comprehensive guide will
 ### Initial Setup
 
 1. **Access the Admin Dashboard**
-   - Navigate to your Hudur platform URL
+   - Navigate to your Waaed platform URL
    - Login with your administrator credentials
    - You'll be directed to the Admin Dashboard
 
@@ -495,6 +495,6 @@ The compliance dashboard provides:
 
 ---
 
-For additional support, contact: admin-support@hudur.sa
+For additional support, contact: admin-support@waaed.sa
 
-© 2024 Hudur Platform. All rights reserved.
+© 2024 Waaed Platform. All rights reserved.

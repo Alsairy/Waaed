@@ -1,14 +1,14 @@
-# Hudur Platform - Complete API Documentation
+# Waaed Platform - Complete API Documentation
 
 ## Overview
 
-Hudur is a comprehensive, enterprise-grade attendance and workforce management platform built with modern microservices architecture. This documentation provides detailed information about all API endpoints, authentication, and integration capabilities.
+Waaed is a comprehensive, enterprise-grade educational ERP and workforce management platform built with modern microservices architecture.This documentation provides detailed information about all API endpoints, authentication, and integration capabilities.
 
 ## Base URLs
 
 - **Development**: `http://localhost:5000`
-- **Production**: `https://api.hudur.sa`
-- **Staging**: `https://staging-api.hudur.sa`
+- **Production**: `https://api.waaed.sa`
+- **Staging**: `https://staging-api.waaed.sa`
 
 ## Authentication
 
@@ -474,7 +474,7 @@ Send SMS notification.
 {
   "phoneNumbers": ["+1234567890"],
   "message": "Your leave request has been approved.",
-  "senderId": "Hudur"
+  "senderId": "Waaed"
 }
 ```
 
@@ -712,18 +712,18 @@ X-RateLimit-Reset: 1625097600
 
 Official SDKs are available for:
 
-- **JavaScript/Node.js**: `npm install hudur-sdk`
-- **Python**: `pip install hudur-sdk`
-- **C#/.NET**: `Install-Package Hudur.SDK`
+- **JavaScript/Node.js**: `npm install waaed-sdk`
+- **Python**: `pip install waaed-sdk`
+- **C#/.NET**: `Install-Package Waaed.SDK`
 - **Java**: Maven/Gradle dependency available
 - **PHP**: Composer package available
 
 ## Support and Resources
 
-- **Documentation**: https://docs.hudur.sa
-- **API Status**: https://status.hudur.sa
-- **Support**: support@hudur.sa
-- **Community**: https://community.hudur.sa
+- **Documentation**: https://docs.waaed.sa
+- **API Status**: https://status.waaed.sa
+- **Support**: support@waaed.sa
+- **Community**: https://community.waaed.sa
 
 ## Changelog
 

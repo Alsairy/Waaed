@@ -1,7 +1,7 @@
-# Hudur Mobile Application
+# Waaed Mobile Application
 
 ## Overview
-Hudur Mobile is a comprehensive React Native application for enterprise attendance management with advanced biometric authentication, GPS tracking, and offline capabilities.
+Waaed Mobile is a comprehensive React Native application for educational ERP and attendance management with advanced biometric authentication, GPS tracking, and offline capabilities.
 
 ## Features
 
@@ -117,7 +117,7 @@ npx react-native run-ios
 ### **Environment Configuration**
 ```bash
 # Create .env file
-API_BASE_URL=https://api.hudur.sa
+API_BASE_URL=https://api.waaed.sa
 JWT_SECRET_KEY=your_jwt_secret
 FACE_API_KEY=your_face_api_key
 MAPS_API_KEY=your_maps_api_key
@@ -286,5 +286,5 @@ cd ios && xcodebuild -workspace AttendanceMobile.xcworkspace -scheme AttendanceM
 
 ---
 
-**HudurcePro Mobile** - Enterprise-grade attendance management in your pocket! 📱✨
+**Waaed Mobile** - Enterprise-grade educational ERP and attendance management in your pocket! 📱✨
 

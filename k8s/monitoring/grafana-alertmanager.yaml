@@ -99,12 +99,12 @@ data:
       options:
         path: /var/lib/grafana/dashboards
 
-  hudur-dashboard.json: |
+  waaed-dashboard.json: |
     {
       "dashboard": {
         "id": null,
-        "title": "Hudur Platform Monitoring",
-        "tags": ["hudur"],
+        "title": "Waaed Platform Monitoring",
+        "tags": ["waaed"],
         "style": "dark",
         "timezone": "browser",
         "panels": [
@@ -114,7 +114,7 @@ data:
             "type": "stat",
             "targets": [
               {
-                "expr": "up{job=\"hudur-services\"}",
+                "expr": "up{job=\"waaed-services\"}",
                 "legendFormat": "{{kubernetes_name}}"
               }
             ],
@@ -254,7 +254,7 @@ data:
   alertmanager.yml: |
     global:
       smtp_smarthost: 'localhost:587'
-      smtp_from: 'alerts@hudur.sa'
+      smtp_from: 'alerts@waaed.sa'
 
     route:
       group_by: ['alertname']
@@ -266,8 +266,8 @@ data:
     receivers:
     - name: 'web.hook'
       email_configs:
-      - to: 'admin@hudur.sa'
-        subject: 'Hudur Alert: {{ .GroupLabels.alertname }}'
+      - to: 'admin@waaed.sa'
+        subject: 'Waaed Alert: {{ .GroupLabels.alertname }}'
         body: |
           {{ range .Alerts }}
           Alert: {{ .Annotations.summary }}

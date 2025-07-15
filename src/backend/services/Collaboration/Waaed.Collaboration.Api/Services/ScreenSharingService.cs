@@ -27,7 +27,7 @@ namespace Waaed.Collaboration.Api.Services
                     SessionName = sessionName,
                     StartedAt = DateTime.UtcNow,
                     Status = "Active",
-                    StreamUrl = $"https://screen.hudur.sa/{Guid.NewGuid():N}",
+                    StreamUrl = $"https://screen.waaed.sa/{Guid.NewGuid():N}",
                     IsRecorded = false
                 };
 

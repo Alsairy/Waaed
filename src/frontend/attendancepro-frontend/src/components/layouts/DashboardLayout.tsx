@@ -177,7 +177,7 @@ const DashboardLayout: React.FC = () => {
           )}
           <div className="flex flex-col">
             <span className="text-xl font-bold" style={{ color: PERSONA === 'student' || PERSONA === 'teacher' || PERSONA === 'parent' ? '#005F96' : undefined }}>
-              {PERSONA === 'student' || PERSONA === 'teacher' || PERSONA === 'parent' ? 'Waaed' : 'Hudur'}
+              Waaed
             </span>
             <span className="text-xs text-muted-foreground capitalize">{PERSONA} Portal</span>
           </div>

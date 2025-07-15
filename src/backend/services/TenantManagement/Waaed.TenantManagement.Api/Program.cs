@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "Hudur Tenant Management API", Version = "v1" });
+    c.SwaggerDoc("v1", new() { Title = "Waaed Tenant Management API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new()
     {
         Description = "JWT Authorization header using the Bearer scheme",

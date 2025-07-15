@@ -1,8 +1,8 @@
 {
   "dashboard": {
     "id": null,
-    "title": "Hudur System Overview",
-    "tags": ["hudur", "overview"],
+    "title": "Waaed System Overview",
+    "tags": ["waaed", "overview"],
     "style": "dark",
     "timezone": "browser",
     "panels": [

@@ -11,7 +11,7 @@ services:
     volumes:
       - sql_data:/var/opt/mssql
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -C -Q 'SELECT 1'"]
       interval: 30s
@@ -26,7 +26,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - hudur-network
+      - waaed-network
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -54,7 +54,7 @@ services:
       - sql-server
       - redis
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
@@ -81,7 +81,7 @@ services:
       - sql-server
       - redis
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
@@ -108,7 +108,7 @@ services:
       - sql-server
       - redis
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
@@ -135,7 +135,7 @@ services:
       - sql-server
       - redis
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
@@ -162,7 +162,7 @@ services:
       - sql-server
       - redis
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
@@ -184,7 +184,7 @@ services:
   #     - sql-server
   #     - redis
   #   networks:
-  #     - hudur-network
+  #     - waaed-network
   #   healthcheck:
   #     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
   #     interval: 30s
@@ -206,7 +206,7 @@ services:
   #     - sql-server
   #     - redis
   #   networks:
-  #     - hudur-network
+  #     - waaed-network
   #   healthcheck:
   #     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
   #     interval: 30s
@@ -228,7 +228,7 @@ services:
   #     - sql-server
   #     - redis
   #   networks:
-  #     - hudur-network
+  #     - waaed-network
   #   healthcheck:
   #     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
   #     interval: 30s
@@ -250,7 +250,7 @@ services:
   #     - sql-server
   #     - redis
   #   networks:
-  #     - hudur-network
+  #     - waaed-network
   #   healthcheck:
   #     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
   #     interval: 30s
@@ -272,7 +272,7 @@ services:
   #     - sql-server
   #     - redis
   #   networks:
-  #     - hudur-network
+  #     - waaed-network
   #   healthcheck:
   #     test: ["CMD", "curl", "-f", "http://localhost:80/health"]
   #     interval: 30s
@@ -299,7 +299,7 @@ services:
       - sql-server
       - redis
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
@@ -326,7 +326,7 @@ services:
       - sql-server
       - redis
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
@@ -353,7 +353,7 @@ services:
       - sql-server
       - redis
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
@@ -380,7 +380,7 @@ services:
       - sql-server
       - redis
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/health"]
       interval: 30s
@@ -390,14 +390,14 @@ services:
   # Frontend
   frontend:
     build:
-      context: src/frontend/hudur-frontend
+      context: src/frontend/attendancepro-frontend
       dockerfile: Dockerfile
     ports:
       - "3000:80"
     depends_on:
       - api-gateway
     networks:
-      - hudur-network
+      - waaed-network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
       interval: 30s
@@ -421,7 +421,7 @@ services:
       - '--storage.tsdb.retention.time=15d'
       - '--web.enable-lifecycle'
     networks:
-      - hudur-network
+      - waaed-network
 
   # Monitoring - Grafana
   grafana:
@@ -435,7 +435,7 @@ services:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
     networks:
-      - hudur-network
+      - waaed-network
 
 volumes:
   sql_data:
@@ -444,6 +444,6 @@ volumes:
   grafana_data:
 
 networks:
-  hudur-network:
+  waaed-network:
     driver: bridge
 

@@ -2,10 +2,12 @@ services:
   # Database
   sql-server:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    env_file:
+      - .env.staging
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=${DB_PASSWORD}
       - MSSQL_PID=Express
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
     ports:
       - "1434:1433"
     volumes:
@@ -13,7 +15,7 @@ services:
     networks:
       - waaed-staging-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -C -Q 'SELECT 1'"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $$DB_PASSWORD -C -Q 'SELECT 1'"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -46,9 +48,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Staging
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - ConnectionStrings__Redis=redis:6379
     depends_on:
       - sql-server
@@ -73,9 +72,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Staging
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=WaaedStaging;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=true;
       - ConnectionStrings__Redis=redis:6379
     depends_on:
       - sql-server
@@ -100,9 +97,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Staging
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - ConnectionStrings__Redis=redis:6379
     depends_on:
       - sql-server
@@ -127,9 +121,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Staging
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - ConnectionStrings__Redis=redis:6379
     depends_on:
       - sql-server
@@ -154,9 +145,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Staging
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - ConnectionStrings__Redis=redis:6379
     depends_on:
       - sql-server
@@ -181,9 +169,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Staging
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE}
-      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - ConnectionStrings__Redis=redis:6379
     depends_on:
       - sql-server
@@ -355,7 +340,7 @@ services:
     ports:
       - "3101:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
     volumes:
       - grafana_staging_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning

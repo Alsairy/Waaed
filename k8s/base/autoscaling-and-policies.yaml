@@ -2,7 +2,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: api-gateway-hpa
-  namespace: hudur
+  namespace: waaed
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -44,7 +44,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: attendance-service-hpa
-  namespace: hudur
+  namespace: waaed
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -86,7 +86,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: face-recognition-service-hpa
-  namespace: hudur
+  namespace: waaed
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -128,7 +128,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: frontend-hpa
-  namespace: hudur
+  namespace: waaed
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -153,8 +153,8 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: hudur-network-policy
-  namespace: hudur
+  name: waaed-network-policy
+  namespace: waaed
 spec:
   podSelector: {}
   policyTypes:
@@ -164,7 +164,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: hudur
+          name: waaed
     - namespaceSelector:
         matchLabels:
           name: kube-system
@@ -178,7 +178,7 @@ spec:
   - to:
     - namespaceSelector:
         matchLabels:
-          name: hudur
+          name: waaed
   - to:
     - namespaceSelector:
         matchLabels:
@@ -197,8 +197,8 @@ spec:
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: hudur-quota
-  namespace: hudur
+  name: waaed-quota
+  namespace: waaed
 spec:
   hard:
     requests.cpu: "500"
@@ -215,7 +215,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: auth-service-hpa
-  namespace: hudur
+  namespace: waaed
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -251,7 +251,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: analytics-service-hpa
-  namespace: hudur
+  namespace: waaed
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -277,7 +277,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: notifications-service-hpa
-  namespace: hudur
+  namespace: waaed
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

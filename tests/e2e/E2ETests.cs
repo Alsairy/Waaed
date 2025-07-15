@@ -8,7 +8,7 @@ namespace Waaed.Tests.E2E
     {
         public IPlaywright Playwright { get; private set; } = null!;
         public IBrowser Browser { get; private set; } = null!;
-        public string BaseUrl { get; private set; } = "https://app.hudur.sa";
+        public string BaseUrl { get; private set; } = "https://app.waaed.sa";
 
         public async Task InitializeAsync()
         {

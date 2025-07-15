@@ -11,10 +11,10 @@ namespace Waaed.Shared.Infrastructure.Telemetry;
 
 public static class TelemetryExtensions
 {
-    public static readonly ActivitySource ActivitySource = new("Hudur");
-    public static readonly Meter Meter = new("Hudur");
+    public static readonly ActivitySource ActivitySource = new("Waaed");
+    public static readonly Meter Meter = new("Waaed");
 
-    public static IServiceCollection AddHudurTelemetry(this IServiceCollection services, string serviceName)
+    public static IServiceCollection AddWaaedTelemetry(this IServiceCollection services, string serviceName)
     {
         services.AddOpenTelemetry()
             .WithTracing(builder =>
@@ -23,7 +23,7 @@ public static class TelemetryExtensions
                     .SetResourceBuilder(ResourceBuilder.CreateDefault()
                         .AddService(serviceName)
                         .AddTelemetrySdk())
-                    .AddSource("Hudur")
+                    .AddSource("Waaed")
                     .AddAspNetCoreInstrumentation(options =>
                     {
                         options.RecordException = true;
@@ -53,7 +53,7 @@ public static class TelemetryExtensions
                     .SetResourceBuilder(ResourceBuilder.CreateDefault()
                         .AddService(serviceName)
                         .AddTelemetrySdk())
-                    .AddMeter("Hudur")
+                    .AddMeter("Waaed")
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()

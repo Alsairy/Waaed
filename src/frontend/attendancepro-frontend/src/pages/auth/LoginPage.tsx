@@ -70,7 +70,7 @@ const LoginPage: React.FC = () => {
           <div className="flex items-center justify-center mb-4">
             <div className="flex items-center space-x-2">
               <Shield className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold">Hudur</span>
+              <span className="text-2xl font-bold">Waaed</span>
             </div>
           </div>
           <CardTitle className="text-2xl text-center">Welcome back</CardTitle>

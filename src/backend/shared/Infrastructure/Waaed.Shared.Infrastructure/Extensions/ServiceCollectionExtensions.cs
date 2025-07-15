@@ -33,7 +33,7 @@ namespace Waaed.Shared.Infrastructure.Extensions
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = redisConnectionString;
-                options.InstanceName = "Hudur";
+                options.InstanceName = "Waaed";
             });
 
             services.AddMemoryCache(options =>

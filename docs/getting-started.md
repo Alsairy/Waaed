@@ -1,6 +1,6 @@
-# 🚀 Getting Started with Hudur
+# 🚀 Getting Started with Waaed
 
-Welcome to Hudur! This guide will help you get the platform up and running quickly.
+Welcome to Waaed! This guide will help you get the platform up and running quickly.
 
 ## 📋 Prerequisites
 
@@ -17,12 +17,12 @@ Before you begin, ensure you have the following installed:
 
 ### Option 1: Docker Compose (Recommended)
 
-The fastest way to get Hudur running:
+The fastest way to get Waaed running:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/hudur.git
-cd hudur
+git clone https://github.com/your-org/Waaed.git
+cd Waaed
 
 # Copy environment configuration
 cp .env.example .env
@@ -45,14 +45,14 @@ For active development:
 
 ```bash
 # Clone and setup
-git clone https://github.com/your-org/hudur.git
-cd hudur
+git clone https://github.com/your-org/Waaed.git
+cd Waaed
 
 # Backend setup
 cd src/backend
 dotnet restore
 dotnet ef database update
-dotnet run --project services/Authentication/Hudur.Authentication.Api
+dotnet run --project services/Authentication/Waaed.Authentication.Api
 
 # Frontend setup (new terminal)
 cd src/frontend/attendance-web-app
@@ -68,7 +68,7 @@ npx react-native run-ios  # or run-android
 ## 🔑 Default Credentials
 
 ```
-Email: admin@hudur.sa
+Email: admin@waaed.sa
 Password: Admin123!
 ```
 
@@ -104,7 +104,7 @@ Key configuration options in `.env`:
 
 ```bash
 # Database
-DATABASE_URL=postgresql://user:pass@localhost:5432/hudur
+DATABASE_URL=postgresql://user:pass@localhost:5432/waaed
 
 # JWT Authentication
 JWT_SECRET=your-super-secret-key
@@ -197,9 +197,9 @@ cd android && ./gradlew clean
 ## 🆘 Getting Help
 
 - **Documentation**: Check the `/docs` folder
-- **Issues**: [GitHub Issues](https://github.com/your-org/hudur/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/hudur/discussions)
-- **Email**: support@hudur.sa
+- **Issues**: [GitHub Issues](https://github.com/your-org/Waaed/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/your-org/Waaed/discussions)
+- **Email**: support@waaed.sa
 
 ---
 

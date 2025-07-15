@@ -1,25 +1,25 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: hudur
+  name: waaed
   labels:
-    name: hudur
-    app.kubernetes.io/name: hudur
+    name: waaed
+    app.kubernetes.io/name: waaed
     app.kubernetes.io/version: "1.0.0"
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: hudur-config
-  namespace: hudur
+  name: waaed-config
+  namespace: waaed
 data:
   # Database configuration
-  ConnectionStrings__DefaultConnection: "Server=sql-server-service;Database=Hudur;User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=true"
+  ConnectionStrings__DefaultConnection: "Server=sql-server-service;Database=Waaed;User Id=sa;Password=$(DB_PASSWORD);TrustServerCertificate=true"
   
   # JWT configuration
   Jwt__Key: "$(JWT_SECRET_KEY)"
-  Jwt__Issuer: "Hudur"
-  Jwt__Audience: "HudurUsers"
+  Jwt__Issuer: "Waaed"
+  Jwt__Audience: "WaaedUsers"
   Jwt__ExpiryMinutes: "60"
   
   # Redis configuration
@@ -35,8 +35,8 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: hudur-secrets
-  namespace: hudur
+  name: waaed-secrets
+  namespace: waaed
 type: Opaque
 data:
   # Base64 encoded secrets
@@ -50,7 +50,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: sql-server-pvc
-  namespace: hudur
+  namespace: waaed
 spec:
   accessModes:
     - ReadWriteOnce
@@ -63,7 +63,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: redis-pvc
-  namespace: hudur
+  namespace: waaed
 spec:
   accessModes:
     - ReadWriteOnce
