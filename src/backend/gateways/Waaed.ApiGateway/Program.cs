@@ -6,9 +6,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure to listen on port 5000
-builder.WebHost.UseUrls("http://localhost:5000");
-
 // Add configuration
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
