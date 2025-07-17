@@ -1,5 +1,5 @@
 groups:
-  - name: Hudur Alerts
+  - name: Waaed Alerts
     rules:
       - alert: ServiceDown
         expr: up == 0

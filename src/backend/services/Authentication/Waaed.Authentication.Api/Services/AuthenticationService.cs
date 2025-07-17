@@ -439,7 +439,7 @@ namespace Waaed.Authentication.Api.Services
                 _context.PasswordResetTokens.Add(resetToken);
                 await _context.SaveChangesAsync();
 
-                var resetUrl = "https://app.hudur.sa/reset-password"; // This should come from configuration
+                var resetUrl = "https://app.waaed.sa/reset-password"; // This should come from configuration
                 var emailSent = await _emailService.SendPasswordResetEmailAsync(user.Email, resetToken.Token, resetUrl);
 
                 if (!emailSent)

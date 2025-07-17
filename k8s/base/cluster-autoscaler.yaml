@@ -32,7 +32,7 @@ spec:
         - --cloud-provider=aws
         - --skip-nodes-with-local-storage=false
         - --expander=least-waste
-        - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/hudur-cluster
+        - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/waaed-cluster
         - --balance-similar-node-groups
         - --scale-down-enabled=true
         - --scale-down-delay-after-add=10m
@@ -121,10 +121,10 @@ subjects:
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: hudur-pdb
-  namespace: hudur
+  name: waaed-pdb
+  namespace: waaed
 spec:
   minAvailable: 50%
   selector:
     matchLabels:
-      app: hudur-service
+      app: waaed-service

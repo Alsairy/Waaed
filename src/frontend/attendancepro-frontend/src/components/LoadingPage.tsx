@@ -12,7 +12,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ text = 'Loading...' }) => {
       <div className="flex flex-col items-center space-y-6">
         <div className="flex items-center space-x-2">
           <Shield className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold">Hudur</span>
+          <span className="text-2xl font-bold">Waaed</span>
         </div>
         <LoadingSpinner size="lg" text={text} />
       </div>

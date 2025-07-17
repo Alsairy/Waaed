@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Waaed.Shared.Domain.Interfaces;
 
 namespace Waaed.Shared.Domain.Entities
@@ -22,6 +23,7 @@ namespace Waaed.Shared.Domain.Entities
 
         public bool IsActive { get; set; } = true;
 
+        [NotMapped]
         public Dictionary<string, string> Headers { get; set; } = new();
 
         public WebhookRetryPolicy RetryPolicy { get; set; } = new();

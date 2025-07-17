@@ -1,6 +1,14 @@
 ---
 name: Database Migrations & Schema Management
 
+# Top-level permissions for GitHub token access
+# These permissions are inherited by all jobs unless overridden
+permissions:
+  contents: read
+  pull-requests: write  # Required for PR commenting
+  checks: write
+  actions: read
+
 on:
   push:
     branches: ["main", "develop"]
@@ -17,6 +25,19 @@ on:
       - 'src/backend/services/*/Data/**'
       - 'src/backend/services/*/Entities/**'
       - 'src/backend/shared/Infrastructure/*/Migrations/**'
+  # Use pull_request_target for jobs that need to comment on PRs
+  # This provides write access to the repository for PR commenting
+  # Security note: pull_request_target runs in the context of the target branch
+  # and has access to secrets, so it's safe for trusted repositories
+  pull_request_target:
+    branches: ["main", "develop"]
+    paths:
+      - 'src/backend/services/*/Migrations/**'
+      - 'src/backend/services/*/Data/**'
+      - 'src/backend/services/*/Entities/**'
+      - 'src/backend/shared/Infrastructure/*/Migrations/**'
+      - '.github/workflows/database.yml'
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       migration_action:
@@ -886,9 +907,10 @@ jobs:
           path: migration-report.md
 
       - name: Comment on PR with migration results
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
             const report = fs.readFileSync('migration-report.md', 'utf8');

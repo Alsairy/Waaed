@@ -6,7 +6,7 @@ using Waaed.Shared.Infrastructure.Extensions;
 using Waaed.Shared.Infrastructure.Middleware;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Hudur.Tests.Integration")]
+[assembly: InternalsVisibleTo("Waaed.Tests.Integration")]
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,7 +71,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "Hudur Attendance API", Version = "v1" });
+    c.SwaggerDoc("v1", new() { Title = "Waaed Attendance API", Version = "v1" });
     
     // Add JWT authentication to Swagger
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme

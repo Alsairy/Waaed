@@ -1,6 +1,6 @@
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr'
 
-const API_BASE_URL = (import.meta as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL || 'http://staging-api.waaed.sa'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://staging-api.waaed.sa'
 
 export interface RealTimeEvent {
   type: 'attendance' | 'notification' | 'analytics' | 'leave' | 'system'

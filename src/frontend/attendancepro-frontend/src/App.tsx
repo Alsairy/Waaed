@@ -161,7 +161,7 @@ function App() {
   
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="system" storageKey={`hudur-${PERSONA}-ui-theme`}>
+      <ThemeProvider defaultTheme="system" storageKey={`waaed-${PERSONA}-ui-theme`}>
         <AuthProvider>
           <Router>
             <div className="min-h-screen bg-background">

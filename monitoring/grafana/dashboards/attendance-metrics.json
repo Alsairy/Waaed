@@ -1,8 +1,8 @@
 {
   "dashboard": {
     "id": null,
-    "title": "Hudur Business Metrics",
-    "tags": ["hudur", "business"],
+    "title": "Waaed Business Metrics",
+    "tags": ["waaed", "business"],
     "style": "dark",
     "timezone": "browser",
     "panels": [

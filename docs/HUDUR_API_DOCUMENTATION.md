@@ -1,12 +1,12 @@
-# Hudur Platform API Documentation
+# Waaed Platform API Documentation
 
 ## Overview
 
-Hudur is a comprehensive enterprise workforce management platform that provides advanced attendance tracking, leave management, analytics, and compliance features. This document outlines the complete API reference for all microservices.
+Waaed is a comprehensive educational ERP and workforce management platform that provides advanced attendance tracking, leave management, analytics, and compliance features. This document outlines the complete API reference for all microservices.
 
 ## Base URL
 ```
-https://api.hudur.sa/api
+https://api.waaed.sa/api
 ```
 
 ## Authentication
@@ -457,7 +457,7 @@ API requests are rate limited:
 
 ## Webhooks
 
-Hudur supports real-time webhooks for the following events:
+Waaed supports real-time webhooks for the following events:
 
 ### Attendance Events
 - `attendance.checked_in`
@@ -491,8 +491,8 @@ Official SDKs are available for:
 
 ## Support
 
-For API support, contact: api-support@hudur.sa
+For API support, contact: api-support@waaed.sa
 
 ---
 
-© 2024 Hudur Platform. All rights reserved.
+© 2024 Waaed Platform. All rights reserved.

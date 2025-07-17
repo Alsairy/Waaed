@@ -124,6 +124,7 @@ namespace Waaed.Shared.Infrastructure.Data
             ConfigureSettings(modelBuilder);
             ConfigureAudit(modelBuilder);
             ConfigureNotification(modelBuilder);
+            ConfigureWebhook(modelBuilder);
             ConfigureCompliance(modelBuilder);
 
             // Apply global query filters for multi-tenancy
@@ -176,13 +177,13 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.Manager)
                       .WithMany(e => e.DirectReports)
                       .HasForeignKey(e => e.ManagerId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 // Relationship with Tenant
                 entity.HasOne(e => e.Tenant)
                       .WithMany(e => e.Users)
                       .HasForeignKey(e => e.TenantId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 // One-to-one relationship with UserBiometrics
                 entity.HasOne(e => e.Biometrics)
@@ -212,12 +213,12 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.User)
                       .WithMany(e => e.UserRoles)
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.Role)
                       .WithMany(e => e.UserRoles)
                       .HasForeignKey(e => e.RoleId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<Permission>(entity =>
@@ -238,12 +239,12 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.Role)
                       .WithMany(e => e.RolePermissions)
                       .HasForeignKey(e => e.RoleId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.Permission)
                       .WithMany(e => e.RolePermissions)
                       .HasForeignKey(e => e.PermissionId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
             });
         }
 
@@ -267,7 +268,7 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.User)
                       .WithMany(e => e.AttendanceRecords)
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.Geofence)
                       .WithMany(e => e.AttendanceRecords)
@@ -277,7 +278,7 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.ApprovedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.ApprovedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasIndex(e => new { e.UserId, e.Timestamp });
                 entity.HasIndex(e => e.TenantId);
@@ -308,12 +309,12 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.User)
                       .WithMany()
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.Geofence)
                       .WithMany(e => e.UserGeofences)
                       .HasForeignKey(e => e.GeofenceId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<Beacon>(entity =>
@@ -331,6 +332,11 @@ namespace Waaed.Shared.Infrastructure.Data
                       .WithMany(e => e.Beacons)
                       .HasForeignKey(e => e.GeofenceId)
                       .OnDelete(DeleteBehavior.SetNull);
+                      
+                entity.HasOne<Tenant>()
+                      .WithMany()
+                      .HasForeignKey(e => e.TenantId)
+                      .OnDelete(DeleteBehavior.NoAction);
             });
         }
 
@@ -358,22 +364,22 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.User)
                       .WithMany(e => e.LeaveRequests)
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.LeaveType)
                       .WithMany(e => e.LeaveRequests)
                       .HasForeignKey(e => e.LeaveTypeId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.ApprovedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.ApprovedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.RejectedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.RejectedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<UserLeaveBalance>(entity =>
@@ -384,12 +390,12 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.User)
                       .WithMany()
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.LeaveType)
                       .WithMany(e => e.UserLeaveBalances)
                       .HasForeignKey(e => e.LeaveTypeId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<PermissionRequest>(entity =>
@@ -402,17 +408,17 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.User)
                       .WithMany(e => e.PermissionRequests)
                       .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.ApprovedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.ApprovedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.RejectedByUser)
                       .WithMany()
                       .HasForeignKey(e => e.RejectedBy)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<LeaveApproval>(entity =>
@@ -423,12 +429,12 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.LeaveRequest)
                       .WithMany(e => e.LeaveApprovals)
                       .HasForeignKey(e => e.LeaveRequestId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                      .OnDelete(DeleteBehavior.NoAction);
 
                 entity.HasOne(e => e.Approver)
                       .WithMany()
                       .HasForeignKey(e => e.ApproverId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.NoAction);
             });
         }
 
@@ -487,10 +493,10 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.Property(e => e.UserId).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Message).IsRequired().HasMaxLength(1000);
-                entity.Property(e => e.Type).HasMaxLength(50).HasDefaultValue("info");
+                entity.Property(e => e.Type).HasDefaultValue(NotificationType.System);
                 entity.Property(e => e.Data).HasColumnType("nvarchar(max)");
                 entity.Property(e => e.ActionUrl).HasMaxLength(500);
-                entity.Property(e => e.Priority).HasMaxLength(20).HasDefaultValue("normal");
+                entity.Property(e => e.Priority).HasDefaultValue(NotificationPriority.Normal);
                 entity.Property(e => e.Category).HasMaxLength(100);
                 entity.Property(e => e.Source).HasMaxLength(100);
                 entity.Property(e => e.CorrelationId).HasMaxLength(50);
@@ -506,7 +512,7 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.Property(e => e.UserId).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Message).IsRequired().HasMaxLength(1000);
-                entity.Property(e => e.Type).HasMaxLength(50).HasDefaultValue("info");
+                entity.Property(e => e.Type).HasDefaultValue(NotificationType.System);
                 entity.Property(e => e.Data).HasColumnType("nvarchar(max)");
                 entity.Property(e => e.RecurrencePattern).HasMaxLength(100);
                 entity.Property(e => e.Status).HasMaxLength(50).HasDefaultValue("pending");
@@ -515,6 +521,52 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasIndex(e => e.ScheduledAt);
                 entity.HasIndex(e => e.IsProcessed);
                 entity.HasIndex(e => e.Status);
+            });
+        }
+
+        private void ConfigureWebhook(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<WebhookSubscription>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.TenantId).IsRequired();
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Url).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.Secret).HasMaxLength(200);
+                entity.Property(e => e.IsActive).HasDefaultValue(true);
+                entity.Ignore(e => e.Headers);
+                entity.Ignore(e => e.EventTypes);
+                
+                entity.OwnsOne(e => e.RetryPolicy, rp =>
+                {
+                    rp.Property(p => p.MaxRetries).HasDefaultValue(3);
+                    rp.Property(p => p.RetryDelaySeconds).HasDefaultValue(60);
+                    rp.Property(p => p.ExponentialBackoff).HasDefaultValue(true);
+                });
+                
+                entity.HasIndex(e => e.TenantId);
+                entity.HasIndex(e => e.IsActive);
+            });
+
+            modelBuilder.Entity<WebhookDelivery>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.TenantId).IsRequired();
+                entity.Property(e => e.EventType).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Payload).HasColumnType("nvarchar(max)");
+                entity.Property(e => e.ResponseBody).HasColumnType("nvarchar(max)");
+                entity.Property(e => e.ErrorMessage).HasMaxLength(1000);
+                
+                entity.HasOne(e => e.Subscription)
+                    .WithMany(s => s.Deliveries)
+                    .HasForeignKey(e => e.SubscriptionId)
+                    .OnDelete(DeleteBehavior.NoAction);
+                    
+                entity.HasIndex(e => e.TenantId);
+                entity.HasIndex(e => e.SubscriptionId);
+                entity.HasIndex(e => e.EventType);
+                entity.HasIndex(e => e.AttemptedAt);
+                entity.HasIndex(e => e.IsSuccessful);
             });
         }
 
@@ -564,12 +616,12 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.User)
                     .WithMany()
                     .HasForeignKey(e => e.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
                     
                 entity.HasOne(e => e.ResolvedByUser)
                     .WithMany()
                     .HasForeignKey(e => e.ResolvedBy)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<Waaed.Shared.Domain.Entities.ShiftAssignment>(entity =>
@@ -580,17 +632,17 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.User)
                     .WithMany()
                     .HasForeignKey(e => e.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
                     
                 entity.HasOne(e => e.AssignedByUser)
                     .WithMany()
                     .HasForeignKey(e => e.AssignedBy)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
                     
                 entity.HasOne(e => e.Shift)
                     .WithMany(s => s.Assignments)
                     .HasForeignKey(e => e.ShiftId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<Waaed.Shared.Domain.Entities.ShiftSwapRequest>(entity =>
@@ -601,32 +653,32 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.Requester)
                     .WithMany()
                     .HasForeignKey(e => e.RequesterId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
                     
                 entity.HasOne(e => e.TargetUser)
                     .WithMany()
                     .HasForeignKey(e => e.TargetUserId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
                     
                 entity.HasOne(e => e.RespondedByUser)
                     .WithMany()
                     .HasForeignKey(e => e.RespondedBy)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
                     
                 entity.HasOne(e => e.ApprovedByUser)
                     .WithMany()
                     .HasForeignKey(e => e.ApprovedBy)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
                     
                 entity.HasOne(e => e.OriginalAssignment)
                     .WithMany(sa => sa.SwapRequests)
                     .HasForeignKey(e => e.OriginalAssignmentId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
                     
                 entity.HasOne(e => e.TargetAssignment)
                     .WithMany()
                     .HasForeignKey(e => e.TargetAssignmentId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<Waaed.Shared.Domain.Entities.ShiftConflict>(entity =>
@@ -637,17 +689,17 @@ namespace Waaed.Shared.Infrastructure.Data
                 entity.HasOne(e => e.User)
                     .WithMany()
                     .HasForeignKey(e => e.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
                     
                 entity.HasOne(e => e.ResolvedByUser)
                     .WithMany()
                     .HasForeignKey(e => e.ResolvedBy)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
                     
                 entity.HasOne(e => e.Assignment)
                     .WithMany()
                     .HasForeignKey(e => e.AssignmentId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.NoAction);
             });
         }
 

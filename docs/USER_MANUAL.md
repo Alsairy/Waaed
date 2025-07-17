@@ -1,4 +1,4 @@
-# Hudur Platform - User Manual
+# Waaed Platform - User Manual
 
 ## Table of Contents
 
@@ -32,8 +32,8 @@
 
 1. **Access the Platform**
    - Open your web browser
-   - Navigate to your organization's Hudur URL
-   - Example: `https://yourcompany.hudur.sa`
+   - Navigate to your organization's Waaed URL
+   - Example: `https://yourcompany.waaed.sa`
 
 2. **Login Credentials**
    - Enter your email address
@@ -474,14 +474,14 @@ Configure which events trigger email notifications:
 
 #### iOS Installation
 1. Open App Store
-2. Search "Hudur"
+2. Search "Waaed"
 3. Tap "Get" to download
 4. Open app after installation
 5. Login with your credentials
 
 #### Android Installation
 1. Open Google Play Store
-2. Search "Hudur"
+2. Search "Waaed"
 3. Tap "Install"
 4. Open app after installation
 5. Login with your credentials
@@ -603,7 +603,7 @@ Configure which events trigger email notifications:
 4. Check FAQ section
 
 #### Contact Support
-- **Email**: support@hudur.sa
+- **Email**: support@waaed.sa
 - **Phone**: 1-800-ATTENDANCE
 - **Live Chat**: Available in app
 - **Help Desk**: Submit ticket through portal
@@ -637,5 +637,5 @@ Configure which events trigger email notifications:
 4. Log out from shared devices
 5. Report suspicious activity
 
-This user manual provides comprehensive guidance for using the Hudur platform effectively. For additional help or specific questions not covered here, please contact your system administrator or support team.
+This user manual provides comprehensive guidance for using the Waaed platform effectively. For additional help or specific questions not covered here, please contact your system administrator or support team.
 

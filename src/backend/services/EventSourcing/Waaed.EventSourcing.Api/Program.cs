@@ -15,7 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Database
-builder.Services.AddDbContext<HudurDbContext>(options =>
+builder.Services.AddDbContext<WaaedDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Event Store Database
@@ -91,7 +91,7 @@ builder.Services.AddCors(options =>
 
 // Health Checks
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<HudurDbContext>()
+    .AddDbContextCheck<WaaedDbContext>()
     .AddDbContextCheck<EventStoreDbContext>();
 
 // Shared Infrastructure

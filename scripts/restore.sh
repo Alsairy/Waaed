@@ -3,7 +3,7 @@
 
 set -e
 
-BACKUP_DIR="/var/backups/hudur"
+BACKUP_DIR="/var/backups/waaed"
 RESTORE_DATE="$1"
 
 DB_HOST="${DB_HOST:-localhost}"
@@ -18,7 +18,7 @@ if [ -z "$RESTORE_DATE" ]; then
     exit 1
 fi
 
-echo "Starting Hudur restore for date: $RESTORE_DATE"
+echo "Starting Waaed restore for date: $RESTORE_DATE"
 
 DATABASE_BACKUP="$BACKUP_DIR/database_$RESTORE_DATE.bak"
 CONFIG_BACKUP="$BACKUP_DIR/config_$RESTORE_DATE.tar.gz"
@@ -28,7 +28,7 @@ if [ ! -f "$DATABASE_BACKUP" ]; then
     exit 1
 fi
 
-echo "Stopping Hudur services..."
+echo "Stopping Waaed services..."
 docker-compose -f docker-compose.production.yml down
 
 echo "Restoring database..."
@@ -49,11 +49,11 @@ fi
 UPLOADS_BACKUP="$BACKUP_DIR/uploads_$RESTORE_DATE.tar.gz"
 if [ -f "$UPLOADS_BACKUP" ]; then
     echo "Restoring file uploads..."
-    mkdir -p /var/lib/hudur/uploads
+    mkdir -p /var/lib/waaed/uploads
     tar -xzf "$UPLOADS_BACKUP" -C /
 fi
 
-echo "Starting Hudur services..."
+echo "Starting Waaed services..."
 docker-compose -f docker-compose.production.yml up -d
 
 echo "Waiting for services to be ready..."

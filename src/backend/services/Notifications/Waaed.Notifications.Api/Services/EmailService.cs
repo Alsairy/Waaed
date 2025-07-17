@@ -103,7 +103,7 @@ namespace Waaed.Notifications.Api.Services
 <head>
     <meta charset='utf-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>Hudur Notification</title>
+    <title>Waaed Notification</title>
     <style>
         body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
         .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
@@ -116,14 +116,14 @@ namespace Waaed.Notifications.Api.Services
 <body>
     <div class='container'>
         <div class='header'>
-            <h1>Hudur</h1>
+            <h1>Waaed</h1>
         </div>
         <div class='content'>
             <p>{body}</p>
             {(actionUrl != null ? $"<a href='{actionUrl}' class='button'>Take Action</a>" : "")}
         </div>
         <div class='footer'>
-            <p>This is an automated message from Hudur. Please do not reply to this email.</p>
+            <p>This is an automated message from Waaed. Please do not reply to this email.</p>
         </div>
     </div>
 </body>

@@ -1,8 +1,8 @@
-# Hudur Platform - Deployment Guide
+# Waaed Platform - Deployment Guide
 
 ## Overview
 
-This guide provides comprehensive instructions for deploying the Hudur platform in various environments, from development to production. The platform supports multiple deployment methods including Docker Compose, Kubernetes, and Helm.
+This guide provides comprehensive instructions for deploying the Waaed platform in various environments, from development to production. The platform supports multiple deployment methods including Docker Compose, Kubernetes, and Helm.
 
 ## Prerequisites
 
@@ -39,7 +39,7 @@ This guide provides comprehensive instructions for deploying the Hudur platform 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/hudur/platform.git
+git clone https://github.com/waaed/platform.git
 cd attendance-platform
 ```
 
@@ -52,7 +52,7 @@ Create environment-specific configuration files:
 # Database Configuration
 DB_HOST=localhost
 DB_PORT=1433
-DB_NAME=Hudur
+DB_NAME=Waaed
 DB_USER=sa
 DB_PASSWORD=YourStrong@Passw0rd
 
@@ -62,8 +62,8 @@ REDIS_PORT=6379
 
 # JWT Configuration
 JWT_SECRET=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
-JWT_ISSUER=Hudur
-JWT_AUDIENCE=HudurUsers
+JWT_ISSUER=Waaed
+JWT_AUDIENCE=WaaedUsers
 JWT_EXPIRY_MINUTES=60
 
 # Email Configuration
@@ -71,7 +71,7 @@ SMTP_SERVER=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USERNAME=your-email@gmail.com
 SMTP_PASSWORD=your-app-password
-SMTP_FROM_EMAIL=noreply@hudur.sa
+SMTP_FROM_EMAIL=noreply@waaed.sa
 
 # SMS Configuration (Twilio)
 TWILIO_ACCOUNT_SID=your-account-sid
@@ -88,7 +88,7 @@ FACE_RECOGNITION_MODEL=dlib
 
 # Logging
 LOG_LEVEL=Information
-LOG_FILE_PATH=/var/log/hudur/
+LOG_FILE_PATH=/var/log/waaed/
 
 # CORS
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
@@ -99,7 +99,7 @@ ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
 # Database Configuration
 DB_HOST=sql-server-service
 DB_PORT=1433
-DB_NAME=Hudur
+DB_NAME=Waaed
 DB_USER=sa
 DB_PASSWORD=${DB_PASSWORD}
 
@@ -109,8 +109,8 @@ REDIS_PORT=6379
 
 # JWT Configuration
 JWT_SECRET=${JWT_SECRET}
-JWT_ISSUER=Hudur
-JWT_AUDIENCE=HudurUsers
+JWT_ISSUER=Waaed
+JWT_AUDIENCE=WaaedUsers
 JWT_EXPIRY_MINUTES=60
 
 # Email Configuration
@@ -118,7 +118,7 @@ SMTP_SERVER=${SMTP_SERVER}
 SMTP_PORT=587
 SMTP_USERNAME=${SMTP_USERNAME}
 SMTP_PASSWORD=${SMTP_PASSWORD}
-SMTP_FROM_EMAIL=noreply@hudur.sa
+SMTP_FROM_EMAIL=noreply@waaed.sa
 
 # SMS Configuration
 TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
@@ -131,8 +131,8 @@ FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
 
 # Security
 ENABLE_HTTPS=true
-SSL_CERTIFICATE_PATH=/etc/ssl/certs/hudur.crt
-SSL_PRIVATE_KEY_PATH=/etc/ssl/private/hudur.key
+SSL_CERTIFICATE_PATH=/etc/ssl/certs/waaed.crt
+SSL_PRIVATE_KEY_PATH=/etc/ssl/private/waaed.key
 
 # Monitoring
 PROMETHEUS_ENABLED=true
@@ -195,8 +195,8 @@ kubectl apply -f k8s/base/namespace-and-config.yaml
 kubectl apply -f k8s/base/database.yaml
 
 # Wait for databases to be ready
-kubectl wait --for=condition=ready pod -l app=sql-server -n hudur --timeout=300s
-kubectl wait --for=condition=ready pod -l app=redis -n hudur --timeout=300s
+kubectl wait --for=condition=ready pod -l app=sql-server -n waaed --timeout=300s
+kubectl wait --for=condition=ready pod -l app=redis -n waaed --timeout=300s
 ```
 
 3. **Deploy Backend Services**
@@ -204,7 +204,7 @@ kubectl wait --for=condition=ready pod -l app=redis -n hudur --timeout=300s
 kubectl apply -f k8s/base/backend-services.yaml
 
 # Wait for services to be ready
-kubectl wait --for=condition=ready pod -l tier=backend -n hudur --timeout=300s
+kubectl wait --for=condition=ready pod -l tier=backend -n waaed --timeout=300s
 ```
 
 4. **Deploy Additional Services and Frontend**
@@ -212,7 +212,7 @@ kubectl wait --for=condition=ready pod -l tier=backend -n hudur --timeout=300s
 kubectl apply -f k8s/base/additional-services.yaml
 
 # Wait for frontend to be ready
-kubectl wait --for=condition=ready pod -l tier=frontend -n hudur --timeout=300s
+kubectl wait --for=condition=ready pod -l tier=frontend -n waaed --timeout=300s
 ```
 
 5. **Apply Auto-scaling and Policies**
@@ -228,16 +228,16 @@ kubectl apply -f k8s/monitoring/
 #### Verify Deployment
 ```bash
 # Check all pods
-kubectl get pods -n hudur
+kubectl get pods -n waaed
 
 # Check services
-kubectl get services -n hudur
+kubectl get services -n waaed
 
 # Check ingress (if configured)
-kubectl get ingress -n hudur
+kubectl get ingress -n waaed
 
 # View logs
-kubectl logs -f deployment/api-gateway -n hudur
+kubectl logs -f deployment/api-gateway -n waaed
 ```
 
 ### Method 3: Helm Deployment (Recommended for Production)
@@ -255,30 +255,30 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 ```
 
-2. **Install Hudur Platform**
+2. **Install Waaed Platform**
 ```bash
 # Install with default values
-helm install hudur ./helm/hudur \
-  --namespace hudur \
+helm install waaed ./helm/waaed \
+  --namespace waaed \
   --create-namespace
 
 # Install with custom values
-helm install hudur ./helm/hudur \
-  --namespace hudur \
+helm install waaed ./helm/waaed \
+  --namespace waaed \
   --create-namespace \
-  --values ./helm/hudur/values-production.yaml
+  --values ./helm/waaed/values-production.yaml
 ```
 
 3. **Verify Installation**
 ```bash
 # Check Helm release status
-helm status hudur -n hudur
+helm status waaed -n waaed
 
 # List all releases
-helm list -n hudur
+helm list -n waaed
 
 # Check pods
-kubectl get pods -n hudur
+kubectl get pods -n waaed
 ```
 
 #### Helm Configuration Options
@@ -323,7 +323,7 @@ ingress:
           pathType: Prefix
           service: frontend
   tls:
-    - secretName: hudur-tls
+    - secretName: waaed-tls
       hosts:
         - api.yourdomain.com
         - app.yourdomain.com
@@ -345,28 +345,28 @@ monitoring:
 #### Initial Database Setup
 ```sql
 -- Create database
-CREATE DATABASE Hudur;
+CREATE DATABASE Waaed;
 GO
 
 -- Create login and user
-CREATE LOGIN hudur_user WITH PASSWORD = 'YourSecurePassword123!';
+CREATE LOGIN waaed_user WITH PASSWORD = 'YourSecurePassword123!';
 GO
 
-USE Hudur;
+USE Waaed;
 GO
 
-CREATE USER hudur_user FOR LOGIN hudur_user;
+CREATE USER waaed_user FOR LOGIN waaed_user;
 GO
 
 -- Grant permissions
-ALTER ROLE db_owner ADD MEMBER hudur_user;
+ALTER ROLE db_owner ADD MEMBER waaed_user;
 GO
 ```
 
 #### Database Migration
 ```bash
 # Run Entity Framework migrations
-dotnet ef database update --project src/backend/shared/Infrastructure/Hudur.Shared.Infrastructure
+dotnet ef database update --project src/backend/shared/Infrastructure/Waaed.Shared.Infrastructure
 
 # Or use the migration script
 ./scripts/migrate-database.sh
@@ -399,25 +399,25 @@ sudo apt-get install certbot
 sudo certbot certonly --standalone -d api.yourdomain.com -d app.yourdomain.com
 
 # Create Kubernetes secret
-kubectl create secret tls hudur-tls \
+kubectl create secret tls waaed-tls \
   --cert=/etc/letsencrypt/live/yourdomain.com/fullchain.pem \
   --key=/etc/letsencrypt/live/yourdomain.com/privkey.pem \
-  -n hudur
+  -n waaed
 ```
 
 #### Using Self-Signed Certificates (Development)
 ```bash
 # Generate self-signed certificate
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout hudur.key \
-  -out hudur.crt \
+  -keyout waaed.key \
+  -out waaed.crt \
   -subj "/CN=localhost"
 
 # Create Kubernetes secret
-kubectl create secret tls hudur-tls \
-  --cert=hudur.crt \
-  --key=hudur.key \
-  -n hudur
+kubectl create secret tls waaed-tls \
+  --cert=waaed.crt \
+  --key=waaed.key \
+  -n waaed
 ```
 
 ## Monitoring and Logging
@@ -432,12 +432,12 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'hudur-services'
+  - job_name: 'waaed-services'
     kubernetes_sd_configs:
     - role: endpoints
       namespaces:
         names:
-        - hudur
+        - waaed
     relabel_configs:
     - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
       action: keep
@@ -495,18 +495,18 @@ spec:
 
 BACKUP_DIR="/backups/database"
 DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_FILE="hudur_backup_${DATE}.bak"
+BACKUP_FILE="waaed_backup_${DATE}.bak"
 
 # Create backup directory
 mkdir -p $BACKUP_DIR
 
 # Backup SQL Server database
-kubectl exec -it deployment/sql-server -n hudur -- \
+kubectl exec -it deployment/sql-server -n waaed -- \
   /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $DB_PASSWORD \
-  -Q "BACKUP DATABASE Hudur TO DISK = '/var/opt/mssql/backup/${BACKUP_FILE}'"
+  -Q "BACKUP DATABASE Waaed TO DISK = '/var/opt/mssql/backup/${BACKUP_FILE}'"
 
 # Copy backup file from container
-kubectl cp hudur/sql-server-pod:/var/opt/mssql/backup/${BACKUP_FILE} \
+kubectl cp waaed/sql-server-pod:/var/opt/mssql/backup/${BACKUP_FILE} \
   ${BACKUP_DIR}/${BACKUP_FILE}
 
 echo "Database backup completed: ${BACKUP_DIR}/${BACKUP_FILE}"
@@ -525,12 +525,12 @@ if [ -z "$BACKUP_FILE" ]; then
 fi
 
 # Copy backup file to container
-kubectl cp $BACKUP_FILE hudur/sql-server-pod:/var/opt/mssql/backup/
+kubectl cp $BACKUP_FILE waaed/sql-server-pod:/var/opt/mssql/backup/
 
 # Restore database
-kubectl exec -it deployment/sql-server -n hudur -- \
+kubectl exec -it deployment/sql-server -n waaed -- \
   /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $DB_PASSWORD \
-  -Q "RESTORE DATABASE Hudur FROM DISK = '/var/opt/mssql/backup/$(basename $BACKUP_FILE)'"
+  -Q "RESTORE DATABASE Waaed FROM DISK = '/var/opt/mssql/backup/$(basename $BACKUP_FILE)'"
 ```
 
 ### Application Data Backup
@@ -538,10 +538,10 @@ kubectl exec -it deployment/sql-server -n hudur -- \
 #### Redis Backup
 ```bash
 # Create Redis backup
-kubectl exec -it deployment/redis -n hudur -- redis-cli BGSAVE
+kubectl exec -it deployment/redis -n waaed -- redis-cli BGSAVE
 
 # Copy RDB file
-kubectl cp hudur/redis-pod:/data/dump.rdb ./backups/redis/dump_$(date +%Y%m%d).rdb
+kubectl cp waaed/redis-pod:/data/dump.rdb ./backups/redis/dump_$(date +%Y%m%d).rdb
 ```
 
 ## Performance Optimization
@@ -582,7 +582,7 @@ resources:
 #### SQL Server Performance Tuning
 ```sql
 -- Enable query store
-ALTER DATABASE Hudur SET QUERY_STORE = ON;
+ALTER DATABASE Waaed SET QUERY_STORE = ON;
 
 -- Configure memory settings
 EXEC sp_configure 'max server memory (MB)', 4096;
@@ -622,8 +622,8 @@ VOLUME ["/tmp"]
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: hudur-network-policy
-  namespace: hudur
+  name: waaed-network-policy
+  namespace: waaed
 spec:
   podSelector: {}
   policyTypes:
@@ -633,12 +633,12 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: hudur
+          name: waaed
   egress:
   - to:
     - namespaceSelector:
         matchLabels:
-          name: hudur
+          name: waaed
 ```
 
 ## Troubleshooting
@@ -648,30 +648,30 @@ spec:
 #### 1. Database Connection Issues
 ```bash
 # Check database connectivity
-kubectl exec -it deployment/api-gateway -n hudur -- \
+kubectl exec -it deployment/api-gateway -n waaed -- \
   curl -f http://sql-server-service:1433
 
 # Check database logs
-kubectl logs deployment/sql-server -n hudur
+kubectl logs deployment/sql-server -n waaed
 ```
 
 #### 2. Service Discovery Issues
 ```bash
 # Check service endpoints
-kubectl get endpoints -n hudur
+kubectl get endpoints -n waaed
 
 # Check DNS resolution
-kubectl exec -it deployment/api-gateway -n hudur -- \
+kubectl exec -it deployment/api-gateway -n waaed -- \
   nslookup authentication-service
 ```
 
 #### 3. Memory Issues
 ```bash
 # Check resource usage
-kubectl top pods -n hudur
+kubectl top pods -n waaed
 
 # Check resource limits
-kubectl describe pod <pod-name> -n hudur
+kubectl describe pod <pod-name> -n waaed
 ```
 
 ### Log Analysis
@@ -679,13 +679,13 @@ kubectl describe pod <pod-name> -n hudur
 #### Centralized Log Viewing
 ```bash
 # View all service logs
-kubectl logs -f -l tier=backend -n hudur
+kubectl logs -f -l tier=backend -n waaed
 
 # View specific service logs
-kubectl logs -f deployment/attendance-service -n hudur
+kubectl logs -f deployment/attendance-service -n waaed
 
 # View logs with timestamps
-kubectl logs --timestamps=true deployment/api-gateway -n hudur
+kubectl logs --timestamps=true deployment/api-gateway  -n waaed
 ```
 
 ## Maintenance
@@ -710,25 +710,25 @@ kubectl logs --timestamps=true deployment/api-gateway -n hudur
 ```bash
 # Update specific service
 kubectl set image deployment/attendance-service \
-  attendance-service=hudur/attendance-service:v1.1.0 \
-  -n hudur
+  attendance-service=waaed/attendance-service:v1.1.0 \
+  -n waaed
 
 # Check rollout status
-kubectl rollout status deployment/attendance-service -n hudur
+kubectl rollout status deployment/attendance-service -n waaed
 
 # Rollback if needed
-kubectl rollout undo deployment/attendance-service -n hudur
+kubectl rollout undo deployment/attendance-service -n waaed
 ```
 
 #### Helm Updates
 ```bash
 # Update Helm chart
-helm upgrade hudur ./helm/hudur \
-  --namespace hudur \
-  --values ./helm/hudur/values-production.yaml
+helm upgrade waaed ./helm/waaed \
+  --namespace waaed \
+  --values ./helm/waaed/values-production.yaml
 
 # Check upgrade status
-helm status hudur -n hudur
+helm status waaed -n waaed
 ```
 
 ## Support and Resources
@@ -744,9 +744,9 @@ helm status hudur -n hudur
 - **Application**: http://your-domain.com
 
 ### Support Contacts
-- **Technical Support**: support@hudur.sa
+- **Technical Support**: support@waaed.sa
 - **Emergency**: +1-800-ATTENDANCE
-- **Documentation**: https://docs.hudur.sa
+- **Documentation**: https://docs.waaed.sa
 
-This deployment guide provides comprehensive instructions for deploying the Hudur platform in various environments. Follow the appropriate section based on your deployment requirements and infrastructure setup.
+This deployment guide provides comprehensive instructions for deploying the Waaed platform in various environments. Follow the appropriate section based on your deployment requirements and infrastructure setup.
 

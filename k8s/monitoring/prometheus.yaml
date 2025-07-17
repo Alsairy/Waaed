@@ -151,12 +151,12 @@ data:
           action: replace
           target_label: kubernetes_pod_name
 
-      - job_name: 'hudur-services'
+      - job_name: 'waaed-services'
         kubernetes_sd_configs:
         - role: endpoints
           namespaces:
             names:
-            - hudur
+            - waaed
         relabel_configs:
         - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
           action: keep
@@ -181,7 +181,7 @@ data:
 
   alert_rules.yml: |
     groups:
-    - name: hudur.rules
+    - name: waaed.rules
       rules:
       - alert: HighCPUUsage
         expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80

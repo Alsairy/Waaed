@@ -40,7 +40,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Hudur</Text>
+      <Text style={styles.title}>Waaed</Text>
       <Text style={styles.subtitle}>Sign in to your account</Text>
 
       <View style={styles.form}>

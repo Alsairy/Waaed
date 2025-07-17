@@ -21,7 +21,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-// Add infrastructure services with SQL Server database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
                        "Server=localhost;Database=Waaed;Trusted_Connection=true;TrustServerCertificate=true;";
 
@@ -51,7 +50,6 @@ builder.Services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSecurityServices(builder.Configuration);
 
-// Add authentication services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ITwoFactorService, TwoFactorService>();
@@ -105,7 +103,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddHudurTelemetry("Authentication Service");
+builder.Services.AddWaaedTelemetry("Authentication Service");
 
 // builder.Services.AddSession(options =>
 // {
@@ -154,11 +152,14 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<WaaedDbContext>();
-    context.Database.EnsureCreated();
-    
-    if (!context.Users.Any())
+    try
     {
-        context.SaveChanges();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning("Database migration failed: {Error}. Continuing without migration.", ex.Message);
     }
 }
 

@@ -80,7 +80,7 @@ const TwoFactorPage: React.FC = () => {
           <div className="flex items-center justify-center mb-4">
             <div className="flex items-center space-x-2">
               <Shield className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold">Hudur</span>
+              <span className="text-2xl font-bold">Waaed</span>
             </div>
           </div>
           <div className="flex items-center justify-center mb-4">
@@ -123,7 +123,7 @@ const TwoFactorPage: React.FC = () => {
             <div className="text-sm text-muted-foreground text-center space-y-2">
               <p>
                 Open your authenticator app and enter the 6-digit code for{' '}
-                <span className="font-medium">Hudur</span>
+                <span className="font-medium">Waaed</span>
               </p>
               <p>
                 The code changes every 30 seconds.

@@ -8,17 +8,17 @@ export ASPNETCORE_ENVIRONMENT=Production
 
 echo "📊 Pre-test System Check..."
 kubectl get nodes -o wide
-kubectl get pods -n hudur
+kubectl get pods -n waaed
 kubectl top nodes
-kubectl top pods -n hudur
+kubectl top pods -n waaed
 
 echo ""
 echo "🔧 Scaling up infrastructure for massive load..."
 
-kubectl patch hpa api-gateway-hpa -n hudur -p '{"spec":{"minReplicas":10}}'
-kubectl patch hpa attendance-service-hpa -n hudur -p '{"spec":{"minReplicas":15}}'
-kubectl patch hpa auth-service-hpa -n hudur -p '{"spec":{"minReplicas":15}}'
-kubectl patch hpa face-recognition-service-hpa -n hudur -p '{"spec":{"minReplicas":8}}'
+kubectl patch hpa api-gateway-hpa -n waaed -p '{"spec":{"minReplicas":10}}'
+kubectl patch hpa attendance-service-hpa -n waaed -p '{"spec":{"minReplicas":15}}'
+kubectl patch hpa auth-service-hpa -n waaed -p '{"spec":{"minReplicas":15}}'
+kubectl patch hpa face-recognition-service-hpa -n waaed -p '{"spec":{"minReplicas":8}}'
 
 echo "⏳ Waiting for pods to scale up..."
 sleep 60
@@ -45,9 +45,9 @@ dotnet test tests/performance/MassiveScaleLoadTests.cs -m Load_500K_ConcurrentUs
 
 echo ""
 echo "📈 Post-test System Analysis..."
-kubectl get hpa -n hudur
+kubectl get hpa -n waaed
 kubectl top nodes
-kubectl top pods -n hudur
+kubectl top pods -n waaed
 
 echo ""
 echo "📊 Generating Load Test Report..."

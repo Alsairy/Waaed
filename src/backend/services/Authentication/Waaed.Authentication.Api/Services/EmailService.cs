@@ -27,7 +27,7 @@ namespace Waaed.Authentication.Api.Services
         {
             try
             {
-                var subject = "Password Reset Request - Hudur";
+                var subject = "Password Reset Request - Waaed";
                 var body = GeneratePasswordResetEmailBody(resetToken, resetUrl);
                 
                 return await SendEmailAsync(email, subject, body);
@@ -43,7 +43,7 @@ namespace Waaed.Authentication.Api.Services
         {
             try
             {
-                var subject = "Welcome to Hudur";
+                var subject = "Welcome to Waaed";
                 var body = GenerateWelcomeEmailBody(firstName, email, temporaryPassword);
                 
                 return await SendEmailAsync(email, subject, body);
@@ -59,7 +59,7 @@ namespace Waaed.Authentication.Api.Services
         {
             try
             {
-                var subject = "Two-Factor Authentication Setup - Hudur";
+                var subject = "Two-Factor Authentication Setup - Waaed";
                 var body = GenerateTwoFactorSetupEmailBody(firstName, qrCodeUri);
                 
                 return await SendEmailAsync(email, subject, body);
@@ -75,7 +75,7 @@ namespace Waaed.Authentication.Api.Services
         {
             try
             {
-                var subject = "Account Temporarily Locked - Hudur";
+                var subject = "Account Temporarily Locked - Waaed";
                 var body = GenerateAccountLockedEmailBody(firstName, lockedUntil);
                 
                 return await SendEmailAsync(email, subject, body);
@@ -95,7 +95,7 @@ namespace Waaed.Authentication.Api.Services
                 var smtpPort = int.Parse(_configuration["SMTP_PORT"] ?? "587");
                 var smtpUser = _configuration["SMTP_USER"] ?? "";
                 var smtpPassword = _configuration["SMTP_PASSWORD"] ?? "";
-                var fromName = _configuration["SMTP_FROM_NAME"] ?? "Hudur System";
+                var fromName = _configuration["SMTP_FROM_NAME"] ?? "Waaed System";
 
                 using var client = new SmtpClient(smtpHost, smtpPort);
                 client.EnableSsl = true;
@@ -144,7 +144,7 @@ namespace Waaed.Authentication.Api.Services
             <h1>Password Reset Request</h1>
         </div>
         <div class='content'>
-            <p>You have requested to reset your password for your Hudur account.</p>
+            <p>You have requested to reset your password for your Waaed account.</p>
             <p>Click the button below to reset your password:</p>
             <a href='{resetUrl}?token={resetToken}' class='button'>Reset Password</a>
             <p>If the button doesn't work, copy and paste this link into your browser:</p>
@@ -153,7 +153,7 @@ namespace Waaed.Authentication.Api.Services
             <p>If you didn't request this password reset, please ignore this email or contact support if you have concerns.</p>
         </div>
         <div class='footer'>
-            <p>This is an automated message from Hudur. Please do not reply to this email.</p>
+            <p>This is an automated message from Waaed. Please do not reply to this email.</p>
         </div>
     </div>
 </body>
@@ -167,7 +167,7 @@ namespace Waaed.Authentication.Api.Services
 <html>
 <head>
     <meta charset='utf-8'>
-    <title>Welcome to Hudur</title>
+    <title>Welcome to Waaed</title>
     <style>
         body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
         .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
@@ -180,22 +180,22 @@ namespace Waaed.Authentication.Api.Services
 <body>
     <div class='container'>
         <div class='header'>
-            <h1>Welcome to Hudur!</h1>
+            <h1>Welcome to Waaed!</h1>
         </div>
         <div class='content'>
             <p>Hello {firstName},</p>
-            <p>Welcome to Hudur! Your account has been created successfully.</p>
+            <p>Welcome to Waaed! Your account has been created successfully.</p>
             <div class='credentials'>
                 <h3>Your Login Credentials:</h3>
                 <p><strong>Email:</strong> {email}</p>
                 <p><strong>Temporary Password:</strong> {temporaryPassword}</p>
             </div>
             <p><strong>Important:</strong> Please log in and change your password immediately for security reasons.</p>
-            <p>You can access the system at: <a href='https://app.hudur.sa'>https://app.hudur.sa</a></p>
+            <p>You can access the system at: <a href='https://app.waaed.sa'>https://app.waaed.sa</a></p>
             <p>If you have any questions or need assistance, please contact our support team.</p>
         </div>
         <div class='footer'>
-            <p>This is an automated message from Hudur. Please do not reply to this email.</p>
+            <p>This is an automated message from Waaed. Please do not reply to this email.</p>
         </div>
     </div>
 </body>
@@ -226,7 +226,7 @@ namespace Waaed.Authentication.Api.Services
         </div>
         <div class='content'>
             <p>Hello {firstName},</p>
-            <p>Two-factor authentication has been enabled for your Hudur account for enhanced security.</p>
+            <p>Two-factor authentication has been enabled for your Waaed account for enhanced security.</p>
             <p>To complete the setup:</p>
             <ol>
                 <li>Install an authenticator app (Google Authenticator, Authy, etc.)</li>
@@ -240,7 +240,7 @@ namespace Waaed.Authentication.Api.Services
             <p>If you didn't request this setup, please contact support immediately.</p>
         </div>
         <div class='footer'>
-            <p>This is an automated message from Hudur. Please do not reply to this email.</p>
+            <p>This is an automated message from Waaed. Please do not reply to this email.</p>
         </div>
     </div>
 </body>
@@ -272,7 +272,7 @@ namespace Waaed.Authentication.Api.Services
         <div class='content'>
             <p>Hello {firstName},</p>
             <div class='warning'>
-                <p><strong>Your Hudur account has been temporarily locked due to multiple failed login attempts.</strong></p>
+                <p><strong>Your Waaed account has been temporarily locked due to multiple failed login attempts.</strong></p>
             </div>
             <p>Your account will be automatically unlocked at: <strong>{lockedUntil:yyyy-MM-dd HH:mm:ss} UTC</strong></p>
             <p>If you believe this was not you, please:</p>
@@ -284,7 +284,7 @@ namespace Waaed.Authentication.Api.Services
             <p>For immediate assistance, please contact our support team.</p>
         </div>
         <div class='footer'>
-            <p>This is an automated message from Hudur. Please do not reply to this email.</p>
+            <p>This is an automated message from Waaed. Please do not reply to this email.</p>
         </div>
     </div>
 </body>

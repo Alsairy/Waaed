@@ -22,7 +22,7 @@ namespace Waaed.Tests.Performance
                 
                 var loginRequest = new
                 {
-                    Email = $"loadtest{context.InvocationNumber}@hudur.sa",
+                    Email = $"loadtest{context.InvocationNumber}@waaed.sa",
                     Password = "LoadTest123!",
                     TenantSubdomain = "enterprise"
                 };
@@ -259,7 +259,7 @@ namespace Waaed.Tests.Performance
         {
             var loginRequest = new
             {
-                Email = $"loadtest{invocationNumber % 10000}@hudur.sa",
+                Email = $"loadtest{invocationNumber % 10000}@waaed.sa",
                 Password = "LoadTest123!",
                 TenantSubdomain = "enterprise"
             };
