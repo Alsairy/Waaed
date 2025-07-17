@@ -631,6 +631,7 @@ jobs:
             done
 
       - name: Run post-deployment tests
+        if: secrets.AWS_ACCESS_KEY_ID != '' || secrets.KUBECONFIG != ''
         run: |
           echo "Running post-deployment tests..."
 
@@ -646,6 +647,13 @@ jobs:
             --rm -i --restart=Never -n "$namespace" -- \
             sh -c "curl -f http://api-gateway-service/health || exit 1" || \
             echo "Health check failed"
+
+      - name: Skip post-deployment tests notification
+        if: secrets.AWS_ACCESS_KEY_ID == '' && secrets.KUBECONFIG == ''
+        run: |
+          echo "⚠️ Skipping post-deployment tests due to missing Kubernetes credentials"
+          echo "Required secrets: AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY + AWS_REGION OR KUBECONFIG"
+          echo "Post-deployment tests will be skipped until credentials are configured"
 
   infrastructure-summary:
     name: Infrastructure Summary
@@ -723,7 +731,7 @@ jobs:
 
     steps:
       - name: Notify on successful deployment
-        if: needs.helm-deploy.result == 'success'
+        if: needs.helm-deploy.result == 'success' && secrets.INFRASTRUCTURE_SLACK_WEBHOOK != ''
         uses: 8398a7/action-slack@v3
         with:
           status: success
@@ -732,7 +740,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
 
       - name: Notify on deployment failure
-        if: needs.helm-deploy.result == 'failure'
+        if: needs.helm-deploy.result == 'failure' && secrets.INFRASTRUCTURE_SLACK_WEBHOOK != ''
         uses: 8398a7/action-slack@v3
         with:
           status: failure
@@ -743,7 +751,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.INFRASTRUCTURE_SLACK_WEBHOOK }}
 
       - name: Notify on drift detection
-        if: needs.drift-detection.result == 'failure'
+        if: needs.drift-detection.result == 'failure' && secrets.INFRASTRUCTURE_SLACK_WEBHOOK != ''
         uses: 8398a7/action-slack@v3
         with:
           status: warning
